@@ -1,0 +1,98 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 33% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-cm-bg text-foreground font-dmsans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bebas;
+  }
+
+  /* Virtual bookshelf specific styles */
+  .bookshelf {
+    @apply relative w-full;
+    perspective: 1000px;
+  }
+
+  .shelf {
+    @apply border-b-4 border-gray-700 mb-6 relative;
+  }
+
+  .book-spine {
+    @apply inline-block h-24 w-4 mx-0.5 cursor-pointer transition-transform duration-200 transform-gpu;
+    transform-origin: bottom;
+  }
+
+  .book-spine:hover {
+    @apply -translate-y-2;
+  }
+}
+
+@layer components {
+  .cm-btn {
+    @apply px-4 py-2 rounded-2xl font-medium transition-colors;
+  }
+  
+  .cm-btn-primary {
+    @apply cm-btn bg-cm-red text-white hover:bg-opacity-90;
+  }
+  
+  .cm-btn-secondary {
+    @apply cm-btn bg-cm-blue text-white hover:bg-opacity-90;
+  }
+  
+  .cm-card {
+    @apply bg-white rounded-2xl p-6 shadow-md;
+  }
+}
