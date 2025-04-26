@@ -3,58 +3,110 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BookOpen, Search, User } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const Index = () => {
+  const { scrollYProgress } = useScroll();
+  const translateY = useTransform(scrollYProgress, [0, 1], [0, -50]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
       
       {/* Hero Section */}
-      <div className="relative bg-white pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-          <div className="text-center mb-16">
-            <h1 className="text-6xl font-bebas mb-6">Biblioteca CM</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore nossa coleção de conhecimento interdisciplinar em Ciências Moleculares
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
-            {[
-              "bg-[#eb0000]",
-              "bg-[#ff6300]",
-              "bg-[#ffcf00]",
-              "bg-[#00c80e]",
-              "bg-[#008cff]",
-            ].map((color, index) => (
-              <div
-                key={index}
-                className={`${color} rounded-lg aspect-square transform transition-all duration-700 hover:scale-105 animate-float`}
-                style={{
-                  animationDelay: `${index * 0.2}s`,
-                }}
-              />
-            ))}
-          </div>
+      <section className="relative min-h-[90vh] bg-white">
+        {/* Geometric Background */}
+        <div className="absolute inset-0 bg-cm-bg">
+          <motion.div className="absolute inset-0 overflow-hidden">
+            <motion.div
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, -200]) }}
+              className="absolute h-80 w-80 -left-32 top-16 bg-cm-blue rounded-full opacity-25"
+            />
+            <motion.div
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, 250]) }}
+              className="absolute h-56 w-56 -right-24 top-24 bg-cm-red rounded-full opacity-25"
+            />
+            <motion.div
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, -180]) }}
+              className="absolute h-40 w-40 -left-20 bottom-24 bg-cm-orange rounded-full opacity-25"
+            />
+            <motion.div
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, 220]) }}
+              className="absolute h-64 w-64 -right-32 bottom-16 bg-cm-green rounded-full opacity-25"
+            />
+            <motion.div
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, -160]) }}
+              className="absolute h-32 w-32 left-1/4 top-1/4 bg-cm-yellow rounded-full opacity-25"
+            />
+            <motion.div
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, 190]) }}
+              className="absolute h-52 w-52 right-1/4 bottom-1/4 bg-cm-blue rounded-full opacity-25"
+            />
+          </motion.div>
         </div>
 
-        {/* Curved transition */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-          <svg
-            className="relative block w-full h-24"
-            data-name="Layer 1"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M600,112C268.63,112,0,44.84,0,0v120H1200V0C1200,44.84,931.37,112,600,112z"
-              className="fill-cm-bg"
-            ></path>
-          </svg>
-        </div>
-      </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="min-h-[90vh] flex items-center">
+            <div className="w-full max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+              {/* Left Column - Logo */}
+              <motion.div 
+                style={{ y: translateY }}
+                className="order-2 md:order-1 flex justify-center"
+              >
+                <img 
+                  src="/images/logoCM.png"
+                  alt="Ciências Moleculares"
+                  className="w-72 h-auto md:w-96"
+                />
+              </motion.div>
 
+              {/* Right Column - Content */}
+              <motion.div
+                style={{ y: translateY }}
+                className="order-1 md:order-2 flex flex-col items-center md:items-start text-center md:text-left gap-6"
+              >
+                
+                <p className="text-lg md:text-xl text-gray-700 max-w-md mb-4">
+                  Explore nossa biblioteca digital unificada.<br />
+                  Todo o conhecimento do curso de <span className="font-semibold text-cm-green">Ciências Moleculares</span> em um só lugar.
+                </p>
+                <div className="flex gap-4 mb-6">
+                  <Button asChild className="bg-cm-blue hover:bg-cm-blue/90 text-white rounded-2xl px-6 py-3 text-lg font-semibold shadow-lg">
+                    <Link to="/search">Explorar Acervo</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="border-cm-blue text-cm-blue rounded-2xl px-6 py-3 text-lg font-semibold shadow-lg bg-white">
+                    <Link to="/virtual-shelf">Estante Virtual</Link>
+                  </Button>
+                </div>
+                {/* Colorful Stats */}
+                <div className="flex gap-8 mt-2">
+                  <div className="flex flex-col items-center">
+                    <span className="text-2xl font-bold text-cm-blue">1000+</span>
+                    <span className="text-xs text-gray-500">Livros</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-2xl font-bold text-cm-red">24/7</span>
+                    <span className="text-xs text-gray-500">Acesso</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-2xl font-bold text-cm-green">6</span>
+                    <span className="text-xs text-gray-500">Áreas</span>
+                  </div>
+                </div>
+                {/* Decorative color bars */}
+                <div className="flex gap-2 mt-6">
+                  <div className="h-2 w-8 rounded bg-cm-red"></div>
+                  <div className="h-2 w-8 rounded bg-cm-yellow"></div>
+                  <div className="h-2 w-8 rounded bg-cm-green"></div>
+                  <div className="h-2 w-8 rounded bg-cm-blue"></div>
+                  <div className="h-2 w-8 rounded bg-cm-orange"></div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* Features Section */}
       <div className="py-16 bg-cm-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,26 +1,20 @@
-FROM node:23-slim AS builder
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /workspace
-
-COPY . .
-
-RUN npm install
-
-RUN npm run build
-
 FROM node:23-slim
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y sqlite3 && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /app/database && \
+    chmod 777 /app/database && \
+    chown -R node:node /app/database
 
 WORKDIR /app
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
+COPY package*.json ./
+RUN npm install
 
-RUN npm install --production
+COPY . .
 
-EXPOSE 3000
+USER node
 
-CMD ["node", "dist/main.js"]
+EXPOSE 3001  
+
+CMD ["sh", "-c", "node initDb.js && node src/main.js"]

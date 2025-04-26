@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import AddBookForm from "@/components/AddBookForm";
 
-// Admin page content components
+// --- Gerenciamento de Livros ---
 const ManageBooks = () => {
   const [selectedTab, setSelectedTab] = useState<"add" | "remove" | null>(null);
 
@@ -16,31 +16,31 @@ const ManageBooks = () => {
       <h2 className="text-2xl mb-4">Gerenciamento de Livros</h2>
       <p>Aqui você pode adicionar ou remover livros do acervo da biblioteca.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Adicionar Livro</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button 
-            className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-110" 
-            onClick={() => setSelectedTab("add")}
-          >
-            Adicionar
-          </Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Remover Livro</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-red hover:bg-cm-red/90 hover:scale-110"
-          onClick={() => setSelectedTab("remove")}
-          >Remover</Button>
-        </CardContent>
-      </Card>
-</div>
-  {selectedTab === "add" && (
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Adicionar Livro</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-110" 
+              onClick={() => setSelectedTab("add")}
+            >
+              Adicionar
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Remover Livro</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-red hover:bg-cm-red/90 hover:scale-110"
+              onClick={() => setSelectedTab("remove")}
+            >Remover</Button>
+          </CardContent>
+        </Card>
+      </div>
+      {selectedTab === "add" && (
         <div className="mt-6">
           <Button variant="outline" className="mb-4 rounded-xl" onClick={() => setSelectedTab(null)}>
             Voltar
@@ -50,12 +50,14 @@ const ManageBooks = () => {
               <CardTitle className="text-xl">Adicionar Novo Livro</CardTitle>
             </CardHeader>
             <CardContent>
-              <AddBookForm />
+              <AddBookForm
+                onCancel={() => setSelectedTab(null)}
+                onSuccess={() => setSelectedTab(null)}
+              />
             </CardContent>
           </Card>
         </div>
       )}
-
       {selectedTab === "remove" && (
         <div className="mt-6">
           <Button variant="outline" className="mb-4 rounded-xl" onClick={() => setSelectedTab(null)}>
@@ -76,6 +78,7 @@ const ManageBooks = () => {
   );
 };
 
+// --- Gerenciamento de Usuários ---
 const ManageUsers = () => (
   <div className="p-4">
     <h2 className="text-2xl mb-4">Gerenciamento de Usuários</h2>
@@ -101,6 +104,7 @@ const ManageUsers = () => (
   </div>
 );
 
+// --- Gerenciamento de Empréstimos ---
 const ManageLoans = () => (
   <div className="p-4">
     <h2 className="text-2xl mb-4">Gerenciamento de Empréstimos</h2>
@@ -134,6 +138,7 @@ const ManageLoans = () => (
   </div>
 );
 
+// --- Notificações ---
 const Notifications = () => (
   <div className="p-4">
     <h2 className="text-2xl mb-4">Notificações</h2>
@@ -159,6 +164,7 @@ const Notifications = () => (
   </div>
 );
 
+// --- Relatórios ---
 const Reports = () => (
   <div className="p-4">
     <h2 className="text-2xl mb-4">Relatórios</h2>
@@ -192,6 +198,7 @@ const Reports = () => (
   </div>
 );
 
+// --- Configurações ---
 const Settings = () => (
   <div className="p-4">
     <h2 className="text-2xl mb-4">Configurações</h2>
@@ -217,6 +224,7 @@ const Settings = () => (
   </div>
 );
 
+// --- Página Principal do Admin ---
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("books");
 

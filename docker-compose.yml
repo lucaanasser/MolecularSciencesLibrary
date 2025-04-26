@@ -4,32 +4,19 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3001" 
     volumes:
-      - .:/workspace
+      - ./database:/app/database
     environment:
       - DEBUG=True
-      - DATABASE_URL=postgres://user:password@db:5432/biblioteca
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: biblioteca
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
+      - DATABASE_URL=sqlite:///app/database/library.db
+    user: "node"
+    entrypoint: ["/bin/sh", "-c", "mkdir -p /app/database && npm start"]
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3001:80" 
-
-volumes:
-  postgres_data:
+      - "8080:80"  
+    depends_on:
+      - backend
