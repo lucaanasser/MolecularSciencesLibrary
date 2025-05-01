@@ -1,212 +1,175 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import useBookOptions from "@/features/books/hooks/useBookOptions";
+import useBookSearch from "@/features/books/hooks/useBookSearch";
+import useAddBook from "@/features/books/hooks/useAddBook";
+import AreaSelection from "@/features/books/components/AreaSelection";
+import BookSearchList from "@/features/books/components/BookSearchList";
+import LanguageSelection from "@/features/books/components/LanguageSelection";
+import BookDetailsForm from "@/features/books/components/BookDetailsForm";
+import { AddBookType, BookOption } from "@/features/books/types/book";
 
-const API_URL = '/api';
+interface AddBookFormProps {
+  onCancel: () => void;
+  onSuccess: () => void;
+  onError?: (error: Error) => void;
+}
 
-export default function AddBookForm({ onCancel, onSuccess }) {
+export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFormProps) {
   // Wizard steps: 1=area, 2=pergunta, 3=idioma, 4=form
   const [step, setStep] = useState(1);
-
-  // Dinâmico do backend
-  const [areaCodes, setAreaCodes] = useState<{ [key: string]: string }>({});
-  const [subareaCodes, setSubareaCodes] = useState<{ [key: string]: { [key: string]: string } }>({});
 
   // Seleção do usuário
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
-  const [search, setSearch] = useState("");
-  const [selectedBook, setSelectedBook] = useState<any>(null);
-  const [addType, setAddType] = useState<"novo" | "exemplar" | "volume" | null>(null);
+  const [selectedBook, setSelectedBook] = useState<BookOption | null>(null);
+  const [addType, setAddType] = useState<AddBookType>(null);
   const [language, setLanguage] = useState<number | null>(null);
 
   // Form fields
   const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
   const [authors, setAuthors] = useState("");
   const [edition, setEdition] = useState("");
   const [volume, setVolume] = useState("");
 
-  // Livros existentes (busca real recomendada, aqui só exemplo)
-  const [books, setBooks] = useState<any[]>([]);
+  // Define isExemplar here so it's accessible throughout the component
+  const isExemplar = addType === "exemplar" && selectedBook;
 
-  // Buscar opções do backend ao montar
-  useEffect(() => {
-    fetch(`${API_URL}/books/options`)
-      .then(res => res.json())
-      .then(data => {
-        setAreaCodes(data.areaCodes || {});
-        setSubareaCodes(data.subareaCodes || {});
-      });
-  }, []);
+  // Custom hooks
+  const { areaCodes, subareaCodes } = useBookOptions(onError);
+  const { filteredBooks, isLoading, search, setSearch } = useBookSearch(
+    category,
+    subcategory,
+    step === 2,
+    onError
+  );
+  const { addBook, isSubmitting } = useAddBook();
 
-  // Passo 1: Seleção de área e subárea
-  if (step === 1) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Informe a área e a subárea</h2>
-        <Select value={category} onValueChange={v => { setCategory(v); setSubcategory(""); }}>
-          <SelectTrigger>
-            <SelectValue placeholder="Categoria" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(areaCodes).map(cat => (
-              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={subcategory} onValueChange={setSubcategory} disabled={!category}>
-          <SelectTrigger>
-            <SelectValue placeholder="Subcategoria" />
-          </SelectTrigger>
-          <SelectContent>
-            {category && subareaCodes[category] && Object.keys(subareaCodes[category]).map(sub => (
-              <SelectItem key={sub} value={sub}>{sub}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="flex gap-2">
-          <Button disabled={!category || !subcategory} onClick={() => setStep(2)}>
-            Avançar
-          </Button>
-          {onCancel && <Button variant="outline" onClick={onCancel}>Cancelar</Button>}
-        </div>
-      </div>
-    );
-  }
+  const handleSelectBook = (book: BookOption, type: AddBookType) => {
+    setSelectedBook(book);
+    setAddType(type);
+    // Populate form fields with book data
+    if (book) {
+      setTitle(book.title || "");
+      setAuthors(book.authors || ""); 
+      setSubtitle(book.subtitle || "");
+      setEdition(book.edition || "");
+      setVolume(book.volume || "");
+    }
+    setStep(3);
+  };
 
-  // Passo 2: Lista de livros + busca + botão "Não encontrei o livro"
-  if (step === 2) {
-    // Aqui você pode buscar do backend: `/api/books?category=${category}&subcategory=${subcategory}`
-    // Por enquanto, books está vazio
-    const filteredBooks = books.filter(
-      b =>
-        (!category || b.category === category) &&
-        (!subcategory || b.subcategory === subcategory) &&
-        (!search || b.title.toLowerCase().includes(search.toLowerCase()))
-    );
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold mb-2">Verifique se o livro já existe no acervo</h2>
-        <input
-          type="text"
-          placeholder="Buscar por nome do livro"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
+  const handleSubmit = async () => {
+    // Para exemplar, use o volume do livro selecionado
+    const realVolume =
+      addType === "exemplar" && selectedBook
+        ? selectedBook.volume
+        : volume || "1";
+
+    // Use the actual values displayed in the form
+    const actualTitle = isExemplar ? (title || selectedBook?.title || "") : title;
+    const actualSubtitle = isExemplar ? (subtitle || selectedBook?.subtitle || "") : subtitle;
+    const actualAuthors = isExemplar ? (authors || selectedBook?.authors || "") : authors;
+    const actualEdition = isExemplar ? (edition || selectedBook?.edition || "") : edition;
+
+    const bookData: any = {
+      title: actualTitle,
+      subtitle: actualSubtitle, // Add subtitle to submission data
+      authors: actualAuthors,
+      edition: actualEdition,
+      area: category,
+      subarea: subcategory,
+      language,
+      volume: realVolume,
+      isNewVolume: addType === "volume"
+    };
+
+    if (addType === "exemplar" && selectedBook) {
+      bookData.selectedBook = { code: selectedBook.code };
+    }
+
+    if (addType === "volume" && selectedBook) {
+      bookData.selectedBook = { code: selectedBook.code };
+      bookData.newVolume = volume;
+    }
+
+    console.log("Enviando dados:", bookData);
+
+    const result = await addBook(bookData);
+
+    if (result.success) {
+      onSuccess();
+    } else if (onError && result.error) {
+      onError(result.error);
+    }
+  };
+
+  // Render the appropriate step
+  switch (step) {
+    case 1:
+      return (
+        <AreaSelection
+          areaCodes={areaCodes}
+          subareaCodes={subareaCodes}
+          category={category}
+          subcategory={subcategory}
+          onCategoryChange={setCategory}
+          onSubcategoryChange={setSubcategory}
+          onNext={() => setStep(2)}
+          onCancel={onCancel}
         />
-        <Button
-          className="mb-2"
-          onClick={() => {
+      );
+
+    case 2:
+      return (
+        <BookSearchList
+          books={filteredBooks}
+          isLoading={isLoading}
+          search={search}
+          onSearchChange={setSearch}
+          onSelectBook={handleSelectBook}
+          onAddNewBook={() => {
             setAddType("novo");
-            setSelectedBook(null);
             setStep(3);
           }}
-        >
-          Não encontrei o livro
-        </Button>
-        {filteredBooks.length === 0 && <p>Nenhum livro encontrado nesta subárea.</p>}
-        {filteredBooks.map(book => (
-          <div key={book.id} className="border rounded p-2 flex flex-col gap-2">
-            <div>
-              <b>{book.title}</b> – {book.author} ({book.year}) Vol. {book.volume}
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => {
-                  setSelectedBook(book);
-                  setAddType("exemplar");
-                  setStep(3);
-                }}
-              >
-                Adicionar Novo Exemplar
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setSelectedBook(book);
-                  setAddType("volume");
-                  setStep(3);
-                }}
-              >
-                Adicionar Novo Volume
-              </Button>
-            </div>
-          </div>
-        ))}
-        <div className="flex gap-2 mt-2">
-          <Button variant="outline" onClick={() => setStep(1)}>Voltar</Button>
-          {onCancel && <Button variant="outline" onClick={onCancel}>Cancelar</Button>}
-        </div>
-      </div>
-    );
-  }
+          onPrevious={() => setStep(1)}
+          onCancel={onCancel}
+        />
+      );
 
-  // Passo 3: Seleção de idioma
-  if (step === 3) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Selecione o idioma do livro</h2>
-        <Select onValueChange={v => { setLanguage(Number(v)); setStep(4); }}>
-          <SelectTrigger>
-            <SelectValue placeholder="Idioma" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">Português</SelectItem>
-            <SelectItem value="2">Inglês</SelectItem>
-            {/* Adicione outros idiomas se necessário */}
-          </SelectContent>
-        </Select>
-        <Button variant="outline" onClick={() => setStep(2)}>Voltar</Button>
-      </div>
-    );
-  }
+    case 3:
+      return (
+        <LanguageSelection
+          onLanguageSelect={(lang) => {
+            setLanguage(lang);
+            setStep(4);
+          }}
+          onPrevious={() => setStep(2)}
+        />
+      );
 
-  // Passo 4: Formulário de preenchimento/ajuste
-  if (step === 4) {
-    const isExemplar = addType === "exemplar" && selectedBook;
-    return (
-      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); /* Add your submit logic here */ }}>
-        {isExemplar && (
-          <div className="text-sm text-gray-600 mb-2">
-            Ajuste conforme necessário.
-          </div>
-        )}
-        <Input
-          placeholder="Título do Livro"
-          value={isExemplar ? (title || selectedBook.title) : title}
-          onChange={e => setTitle(e.target.value)}
-          required
+    case 4:
+      return (
+        <BookDetailsForm
+          title={title}
+          subtitle={subtitle} // Add this prop
+          authors={authors}
+          edition={edition}
+          volume={volume}
+          isExemplar={Boolean(isExemplar)}
+          selectedBook={selectedBook}
+          onTitleChange={setTitle}
+          onSubtitleChange={setSubtitle} // Add this handler
+          onAuthorsChange={setAuthors}
+          onEditionChange={setEdition}
+          onVolumeChange={setVolume}
+          onSubmit={handleSubmit}
+          onPrevious={() => setStep(3)}
+          isSubmitting={isSubmitting}
         />
-        <Input
-          placeholder="Autores"
-          value={isExemplar ? (authors || selectedBook.author) : authors}
-          onChange={e => setAuthors(e.target.value)}
-          required
-        />
-        <Input
-          placeholder="Edição"
-          value={isExemplar ? (edition || selectedBook.edition) : edition}
-          onChange={e => setEdition(e.target.value)}
-          required
-        />
-        <Input
-          placeholder="Volume"
-          value={isExemplar ? (volume || selectedBook.volume) : volume}
-          onChange={e => setVolume(e.target.value)}
-          required
-        />
-        <div className="flex gap-2">
-          <Button type="submit" className="bg-cm-blue text-white rounded-xl">
-            {isExemplar ? "Adicionar Exemplar" : "Adicionar Livro"}
-          </Button>
-          <Button variant="outline" type="button" onClick={() => setStep(3)}>Voltar</Button>
-        </div>
-      </form>
-    );
-  }
+      );
 
-  return null;
+    default:
+      return null;
+  }
 }

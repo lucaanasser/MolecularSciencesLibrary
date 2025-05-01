@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const booksRouter = require('../routes/books');
+const booksRouter = require('./routes/BooksRoutes');
 
 const app = express();
 
@@ -18,6 +18,12 @@ app.get('/api/ping', (req, res) => {
 // Handler para rotas não encontradas
 app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
+});
+
+// Handler para erros não tratados
+app.use((err, req, res, next) => {
+  console.error('Erro global não tratado:', err);
+  res.status(500).json({ error: 'Erro interno do servidor', details: err.message });
 });
 
 // Inicia o servidor na porta 3001

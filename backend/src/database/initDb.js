@@ -32,8 +32,9 @@ db.serialize(() => {
             language INTEGER NOT NULL,
             volume INTEGER NOT NULL,
             exemplar INTEGER NOT NULL,
-            code TEXT UNIQUE NOT NULL,
+            code TEXT NOT NULL,
             title TEXT NOT NULL,
+            subtitle TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `, (err) => {
@@ -51,13 +52,15 @@ db.serialize(() => {
             edition: 1,
             language: 2, 
             volume: 1,
+            exemplar: 1,
             code: 'VAR-01.01.01',
-            title: 'Teste de Livro'
+            title: 'Teste de Livro',
+            subtitle: 'Teste de Subtitulo',
         };
 
         db.run(`
-            INSERT INTO books (area, subarea, authors, edition, language, volume, code, title)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO books (area, subarea, authors, edition, language, volume, exemplar, code, title, subtitle)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             testBook.area,
             testBook.subarea,
@@ -65,8 +68,10 @@ db.serialize(() => {
             testBook.edition,
             testBook.language,
             testBook.volume,
+            testBook.exemplar,
             testBook.code,
-            testBook.title
+            testBook.title,
+            testBook.subtitle
         ], function(err) {
             if (err) {
                 console.error('Error inserting test data:', err.message);

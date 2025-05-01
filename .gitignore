@@ -58,12 +58,3 @@ coverage/
 # Linux trash
 .Trash-*
 
-# Optional: ignore local database files
-*.sqlite
-*.sqlite3
-
-# Optional: ignore local images/uploads
-uploads/
-public/uploads/
-tmp/
-temp/

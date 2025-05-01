@@ -17,4 +17,4 @@ USER node
 
 EXPOSE 3001  
 
-CMD ["sh", "-c", "node initDb.js && node src/main.js"]
+CMD ["sh", "-c", "node src/database/initDb.js && node src/main.js"]

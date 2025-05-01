@@ -4,7 +4,7 @@
   "description": "Backend for BibliotecaCM",
   "main": "src/main.js",
   "scripts": {
-    "start": "node initDb.js && node src/main.js",
+    "start": "node src/database/initDb.js && node src/main.js",
     "build": "echo 'skip build'",
     "dev": "nodemon src/main.js",
     "init-db": "node initDb.js"
