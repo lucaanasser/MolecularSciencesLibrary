@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
-import AddBookForm from "@/components/AddBookForm";
+import AddBookForm from "@/features/books/components/AddBookForm";
+import RemoveBookForm from "@/features/books/components/RemoveBookForm";
 
 // Error Boundary to prevent UI crashes
 interface ErrorBoundaryProps {
@@ -147,7 +148,19 @@ const ManageBooks = () => {
               <CardTitle className="text-xl">Remover Livro</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>Em breve: funcionalidade para remover livros do acervo.</p>
+              <ErrorBoundary>
+                <RemoveBookForm
+                  onCancel={() => setSelectedTab(null)}
+                  onSuccess={() => {
+                    setSelectedTab(null);
+                    // Could add a success message here
+                  }}
+                  onError={(err) => {
+                    setError(err.message || "Erro ao remover o livro");
+                    console.error("Book removal error:", err);
+                  }}
+                />
+              </ErrorBoundary>
             </CardContent>
           </Card>
         </div>

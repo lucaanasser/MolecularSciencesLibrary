@@ -14,14 +14,22 @@ export default function useBookSearch(
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (!enabled || !category || !subcategory) {
+    // Só busca se pelo menos um filtro estiver preenchido
+    if (!enabled && !search && !category && !subcategory) {
+      setBooks([]);
       return;
     }
 
     setIsLoading(true);
     setBooks([]);
-    
-    fetch(`${API_URL}/books?category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`)
+
+    // Monta a query string dinamicamente
+    const params = new URLSearchParams();
+    if (category) params.append("category", category);
+    if (subcategory) params.append("subcategory", subcategory);
+    if (search) params.append("q", search);
+
+    fetch(`${API_URL}/books?${params.toString()}`)
       .then(res => {
         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
         return res.json();
@@ -36,12 +44,10 @@ export default function useBookSearch(
         setBooks([]);
         setIsLoading(false);
       });
-  }, [category, subcategory, enabled, onError]);
+  }, [category, subcategory, search, enabled, onError]);
 
-  // Calculate filtered books based on search term
-  const filteredBooks = books.filter(
-    b => !search || (b.title && b.title.toLowerCase().includes(search.toLowerCase()))
-  );
+  // Não precisa mais filtrar por search aqui, pois a API já faz isso
+  const filteredBooks = books;
 
   return {
     books,

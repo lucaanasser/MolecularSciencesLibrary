@@ -1,11 +1,16 @@
 export interface BookOption {
   id: string;
+  code: string;
   title: string;
-  subtitle?: string; 
   authors?: string;
   edition?: string;
   volume?: string;
-  code: string;
+  subtitle?: string;
+  language?: string;
+  exemplar?: number; 
+  area: string;        // <-- Adicione esta linha
+  subarea: string | number; // <-- Adicione esta linha
+  available: boolean;
 }
   
 export interface BookFormData {
@@ -19,13 +24,15 @@ export interface BookFormData {
   exemplar?: string;
 }
 
-// Adicione esta definição de tipo que estava faltando
+
 export type AddBookType = "novo" | "exemplar" | "volume" | null;
 
-// Adicione estas definições de tipos que estão sendo usadas em useBookOptions.ts e AreaSelection.tsx
+
+
 export interface AreaCode {
   [key: string]: string;
 }
+
 
 export interface SubareaCode {
   [key: string]: { [key: string]: string | number };

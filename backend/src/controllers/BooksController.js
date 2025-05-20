@@ -31,9 +31,12 @@ class BooksController {
      * @param {string|number} subcategory - Código da subcategoria
      * @returns {Promise<Array>} Lista de livros encontrados
      */
-    async getBooks(category, subcategory) {
-        // subcategory é convertido para inteiro se existir
-        return await booksService.getBooks(category, subcategory ? parseInt(subcategory, 10) : undefined);
+    async getBooks(category, subcategory, searchTerm) {
+        return await booksService.getBooks(
+            category, 
+            subcategory ? parseInt(subcategory, 10) : undefined, 
+            searchTerm
+        );
     }
 
     /**
@@ -42,6 +45,44 @@ class BooksController {
      */
     getCategoryMappings() {
         return booksService.getCategoryMappings();
+    }
+
+    /**
+     * Remove um livro pelo ID, delegando ao serviço
+     * @param {number} id - ID do livro
+     * @returns {Promise<Object>} Resultado da operação
+     */
+    async deleteBook(id) {
+        console.log(`[CONTROLLER] Chamando service para remover livro ${id}`);
+        // Use removeExemplarById para garantir reordenação
+        await booksService.removeExemplarById(id);
+        return { success: true, message: 'Livro removido com sucesso' };
+    }
+
+    /**
+     * Empresta um livro a um estudante, delegando ao serviço
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async borrowBook(req, res) {
+        const { bookId, exemplar, studentId } = req.body;
+        // studentId pode ser mockado se não enviado
+        const sid = studentId || Math.floor(Math.random() * 10000);
+        await booksService.borrowBook(bookId, exemplar, sid);
+        res.status(200).json({ success: true, message: 'Livro emprestado com sucesso' });
+    }
+
+    /**
+     * Devolve um livro emprestado, delegando ao serviço
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async returnBook(req, res) {
+        const { bookId, exemplar } = req.body;
+        await booksService.returnBook(bookId, exemplar);
+        res.status(200).json({ success: true, message: 'Livro devolvido com sucesso' });
     }
 }
 

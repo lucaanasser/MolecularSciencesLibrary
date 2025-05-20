@@ -1,7 +1,7 @@
 
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import VirtualBookshelf from "@/components/VirtualBookshelf";
+import VirtualBookshelf from "@/features/books/components/VirtualBookshelf";
 
 const VirtualShelfPage = () => {
   return (

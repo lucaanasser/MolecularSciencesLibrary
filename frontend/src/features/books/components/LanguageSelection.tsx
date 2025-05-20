@@ -17,6 +17,8 @@ export default function LanguageSelection({ onLanguageSelect, onPrevious }: Lang
         <SelectContent>
           <SelectItem value="1">Português</SelectItem>
           <SelectItem value="2">Inglês</SelectItem>
+          <SelectItem value="3">Espanhol</SelectItem>
+          <SelectItem value="4">Outros Idiomas</SelectItem>
           {/* Adicione outros idiomas se necessário */}
         </SelectContent>
       </Select>

@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 
 interface BookDetailsFormProps {
   title: string;
-  subtitle: string; // Add this prop
+  subtitle: string;
   authors: string;
   edition: string;
   volume: string;
   isExemplar: boolean;
   selectedBook?: any;
   onTitleChange: (value: string) => void;
-  onSubtitleChange: (value: string) => void; // Add this handler
+  onSubtitleChange: (value: string) => void;
   onAuthorsChange: (value: string) => void;
   onEditionChange: (value: string) => void;
   onVolumeChange: (value: string) => void;

@@ -15,18 +15,28 @@ const areaCodes = {
 const subareaCodes = {
     "Física": { 
         "Física Geral": 1, 
-        "Física Moderna": 2, 
-        "Astrofísica": 3 
+        "Mecânica Clássica": 2, 
+        "Termodinâmica": 3,
+        "Eletromagnetismo": 4,
+        "Física Moderna": 5,
+        "Física Matemática": 6, 
+        "Astronomia e Astrofísica": 7,
     },
     "Química": { 
-        "Orgânica": 1, 
-        "Inorgânica": 2, 
-        "Analítica": 3 
+        "Química Geral": 1, 
+        "Fisico-Química": 2, 
+        "Química Inorgância": 3,
+        "Química Orgânica": 4,
+        "Química Analítica": 5, 
     },
     "Biologia": { 
-        "Molecular": 1, 
-        "Celular": 2, 
-        "Genética": 3 
+        "Bioquímica": 1, 
+        "Biologia Molecular e Celular": 2, 
+        "Genética e Evolução": 3,
+        "Biologia de Sistemas": 4,
+        "Desenvolvimento": 5,
+        "Ecologia": 6,
+        "Botânica": 7,
     },
     "Matemática": { 
         "Álgebra": 1,
@@ -39,45 +49,35 @@ const subareaCodes = {
         "Teoria da Computação": 3 
     },
     "Variados": { 
-        "Outros": 1 
+        "Divulgação Científica": 1,
+        "Filosofia e História da Ciência": 2,
+        "Handbooks e Manuais": 3,
+        "Interdisciplinares": 4,
+        "Miscelânea": 5, 
     }
 };
 
 class BooksService {
-    /**
-     * Gera o código único do livro baseado na área, subárea e volume.
-     * Formato: AREA-<Subarea>.<Sequencial>.<Volume>
-     * Exemplo: FIS-01.02.01
-     * @param {Object} param0 - Objeto com area, subarea e volume
-     * @returns {Promise<string>} Código gerado
-     */
     async generateBookCode({ area, subarea, volume }) {
         const areaCode = areaCodes[area] || "XXX";
-        // subarea já é inteiro, padronize para string com 2 dígitos
         const subareaCode = String(subarea).padStart(2, "0");
-        const vol = String(volume).padStart(2, "0");
-
-        // Busca o último código gerado para esta área/subárea
         const lastBook = await booksModel.getLastBookByAreaAndSubarea(area, parseInt(subarea, 10));
         let seq = "01";
-        
         if (lastBook && lastBook.code) {
-            // Extrai o número sequencial do último código
-            const parts = lastBook.code.split(".");
+            const parts = lastBook.code.split(" ")[0].split(".");
             if (parts.length >= 2) {
                 const lastSeq = parseInt(parts[1], 10);
                 seq = (lastSeq + 1).toString().padStart(2, "0");
             }
         }
-        // Monta o código final
-        return `${areaCode}-${subareaCode}.${seq}.${vol}`;
+        const baseCode = `${areaCode}-${subareaCode}.${seq}`;
+        if (volume && parseInt(volume, 10) !== 0) {
+            return `${baseCode} v${parseInt(volume, 10)}`;
+        } else {
+            return baseCode;
+        }
     }
 
-    /**
-     * Adiciona um novo livro ou exemplar.
-     * @param {Object} bookData - Dados do livro a ser adicionado
-     * @returns {Promise<Object>} Objeto com id, código e exemplar
-     */
     async addBook(bookData) {
         const {
             area,
@@ -93,37 +93,23 @@ class BooksService {
             isNewVolume
         } = bookData;
 
-        console.log("DEBUG - FULL bookData:", JSON.stringify(bookData));
-
         const subareaInt = parseInt(subarea, 10);
         let code;
         let exemplarNumber = 1;
 
         if (selectedBook && selectedBook.code) {
             if (isNewVolume) {
-                // Novo volume: mantém o mesmo sequencial, só altera o volume
-                const codeParts = selectedBook.code.split(".");
-                if (codeParts.length === 3) {
-                    code = `${codeParts[0]}.${codeParts[1]}.${String(newVolume).padStart(2, "0")}`;
-                } else {
-                    // fallback: gera novo código (não deve acontecer)
-                    code = await this.generateBookCode({ area, subarea, volume: newVolume });
-                }
-                console.log(`NEW VOLUME: Generated code ${code}`);
+                const codeBase = selectedBook.code.split(" v")[0]; 
+                code = `${codeBase} v${parseInt(newVolume, 10)}`;
             } else {
-                // Novo exemplar: usa o mesmo código do livro selecionado
                 code = selectedBook.code;
                 const result = await booksModel.getMaxExemplarByCode(code);
                 exemplarNumber = (result && result.maxExemplar ? result.maxExemplar : 0) + 1;
-                console.log(`NEW EXEMPLAR: Using code ${code}, exemplar ${exemplarNumber}`);
             }
         } else {
-            // Novo livro: gera um novo código
             code = await this.generateBookCode({ area, subarea, volume });
-            console.log(`NEW BOOK: Generated code ${code}`);
         }
         
-        // Cria objeto com dados do livro para ser inserido no modelo
         const bookToInsert = {
             area,
             subarea: subareaInt,
@@ -137,34 +123,47 @@ class BooksService {
             subtitle,
         };
 
-        // Chama o modelo para inserir no banco de dados
         const result = await booksModel.insertBook(bookToInsert);
         return { id: result, code, exemplar: exemplarNumber };
     }
 
-    /**
-     * Busca livros por categoria e subcategoria.
-     * @param {string} category - Nome da área (ex: "Física")
-     * @param {number} subcategory - Código da subárea (ex: 1)
-     * @returns {Promise<Array>} Lista de livros encontrados
-     */
-    async getBooks(category, subcategory) {
-        return await booksModel.getBooks(category, subcategory);
+    async borrowBook(bookId, exemplar, studentId) {
+        // studentId pode ser mockado, ex: Math.floor(Math.random() * 10000)
+        return await booksModel.borrowBook(bookId, exemplar, studentId);
     }
 
-    /**
-     * Busca um livro pelo seu ID.
-     * @param {number} id - ID do livro
-     * @returns {Promise<Object>} Livro encontrado
-     */
+    async returnBook(bookId, exemplar) {
+        return await booksModel.returnBook(bookId, exemplar);
+    }
+
+    // Ao buscar livros, inclua a informação de disponibilidade
+    async getBooks(category, subcategory, searchTerm) {
+        const books = await booksModel.getBooks(category, subcategory, searchTerm);
+        const borrowed = await booksModel.getBorrowedBooks();
+        const borrowedSet = new Set(
+            borrowed.map(b => `${b.book_id}-${b.exemplar}`)
+        );
+        return books.map(book => ({
+            ...book,
+            available: !borrowedSet.has(`${book.id}-${book.exemplar}`)
+        }));
+    }
+
     async getBookById(id) {
         return await booksModel.getBookById(id);
     }
 
-    /**
-     * Retorna os mapeamentos de códigos de área e subárea
-     * @returns {Object} Objeto com areaCodes e subareaCodes
-     */
+    async removeExemplarById(id) {
+        // Remove exemplar e reordena
+        await booksModel.removeExemplarById(id);
+        return { success: true, message: 'Exemplar removido e reordenado com sucesso' };
+    }
+
+    async deleteBook(id) {
+        // Para compatibilidade, pode chamar removeExemplarById
+        return await this.removeExemplarById(id);
+    }
+
     getCategoryMappings() {
         return {
             areaCodes,
@@ -173,5 +172,4 @@ class BooksService {
     }
 }
 
-// Exporta uma instância única do serviço
 module.exports = new BooksService();

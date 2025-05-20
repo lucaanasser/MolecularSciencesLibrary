@@ -2,14 +2,19 @@ const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
 
-// Database configuration
-const dbPath = '/app/database/library.db';
+// Database configuration - use environment variable like db.js
+const dbUrl = process.env.DATABASE_URL || 'sqlite:///app/database/library.db';
+const dbPath = dbUrl.replace('sqlite://', '');
 const dbDir = path.dirname(dbPath);
 
 // Create database directory if it doesn't exist
 if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
+    // Add permissions to directory
+    fs.chmodSync(dbDir, 0o777);
 }
+
+console.log(`Initializing database at path: ${dbPath}`);
 
 // Create and initialize database
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -20,8 +25,26 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.log('Connected to the SQLite database.');
 });
 
-// Create tables
 db.serialize(() => {
+    // USERS TABLE
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) {
+            console.error('Error creating users table:', err.message);
+            process.exit(1);
+        }
+        console.log('Users table created successfully');
+    });
+
+    // BOOKS TABLE
     db.run(`
         CREATE TABLE IF NOT EXISTS books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,7 +76,7 @@ db.serialize(() => {
             language: 2, 
             volume: 1,
             exemplar: 1,
-            code: 'VAR-01.01.01',
+            code: 'VAR-01.01 v1',
             title: 'Teste de Livro',
             subtitle: 'Teste de Subtitulo',
         };
@@ -78,14 +101,33 @@ db.serialize(() => {
             } else {
                 console.log('Test data inserted successfully');
             }
-            
-            // Close the database connection
-            db.close((err) => {
-                if (err) {
-                    console.error('Error closing database:', err.message);
-                }
-                console.log('Database connection closed.');
-            });
         });
+    });
+
+    // BORROWED_BOOKS TABLE
+    db.run(`
+        CREATE TABLE IF NOT EXISTS borrowed_books (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            book_id INTEGER NOT NULL,
+            exemplar INTEGER NOT NULL,
+            student_id INTEGER NOT NULL,
+            borrowed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            returned_at TIMESTAMP,
+            FOREIGN KEY(book_id) REFERENCES books(id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('Error creating borrowed_books table:', err.message);
+            process.exit(1);
+        }
+        console.log('borrowed_books table created successfully');
+    });
+
+    // Close connection after all tables are created
+    db.close((err) => {
+        if (err) {
+            console.error('Error closing database:', err.message);
+        }
+        console.log('Database connection closed.');
     });
 });
