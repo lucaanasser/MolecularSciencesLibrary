@@ -113,7 +113,6 @@ db.serialize(() => {
         CREATE TABLE IF NOT EXISTS borrowed_books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             book_id INTEGER NOT NULL,
-            exemplar INTEGER NOT NULL,
             student_id INTEGER NOT NULL,
             borrowed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             returned_at TIMESTAMP,
@@ -135,7 +134,7 @@ db.serialize(() => {
     const adminPassword = process.env.ADMIN_PASSWORD || 'adminsenha';
     const proalunoPassword = process.env.PROALUNO_PASSWORD || 'proalunosenha';
 
-    // Função para inserir usuários especiais e fechar o banco só depois
+    
     async function insertSpecialUsersAndClose() {
         try {
             const adminRow = await new Promise((resolve, reject) => {

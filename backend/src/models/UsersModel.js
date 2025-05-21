@@ -27,7 +27,7 @@ class UsersModel {
 
     async getAllUsers() {
         return await allQuery(
-            `SELECT id, name, email, role, created_at FROM users`
+            `SELECT id, name, NUSP, email, role, created_at FROM users`
         );
     }
 

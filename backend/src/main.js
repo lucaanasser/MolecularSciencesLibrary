@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const booksRouter = require('./routes/BooksRoutes');
 const usersRouter = require('./routes/UsersRoutes');
+const loansRouter = require('./routes/LoansRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -14,6 +15,9 @@ app.use('/api/books', booksRouter);
 
 // Rota de autenticação
 app.use('/api/users', usersRouter);
+
+// Rota de empréstimos
+app.use('/api/loans', loansRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {
