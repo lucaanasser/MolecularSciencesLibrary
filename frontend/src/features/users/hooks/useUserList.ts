@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { CurrentUser } from "@/hooks/useCurrentUser";
+import { User } from "../types/user";
 
 export function useUserList() {
-  const [users, setUsers] = useState<CurrentUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

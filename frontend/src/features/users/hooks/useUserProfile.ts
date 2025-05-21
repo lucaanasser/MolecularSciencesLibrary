@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { CurrentUser } from "@/hooks/useCurrentUser";
+import { User } from "../types/user";
 
 export function useUserProfile() {
-  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

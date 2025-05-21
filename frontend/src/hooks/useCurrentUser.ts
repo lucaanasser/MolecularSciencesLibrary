@@ -1,16 +1,8 @@
 import { useEffect, useState } from "react";
-
-export interface CurrentUser {
-  name: string;
-  role: string;
-  NUSP?: number;
-  email?: string;
-  photoUrl?: string;
-  token?: string;
-}
+import { User } from "../features/users/types/user";
 
 export function useCurrentUser() {
-  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");

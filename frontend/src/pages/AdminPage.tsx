@@ -9,6 +9,7 @@ import AddBookForm from "@/features/books/components/AddBookForm";
 import RemoveBookForm from "@/features/books/components/RemoveBookForm";
 import AddUserForm from "@/features/users/components/AddUserForm";
 import UserList from "@/features/users/components/UserList";
+import RemoveUserForm from "@/features/users/components/RemoveUserForm";
 
 // Error Boundary to prevent UI crashes
 interface ErrorBoundaryProps {
@@ -175,13 +176,15 @@ const ManageBooks = () => {
 const ManageUsers = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showUserList, setShowUserList] = useState(false);
+  const [showRemoveForm, setShowRemoveForm] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Gerenciamento de Usuários</h2>
-      <p>Cadastre novos usuários ou edite informações de usuários existentes.</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <p>Cadastre, busque ou remova usuários do sistema.</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        {/* Adicionar Usuário */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Adicionar Usuário</CardTitle>
@@ -219,6 +222,7 @@ const ManageUsers = () => {
             )}
           </CardContent>
         </Card>
+        {/* Lista de Usuários */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Lista de Usuários</CardTitle>
@@ -242,6 +246,44 @@ const ManageUsers = () => {
               >
                 Ver Todos
               </Button>
+            )}
+          </CardContent>
+        </Card>
+        {/* Remover Usuário */}
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Remover Usuário</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {showRemoveForm ? (
+              <>
+                <RemoveUserForm
+                  onSuccess={() => {
+                    setShowRemoveForm(false);
+                    setSuccessMsg("Usuário removido com sucesso!");
+                  }}
+                  onError={(err) => {
+                    setSuccessMsg(`Erro: ${err.message}`);
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowRemoveForm(false)}
+                >
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-red hover:bg-cm-red/90"
+                onClick={() => setShowRemoveForm(true)}
+              >
+                Remover
+              </Button>
+            )}
+            {successMsg && (
+              <div className="mt-2 text-green-700">{successMsg}</div>
             )}
           </CardContent>
         </Card>
