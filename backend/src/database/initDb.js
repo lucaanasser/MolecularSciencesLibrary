@@ -1,11 +1,14 @@
 const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt'); 
+require('dotenv').config();
 
 // Database configuration - use environment variable like db.js
 const dbUrl = process.env.DATABASE_URL || 'sqlite:///app/database/library.db';
 const dbPath = dbUrl.replace('sqlite://', '');
 const dbDir = path.dirname(dbPath);
+const SALT_ROUNDS = 10;
 
 // Create database directory if it doesn't exist
 if (!fs.existsSync(dbDir)) {
@@ -31,6 +34,7 @@ db.serialize(() => {
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            NUSP INTEGER NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
@@ -123,11 +127,78 @@ db.serialize(() => {
         console.log('borrowed_books table created successfully');
     });
 
-    // Close connection after all tables are created
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing database:', err.message);
+    // Criação dos usuários especiais
+    const adminEmail = 'admin@biblioteca.com';
+    const proalunoEmail = 'proaluno@biblioteca.com';
+    const adminNUSP = 1;
+    const proalunoNUSP = 2;
+    const adminPassword = process.env.ADMIN_PASSWORD || 'adminsenha';
+    const proalunoPassword = process.env.PROALUNO_PASSWORD || 'proalunosenha';
+
+    // Função para inserir usuários especiais e fechar o banco só depois
+    async function insertSpecialUsersAndClose() {
+        try {
+            const adminRow = await new Promise((resolve, reject) => {
+                db.get('SELECT * FROM users WHERE NUSP = ?', [adminNUSP], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+            if (!adminRow) {
+                const adminHash = await bcrypt.hash(adminPassword, SALT_ROUNDS);
+                await new Promise((resolve, reject) => {
+                    db.run(
+                        `INSERT INTO users (name, NUSP, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
+                        ['Administrador', adminNUSP, adminEmail, adminHash, 'admin'],
+                        (err) => {
+                            if (err) {
+                                console.error('Erro ao criar admin:', err.message);
+                                reject(err);
+                            } else {
+                                console.log('Usuário admin criado');
+                                resolve();
+                            }
+                        }
+                    );
+                });
+            }
+
+            const proalunoRow = await new Promise((resolve, reject) => {
+                db.get('SELECT * FROM users WHERE NUSP = ?', [proalunoNUSP], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+            if (!proalunoRow) {
+                const proalunoHash = await bcrypt.hash(proalunoPassword, SALT_ROUNDS);
+                await new Promise((resolve, reject) => {
+                    db.run(
+                        `INSERT INTO users (name, NUSP, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
+                        ['Pro Aluno', proalunoNUSP, proalunoEmail, proalunoHash, 'proaluno'],
+                        (err) => {
+                            if (err) {
+                                console.error('Erro ao criar proaluno:', err.message);
+                                reject(err);
+                            } else {
+                                console.log('Usuário proaluno criado');
+                                resolve();
+                            }
+                        }
+                    );
+                });
+            }
+        } catch (err) {
+            console.error('Erro ao inserir usuários especiais:', err.message);
+        } finally {
+            db.close((err) => {
+                if (err) {
+                    console.error('Error closing database:', err.message);
+                }
+                console.log('Database connection closed.');
+            });
         }
-        console.log('Database connection closed.');
-    });
+    }
+
+    // Chame a função após a criação das tabelas
+    insertSpecialUsersAndClose();
 });

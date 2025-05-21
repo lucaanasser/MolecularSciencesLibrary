@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y sqlite3 && \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm install && npm install jsonwebtoken dotenv bcrypt
 
 COPY . .
 

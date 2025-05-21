@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const booksRouter = require('./routes/BooksRoutes');
+const usersRouter = require('./routes/UsersRoutes');
+require('dotenv').config();
 
 const app = express();
 
@@ -9,6 +11,9 @@ app.use(express.json());
 
 // Rotas da API
 app.use('/api/books', booksRouter);
+
+// Rota de autenticação
+app.use('/api/users', usersRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {

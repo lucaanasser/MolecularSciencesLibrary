@@ -7,6 +7,8 @@ services:
       - "3001:3001" 
     volumes:
       - ./database:/app/database
+    env_file:
+      - ./backend/.env
     environment:
       - DEBUG=True
       - DATABASE_URL=sqlite:///app/database/library.db
