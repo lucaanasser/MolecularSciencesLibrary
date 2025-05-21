@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, Search, User, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +8,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const Navigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
+  const user = useCurrentUser();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const handleProfileClick = () => {
+    if (user?.role === "admin") navigate("/admin");
+    else navigate("/profile");
+  };
+
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,27 +52,24 @@ const Navigation: React.FC = () => {
             <Link to="/virtual-shelf" className="px-3 py-2 rounded-md hover:bg-gray-100">
               Estante Virtual
             </Link>
-            {isLoggedIn ? (
+            {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="flex items-center">
+                    {/* Futuramente, troque User por <img src={user.photoUrl} ... /> */}
                     <User size={20} />
+                    <span className="ml-2">{user.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Link to="/profile" className="w-full">Perfil</Link>
+                  <DropdownMenuItem onClick={handleProfileClick}>
+                    {user.role === "admin" ? "Painel Admin" : "Perfil"}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/history" className="w-full">Histórico</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <button
-                      onClick={() => setIsLoggedIn(false)}
-                      className="w-full text-left"
-                    >
-                      Sair
-                    </button>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -114,15 +123,17 @@ const Navigation: React.FC = () => {
             >
               Estante Virtual
             </Link>
-            {isLoggedIn ? (
+            {user ? (
               <>
-                <Link
-                  to="/profile"
-                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleProfileClick();
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100"
                 >
-                  Perfil
-                </Link>
+                  {user.role === "admin" ? "Painel Admin" : "Perfil"}
+                </button>
                 <Link
                   to="/history"
                   className="block px-3 py-2 rounded-md hover:bg-gray-100"
@@ -132,7 +143,7 @@ const Navigation: React.FC = () => {
                 </Link>
                 <button
                   onClick={() => {
-                    setIsLoggedIn(false);
+                    handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
                   className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100"

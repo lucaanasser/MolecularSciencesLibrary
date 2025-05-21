@@ -1,12 +1,11 @@
-
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Clock, Bell } from "lucide-react";
+import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 
-// Mock borrowing history data
 const mockHistory = [
   {
     id: "h1",
@@ -31,7 +30,6 @@ const mockHistory = [
   },
 ];
 
-// Mock notifications data
 const mockNotifications = [
   {
     id: "n1",
@@ -60,17 +58,7 @@ const formatDate = (dateString: string) => {
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("emprestimos");
-  
-  // Mock user data
-  const user = {
-    id: "u1",
-    name: "Maria Silva",
-    matricula: "13691375",
-    email: "maria.silva@aluno.usp.br",
-    course: "Ciências Moleculares",
-    borrowLimit: 5,
-    currentBorrows: 1,
-  };
+  const { user, loading, error } = useUserProfile();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -81,39 +69,42 @@ const ProfilePage = () => {
             {/* User Info Card */}
             <Card className="p-6 rounded-2xl">
               <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-cm-blue/10 flex items-center justify-center mb-4">
-                  <span className="text-3xl font-bebas text-cm-blue">{user.name.charAt(0)}</span>
-                </div>
-                <h2 className="text-2xl font-bebas">{user.name}</h2>
-                <p className="text-gray-500 mb-4">#{user.matricula}</p>
-                
-                <div className="w-full mt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Email:</span>
-                    <span>{user.email}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Curso:</span>
-                    <span>{user.course}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Livros emprestados:</span>
-                    <span>
-                      {user.currentBorrows} / {user.borrowLimit}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="w-full mt-6 p-4 bg-cm-yellow/10 rounded-xl">
-                  <h3 className="text-lg font-bebas mb-2">Status da Conta</h3>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-cm-green"></div>
-                    <span className="text-sm">Ativa</span>
-                  </div>
-                </div>
+                {loading ? (
+                  <div>Carregando...</div>
+                ) : error ? (
+                  <div className="text-red-600">{error}</div>
+                ) : user ? (
+                  <>
+                    <div className="w-24 h-24 rounded-full bg-cm-blue/10 flex items-center justify-center mb-4">
+                      <span className="text-3xl font-bebas text-cm-blue">
+                        {user.name?.charAt(0)}
+                      </span>
+                    </div>
+                    <h2 className="text-2xl font-bebas">{user.name}</h2>
+                    <p className="text-gray-500 mb-4">#{user.NUSP}</p>
+
+                    <div className="w-full mt-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Email:</span>
+                        <span>{user.email}</span>
+                      </div>
+                      {/* Adicione outros campos se existirem */}
+                    </div>
+
+                    <div className="w-full mt-6 p-4 bg-cm-yellow/10 rounded-xl">
+                      <h3 className="text-lg font-bebas mb-2">Status da Conta</h3>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 rounded-full bg-cm-green"></div>
+                        <span className="text-sm">Ativa</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div>Nenhum dado de usuário encontrado.</div>
+                )}
               </div>
             </Card>
-            
+
             {/* Tabs Content */}
             <div className="col-span-1 md:col-span-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -125,12 +116,12 @@ const ProfilePage = () => {
                     <Bell className="mr-2 h-4 w-4" /> Notificações
                   </TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="emprestimos">
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Histórico de Empréstimos</h3>
-                      
+                      {/* Substitua mockHistory por dados reais quando implementar */}
                       {mockHistory.length > 0 ? (
                         <div className="space-y-4">
                           {mockHistory.map((item) => (
@@ -178,12 +169,12 @@ const ProfilePage = () => {
                     </div>
                   </Card>
                 </TabsContent>
-                
+
                 <TabsContent value="notificacoes">
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Notificações</h3>
-                      
+                      {/* Substitua mockNotifications por dados reais quando implementar */}
                       {mockNotifications.length > 0 ? (
                         <div className="space-y-4">
                           {mockNotifications.map((notification) => (

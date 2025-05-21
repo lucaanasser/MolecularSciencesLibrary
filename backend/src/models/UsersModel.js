@@ -1,14 +1,16 @@
 const { executeQuery, getQuery, allQuery } = require('../database/db');
 
 class UsersModel {
-    async createUser({ name, email, password_hash, role }) {
+    async createUser({ name, email, password_hash, role, NUSP }) {
+        console.log("🟢 [createUser] Criando usuário:", { name, email, role, NUSP });
         return await executeQuery(
-            `INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)`,
-            [name, email, password_hash, role]
+            `INSERT INTO users (name, NUSP, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
+            [name, NUSP, email, password_hash, role]
         );
     }
 
     async getUserByEmail(email) {
+        console.log("🟢 [getUserByEmail] email:", email);
         return await getQuery(
             `SELECT * FROM users WHERE email = ?`,
             [email]
@@ -16,6 +18,7 @@ class UsersModel {
     }
 
     async getUserById(id) {
+        console.log("🟢 [getUserById] id:", id);
         return await getQuery(
             `SELECT * FROM users WHERE id = ?`,
             [id]
@@ -36,6 +39,7 @@ class UsersModel {
     }
 
     async getUserByNUSP(NUSP) {
+        console.log("🟢 [getUserByNUSP] NUSP:", NUSP);
         return await getQuery(
             `SELECT * FROM users WHERE NUSP = ?`,
             [NUSP]

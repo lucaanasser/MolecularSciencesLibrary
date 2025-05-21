@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import AddBookForm from "@/features/books/components/AddBookForm";
 import RemoveBookForm from "@/features/books/components/RemoveBookForm";
+import AddUserForm from "@/features/users/components/AddUserForm";
+import UserList from "@/features/users/components/UserList";
 
 // Error Boundary to prevent UI crashes
 interface ErrorBoundaryProps {
@@ -170,30 +172,83 @@ const ManageBooks = () => {
 };
 
 // --- Gerenciamento de Usuários ---
-const ManageUsers = () => (
-  <div className="p-4">
-    <h2 className="text-2xl mb-4">Gerenciamento de Usuários</h2>
-    <p>Cadastre novos usuários ou edite informações de usuários existentes.</p>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Adicionar Usuário</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-green hover:bg-cm-green/90">Adicionar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Lista de Usuários</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Ver Todos</Button>
-        </CardContent>
-      </Card>
+const ManageUsers = () => {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showUserList, setShowUserList] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Gerenciamento de Usuários</h2>
+      <p>Cadastre novos usuários ou edite informações de usuários existentes.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Adicionar Usuário</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {showAddForm ? (
+              <>
+                <AddUserForm
+                  onSuccess={() => {
+                    setShowAddForm(false);
+                    setSuccessMsg("Usuário adicionado com sucesso!");
+                  }}
+                  onError={(err) => {
+                    setSuccessMsg(`Erro: ${err.message}`);
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowAddForm(false)}
+                >
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-green hover:bg-cm-green/90"
+                onClick={() => setShowAddForm(true)}
+              >
+                Adicionar
+              </Button>
+            )}
+            {successMsg && (
+              <div className="mt-2 text-green-700">{successMsg}</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Lista de Usuários</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {showUserList ? (
+              <>
+                <UserList />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowUserList(false)}
+                >
+                  Fechar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-blue hover:bg-cm-blue/90"
+                onClick={() => setShowUserList(true)}
+              >
+                Ver Todos
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Gerenciamento de Empréstimos ---
 const ManageLoans = () => (
