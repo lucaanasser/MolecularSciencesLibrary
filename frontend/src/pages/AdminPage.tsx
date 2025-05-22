@@ -10,6 +10,7 @@ import RemoveBookForm from "@/features/books/components/RemoveBookForm";
 import AddUserForm from "@/features/users/components/AddUserForm";
 import UserList from "@/features/users/components/UserList";
 import RemoveUserForm from "@/features/users/components/RemoveUserForm";
+import LoanForm from "@/features/loans/components/LoanForm"; // Adicione este import
 
 // Error Boundary to prevent UI crashes
 interface ErrorBoundaryProps {
@@ -293,38 +294,60 @@ const ManageUsers = () => {
 };
 
 // --- Gerenciamento de Empréstimos ---
-const ManageLoans = () => (
-  <div className="p-4">
-    <h2 className="text-2xl mb-4">Gerenciamento de Empréstimos</h2>
-    <p>Gerencie empréstimos, devoluções e multas dos usuários.</p>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Novos Empréstimos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-green hover:bg-cm-green/90">Registrar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Devoluções</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-orange hover:bg-cm-orange/90">Processar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Multas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-red hover:bg-cm-red/90">Gerenciar</Button>
-        </CardContent>
-      </Card>
+const ManageLoans = () => {
+  const [showLoanForm, setShowLoanForm] = useState(false);
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Gerenciamento de Empréstimos</h2>
+      <p>Gerencie empréstimos, devoluções e multas dos usuários.</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Novos Empréstimos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {showLoanForm ? (
+              <>
+                <LoanForm onSuccess={() => setShowLoanForm(false)} />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowLoanForm(false)}
+                >
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-green hover:bg-cm-green/90"
+                onClick={() => setShowLoanForm(true)}
+              >
+                Registrar
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Devoluções</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-orange hover:bg-cm-orange/90">Processar</Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Multas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-red hover:bg-cm-red/90">Gerenciar</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Notificações ---
 const Notifications = () => (
