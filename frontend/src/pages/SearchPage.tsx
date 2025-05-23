@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import BookSearch from "@/features/books/components/BookSearchPage";
+import BookSearch from "@/features/books/components/BookSearchPanel";
 
 const SearchPage = () => {
   return (

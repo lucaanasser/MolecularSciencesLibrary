@@ -1,11 +1,11 @@
 import { useState } from "react";
 import useStep from "@/features/books/hooks/useStep";
 import useAreaSelection from "@/features/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/books/hooks/useFetchSearch";
+import useBookSearch from "@/features/books/hooks/useBookList";
 import useRemoveBook from "@/features/books/hooks/useRemoveBook";
-import AreaSelection from "@/features/books/components/AreaSelection";
-import BookSearchList from "@/features/books/components/BookListForm";
 import { BookOption } from "@/features/books/types/book";
+import BookAreaStep from "@/features/books/components/steps/BookAreaStep";
+import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
 
 interface RemoveBookFormProps {
   onCancel: () => void;
@@ -54,7 +54,7 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
   switch (step) {
     case 1:
       return (
-        <AreaSelection
+        <BookAreaStep
           areaCodes={areaCodes}
           subareaCodes={subareaCodes}
           category={category}
@@ -68,7 +68,7 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
 
     case 2:
       return (
-        <BookSearchList
+        <BookSearchStep
           books={filteredBooks}
           isLoading={isLoading}
           search={search}

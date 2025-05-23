@@ -1,8 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { AreaCode, SubareaCode } from "../types/book";
+import { AreaCode, SubareaCode } from "@/features/books/types/book";
 
-interface AreaSelectionProps {
+interface BookAreaStepProps {
   areaCodes: AreaCode;
   subareaCodes: SubareaCode;
   category: string;
@@ -13,7 +13,7 @@ interface AreaSelectionProps {
   onCancel?: () => void;
 }
 
-export default function AreaSelection({
+export default function BookAreaStep({
   areaCodes,
   subareaCodes,
   category,
@@ -22,7 +22,7 @@ export default function AreaSelection({
   onSubcategoryChange,
   onNext,
   onCancel
-}: AreaSelectionProps) {
+}: BookAreaStepProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Informe a área e a subárea</h2>

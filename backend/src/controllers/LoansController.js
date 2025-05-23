@@ -43,15 +43,15 @@ const LoansController = {
 
     // Registra devolução de um empréstimo
     returnBook: async (req, res) => {
-        const { loan_id } = req.body;
-        if (!loan_id) {
-            return res.status(400).json({ error: 'loan_id é obrigatório' });
+        const { NUSP, password, book_id } = req.body;
+        if (!NUSP || !password || !book_id) {
+            return res.status(400).json({ error: 'NUSP, password e book_id são obrigatórios' });
         }
         try {
-            const result = await LoansService.returnBook(loan_id);
+            const result = await LoansService.returnBookByUserAndBook(NUSP, password, book_id);
             res.json(result);
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            res.status(400).json({ error: err.message });
         }
     }
 };

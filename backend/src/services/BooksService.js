@@ -1,5 +1,6 @@
 // BooksService contém toda a lógica de negócio relacionada a livros
 const booksModel = require('../models/BooksModel');
+// const bwipjs = require('bwip-js'); // Descomente se for gerar imagem
 
 // Mapeamento de códigos de área (ex: Física -> FIS)
 const areaCodes = {
@@ -57,10 +58,53 @@ const subareaCodes = {
     }
 };
 
+// Função para calcular o dígito verificador EAN-13
+function ean13Checksum(number12) {
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+        sum += parseInt(number12[i], 10) * (i % 2 === 0 ? 1 : 3);
+    }
+    const check = (10 - (sum % 10)) % 10;
+    return check;
+}
+
+// Gera um EAN-13 único (prefixo 978 + timestamp + random)
+async function generateUniqueEAN13() {
+    let ean;
+    let exists = true;
+    while (exists) {
+        const prefix = 978; // Número
+        const middle = Number(Date.now().toString().slice(-8)); // Número
+        const random = Math.floor(Math.random() * 10);
+        const base12 = Number(`${prefix}${middle.toString().padStart(8, '0')}${random}`);
+        const check = ean13Checksum(base12.toString().padStart(12, '0'));
+        ean = Number(`${base12}${check}`);
+        exists = await booksModel.getBookById(ean);
+    }
+    return ean;
+}
+
 class BooksService {
-    async generateBookCode({ area, subarea, volume }) {
+    async generateBookCode({ area, subarea, addType, selectedBook, volume }) {
         const areaCode = areaCodes[area] || "XXX";
         const subareaCode = String(subarea).padStart(2, "0");
+
+        // NOVO EXEMPLAR: retorna o mesmo código do livro base
+        if (addType === "exemplar" && selectedBook && selectedBook.code) {
+            return selectedBook.code;
+        }
+
+        // NOVO VOLUME: substitui o volume no código base por v{volume}
+        if (addType === "volume" && selectedBook && selectedBook.code) {
+            // Remove qualquer sufixo de volume antigo (vY, v1, v2, etc)
+            let baseCode = selectedBook.code;
+            // Remove qualquer ocorrência de ' v' ou '-v' seguido de número no final
+            baseCode = baseCode.replace(/[\s\-]?v\d+$/i, "");
+            // Adiciona o novo volume no formato correto
+            return `${baseCode}-v${parseInt(volume, 10)}`;
+        }
+
+        // NOVO LIVRO: gera código sequencial
         const lastBook = await booksModel.getLastBookByAreaAndSubarea(area, parseInt(subarea, 10));
         let seq = "01";
         if (lastBook && lastBook.code) {
@@ -71,8 +115,8 @@ class BooksService {
             }
         }
         const baseCode = `${areaCode}-${subareaCode}.${seq}`;
-        if (volume && parseInt(volume, 10) !== 0) {
-            return `${baseCode} v${parseInt(volume, 10)}`;
+        if (volume && parseInt(volume, 10) !== 0 && volume !== "null") {
+            return `${baseCode}-v${parseInt(volume, 10)}`;
         } else {
             return baseCode;
         }
@@ -85,83 +129,77 @@ class BooksService {
             authors,
             edition,
             language,
-            volume,
             title,
             subtitle,
-            selectedBook,
-            newVolume,
-            isNewVolume
+            addType,         
+            selectedBook,    
+            volume
         } = bookData;
 
         const subareaInt = parseInt(subarea, 10);
-        let code;
-        let exemplarNumber = 1;
+        const code = await this.generateBookCode({ area, subarea, addType, selectedBook, volume });
 
-        if (selectedBook && selectedBook.code) {
-            if (isNewVolume) {
-                const codeBase = selectedBook.code.split(" v")[0]; 
-                code = `${codeBase} v${parseInt(newVolume, 10)}`;
-            } else {
-                code = selectedBook.code;
-                const result = await booksModel.getMaxExemplarByCode(code);
-                exemplarNumber = (result && result.maxExemplar ? result.maxExemplar : 0) + 1;
-            }
-        } else {
-            code = await this.generateBookCode({ area, subarea, volume });
-        }
-        
+        // Gere EAN-13 automaticamente
+        const id = await generateUniqueEAN13();
+
         const bookToInsert = {
+            id,
             area,
             subarea: subareaInt,
             authors,
             edition,
             language,
-            volume: isNewVolume ? newVolume : volume,
-            exemplar: exemplarNumber,
             code,
             title,
             subtitle,
+            volume: volume && volume !== "null" ? parseInt(volume, 10) : null
         };
 
         const result = await booksModel.insertBook(bookToInsert);
-        return { id: result, code, exemplar: exemplarNumber };
+
+        // // Gerar imagem do código de barras EAN-13 (comentado)
+        // const pngBuffer = await bwipjs.toBuffer({
+        //     bcid:        'ean13',
+        //     text:        id,
+        //     scale:       3,
+        //     height:      10,
+        //     includetext: true,
+        //     textxalign:  'center',
+        // });
+
+        return { id, code /*, barcodeImage: pngBuffer */ };
     }
 
-    async borrowBook(bookId, exemplar, studentId) {
-        // studentId pode ser mockado, ex: Math.floor(Math.random() * 10000)
-        return await booksModel.borrowBook(bookId, exemplar, studentId);
-    }
+    // Remova métodos e lógicas relacionadas a exemplares
+    // Exemplo: getMaxExemplarByCode, removeExemplarById, etc.
 
-    async returnBook(bookId, exemplar) {
-        return await booksModel.returnBook(bookId, exemplar);
-    }
-
-    // Ao buscar livros, inclua a informação de disponibilidade
     async getBooks(category, subcategory, searchTerm) {
         const books = await booksModel.getBooks(category, subcategory, searchTerm);
         const borrowed = await booksModel.getBorrowedBooks();
         const borrowedSet = new Set(
-            borrowed.map(b => `${b.book_id}-${b.exemplar}`)
+            borrowed.map(b => b.book_id)
         );
         return books.map(book => ({
             ...book,
-            available: !borrowedSet.has(`${book.id}-${book.exemplar}`)
+            available: !borrowedSet.has(book.id)
         }));
     }
 
-    async getBookById(id) {
-        return await booksModel.getBookById(id);
+    async borrowBook(bookId, studentId) {
+        return await booksModel.borrowBook(bookId, studentId);
     }
 
-    async removeExemplarById(id) {
-        // Remove exemplar e reordena
-        await booksModel.removeExemplarById(id);
-        return { success: true, message: 'Exemplar removido e reordenado com sucesso' };
+    async returnBook(bookId) {
+        return await booksModel.returnBook(bookId);
+    }
+
+    async removeBookById(id) {
+        await booksModel.removeBookById(id);
+        return { success: true, message: 'Livro removido com sucesso' };
     }
 
     async deleteBook(id) {
-        // Para compatibilidade, pode chamar removeExemplarById
-        return await this.removeExemplarById(id);
+        return await this.removeBookById(id);
     }
 
     getCategoryMappings() {

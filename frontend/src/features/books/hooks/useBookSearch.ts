@@ -1,6 +1,6 @@
 import { useState } from "react";
 import useAreaSelection from "./useAreaSelection";
-import useBookSearch from "./useFetchSearch";
+import useBookSearch from "./useBookList";
 
 export default function useBookSearchPage(onError?: (e: Error) => void) {
   // Gerencia seleção de área e subárea

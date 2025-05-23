@@ -5,30 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Clock, Bell } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
-
-const mockHistory = [
-  {
-    id: "h1",
-    bookTitle: "Princípios de Bioquímica",
-    borrowDate: "2023-12-01",
-    returnDate: "2023-12-15",
-    returned: true,
-  },
-  {
-    id: "h2",
-    bookTitle: "Cálculo: Volume 1",
-    borrowDate: "2024-01-10",
-    returnDate: "2024-01-24",
-    returned: false,
-  },
-  {
-    id: "h3",
-    bookTitle: "Física para Cientistas e Engenheiros",
-    borrowDate: "2023-11-05",
-    returnDate: "2023-11-19",
-    returned: true,
-  },
-];
+import LoanHistory from "@/features/loans/components/LoanHistory";
 
 const mockNotifications = [
   {
@@ -58,7 +35,7 @@ const formatDate = (dateString: string) => {
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("emprestimos");
-  const { user, loading, error } = useUserProfile();
+  const { user, loading: userLoading, error: userError } = useUserProfile();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -69,10 +46,10 @@ const ProfilePage = () => {
             {/* User Info Card */}
             <Card className="p-6 rounded-2xl">
               <div className="flex flex-col items-center">
-                {loading ? (
-                  <div>Carregando...</div>
-                ) : error ? (
-                  <div className="text-red-600">{error}</div>
+                {userLoading ? (
+                  <div>Carregando perfil...</div>
+                ) : userError ? (
+                  <div className="text-red-600">{userError}</div>
                 ) : user ? (
                   <>
                     <div className="w-24 h-24 rounded-full bg-cm-blue/10 flex items-center justify-center mb-4">
@@ -121,48 +98,14 @@ const ProfilePage = () => {
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Histórico de Empréstimos</h3>
-                      {/* Substitua mockHistory por dados reais quando implementar */}
-                      {mockHistory.length > 0 ? (
-                        <div className="space-y-4">
-                          {mockHistory.map((item) => (
-                            <div
-                              key={item.id}
-                              className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h4 className="font-medium">{item.bookTitle}</h4>
-                                  <div className="flex space-x-4 mt-1 text-sm text-gray-500">
-                                    <div className="flex items-center">
-                                      <Clock className="mr-1 h-3 w-3" />
-                                      <span>
-                                        Empréstimo: {formatDate(item.borrowDate)}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <span>
-                                        Devolução: {formatDate(item.returnDate)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <span
-                                  className={`px-3 py-1 rounded-full text-xs ${
-                                    item.returned
-                                      ? "bg-cm-green/10 text-cm-green"
-                                      : "bg-cm-yellow/10 text-cm-orange"
-                                  }`}
-                                >
-                                  {item.returned ? "Devolvido" : "Em andamento"}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                      {userLoading ? (
+                        <div className="text-center py-8">Carregando dados do usuário...</div>
+                      ) : user && user.id ? (
+                        <LoanHistory userId={user.id} />
                       ) : (
                         <div className="text-center py-8">
                           <p className="text-gray-500">
-                            Nenhum histórico de empréstimos encontrado.
+                            Não foi possível carregar o histórico de empréstimos.
                           </p>
                         </div>
                       )}
@@ -174,7 +117,6 @@ const ProfilePage = () => {
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Notificações</h3>
-                      {/* Substitua mockNotifications por dados reais quando implementar */}
                       {mockNotifications.length > 0 ? (
                         <div className="space-y-4">
                           {mockNotifications.map((notification) => (

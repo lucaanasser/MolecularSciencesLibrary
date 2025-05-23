@@ -54,8 +54,7 @@ class BooksController {
      */
     async deleteBook(id) {
         console.log(`[CONTROLLER] Chamando service para remover livro ${id}`);
-        // Use removeExemplarById para garantir reordenação
-        await booksService.removeExemplarById(id);
+        await booksService.removeBookById(id);
         return { success: true, message: 'Livro removido com sucesso' };
     }
 
@@ -66,10 +65,9 @@ class BooksController {
      * @returns {Promise<void>}
      */
     async borrowBook(req, res) {
-        const { bookId, exemplar, studentId } = req.body;
-        // studentId pode ser mockado se não enviado
+        const { bookId, studentId } = req.body;
         const sid = studentId || Math.floor(Math.random() * 10000);
-        await booksService.borrowBook(bookId, exemplar, sid);
+        await booksService.borrowBook(bookId, sid);
         res.status(200).json({ success: true, message: 'Livro emprestado com sucesso' });
     }
 
@@ -80,8 +78,8 @@ class BooksController {
      * @returns {Promise<void>}
      */
     async returnBook(req, res) {
-        const { bookId, exemplar } = req.body;
-        await booksService.returnBook(bookId, exemplar);
+        const { bookId } = req.body;
+        await booksService.returnBook(bookId);
         res.status(200).json({ success: true, message: 'Livro devolvido com sucesso' });
     }
 }

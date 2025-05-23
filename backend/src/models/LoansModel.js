@@ -96,4 +96,20 @@ module.exports = {
             );
         });
     },
+
+    // Busca empréstimo ativo de um usuário para um livro
+    getActiveLoanByUserAndBook: (userId, bookId) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.get(
+                `SELECT id as loan_id FROM borrowed_books WHERE student_id = ? AND book_id = ? AND returned_at IS NULL`,
+                [userId, bookId],
+                (err, row) => {
+                    db.close();
+                    if (err) reject(err);
+                    else resolve(row);
+                }
+            );
+        });
+    },
 };

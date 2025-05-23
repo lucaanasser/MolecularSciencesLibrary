@@ -8,8 +8,8 @@ export interface BookOption {
   subtitle?: string;
   language?: string;
   exemplar?: number; 
-  area: string;        // <-- Adicione esta linha
-  subarea: string | number; // <-- Adicione esta linha
+  area: string;        
+  subarea: string | number;
   available: boolean;
 }
   

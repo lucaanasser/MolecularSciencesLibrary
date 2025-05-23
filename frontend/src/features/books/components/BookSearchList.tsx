@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOption, AddBookType } from "../types/book";
+import { BookOption, AddBookType } from "@/features/books/types/book";
 
 // Agrupa livros por código
 function groupBooksByCode(books: BookOption[]) {
@@ -27,6 +27,7 @@ interface BookSearchListProps {
   onSearchChange: (value: string) => void;
   onSelectBook: (book: BookOption, type?: AddBookType) => void;
   onAddNewBook?: () => void;
+  onAddNewVolume?: (book: BookOption) => void; // <-- ADICIONE ESTA LINHA
   onPrevious: () => void;
   onCancel?: () => void;
   mode?: "add" | "remove"; 
@@ -39,6 +40,7 @@ export default function BookSearchList({
   onSearchChange,
   onSelectBook,
   onAddNewBook,
+  onAddNewVolume, // <-- ADICIONE ESTA LINHA
   onPrevious,
   onCancel,
   mode = "add" 
@@ -108,19 +110,24 @@ export default function BookSearchList({
                 )}
                 {mode === "add" && (
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
+                    <button
                       onClick={() => onSelectBook(exemplares[0], "exemplar")}
+                      className="bg-cm-blue text-white px-2 py-1 rounded"
                     >
                       Adicionar Novo Exemplar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onSelectBook(exemplares[0], "volume")}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (onAddNewVolume) {
+                          onAddNewVolume(exemplares[0]);
+                        } else {
+                          onSelectBook(exemplares[0], "volume");
+                        }
+                      }}
+                      className="bg-cm-green text-white px-2 py-1 rounded"
                     >
                       Adicionar Novo Volume
-                    </Button>
+                    </button>
                   </div>
                 )}
               </div>

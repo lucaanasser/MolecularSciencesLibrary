@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
-import AddBookForm from "@/features/books/components/AddBookForm";
-import RemoveBookForm from "@/features/books/components/RemoveBookForm";
+import AddBookForm from "@/features/books/components/AddBookWizard";
+import RemoveBookForm from "@/features/books/components/RemoveBookWizard";
 import AddUserForm from "@/features/users/components/AddUserForm";
 import UserList from "@/features/users/components/UserList";
 import RemoveUserForm from "@/features/users/components/RemoveUserForm";
-import LoanForm from "@/features/loans/components/LoanForm"; // Adicione este import
+import LoanForm from "@/features/loans/components/LoanForm"; 
+import ReturnLoanForm from "@/features/loans/components/ReturnLoanForm"; 
 
 // Error Boundary to prevent UI crashes
 interface ErrorBoundaryProps {
@@ -296,6 +297,7 @@ const ManageUsers = () => {
 // --- Gerenciamento de Empréstimos ---
 const ManageLoans = () => {
   const [showLoanForm, setShowLoanForm] = useState(false);
+  const [showReturnForm, setShowReturnForm] = useState(false);
 
   return (
     <div className="p-4">
@@ -333,7 +335,25 @@ const ManageLoans = () => {
             <CardTitle className="text-xl">Devoluções</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-orange hover:bg-cm-orange/90">Processar</Button>
+            {showReturnForm ? (
+              <>
+                <ReturnLoanForm onSuccess={() => setShowReturnForm(false)} />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowReturnForm(false)}
+                >
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-orange hover:bg-cm-orange/90"
+                onClick={() => setShowReturnForm(true)}
+              >
+                Processar
+              </Button>
+            )}
           </CardContent>
         </Card>
         <Card className="rounded-xl shadow-sm">

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import useStep from "@/features/books/hooks/useStep";
 import useAreaSelection from "@/features/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/books/hooks/useFetchSearch";
-import useAddBook from "@/features/books/hooks/useAddBook";
-import AreaSelection from "@/features/books/components/AreaSelection";
-import BookSearchList from "@/features/books/components/BookListForm";
-import LanguageSelection from "@/features/books/components/LanguageSelection";
-import BookDetailsForm from "@/features/books/components/BookDetailsForm";
+import useBookSearch from "@/features/books/hooks/useBookList";
+import useAddBook from "@/features/books/hooks/useCreatBook";
 import { AddBookType, BookOption } from "@/features/books/types/book";
+import BookAreaStep from "@/features/books/components/steps/BookAreaStep";
+import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
+import BookLanguageStep from "@/features/books/components/steps/BookLanguageStep";
+import BookDetailsStep from "@/features/books/components/steps/BookDetailsStep";
 
 interface AddBookFormProps {
   onCancel: () => void;
@@ -16,10 +16,8 @@ interface AddBookFormProps {
 }
 
 export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFormProps) {
-  // Wizard steps: 1=area, 2=pergunta, 3=idioma, 4=form
   const { step, setStep } = useStep(1);
 
-  // Seleção do usuário (área/subárea)
   const {
     category,
     setCategory,
@@ -30,7 +28,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
   } = useAreaSelection(onError);
 
   const [selectedBook, setSelectedBook] = useState<BookOption | null>(null);
-  const [addType, setAddType] = useState<AddBookType>(null);
+  const [addType, setAddType] = useState<AddBookType | null>(null);
   const [language, setLanguage] = useState<number | null>(null);
 
   // Form fields
@@ -40,7 +38,8 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
   const [edition, setEdition] = useState("");
   const [volume, setVolume] = useState("");
 
-  const isExemplar = addType === "exemplar" && selectedBook;
+  // Novo: controla se o campo volume está travado
+  const [isVolumeLocked, setIsVolumeLocked] = useState(false);
 
   // Custom hooks
   const { filteredBooks, isLoading, search, setSearch } = useBookSearch(
@@ -51,30 +50,70 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
   );
   const { addBook, isSubmitting } = useAddBook();
 
-  const handleSelectBook = (book: BookOption, type: AddBookType) => {
+  // Handler para adicionar novo exemplar
+  const handleAddExemplar = (book: BookOption) => {
     setSelectedBook(book);
-    setAddType(type);
-    // Populate form fields with book data
-    if (book) {
-      setTitle(book.title || "");
-      setAuthors(book.authors || ""); 
-      setSubtitle(book.subtitle || "");
-      setEdition(book.edition || "");
-      setVolume(book.volume || "");
-    }
+    setAddType("exemplar");
+    setTitle(book.title || "");
+    setAuthors(book.authors || "");
+    setSubtitle(book.subtitle || "");
+    setEdition(book.edition || "");
+    setVolume(book.volume || "");
+    setIsVolumeLocked(true); // trava o campo volume
+    setStep(3);
+  };
+
+  // Handler para adicionar novo volume
+  const handleAddNewVolume = (book: BookOption) => {
+    setSelectedBook(book);
+    setAddType("volume");
+    setTitle(book.title || "");
+    setAuthors(book.authors || "");
+    setSubtitle(book.subtitle || "");
+    setEdition(book.edition || "");
+    setVolume(""); // Limpa para permitir edição
+    setIsVolumeLocked(false); // libera o campo volume
+    setStep(3);
+  };
+
+  // Handler para adicionar novo livro
+  const handleAddNewBook = () => {
+    setAddType("novo");
+    setSelectedBook(null);
+    setTitle("");
+    setSubtitle("");
+    setAuthors("");
+    setEdition("");
+    setVolume("");
+    setIsVolumeLocked(false); // libera o campo volume
+    setStep(3);
+  };
+
+  const handleSelectBook = (book: BookOption, type?: AddBookType) => {
+    setSelectedBook(book);
+    setAddType(type || "exemplar");
+    setTitle(book.title || "");
+    setAuthors(book.authors || "");
+    setSubtitle(book.subtitle || "");
+    setEdition(book.edition || "");
+    setVolume(type === "volume" ? "" : book.volume || "");
+    setIsVolumeLocked(type !== "volume"); // trava volume se não for volume
     setStep(3);
   };
 
   const handleSubmit = async () => {
+    // Para novo exemplar, volume é herdado do livro selecionado
+    // Para novo volume, volume é o digitado
+    // Para novo livro, volume é o digitado ou 1
     const realVolume =
       addType === "exemplar" && selectedBook
         ? selectedBook.volume
         : volume || "1";
 
-    const actualTitle = isExemplar ? (title || selectedBook?.title || "") : title;
-    const actualSubtitle = isExemplar ? (subtitle || selectedBook?.subtitle || "") : subtitle;
-    const actualAuthors = isExemplar ? (authors || selectedBook?.authors || "") : authors;
-    const actualEdition = isExemplar ? (edition || selectedBook?.edition || "") : edition;
+    const actualTitle = addType === "exemplar" && selectedBook ? (title || selectedBook.title || "") : title;
+    const actualSubtitle = addType === "exemplar" && selectedBook ? (subtitle || selectedBook.subtitle || "") : subtitle;
+    const actualAuthors = addType === "exemplar" && selectedBook ? (authors || selectedBook.authors || "") : authors;
+    const actualEdition = addType === "exemplar" && selectedBook ? (edition || selectedBook.edition || "") : edition;
 
     const bookData: any = {
       title: actualTitle,
@@ -85,7 +124,8 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
       subarea: subcategory,
       language,
       volume: realVolume,
-      isNewVolume: addType === "volume"
+      isNewVolume: addType === "volume",
+      addType
     };
 
     if (addType === "exemplar" && selectedBook) {
@@ -109,7 +149,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
   switch (step) {
     case 1:
       return (
-        <AreaSelection
+        <BookAreaStep
           areaCodes={areaCodes}
           subareaCodes={subareaCodes}
           category={category}
@@ -123,25 +163,23 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
 
     case 2:
       return (
-        <BookSearchList
+        <BookSearchStep
           books={filteredBooks}
           isLoading={isLoading}
           search={search}
           onSearchChange={setSearch}
           onSelectBook={handleSelectBook}
-          onAddNewBook={() => {
-            setAddType("novo");
-            setStep(3);
-          }}
+          onAddNewBook={handleAddNewBook}
+          onAddNewVolume={handleAddNewVolume}
           onPrevious={() => setStep(1)}
           onCancel={onCancel}
-          mode="add" 
+          mode="add"
         />
       );
 
     case 3:
       return (
-        <LanguageSelection
+        <BookLanguageStep
           onLanguageSelect={(lang) => {
             setLanguage(lang);
             setStep(4);
@@ -152,22 +190,24 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
 
     case 4:
       return (
-        <BookDetailsForm
+        <BookDetailsStep
           title={title}
-          subtitle={subtitle} 
+          subtitle={subtitle}
           authors={authors}
           edition={edition}
           volume={volume}
-          isExemplar={Boolean(isExemplar)}
+          isExemplar={addType === "exemplar"}
+          addType={addType || ""}
           selectedBook={selectedBook}
           onTitleChange={setTitle}
-          onSubtitleChange={setSubtitle} 
+          onSubtitleChange={setSubtitle}
           onAuthorsChange={setAuthors}
           onEditionChange={setEdition}
           onVolumeChange={setVolume}
           onSubmit={handleSubmit}
           onPrevious={() => setStep(3)}
           isSubmitting={isSubmitting}
+          isVolumeLocked={isVolumeLocked} // passa nova prop
         />
       );
 

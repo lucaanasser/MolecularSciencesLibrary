@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const booksController = require('../controllers/BooksController');
 
-// Adiciona um novo livro ou exemplar
+// Adiciona um novo livro
 router.post('/', async (req, res) => {
     try {
         const bookData = req.body;
@@ -19,8 +19,8 @@ router.post('/', async (req, res) => {
 // Busca livros, com filtros opcionais de categoria e subcategoria
 router.get('/', async (req, res) => {
     try {
-        const { category, subcategory, q } = req.query; // <-- adicione q
-        const books = await booksController.getBooks(category, subcategory, q); // <-- passe q
+        const { category, subcategory, q } = req.query;
+        const books = await booksController.getBooks(category, subcategory, q);
         res.status(200).json(books);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving books: ' + error.message });
@@ -36,7 +36,7 @@ router.get('/options', (req, res) => {
 // Busca um livro específico pelo ID
 router.get('/:id', async (req, res) => {
     try {
-        const book = await booksController.getBookById(req.params.id);
+        const book = await booksController.getBookById(Number(req.params.id));
         if (book) {
             res.status(200).json(book);
         } else {
@@ -47,11 +47,11 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Remove um exemplar (ou livro) pelo ID e reordena
+// Remove um livro pelo ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await booksController.deleteBook(id);
+        const result = await booksController.deleteBook(Number(id));
         res.status(200).json(result);
     } catch (error) {
         if (error.message === 'Livro não encontrado') {

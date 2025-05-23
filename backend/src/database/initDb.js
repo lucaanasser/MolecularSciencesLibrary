@@ -51,18 +51,16 @@ db.serialize(() => {
     // BOOKS TABLE
     db.run(`
         CREATE TABLE IF NOT EXISTS books (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER UNIQUE PRIMARY KEY,
+            code TEXT NOT NULL, 
             area TEXT NOT NULL,
             subarea INTEGER NOT NULL,
-            authors TEXT NOT NULL,
-            edition INTEGER NOT NULL, 
-            language INTEGER NOT NULL,
-            volume INTEGER NOT NULL,
-            exemplar INTEGER NOT NULL,
-            code TEXT NOT NULL,
             title TEXT NOT NULL,
             subtitle TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            authors TEXT NOT NULL,
+            edition INTEGER NOT NULL,
+            volume INTEGER,
+            language INTEGER NOT NULL
         )
     `, (err) => {
         if (err) {
@@ -73,32 +71,32 @@ db.serialize(() => {
 
         // Insert test data
         const testBook = {
+            id: 9781234567890, 
             area: 'Variados',
             subarea: 1,
             authors: 'Teste',
             edition: 1,
             language: 2, 
-            volume: 1,
-            exemplar: 1,
-            code: 'VAR-01.01 v1',
+            code: 'VAR-01.01-v1',
             title: 'Teste de Livro',
             subtitle: 'Teste de Subtitulo',
+            volume: 1 
         };
 
         db.run(`
-            INSERT INTO books (area, subarea, authors, edition, language, volume, exemplar, code, title, subtitle)
+            INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
+            testBook.id,
             testBook.area,
             testBook.subarea,
             testBook.authors,
             testBook.edition,
             testBook.language,
-            testBook.volume,
-            testBook.exemplar,
             testBook.code,
             testBook.title,
-            testBook.subtitle
+            testBook.subtitle,
+            testBook.volume 
         ], function(err) {
             if (err) {
                 console.error('Error inserting test data:', err.message);

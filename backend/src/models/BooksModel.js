@@ -31,20 +31,20 @@ class BooksModel {
 
     async insertBook(bookData) {
         const query = `
-            INSERT INTO books (area, subarea, authors, edition, language, volume, exemplar, code, title, subtitle)
+            INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const params = [
+            bookData.id,
             bookData.area,
             bookData.subarea,
             bookData.authors,
             bookData.edition,
             bookData.language,
-            bookData.volume,
-            bookData.exemplar,
             bookData.code,
             bookData.title,
             bookData.subtitle,
+            bookData.volume
         ];
         return await executeQuery(query, params);
     }
@@ -62,13 +62,6 @@ class BooksModel {
         return await getQuery(query, [area, subarea]);
     }
 
-    async getMaxExemplarByCode(code) {
-        const query = `
-            SELECT MAX(exemplar) as maxExemplar FROM books WHERE code = ?
-        `;
-        return await getQuery(query, [code]);
-    }
-
     async deleteBook(id) {
         const query = `DELETE FROM books WHERE id = ?`;
         console.log(`[MODEL] Executando query: ${query} com id=${id}`);
@@ -77,104 +70,23 @@ class BooksModel {
         return result > 0;
     }
 
-    // Adiciona um novo exemplar para um código de livro
-    async addExemplar(bookData) {
-        // Conta quantos exemplares já existem para esse código
-        const countSql = `SELECT COUNT(*) as total FROM books WHERE code = ?`;
-        const { total } = await getQuery(countSql, [bookData.code]);
-        const exemplarNumber = total + 1;
-
-        const sql = `
-            INSERT INTO books (code, title, authors, edition, volume, subtitle, language, area, subarea, exemplar)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        await executeQuery(sql, [
-            bookData.code,
-            bookData.title,
-            bookData.authors,
-            bookData.edition,
-            bookData.volume,
-            bookData.subtitle,
-            bookData.language,
-            bookData.area,
-            bookData.subarea,
-            exemplarNumber
-        ]);
-        return exemplarNumber;
-    }
-
-    // Remove um exemplar e reordena os demais
-    async removeExemplarById(id) {
-        // Busca o exemplar a ser removido
-        const book = await this.getBookById(id);
-        if (!book) throw new Error('Livro não encontrado');
-
-        // Remove o exemplar
-        const deleteSql = `DELETE FROM books WHERE id = ?`;
-        await executeQuery(deleteSql, [id]);
-
-        // Reordena os exemplares restantes
-        const reorderSql = `
-            UPDATE books
-            SET exemplar = exemplar - 1
-            WHERE code = ? AND exemplar > ?
-        `;
-        await executeQuery(reorderSql, [book.code, book.exemplar]);
-    }
-
-    // Busca todos os exemplares de um código, ordenados
-    async getExemplaresByCode(code) {
-        const sql = `SELECT * FROM books WHERE code = ? ORDER BY exemplar ASC`;
-        return await allQuery(sql, [code]);
-    }
-
-    // Adiciona um novo livro (primeiro exemplar)
-    async addNewBook(bookData) {
-        const sql = `
-            INSERT INTO books (code, title, authors, edition, volume, subtitle, language, area, subarea, exemplar)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-        `;
-        await executeQuery(sql, [
-            bookData.code,
-            bookData.title,
-            bookData.authors,
-            bookData.edition,
-            bookData.volume,
-            bookData.subtitle,
-            bookData.language,
-            bookData.area,
-            bookData.subarea
-        ]);
-        return 1;
-    }
-
-    async borrowBook(bookId, exemplar, studentId) {
+    async borrowBook(bookId, studentId) {
         const query = `
-            INSERT INTO borrowed_books (book_id, exemplar, student_id)
-            VALUES (?, ?, ?)
+            INSERT INTO borrowed_books (book_id, student_id)
+            VALUES (?, ?)
         `;
-        return await executeQuery(query, [bookId, exemplar, studentId]);
+        return await executeQuery(query, [bookId, studentId]);
     }
 
-    async returnBook(bookId, exemplar) {
+    async returnBook(bookId) {
         const query = `
             UPDATE borrowed_books
             SET returned_at = CURRENT_TIMESTAMP
-            WHERE book_id = ? AND exemplar = ? AND returned_at IS NULL
+            WHERE book_id = ? AND returned_at IS NULL
         `;
-        return await executeQuery(query, [bookId, exemplar]);
+        return await executeQuery(query, [bookId]);
     }
 
-    async isBookAvailable(bookId, exemplar) {
-        const query = `
-            SELECT * FROM borrowed_books
-            WHERE book_id = ? AND exemplar = ? AND returned_at IS NULL
-        `;
-        const result = await getQuery(query, [bookId, exemplar]);
-        return !result; // true se não existe empréstimo ativo
-    }
-
-    // Retorna todos os empréstimos ativos para todos os livros
     async getBorrowedBooks() {
         const query = `
             SELECT * FROM borrowed_books WHERE returned_at IS NULL

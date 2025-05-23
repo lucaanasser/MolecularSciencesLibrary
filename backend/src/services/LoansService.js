@@ -53,6 +53,24 @@ class LoansService {
     async returnBook(loan_id) {
         return await LoansModel.returnLoan(loan_id);
     }
+
+    // Registra devolução de um empréstimo autenticando pelo usuário e livro
+    async returnBookByUserAndBook(NUSP, password, book_id) {
+        // 1. Busca usuário
+        const user = await UsersModel.getUserByNUSP(NUSP);
+        if (!user) throw new Error('Usuário não encontrado');
+
+        // 2. Verifica senha
+        const passwordMatch = await bcrypt.compare(password, user.password_hash);
+        if (!passwordMatch) throw new Error('Senha incorreta');
+
+        // 3. Busca empréstimo ativo desse usuário para o livro
+        const loan = await LoansModel.getActiveLoanByUserAndBook(user.id, book_id);
+        if (!loan) throw new Error('Nenhum empréstimo ativo encontrado para este usuário e livro');
+
+        // 4. Marca como devolvido
+        return await LoansModel.returnLoan(loan.loan_id || loan.id);
+    }
 }
 
 module.exports = new LoansService();
