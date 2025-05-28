@@ -1,5 +1,13 @@
 import { useState } from "react";
 
+/**
+ * Hook para adicionar usuário.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export function useAddUser() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -8,6 +16,7 @@ export function useAddUser() {
     setLoading(true);
     setError(null);
     try {
+      console.log("🔵 [useAddUser] Adicionando usuário:", user.name, user.NUSP, user.email);
       const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -15,11 +24,15 @@ export function useAddUser() {
       });
       if (!res.ok) {
         const data = await res.json();
+        console.error("🔴 [useAddUser] Erro ao adicionar usuário:", data.error);
         throw new Error(data.error || "Erro ao adicionar usuário");
       }
-      return await res.json();
+      const data = await res.json();
+      console.log("🟢 [useAddUser] Usuário adicionado com sucesso:", data);
+      return data;
     } catch (err: any) {
       setError(err.message || "Erro ao adicionar usuário");
+      console.error("🔴 [useAddUser] Erro ao adicionar usuário:", err);
       throw err;
     } finally {
       setLoading(false);

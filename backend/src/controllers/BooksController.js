@@ -1,5 +1,11 @@
 // BooksController gerencia as operações de controle para livros, 
 // conectando as rotas aos serviços.
+// Padrão de logs:
+// 🔵 Início de operação
+// 🟢 Sucesso
+// 🟡 Aviso/Fluxo alternativo
+// 🔴 Erro
+
 const booksService = require('../services/BooksService');
 
 class BooksController {
@@ -13,7 +19,15 @@ class BooksController {
      * @returns {Promise<Object>} Resultado da operação
      */
     async addBook(bookData) {
-        return await booksService.addBook(bookData);
+        try {
+            console.log("🔵 [BooksController] Iniciando adição de livro:", bookData.title || bookData.code);
+            const result = await booksService.addBook(bookData);
+            console.log("🟢 [BooksController] Livro adicionado com sucesso:", result);
+            return result;
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao adicionar livro:", error.message);
+            throw error;
+        }
     }
 
     /**
@@ -22,7 +36,19 @@ class BooksController {
      * @returns {Promise<Object>} Livro encontrado
      */
     async getBookById(id) {
-        return await booksService.getBookById(id);
+        try {
+            console.log(`🔵 [BooksController] Buscando livro por id: ${id}`);
+            const book = await booksService.getBookById(id);
+            if (book) {
+                console.log("🟢 [BooksController] Livro encontrado:", book);
+            } else {
+                console.warn("🟡 [BooksController] Livro não encontrado para id:", id);
+            }
+            return book;
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao buscar livro:", error.message);
+            throw error;
+        }
     }
 
     /**
@@ -32,11 +58,15 @@ class BooksController {
      * @returns {Promise<Array>} Lista de livros encontrados
      */
     async getBooks(category, subcategory, searchTerm) {
-        return await booksService.getBooks(
-            category, 
-            subcategory ? parseInt(subcategory, 10) : undefined, 
-            searchTerm
-        );
+        try {
+            console.log(`🔵 [BooksController] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
+            const books = await booksService.getBooks(category, subcategory, searchTerm);
+            console.log(`🟢 [BooksController] Livros encontrados: ${books.length}`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao buscar livros:", error.message);
+            throw error;
+        }
     }
 
     /**
@@ -44,7 +74,10 @@ class BooksController {
      * @returns {Object} Objeto com areaCodes e subareaCodes
      */
     getCategoryMappings() {
-        return booksService.getCategoryMappings();
+        console.log("🔵 [BooksController] Obtendo mapeamentos de categorias e subcategorias");
+        const mappings = booksService.getCategoryMappings();
+        console.log("🟢 [BooksController] Mapeamentos obtidos");
+        return mappings;
     }
 
     /**
@@ -53,9 +86,15 @@ class BooksController {
      * @returns {Promise<Object>} Resultado da operação
      */
     async deleteBook(id) {
-        console.log(`[CONTROLLER] Chamando service para remover livro ${id}`);
-        await booksService.removeBookById(id);
-        return { success: true, message: 'Livro removido com sucesso' };
+        try {
+            console.log(`🔵 [BooksController] Removendo livro id=${id}`);
+            await booksService.removeBookById(id);
+            console.log(`🟢 [BooksController] Livro removido com sucesso: id=${id}`);
+            return { success: true, message: 'Livro removido com sucesso' };
+        } catch (error) {
+            console.error(`🔴 [BooksController] Erro ao remover livro: ${error.message}`);
+            throw error;
+        }
     }
 
     /**
@@ -67,8 +106,15 @@ class BooksController {
     async borrowBook(req, res) {
         const { bookId, studentId } = req.body;
         const sid = studentId || Math.floor(Math.random() * 10000);
-        await booksService.borrowBook(bookId, sid);
-        res.status(200).json({ success: true, message: 'Livro emprestado com sucesso' });
+        console.log(`🔵 [BooksController] Emprestando livro bookId=${bookId} para studentId=${sid}`);
+        try {
+            await booksService.borrowBook(bookId, sid);
+            console.log(`🟢 [BooksController] Livro emprestado com sucesso: bookId=${bookId}, studentId=${sid}`);
+            res.status(200).json({ success: true, message: 'Livro emprestado com sucesso' });
+        } catch (error) {
+            console.error(`🔴 [BooksController] Erro ao emprestar livro: ${error.message}`);
+            res.status(400).json({ success: false, message: error.message });
+        }
     }
 
     /**
@@ -79,8 +125,15 @@ class BooksController {
      */
     async returnBook(req, res) {
         const { bookId } = req.body;
-        await booksService.returnBook(bookId);
-        res.status(200).json({ success: true, message: 'Livro devolvido com sucesso' });
+        console.log(`🔵 [BooksController] Devolvendo livro bookId=${bookId}`);
+        try {
+            await booksService.returnBook(bookId);
+            console.log(`🟢 [BooksController] Livro devolvido com sucesso: bookId=${bookId}`);
+            res.status(200).json({ success: true, message: 'Livro devolvido com sucesso' });
+        } catch (error) {
+            console.error(`🔴 [BooksController] Erro ao devolver livro: ${error.message}`);
+            res.status(400).json({ success: false, message: error.message });
+        }
     }
 }
 

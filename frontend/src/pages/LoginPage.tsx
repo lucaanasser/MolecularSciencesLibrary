@@ -1,7 +1,9 @@
-
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import LoginForm from "@/components/LoginForm";
+
+// Log de início de renderização da página de login
+console.log("🔵 [LoginPage] Renderizando página de login");
 
 const LoginPage = () => {
   return (

@@ -10,7 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+/**
+ * Painel de busca de livros.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 const BookSearch: React.FC = () => {
+  // Log de início de renderização
+  console.log("🔵 [BookSearchPanel] Renderizando painel de busca de livros");
   const {
     category,
     setCategory,
@@ -42,7 +52,10 @@ const BookSearch: React.FC = () => {
                 type="text"
                 placeholder="Digite título, autor ou palavra-chave..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => {
+                  console.log("🟢 [BookSearchPanel] Termo de busca alterado:", e.target.value);
+                  setSearch(e.target.value);
+                }}
                 className="pl-10 rounded-2xl"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -50,7 +63,11 @@ const BookSearch: React.FC = () => {
           </div>
 
           <div>
-            <Select value={category || undefined} onValueChange={setCategory}>
+            <Select value={category || undefined} onValueChange={value => {
+              console.log("🟢 [BookSearchPanel] Categoria selecionada:", value);
+              setCategory(value);
+              setSubcategory("");
+            }}>
               <SelectTrigger className="rounded-2xl">
                 <SelectValue placeholder="Selecione a categoria" />
               </SelectTrigger>
@@ -69,7 +86,10 @@ const BookSearch: React.FC = () => {
           <div>
             <Select
               value={subcategory || undefined}
-              onValueChange={setSubcategory}
+              onValueChange={value => {
+                console.log("🟢 [BookSearchPanel] Subcategoria selecionada:", value);
+                setSubcategory(value);
+              }}
               disabled={!category}
             >
               <SelectTrigger className="rounded-2xl">
@@ -91,7 +111,10 @@ const BookSearch: React.FC = () => {
           </div>
 
           <div>
-            <Select value={filterAvailable} onValueChange={v => setFilterAvailable(v as any)}>
+            <Select value={filterAvailable} onValueChange={v => {
+              console.log("🟢 [BookSearchPanel] Filtro de disponibilidade alterado:", v);
+              setFilterAvailable(v as any);
+            }}>
               <SelectTrigger className="rounded-2xl">
                 <SelectValue placeholder="Disponibilidade" />
               </SelectTrigger>
@@ -142,6 +165,10 @@ const BookSearch: React.FC = () => {
                       variant="outline"
                       size="sm"
                       className="rounded-xl text-cm-blue border-cm-blue hover:bg-cm-blue/10"
+                      onClick={() => {
+                        console.log("🟢 [BookSearchPanel] Detalhes do livro clicado:", book);
+                        // Aqui você pode abrir um modal de detalhes, se desejar
+                      }}
                     >
                       Detalhes
                     </Button>

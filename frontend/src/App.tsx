@@ -10,8 +10,11 @@ import VirtualShelfPage from "./pages/VirtualShelfPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
-import ProAlunoPage from "./pages/ProAlunoPage"; // Adicione esta linha
+import ProAlunoPage from "./pages/ProAlunoPage"; 
 import ProtectedRoute from "@/components/ProtectedRoute"; 
+
+// Log de início de renderização do App
+console.log("🔵 [App] Renderizando componente raiz da aplicação");
 
 const queryClient = new QueryClient();
 
@@ -29,7 +32,7 @@ const App = () => (
           <Route
             path="/profile"
             element={
-              <ProtectedRoute allowedRoles={["aluno", "admin", "proaluno"]}> {/* Adicionado proaluno aqui também, caso queiram ver o perfil */}
+              <ProtectedRoute allowedRoles={["aluno", "admin", "proaluno"]}>
                 <ProfilePage />
               </ProtectedRoute>
             }
@@ -43,7 +46,7 @@ const App = () => (
             }
           />
           <Route
-            path="/proaluno" // Nova rota para Pró-Aluno
+            path="/proaluno"
             element={
               <ProtectedRoute allowedRoles={["proaluno"]}>
                 <ProAlunoPage />

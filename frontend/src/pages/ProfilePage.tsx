@@ -7,6 +7,9 @@ import { BookOpen, Clock, Bell } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanHistory from "@/features/loans/components/LoanHistory";
 
+// Log de início de renderização da página de perfil
+console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
+
 const mockNotifications = [
   {
     id: "n1",

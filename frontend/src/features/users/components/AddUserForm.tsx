@@ -1,9 +1,17 @@
 import { useState } from "react";
-import { useAddUser } from "../hooks/useAddUser";
+import { useAddUser } from "../hooks/useCreateUser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+/**
+ * Formulário para adicionar usuário.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 interface AddUserFormProps {
   onSuccess?: () => void;
   onError?: (err: Error) => void;
@@ -19,14 +27,17 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("🔵 [AddUserForm] Adicionando usuário:", name, NUSP, email);
       await addUser({ name, email, password, NUSP: Number(NUSP) });
       setName("");
       setNUSP("");
       setEmail("");
       setPassword("");
       onSuccess && onSuccess();
+      console.log("🟢 [AddUserForm] Usuário adicionado com sucesso");
     } catch (err: any) {
       onError && onError(err);
+      console.error("🔴 [AddUserForm] Erro ao adicionar usuário:", err);
     }
   };
 

@@ -6,7 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ * Formulário de login.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 const LoginForm: React.FC = () => {
+  // Log de início de renderização
+  console.log("🔵 [LoginForm] Renderizando formulário de login");
   const [matricula, setMatricula] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +28,7 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log("🔵 [LoginForm] Tentando autenticar usuário:", matricula);
       const res = await fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,6 +38,7 @@ const LoginForm: React.FC = () => {
       const data = await res.json();
 
       if (!res.ok) {
+        console.error("🔴 [LoginForm] Erro de autenticação:", data.error);
         throw new Error(data.error || "Erro ao autenticar");
       }
 
@@ -39,6 +51,8 @@ const LoginForm: React.FC = () => {
         description: `Bem-vindo, ${data.name}!`,
       });
 
+      console.log("🟢 [LoginForm] Login realizado com sucesso para:", data.name);
+
       // Redireciona conforme o papel
       if (data.role === "admin") {
         navigate("/admin");
@@ -48,6 +62,7 @@ const LoginForm: React.FC = () => {
         navigate("/profile");
       }
     } catch (err: any) {
+      console.error("🔴 [LoginForm] Erro ao autenticar:", err.message);
       toast({
         title: "Erro de autenticação",
         description: err.message || "Matrícula ou senha incorreta.",

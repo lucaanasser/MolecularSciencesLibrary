@@ -1,11 +1,30 @@
 import { useUserList } from "../hooks/useUserList";
 
+/**
+ * Lista de usuários cadastrados.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 const UserList: React.FC = () => {
   const { users, loading, error } = useUserList();
 
-  if (loading) return <div>Carregando usuários...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (!users.length) return <div>Nenhum usuário cadastrado.</div>;
+  if (loading) {
+    console.log("🔵 [UserList] Carregando usuários...");
+    return <div>Carregando usuários...</div>;
+  }
+  if (error) {
+    console.error("🔴 [UserList] Erro ao carregar usuários:", error);
+    return <div className="text-red-600">{error}</div>;
+  }
+  if (!users.length) {
+    console.warn("🟡 [UserList] Nenhum usuário cadastrado.");
+    return <div>Nenhum usuário cadastrado.</div>;
+  }
+
+  console.log("🟢 [UserList] Usuários carregados:", users.length);
 
   return (
     <div className="overflow-x-auto">

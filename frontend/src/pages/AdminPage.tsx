@@ -13,6 +13,9 @@ import RemoveUserForm from "@/features/users/components/RemoveUserForm";
 import LoanForm from "@/features/loans/components/LoanForm"; 
 import ReturnLoanForm from "@/features/loans/components/ReturnLoanForm"; 
 
+// Log de início de renderização da página Admin
+console.log("🔵 [AdminPage] Renderizando painel administrativo");
+
 // Error Boundary to prevent UI crashes
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -34,7 +37,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("UI Error caught:", error, errorInfo);
+    console.error("🔴 [AdminPage] UI Error caught:", error, errorInfo);
   }
 
   render() {
@@ -62,6 +65,9 @@ const ManageBooks = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Log de início de renderização do gerenciamento de livros
+  console.log("🔵 [AdminPage/ManageBooks] Renderizando gerenciamento de livros");
+
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Gerenciamento de Livros</h2>
@@ -84,7 +90,10 @@ const ManageBooks = () => {
           <CardContent>
             <Button 
               className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-110" 
-              onClick={() => setSelectedTab("add")}
+              onClick={() => {
+                console.log("🔵 [AdminPage/ManageBooks] Selecionado: Adicionar Livro");
+                setSelectedTab("add");
+              }}
               disabled={isLoading}
             >
               Adicionar
@@ -98,7 +107,10 @@ const ManageBooks = () => {
           <CardContent>
             <Button 
               className="w-full bg-cm-red hover:bg-cm-red/90 hover:scale-110"
-              onClick={() => setSelectedTab("remove")}
+              onClick={() => {
+                console.log("🔵 [AdminPage/ManageBooks] Selecionado: Remover Livro");
+                setSelectedTab("remove");
+              }}
               disabled={isLoading}
             >
               Remover
@@ -112,7 +124,10 @@ const ManageBooks = () => {
           <Button 
             variant="outline" 
             className="mb-4 rounded-xl" 
-            onClick={() => setSelectedTab(null)}
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageBooks] Voltar do formulário de adicionar livro");
+              setSelectedTab(null);
+            }}
           >
             Voltar
           </Button>
@@ -123,14 +138,17 @@ const ManageBooks = () => {
             <CardContent>
               <ErrorBoundary>
                 <AddBookForm
-                  onCancel={() => setSelectedTab(null)}
+                  onCancel={() => {
+                    console.warn("🟡 [AdminPage/ManageBooks] Cancelar adicionar livro");
+                    setSelectedTab(null);
+                  }}
                   onSuccess={() => {
                     setSelectedTab(null);
-                    // Possibly update a book list or show success message
+                    console.log("🟢 [AdminPage/ManageBooks] Livro adicionado com sucesso");
                   }}
                   onError={(err) => {
                     setError(err.message || "Erro ao processar a requisição");
-                    console.error("Book form error:", err);
+                    console.error("🔴 [AdminPage/ManageBooks] Book form error:", err);
                   }}
                 />
               </ErrorBoundary>
@@ -144,7 +162,10 @@ const ManageBooks = () => {
           <Button 
             variant="outline" 
             className="mb-4 rounded-xl" 
-            onClick={() => setSelectedTab(null)}
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageBooks] Voltar do formulário de remover livro");
+              setSelectedTab(null);
+            }}
           >
             Voltar
           </Button>
@@ -155,14 +176,17 @@ const ManageBooks = () => {
             <CardContent>
               <ErrorBoundary>
                 <RemoveBookForm
-                  onCancel={() => setSelectedTab(null)}
+                  onCancel={() => {
+                    console.warn("🟡 [AdminPage/ManageBooks] Cancelar remover livro");
+                    setSelectedTab(null);
+                  }}
                   onSuccess={() => {
                     setSelectedTab(null);
-                    // Could add a success message here
+                    console.log("🟢 [AdminPage/ManageBooks] Livro removido com sucesso");
                   }}
                   onError={(err) => {
                     setError(err.message || "Erro ao remover o livro");
-                    console.error("Book removal error:", err);
+                    console.error("🔴 [AdminPage/ManageBooks] Book removal error:", err);
                   }}
                 />
               </ErrorBoundary>
@@ -181,6 +205,9 @@ const ManageUsers = () => {
   const [showRemoveForm, setShowRemoveForm] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  // Log de início de renderização do gerenciamento de usuários
+  console.log("🔵 [AdminPage/ManageUsers] Renderizando gerenciamento de usuários");
+
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Gerenciamento de Usuários</h2>
@@ -198,15 +225,20 @@ const ManageUsers = () => {
                   onSuccess={() => {
                     setShowAddForm(false);
                     setSuccessMsg("Usuário adicionado com sucesso!");
+                    console.log("🟢 [AdminPage/ManageUsers] Usuário adicionado com sucesso");
                   }}
                   onError={(err) => {
                     setSuccessMsg(`Erro: ${err.message}`);
+                    console.error("🔴 [AdminPage/ManageUsers] Erro ao adicionar usuário:", err);
                   }}
                 />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => {
+                    console.warn("🟡 [AdminPage/ManageUsers] Cancelar adicionar usuário");
+                    setShowAddForm(false);
+                  }}
                 >
                   Cancelar
                 </Button>
@@ -214,7 +246,10 @@ const ManageUsers = () => {
             ) : (
               <Button
                 className="w-full bg-cm-green hover:bg-cm-green/90"
-                onClick={() => setShowAddForm(true)}
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageUsers] Selecionado: Adicionar Usuário");
+                  setShowAddForm(true);
+                }}
               >
                 Adicionar
               </Button>
@@ -236,7 +271,10 @@ const ManageUsers = () => {
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
-                  onClick={() => setShowUserList(false)}
+                  onClick={() => {
+                    console.warn("🟡 [AdminPage/ManageUsers] Fechar lista de usuários");
+                    setShowUserList(false);
+                  }}
                 >
                   Fechar
                 </Button>
@@ -244,7 +282,10 @@ const ManageUsers = () => {
             ) : (
               <Button
                 className="w-full bg-cm-blue hover:bg-cm-blue/90"
-                onClick={() => setShowUserList(true)}
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageUsers] Selecionado: Ver Todos Usuários");
+                  setShowUserList(true);
+                }}
               >
                 Ver Todos
               </Button>
@@ -263,15 +304,20 @@ const ManageUsers = () => {
                   onSuccess={() => {
                     setShowRemoveForm(false);
                     setSuccessMsg("Usuário removido com sucesso!");
+                    console.log("🟢 [AdminPage/ManageUsers] Usuário removido com sucesso");
                   }}
                   onError={(err) => {
                     setSuccessMsg(`Erro: ${err.message}`);
+                    console.error("🔴 [AdminPage/ManageUsers] Erro ao remover usuário:", err);
                   }}
                 />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
-                  onClick={() => setShowRemoveForm(false)}
+                  onClick={() => {
+                    console.warn("🟡 [AdminPage/ManageUsers] Cancelar remover usuário");
+                    setShowRemoveForm(false);
+                  }}
                 >
                   Cancelar
                 </Button>
@@ -279,7 +325,10 @@ const ManageUsers = () => {
             ) : (
               <Button
                 className="w-full bg-cm-red hover:bg-cm-red/90"
-                onClick={() => setShowRemoveForm(true)}
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageUsers] Selecionado: Remover Usuário");
+                  setShowRemoveForm(true);
+                }}
               >
                 Remover
               </Button>
@@ -299,6 +348,9 @@ const ManageLoans = () => {
   const [showLoanForm, setShowLoanForm] = useState(false);
   const [showReturnForm, setShowReturnForm] = useState(false);
 
+  // Log de início de renderização do gerenciamento de empréstimos
+  console.log("🔵 [AdminPage/ManageLoans] Renderizando gerenciamento de empréstimos");
+
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Gerenciamento de Empréstimos</h2>
@@ -311,11 +363,17 @@ const ManageLoans = () => {
           <CardContent>
             {showLoanForm ? (
               <>
-                <LoanForm onSuccess={() => setShowLoanForm(false)} />
+                <LoanForm onSuccess={() => {
+                  setShowLoanForm(false);
+                  console.log("🟢 [AdminPage/ManageLoans] Empréstimo registrado com sucesso");
+                }} />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
-                  onClick={() => setShowLoanForm(false)}
+                  onClick={() => {
+                    console.warn("🟡 [AdminPage/ManageLoans] Cancelar registrar empréstimo");
+                    setShowLoanForm(false);
+                  }}
                 >
                   Cancelar
                 </Button>
@@ -323,7 +381,10 @@ const ManageLoans = () => {
             ) : (
               <Button
                 className="w-full bg-cm-green hover:bg-cm-green/90"
-                onClick={() => setShowLoanForm(true)}
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageLoans] Selecionado: Registrar Empréstimo");
+                  setShowLoanForm(true);
+                }}
               >
                 Registrar
               </Button>
@@ -337,11 +398,17 @@ const ManageLoans = () => {
           <CardContent>
             {showReturnForm ? (
               <>
-                <ReturnLoanForm onSuccess={() => setShowReturnForm(false)} />
+                <ReturnLoanForm onSuccess={() => {
+                  setShowReturnForm(false);
+                  console.log("🟢 [AdminPage/ManageLoans] Devolução processada com sucesso");
+                }} />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
-                  onClick={() => setShowReturnForm(false)}
+                  onClick={() => {
+                    console.warn("🟡 [AdminPage/ManageLoans] Cancelar devolução");
+                    setShowReturnForm(false);
+                  }}
                 >
                   Cancelar
                 </Button>
@@ -349,7 +416,10 @@ const ManageLoans = () => {
             ) : (
               <Button
                 className="w-full bg-cm-orange hover:bg-cm-orange/90"
-                onClick={() => setShowReturnForm(true)}
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageLoans] Selecionado: Processar Devolução");
+                  setShowReturnForm(true);
+                }}
               >
                 Processar
               </Button>
@@ -370,95 +440,110 @@ const ManageLoans = () => {
 };
 
 // --- Notificações ---
-const Notifications = () => (
-  <div className="p-4">
-    <h2 className="text-2xl mb-4">Notificações</h2>
-    <p>Envie notificações para usuários sobre devoluções e eventos.</p>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Enviar Avisos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-yellow hover:bg-cm-yellow/90 text-black">Enviar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Histórico de Notificações</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Ver Todos</Button>
-        </CardContent>
-      </Card>
+const Notifications = () => {
+  // Log de início de renderização das notificações
+  console.log("🔵 [AdminPage/Notifications] Renderizando notificações");
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Notificações</h2>
+      <p>Envie notificações para usuários sobre devoluções e eventos.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Enviar Avisos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-yellow hover:bg-cm-yellow/90 text-black">Enviar</Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Histórico de Notificações</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Ver Todos</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Relatórios ---
-const Reports = () => (
-  <div className="p-4">
-    <h2 className="text-2xl mb-4">Relatórios</h2>
-    <p>Visualize estatísticas e relatórios sobre o uso da biblioteca.</p>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Empréstimos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Visualizar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Usuários</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-orange hover:bg-cm-orange/90">Visualizar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Acervo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-green hover:bg-cm-green/90">Visualizar</Button>
-        </CardContent>
-      </Card>
+const Reports = () => {
+  // Log de início de renderização dos relatórios
+  console.log("🔵 [AdminPage/Reports] Renderizando relatórios");
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Relatórios</h2>
+      <p>Visualize estatísticas e relatórios sobre o uso da biblioteca.</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Empréstimos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Visualizar</Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Usuários</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-orange hover:bg-cm-orange/90">Visualizar</Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Acervo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-green hover:bg-cm-green/90">Visualizar</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Configurações ---
-const Settings = () => (
-  <div className="p-4">
-    <h2 className="text-2xl mb-4">Configurações</h2>
-    <p>Ajuste as configurações do sistema da biblioteca.</p>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Configurações Gerais</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-gray-700 hover:bg-gray-800">Editar</Button>
-        </CardContent>
-      </Card>
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Regras de Empréstimo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Configurar</Button>
-        </CardContent>
-      </Card>
+const Settings = () => {
+  // Log de início de renderização das configurações
+  console.log("🔵 [AdminPage/Settings] Renderizando configurações");
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Configurações</h2>
+      <p>Ajuste as configurações do sistema da biblioteca.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Configurações Gerais</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-gray-700 hover:bg-gray-800">Editar</Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Regras de Empréstimo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Configurar</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Página Principal do Admin ---
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("books");
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  // Log de início de renderização do componente principal do Admin
+  console.log("🔵 [AdminPage] Renderizando componente principal do painel admin");
 
   // Ensure the page is fully loaded before rendering content
   useEffect(() => {

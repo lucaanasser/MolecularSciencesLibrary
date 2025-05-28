@@ -5,6 +5,15 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
+/**
+ * Hook para exibir toasts/avisos.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
+
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
@@ -74,12 +83,14 @@ const addToRemoveQueue = (toastId: string) => {
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
+      console.log("🔵 [use-toast] Adicionando toast:", action.toast.title || action.toast.description);
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
       }
 
     case "UPDATE_TOAST":
+      console.log("🟢 [use-toast] Atualizando toast:", action.toast.id);
       return {
         ...state,
         toasts: state.toasts.map((t) =>
@@ -90,12 +101,12 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
+        console.warn("🟡 [use-toast] Dismiss toast:", toastId);
         addToRemoveQueue(toastId)
       } else {
         state.toasts.forEach((toast) => {
+          console.warn("🟡 [use-toast] Dismiss all toasts");
           addToRemoveQueue(toast.id)
         })
       }
@@ -114,11 +125,13 @@ export const reducer = (state: State, action: Action): State => {
     }
     case "REMOVE_TOAST":
       if (action.toastId === undefined) {
+        console.log("🟢 [use-toast] Removendo todos os toasts");
         return {
           ...state,
           toasts: [],
         }
       }
+      console.log("🟢 [use-toast] Removendo toast:", action.toastId);
       return {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.toastId),

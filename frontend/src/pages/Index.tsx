@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import { BookOpen, Search, User } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
+// Log de início de renderização da página inicial
+console.log("🔵 [Index] Renderizando página inicial");
+
 const Index = () => {
   const { scrollYProgress } = useScroll();
   const translateY = useTransform(scrollYProgress, [0, 1], [0, -50]);

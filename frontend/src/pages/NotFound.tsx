@@ -1,6 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
+// Log de início de renderização da página 404
+console.log("🔵 [NotFound] Renderizando página 404");
+
 const NotFound = () => {
   const location = useLocation();
 

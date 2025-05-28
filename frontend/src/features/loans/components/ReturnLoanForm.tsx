@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useReturnLoan } from "../hooks/useReturnLoan";
 
+/**
+ * Formulário para registrar devolução de empréstimo.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export default function ReturnLoanForm({ onSuccess }: { onSuccess?: () => void }) {
   const [NUSP, setNUSP] = useState("");
   const [password, setPassword] = useState("");
@@ -9,11 +17,20 @@ export default function ReturnLoanForm({ onSuccess }: { onSuccess?: () => void }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!NUSP || !password || !bookId) return;
+    if (!NUSP || !password || !bookId) {
+      console.warn("🟡 [ReturnLoanForm] Campos obrigatórios não preenchidos");
+      return;
+    }
     try {
+      console.log("🔵 [ReturnLoanForm] Registrando devolução para NUSP:", NUSP, "Livro:", bookId);
       await returnLoan({ NUSP, password, book_id: Number(bookId) });
-      if (onSuccess) onSuccess();
-    } catch {}
+      if (onSuccess) {
+        console.log("🟢 [ReturnLoanForm] Devolução registrada com sucesso");
+        onSuccess();
+      }
+    } catch (err) {
+      console.error("🔴 [ReturnLoanForm] Erro ao registrar devolução:", err);
+    }
   };
 
   return (

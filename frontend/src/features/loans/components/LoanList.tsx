@@ -1,10 +1,26 @@
 import { useLoanList } from "../hooks/useLoanList";
 
+/**
+ * Lista de empréstimos registrados.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export default function LoanList() {
   const { loans, loading, error } = useLoanList();
 
-  if (loading) return <div>Carregando empréstimos...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (loading) {
+    console.log("🔵 [LoanList] Carregando empréstimos...");
+    return <div>Carregando empréstimos...</div>;
+  }
+  if (error) {
+    console.error("🔴 [LoanList] Erro ao carregar empréstimos:", error);
+    return <div className="text-red-600">{error}</div>;
+  }
+
+  console.log("🟢 [LoanList] Empréstimos carregados:", loans.length);
 
   return (
     <div>

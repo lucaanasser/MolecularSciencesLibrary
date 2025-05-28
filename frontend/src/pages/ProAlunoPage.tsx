@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import LoanForm from "@/features/loans/components/LoanForm";
 import ReturnLoanForm from "@/features/loans/components/ReturnLoanForm";
 
+// Log de início de renderização da página Pró-Aluno
+console.log("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");
+
 // Implementar lógica de autenticação/autorização para garantir
 // que apenas usuários "Pró-Aluno" possam acessar esta página.
 

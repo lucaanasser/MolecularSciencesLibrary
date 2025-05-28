@@ -1,6 +1,12 @@
 const { executeQuery, getQuery, allQuery } = require('../database/db');
 
+/**
+ * Model responsável pelo acesso ao banco de dados para a entidade usuário.
+ */
 class UsersModel {
+    /**
+     * Cria um novo usuário no banco de dados.
+     */
     async createUser({ name, email, password_hash, role, NUSP }) {
         console.log("🟢 [createUser] Criando usuário:", { name, email, role, NUSP });
         return await executeQuery(
@@ -9,6 +15,9 @@ class UsersModel {
         );
     }
 
+    /**
+     * Busca usuário por email.
+     */
     async getUserByEmail(email) {
         console.log("🟢 [getUserByEmail] email:", email);
         return await getQuery(
@@ -17,6 +26,9 @@ class UsersModel {
         );
     }
 
+    /**
+     * Busca usuário por ID.
+     */
     async getUserById(id) {
         console.log("🟢 [getUserById] id:", id);
         return await getQuery(
@@ -25,19 +37,30 @@ class UsersModel {
         );
     }
 
+    /**
+     * Lista todos os usuários (sem senha).
+     */
     async getAllUsers() {
+        console.log("🟢 [getAllUsers] Listando todos os usuários.");
         return await allQuery(
             `SELECT id, name, NUSP, email, role, created_at FROM users`
         );
     }
 
+    /**
+     * Deleta usuário por ID.
+     */
     async deleteUserById(id) {
+        console.log("🟢 [deleteUserById] id:", id);
         return await executeQuery(
             `DELETE FROM users WHERE id = ?`,
             [id]
         );
     }
 
+    /**
+     * Busca usuário por NUSP.
+     */
     async getUserByNUSP(NUSP) {
         console.log("🟢 [getUserByNUSP] NUSP:", NUSP);
         return await getQuery(

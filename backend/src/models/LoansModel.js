@@ -1,6 +1,14 @@
 const sqlite3 = require('sqlite3');
 const dbPath = process.env.DATABASE_URL?.replace('sqlite://', '') || 'app/database/library.db';
 
+/**
+ * Model responsável pelo acesso ao banco de dados para empréstimos de livros.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 function getDb() {
     return new sqlite3.Database(dbPath);
 }
@@ -8,6 +16,7 @@ function getDb() {
 module.exports = {
     // Cria um novo empréstimo
     createLoan: (book_id, student_id) => {
+        console.log(`🔵 [LoansModel] Criando empréstimo: book_id=${book_id}, student_id=${student_id}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(
@@ -15,8 +24,14 @@ module.exports = {
                 [book_id, student_id],
                 function (err) {
                     db.close();
-                    if (err) reject(err);
-                    else resolve({ id: this.lastID });
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao criar empréstimo: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        console.log(`🟢 [LoansModel] Empréstimo criado com id: ${this.lastID}`);
+                        resolve({ id: this.lastID });
+                    }
                 }
             );
         });
@@ -24,6 +39,7 @@ module.exports = {
 
     // Busca todos os empréstimos com detalhes do usuário e do livro
     getLoansWithDetails: () => {
+        console.log("🔵 [LoansModel] Buscando todos os empréstimos com detalhes");
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
@@ -37,8 +53,14 @@ module.exports = {
                 [],
                 (err, rows) => {
                     db.close();
-                    if (err) reject(err);
-                    else resolve(rows);
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao buscar empréstimos: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        console.log(`🟢 [LoansModel] Empréstimos encontrados: ${rows.length}`);
+                        resolve(rows);
+                    }
                 }
             );
         });
@@ -46,6 +68,7 @@ module.exports = {
 
     // Busca empréstimos de um usuário específico
     getLoansByUser: (userId) => {
+        console.log(`🔵 [LoansModel] Buscando empréstimos do usuário: userId=${userId}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
@@ -58,8 +81,14 @@ module.exports = {
                 [userId],
                 (err, rows) => {
                     db.close();
-                    if (err) reject(err);
-                    else resolve(rows);
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao buscar empréstimos do usuário: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        console.log(`🟢 [LoansModel] Empréstimos do usuário ${userId} encontrados: ${rows.length}`);
+                        resolve(rows);
+                    }
                 }
             );
         });
@@ -67,6 +96,7 @@ module.exports = {
 
     // Registra devolução de um empréstimo
     returnLoan: (loan_id) => {
+        console.log(`🔵 [LoansModel] Registrando devolução do empréstimo: loan_id=${loan_id}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(
@@ -74,8 +104,14 @@ module.exports = {
                 [loan_id],
                 function (err) {
                     db.close();
-                    if (err) reject(err);
-                    else resolve({ updated: this.changes });
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao registrar devolução: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        console.log(`🟢 [LoansModel] Devolução registrada para empréstimo id: ${loan_id}`);
+                        resolve({ updated: this.changes });
+                    }
                 }
             );
         });
@@ -83,6 +119,7 @@ module.exports = {
 
     // Verifica se existe empréstimo ativo para um livro
     hasActiveLoan: (book_id) => {
+        console.log(`🔵 [LoansModel] Verificando empréstimo ativo para book_id=${book_id}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.get(
@@ -90,8 +127,18 @@ module.exports = {
                 [book_id],
                 (err, row) => {
                     db.close();
-                    if (err) reject(err);
-                    else resolve(!!row); // true se existe empréstimo ativo
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao verificar empréstimo ativo: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        if (row) {
+                            console.warn(`🟡 [LoansModel] Livro ${book_id} já está emprestado`);
+                        } else {
+                            console.log(`🟢 [LoansModel] Livro ${book_id} disponível para empréstimo`);
+                        }
+                        resolve(!!row); // true se existe empréstimo ativo
+                    }
                 }
             );
         });
@@ -99,6 +146,7 @@ module.exports = {
 
     // Busca empréstimo ativo de um usuário para um livro
     getActiveLoanByUserAndBook: (userId, bookId) => {
+        console.log(`🔵 [LoansModel] Buscando empréstimo ativo do usuário ${userId} para o livro ${bookId}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.get(
@@ -106,8 +154,18 @@ module.exports = {
                 [userId, bookId],
                 (err, row) => {
                     db.close();
-                    if (err) reject(err);
-                    else resolve(row);
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao buscar empréstimo ativo: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        if (row) {
+                            console.log(`🟢 [LoansModel] Empréstimo ativo encontrado:`, row);
+                        } else {
+                            console.warn(`🟡 [LoansModel] Nenhum empréstimo ativo encontrado para usuário ${userId} e livro ${bookId}`);
+                        }
+                        resolve(row);
+                    }
                 }
             );
         });

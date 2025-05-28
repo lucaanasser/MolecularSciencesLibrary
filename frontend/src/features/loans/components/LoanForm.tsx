@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useCreateLoan } from "../hooks/useCreateLoan";
 
+/**
+ * Formulário para registrar novo empréstimo.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export default function LoanForm({ onSuccess }: { onSuccess?: () => void }) {
   const [NUSP, setNUSP] = useState("");
   const [password, setPassword] = useState("");
@@ -9,11 +17,20 @@ export default function LoanForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!NUSP || !password || !bookId) return;
+    if (!NUSP || !password || !bookId) {
+      console.warn("🟡 [LoanForm] Campos obrigatórios não preenchidos");
+      return;
+    }
     try {
+      console.log("🔵 [LoanForm] Registrando empréstimo para NUSP:", NUSP, "Livro:", bookId);
       await createLoan({ NUSP, password, book_id: Number(bookId) });
-      if (onSuccess) onSuccess();
-    } catch {}
+      if (onSuccess) {
+        console.log("🟢 [LoanForm] Empréstimo registrado com sucesso");
+        onSuccess();
+      }
+    } catch (err) {
+      console.error("🔴 [LoanForm] Erro ao registrar empréstimo:", err);
+    }
   };
 
   return (

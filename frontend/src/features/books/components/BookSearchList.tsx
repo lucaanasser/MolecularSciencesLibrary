@@ -3,6 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BookOption, AddBookType } from "@/features/books/types/book";
 
+/**
+ * Lista de busca e seleção de livros.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
+
 // Agrupa livros por código
 function groupBooksByCode(books: BookOption[]) {
   const groups: Record<string, BookOption[]> = {};
@@ -27,7 +36,7 @@ interface BookSearchListProps {
   onSearchChange: (value: string) => void;
   onSelectBook: (book: BookOption, type?: AddBookType) => void;
   onAddNewBook?: () => void;
-  onAddNewVolume?: (book: BookOption) => void; // <-- ADICIONE ESTA LINHA
+  onAddNewVolume?: (book: BookOption) => void;
   onPrevious: () => void;
   onCancel?: () => void;
   mode?: "add" | "remove"; 
@@ -40,11 +49,13 @@ export default function BookSearchList({
   onSearchChange,
   onSelectBook,
   onAddNewBook,
-  onAddNewVolume, // <-- ADICIONE ESTA LINHA
+  onAddNewVolume,
   onPrevious,
   onCancel,
   mode = "add" 
 }: BookSearchListProps) {
+  // Log de início de renderização
+  console.log("🔵 [BookSearchList] Renderizando lista de busca de livros");
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
   const grouped = groupBooksByCode(books);
@@ -60,7 +71,10 @@ export default function BookSearchList({
         type="text"
         placeholder="Buscar por nome do livro"
         value={search}
-        onChange={e => onSearchChange(e.target.value)}
+        onChange={e => {
+          console.log("🟢 [BookSearchList] Termo de busca alterado:", e.target.value);
+          onSearchChange(e.target.value);
+        }}
       />
 
       {mode === "add" && (
@@ -71,7 +85,10 @@ export default function BookSearchList({
               : "Nenhum livro encontrado nesta subárea."}
           </p>
           <Button 
-            onClick={onAddNewBook} 
+            onClick={() => {
+              console.log("🟢 [BookSearchList] Adicionar novo livro clicado");
+              onAddNewBook && onAddNewBook();
+            }} 
             className="w-full mt-2 bg-cm-green hover:bg-cm-green/90"
           >
             Não encontrei o livro
@@ -103,7 +120,10 @@ export default function BookSearchList({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setOpenGroup(openGroup === code ? null : code)}
+                    onClick={() => {
+                      console.log("🟢 [BookSearchList] Ver exemplares clicado:", code);
+                      setOpenGroup(openGroup === code ? null : code);
+                    }}
                   >
                     {openGroup === code ? "Fechar Exemplares" : "Ver Exemplares"}
                   </Button>
@@ -111,13 +131,17 @@ export default function BookSearchList({
                 {mode === "add" && (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => onSelectBook(exemplares[0], "exemplar")}
+                      onClick={() => {
+                        console.log("🟢 [BookSearchList] Adicionar novo exemplar clicado:", exemplares[0]);
+                        onSelectBook(exemplares[0], "exemplar");
+                      }}
                       className="bg-cm-blue text-white px-2 py-1 rounded"
                     >
                       Adicionar Novo Exemplar
                     </button>
                     <button
                       onClick={() => {
+                        console.log("🟢 [BookSearchList] Adicionar novo volume clicado:", exemplares[0]);
                         if (onAddNewVolume) {
                           onAddNewVolume(exemplares[0]);
                         } else {
@@ -145,7 +169,10 @@ export default function BookSearchList({
                       <Button
                         size="sm"
                         className="bg-red-500 text-white"
-                        onClick={() => onSelectBook(exemplar)}
+                        onClick={() => {
+                          console.log("🟢 [BookSearchList] Remover exemplar clicado:", exemplar);
+                          onSelectBook(exemplar);
+                        }}
                       >
                         Remover
                       </Button>
@@ -159,8 +186,14 @@ export default function BookSearchList({
       )}
 
       <div className="flex gap-2 mt-2">
-        <Button variant="outline" onClick={onPrevious}>Voltar</Button>
-        {onCancel && <Button variant="outline" onClick={onCancel}>Cancelar</Button>}
+        <Button variant="outline" onClick={() => {
+          console.warn("🟡 [BookSearchList] Voltar clicado");
+          onPrevious();
+        }}>Voltar</Button>
+        {onCancel && <Button variant="outline" onClick={() => {
+          console.warn("🟡 [BookSearchList] Cancelar clicado");
+          onCancel();
+        }}>Cancelar</Button>}
       </div>
     </div>
   );

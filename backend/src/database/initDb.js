@@ -17,15 +17,15 @@ if (!fs.existsSync(dbDir)) {
     fs.chmodSync(dbDir, 0o777);
 }
 
-console.log(`Initializing database at path: ${dbPath}`);
+console.log(`🔵 [initDb] Inicializando banco de dados em: ${dbPath}`);
 
 // Create and initialize database
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Error creating database:', err.message);
+        console.error('🔴 [initDb] Erro ao criar banco de dados:', err.message);
         process.exit(1);
     }
-    console.log('Connected to the SQLite database.');
+    console.log('🟢 [initDb] Conectado ao banco de dados SQLite.');
 });
 
 db.serialize(() => {
@@ -42,10 +42,10 @@ db.serialize(() => {
         )
     `, (err) => {
         if (err) {
-            console.error('Error creating users table:', err.message);
+            console.error('🔴 [initDb] Erro ao criar tabela users:', err.message);
             process.exit(1);
         }
-        console.log('Users table created successfully');
+        console.log('🟢 [initDb] Tabela users criada com sucesso');
     });
 
     // BOOKS TABLE
@@ -64,10 +64,10 @@ db.serialize(() => {
         )
     `, (err) => {
         if (err) {
-            console.error('Error creating books table:', err.message);
+            console.error('🔴 [initDb] Erro ao criar tabela books:', err.message);
             process.exit(1);
         }
-        console.log('Books table created successfully');
+        console.log('🟢 [initDb] Tabela books criada com sucesso');
 
         // Insert test data
         const testBook = {
@@ -99,9 +99,9 @@ db.serialize(() => {
             testBook.volume 
         ], function(err) {
             if (err) {
-                console.error('Error inserting test data:', err.message);
+                console.error('🟡 [initDb] Erro ao inserir livro de teste:', err.message);
             } else {
-                console.log('Test data inserted successfully');
+                console.log('🟢 [initDb] Livro de teste inserido com sucesso');
             }
         });
     });
@@ -118,10 +118,10 @@ db.serialize(() => {
         )
     `, (err) => {
         if (err) {
-            console.error('Error creating borrowed_books table:', err.message);
+            console.error('🔴 [initDb] Erro ao criar tabela borrowed_books:', err.message);
             process.exit(1);
         }
-        console.log('borrowed_books table created successfully');
+        console.log('🟢 [initDb] Tabela borrowed_books criada com sucesso');
     });
 
     // Criação dos usuários especiais
@@ -132,7 +132,6 @@ db.serialize(() => {
     const adminPassword = process.env.ADMIN_PASSWORD || 'adminsenha';
     const proalunoPassword = process.env.PROALUNO_PASSWORD || 'proalunosenha';
 
-    
     async function insertSpecialUsersAndClose() {
         try {
             const adminRow = await new Promise((resolve, reject) => {
@@ -149,15 +148,17 @@ db.serialize(() => {
                         ['Administrador', adminNUSP, adminEmail, adminHash, 'admin'],
                         (err) => {
                             if (err) {
-                                console.error('Erro ao criar admin:', err.message);
+                                console.error('🔴 [initDb] Erro ao criar admin:', err.message);
                                 reject(err);
                             } else {
-                                console.log('Usuário admin criado');
+                                console.log('🟢 [initDb] Usuário admin criado');
                                 resolve();
                             }
                         }
                     );
                 });
+            } else {
+                console.log('🟡 [initDb] Usuário admin já existe');
             }
 
             const proalunoRow = await new Promise((resolve, reject) => {
@@ -174,24 +175,26 @@ db.serialize(() => {
                         ['Pro Aluno', proalunoNUSP, proalunoEmail, proalunoHash, 'proaluno'],
                         (err) => {
                             if (err) {
-                                console.error('Erro ao criar proaluno:', err.message);
+                                console.error('🔴 [initDb] Erro ao criar proaluno:', err.message);
                                 reject(err);
                             } else {
-                                console.log('Usuário proaluno criado');
+                                console.log('🟢 [initDb] Usuário proaluno criado');
                                 resolve();
                             }
                         }
                     );
                 });
+            } else {
+                console.log('🟡 [initDb] Usuário proaluno já existe');
             }
         } catch (err) {
-            console.error('Erro ao inserir usuários especiais:', err.message);
+            console.error('🔴 [initDb] Erro ao inserir usuários especiais:', err.message);
         } finally {
             db.close((err) => {
                 if (err) {
-                    console.error('Error closing database:', err.message);
+                    console.error('🔴 [initDb] Erro ao fechar banco de dados:', err.message);
                 }
-                console.log('Database connection closed.');
+                console.log('🟢 [initDb] Conexão com banco de dados encerrada.');
             });
         }
     }

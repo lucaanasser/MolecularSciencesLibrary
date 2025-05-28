@@ -9,6 +9,14 @@ import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
 import BookLanguageStep from "@/features/books/components/steps/BookLanguageStep";
 import BookDetailsStep from "@/features/books/components/steps/BookDetailsStep";
 
+/**
+ * Wizard para adicionar livro.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 interface AddBookFormProps {
   onCancel: () => void;
   onSuccess: () => void;
@@ -52,6 +60,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
 
   // Handler para adicionar novo exemplar
   const handleAddExemplar = (book: BookOption) => {
+    console.log("🔵 [AddBookForm] Adicionando novo exemplar para livro:", book);
     setSelectedBook(book);
     setAddType("exemplar");
     setTitle(book.title || "");
@@ -65,6 +74,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
 
   // Handler para adicionar novo volume
   const handleAddNewVolume = (book: BookOption) => {
+    console.log("🔵 [AddBookForm] Adicionando novo volume para livro:", book);
     setSelectedBook(book);
     setAddType("volume");
     setTitle(book.title || "");
@@ -78,6 +88,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
 
   // Handler para adicionar novo livro
   const handleAddNewBook = () => {
+    console.log("🔵 [AddBookForm] Adicionando novo livro");
     setAddType("novo");
     setSelectedBook(null);
     setTitle("");
@@ -90,6 +101,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
   };
 
   const handleSelectBook = (book: BookOption, type?: AddBookType) => {
+    console.log("🟢 [AddBookForm] Livro selecionado:", book, "Tipo:", type);
     setSelectedBook(book);
     setAddType(type || "exemplar");
     setTitle(book.title || "");
@@ -102,6 +114,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
   };
 
   const handleSubmit = async () => {
+    console.log("🔵 [AddBookForm] Submissão do formulário de livro");
     // Para novo exemplar, volume é herdado do livro selecionado
     // Para novo volume, volume é o digitado
     // Para novo livro, volume é o digitado ou 1
@@ -140,8 +153,10 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
     const result = await addBook(bookData);
 
     if (result.success) {
+      console.log("🟢 [AddBookForm] Livro adicionado com sucesso");
       onSuccess();
     } else if (onError && result.error) {
+      console.error("🔴 [AddBookForm] Erro ao adicionar livro:", result.error);
       onError(result.error);
     }
   };
@@ -181,6 +196,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
       return (
         <BookLanguageStep
           onLanguageSelect={(lang) => {
+            console.log("🟢 [AddBookForm] Idioma selecionado:", lang);
             setLanguage(lang);
             setStep(4);
           }}

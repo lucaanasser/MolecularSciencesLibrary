@@ -2,6 +2,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BookOption } from "@/features/books/types/book";
 
+/**
+ * Componente de formulário de detalhes do livro.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 interface BookDetailsStepProps {
   title: string;
   subtitle: string;
@@ -43,9 +51,15 @@ export default function BookDetailsStep({
   submitLabel = "Salvar",
   isVolumeLocked = false // default
 }: BookDetailsStepProps) {
+  // Log de início de renderização
+  console.log("🔵 [BookDetailsStep] Renderizando formulário de detalhes do livro");
   // O campo volume só fica travado se isVolumeLocked for true
   return (
-    <form className="space-y-4" onSubmit={e => { e.preventDefault(); onSubmit(); }}>
+    <form className="space-y-4" onSubmit={e => { 
+      e.preventDefault(); 
+      console.log("🔵 [BookDetailsStep] Submissão do formulário");
+      onSubmit(); 
+    }}>
       {isExemplar && (
         <div className="text-sm text-gray-600 mb-2">
           Ajuste conforme necessário.
@@ -56,7 +70,10 @@ export default function BookDetailsStep({
         <Input
           placeholder="Título do Livro"
           value={isExemplar ? (title || selectedBook?.title || "") : title}
-          onChange={e => onTitleChange(e.target.value)}
+          onChange={e => {
+            console.log("🟢 [BookDetailsStep] Título alterado:", e.target.value);
+            onTitleChange(e.target.value);
+          }}
           required
           disabled={isSubmitting}
         />
@@ -66,7 +83,10 @@ export default function BookDetailsStep({
         <Input
           placeholder="Subtítulo"
           value={isExemplar ? (subtitle || selectedBook?.subtitle || "") : subtitle}
-          onChange={e => onSubtitleChange(e.target.value)}
+          onChange={e => {
+            console.log("🟢 [BookDetailsStep] Subtítulo alterado:", e.target.value);
+            onSubtitleChange(e.target.value);
+          }}
           disabled={isSubmitting}
         />
       </div>
@@ -75,7 +95,10 @@ export default function BookDetailsStep({
         <Input
           placeholder="Autores"
           value={isExemplar ? (authors || selectedBook?.authors || "") : authors}
-          onChange={e => onAuthorsChange(e.target.value)}
+          onChange={e => {
+            console.log("🟢 [BookDetailsStep] Autores alterados:", e.target.value);
+            onAuthorsChange(e.target.value);
+          }}
           required
           disabled={isSubmitting}
         />
@@ -85,7 +108,10 @@ export default function BookDetailsStep({
         <Input
           placeholder="Edição"
           value={isExemplar ? (edition || selectedBook?.edition || "") : edition}
-          onChange={e => onEditionChange(e.target.value)}
+          onChange={e => {
+            console.log("🟢 [BookDetailsStep] Edição alterada:", e.target.value);
+            onEditionChange(e.target.value);
+          }}
           required
           disabled={isSubmitting}
         />
@@ -99,7 +125,10 @@ export default function BookDetailsStep({
               ? (selectedBook?.volume || volume || "")
               : volume
           }
-          onChange={e => onVolumeChange(e.target.value)}
+          onChange={e => {
+            console.log("🟢 [BookDetailsStep] Volume alterado:", e.target.value);
+            onVolumeChange(e.target.value);
+          }}
           required
           disabled={isSubmitting || isVolumeLocked}
         />
@@ -115,7 +144,10 @@ export default function BookDetailsStep({
         <Button 
           variant="outline" 
           type="button" 
-          onClick={onPrevious}
+          onClick={() => {
+            console.warn("🟡 [BookDetailsStep] Voltar clicado");
+            onPrevious();
+          }}
           disabled={isSubmitting}
         >
           Voltar

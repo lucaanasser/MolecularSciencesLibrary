@@ -1,3 +1,6 @@
+/**
+ * Tipos relacionados a empréstimos.
+ */
 export interface Loan {
   loan_id: number;
   book_id: number;

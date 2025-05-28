@@ -10,21 +10,42 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
+/**
+ * Barra de navegação principal.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 const Navigation: React.FC = () => {
+  // Log de início de renderização
+  console.log("🔵 [Navigation] Renderizando barra de navegação");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const user = useCurrentUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    console.log("🔵 [Navigation] Logout iniciado");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     navigate("/login");
+    console.log("🟢 [Navigation] Logout realizado e redirecionado para login");
   };
 
   const handleProfileClick = () => {
-    if (user?.role === "admin") navigate("/admin");
-    else if (user?.role === "proaluno") navigate("/proaluno");
-    else navigate("/profile");
+    if (user?.role === "admin") {
+      console.log("🟢 [Navigation] Redirecionando para painel admin");
+      navigate("/admin");
+    }
+    else if (user?.role === "proaluno") {
+      console.log("🟢 [Navigation] Redirecionando para painel proaluno");
+      navigate("/proaluno");
+    }
+    else {
+      console.log("🟢 [Navigation] Redirecionando para perfil");
+      navigate("/profile");
+    }
   };
 
   return (
@@ -95,7 +116,10 @@ const Navigation: React.FC = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={() => {
+                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                  console.log("🟢 [Navigation] Menu mobile toggled:", !isMobileMenuOpen);
+                }}
                 className="text-white hover:bg-white/20"
               >
                 <Menu size={24} className="text-white" />
@@ -111,21 +135,30 @@ const Navigation: React.FC = () => {
               <Link
                 to="/"
                 className="block px-3 py-2 rounded-md text-white hover:bg-white/20"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Início)");
+                }}
               >
                 Início
               </Link>
               <Link
                 to="/search"
                 className="block px-3 py-2 rounded-md text-white hover:bg-white/20"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Buscar)");
+                }}
               >
                 Buscar
               </Link>
               <Link
                 to="/virtual-shelf"
                 className="block px-3 py-2 rounded-md text-white hover:bg-white/20"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Estante Virtual)");
+                }}
               >
                 Estante Virtual
               </Link>
@@ -135,6 +168,7 @@ const Navigation: React.FC = () => {
                     onClick={() => {
                       setIsMobileMenuOpen(false);
                       handleProfileClick();
+                      console.log("🟢 [Navigation] Menu mobile fechado (Perfil)");
                     }}
                     className="block w-full text-left px-3 py-2 rounded-md text-white hover:bg-white/20"
                   >
@@ -147,7 +181,10 @@ const Navigation: React.FC = () => {
                   <Link
                     to="/history"
                     className="block px-3 py-2 rounded-md text-white hover:bg-white/20"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      console.log("🟢 [Navigation] Menu mobile fechado (Histórico)");
+                    }}
                   >
                     Histórico
                   </Link>
@@ -155,6 +192,7 @@ const Navigation: React.FC = () => {
                     onClick={() => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
+                      console.log("🟢 [Navigation] Menu mobile fechado (Sair)");
                     }}
                     className="block w-full text-left px-3 py-2 rounded-md text-red-300 hover:bg-white/20 hover:text-red-200"
                   >
@@ -165,7 +203,10 @@ const Navigation: React.FC = () => {
                 <Link
                   to="/login"
                   className="block px-3 py-2 rounded-md text-white hover:bg-white/20"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    console.log("🟢 [Navigation] Menu mobile fechado (Entrar)");
+                  }}
                 >
                   Entrar
                 </Link>

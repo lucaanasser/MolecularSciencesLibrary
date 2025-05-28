@@ -2,6 +2,14 @@ import { useState } from "react";
 import useAreaSelection from "./useAreaSelection";
 import useBookSearch from "./useBookList";
 
+/**
+ * Hook de busca de livros com filtros de área, subárea e disponibilidade.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export default function useBookSearchPage(onError?: (e: Error) => void) {
   // Gerencia seleção de área e subárea
   const {
@@ -17,13 +25,14 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
   const [filterAvailable, setFilterAvailable] = useState<"all" | "available" | "borrowed">("all");
 
   // Hook de busca de livros
-const {
-  books,
-  filteredBooks,
-  isLoading,
-  search,
-  setSearch,
-} = useBookSearch(category, subcategory, true, onError);
+  const {
+    books,
+    filteredBooks,
+    isLoading,
+    search,
+    setSearch,
+  } = useBookSearch(category, subcategory, true, onError);
+
   // Filtra por disponibilidade
   const filteredByAvailability = filteredBooks.filter(book => {
     if (filterAvailable === "all") return true;

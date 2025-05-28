@@ -29,7 +29,17 @@ function getBookColor(bookId: number) {
   return BOOK_COLORS[bookId % BOOK_COLORS.length];
 }
 
+/**
+ * Painel de estante virtual de livros.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 const VirtualBookshelf: React.FC = () => {
+  // Log de início de renderização
+  console.log("🔵 [VirtualBookshelfPanel] Renderizando estante virtual");
   const [selectedShelf, setSelectedShelf] = useState<string>(shelfOrder[0]);
   const [selectedBook, setSelectedBook] = useState<any | null>(null);
 
@@ -51,7 +61,10 @@ const VirtualBookshelf: React.FC = () => {
         {shelfOrder.map(area => (
           <Button
             key={area}
-            onClick={() => setSelectedShelf(area)}
+            onClick={() => {
+              console.log("🟢 [VirtualBookshelfPanel] Prateleira selecionada:", area);
+              setSelectedShelf(area);
+            }}
             variant={selectedShelf === area ? "default" : "outline"}
             className={selectedShelf === area ? "bg-cm-blue" : ""}
           >
@@ -83,7 +96,10 @@ const VirtualBookshelf: React.FC = () => {
             </div>
             <div className="flex justify-end">
               <button
-                onClick={() => setSelectedBook(null)}
+                onClick={() => {
+                  console.warn("🟡 [VirtualBookshelfPanel] Fechar modal de detalhes do livro");
+                  setSelectedBook(null);
+                }}
                 className="bg-gray-200 px-4 py-2 rounded-xl hover:bg-gray-300"
               >
                 Fechar
@@ -106,7 +122,10 @@ const VirtualBookshelf: React.FC = () => {
                     <TooltipTrigger asChild>
                       <div
                         className={`book-spine ${getBookColor(book.id)} cursor-pointer`}
-                        onClick={() => setSelectedBook(book)}
+                        onClick={() => {
+                          console.log("🟢 [VirtualBookshelfPanel] Livro selecionado:", book);
+                          setSelectedBook(book);
+                        }}
                         title={book.title}
                         style={{ minWidth: 16, minHeight: 60 }}
                       ></div>

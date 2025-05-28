@@ -1,5 +1,13 @@
 import { useState } from "react";
 
+/**
+ * Hook para registrar devolução de empréstimo.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 interface ReturnLoanParams {
   NUSP: string;
   password: string;
@@ -17,6 +25,7 @@ export function useReturnLoan() {
     setError(null);
     setSuccess(false);
     try {
+      console.log("🔵 [useReturnLoan] Registrando devolução:", params);
       const res = await fetch("/api/loans/return", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,12 +33,15 @@ export function useReturnLoan() {
       });
       if (!res.ok) {
         const data = await res.json();
+        console.error("🔴 [useReturnLoan] Erro ao registrar devolução:", data.error);
         throw new Error(data.error || "Erro ao registrar devolução");
       }
       setSuccess(true);
+      console.log("🟢 [useReturnLoan] Devolução registrada com sucesso");
       return true;
     } catch (err: any) {
       setError(err.message || "Erro desconhecido");
+      console.error("🔴 [useReturnLoan] Erro ao registrar devolução:", err);
       throw err;
     } finally {
       setLoading(false);

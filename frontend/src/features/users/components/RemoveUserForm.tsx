@@ -3,6 +3,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRemoveUser } from "../hooks/useRemoveUser";
 import { User } from "../types/user";
+
+/**
+ * Formulário para remover usuário.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 interface RemoveUserFormProps {
   onSuccess?: () => void;
   onError?: (err: Error) => void;
@@ -20,6 +29,7 @@ export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormPro
     setFoundUser(null);
 
     try {
+      console.log("🔵 [RemoveUserForm] Buscando usuário:", query);
       const res = await fetch(`/api/users`);
       const users: User[] = await res.json();
       const q = query.trim().toLowerCase();
@@ -30,8 +40,14 @@ export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormPro
           (u.NUSP && String(u.NUSP) === q)
       );
       setFoundUser(user || null);
+      if (user) {
+        console.log("🟢 [RemoveUserForm] Usuário encontrado:", user);
+      } else {
+        console.warn("🟡 [RemoveUserForm] Nenhum usuário encontrado para:", query);
+      }
     } catch (err) {
       setFoundUser(null);
+      console.error("🔴 [RemoveUserForm] Erro ao buscar usuário:", err);
     } finally {
       setSearching(false);
     }
@@ -40,11 +56,14 @@ export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormPro
   async function handleRemove() {
     if (!foundUser?.id) return;
     try {
+      console.log("🔵 [RemoveUserForm] Removendo usuário:", foundUser.id);
       await removeUser(foundUser.id);
       setFoundUser(null);
       onSuccess && onSuccess();
+      console.log("🟢 [RemoveUserForm] Usuário removido com sucesso");
     } catch (err: any) {
       onError && onError(err);
+      console.error("🔴 [RemoveUserForm] Erro ao remover usuário:", err);
     }
   }
 

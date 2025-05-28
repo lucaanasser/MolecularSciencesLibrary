@@ -3,6 +3,14 @@ import { BookOption } from "../types/book";
 
 const API_URL = '/api';
 
+/**
+ * Hook para buscar livros da API.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export default function useBookSearch(
   category: string,
   subcategory: string,
@@ -29,6 +37,8 @@ export default function useBookSearch(
     if (subcategory) params.append("subcategory", subcategory);
     if (search) params.append("q", search);
 
+    console.log("🔵 [useBookList] Buscando livros da API...", params.toString());
+
     fetch(`${API_URL}/books?${params.toString()}`)
       .then(res => {
         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -37,9 +47,10 @@ export default function useBookSearch(
       .then(data => {
         setBooks(Array.isArray(data) ? data : []);
         setIsLoading(false);
+        console.log("🟢 [useBookList] Livros carregados:", Array.isArray(data) ? data.length : 0);
       })
       .catch(error => {
-        console.error("API Error:", error);
+        console.error("🔴 [useBookList] Erro ao buscar livros:", error);
         if (onError) onError(error);
         setBooks([]);
         setIsLoading(false);

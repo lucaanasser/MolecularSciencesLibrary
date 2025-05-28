@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { BookFormData } from '../types/book';
 
+/**
+ * Hook para adicionar livro.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 export interface AddBookResult {
   success: boolean;
   data?: any;
@@ -14,6 +22,7 @@ export default function useAddBook() {
     setIsSubmitting(true);
     
     try {
+      console.log("🔵 [useAddBook] Adicionando livro:", bookData.title);
       // Enviar os dados para a API
       const response = await fetch('/api/books', {
         method: 'POST',
@@ -25,15 +34,16 @@ export default function useAddBook() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("🔴 [useAddBook] Erro ao adicionar livro:", errorData.message);
         throw new Error(errorData.message || 'Erro ao adicionar livro');
       }
 
       const result = await response.json();
-      console.log('Livro adicionado com sucesso:', result);
+      console.log('🟢 [useAddBook] Livro adicionado com sucesso:', result);
       
       return { success: true, data: result };
     } catch (error) {
-      console.error('Erro ao adicionar livro:', error);
+      console.error('🔴 [useAddBook] Erro ao adicionar livro:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error : new Error('Erro desconhecido ao adicionar livro') 

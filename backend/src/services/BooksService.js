@@ -1,4 +1,10 @@
 // BooksService contém toda a lógica de negócio relacionada a livros
+// Padrão de logs:
+// 🔵 Início de operação
+// 🟢 Sucesso
+// 🟡 Aviso/Fluxo alternativo
+// 🔴 Erro
+
 const booksModel = require('../models/BooksModel');
 // const bwipjs = require('bwip-js'); // Descomente se for gerar imagem
 
@@ -86,22 +92,23 @@ async function generateUniqueEAN13() {
 
 class BooksService {
     async generateBookCode({ area, subarea, addType, selectedBook, volume }) {
+        console.log(`🔵 [BooksService] Gerando código para livro: area=${area}, subarea=${subarea}, addType=${addType}, volume=${volume}`);
         const areaCode = areaCodes[area] || "XXX";
         const subareaCode = String(subarea).padStart(2, "0");
 
         // NOVO EXEMPLAR: retorna o mesmo código do livro base
         if (addType === "exemplar" && selectedBook && selectedBook.code) {
+            console.log("🟡 [BooksService] Novo exemplar, reutilizando código:", selectedBook.code);
             return selectedBook.code;
         }
 
         // NOVO VOLUME: substitui o volume no código base por v{volume}
         if (addType === "volume" && selectedBook && selectedBook.code) {
-            // Remove qualquer sufixo de volume antigo (vY, v1, v2, etc)
             let baseCode = selectedBook.code;
-            // Remove qualquer ocorrência de ' v' ou '-v' seguido de número no final
             baseCode = baseCode.replace(/[\s\-]?v\d+$/i, "");
-            // Adiciona o novo volume no formato correto
-            return `${baseCode}-v${parseInt(volume, 10)}`;
+            const newCode = `${baseCode}-v${parseInt(volume, 10)}`;
+            console.log("🟡 [BooksService] Novo volume, código gerado:", newCode);
+            return newCode;
         }
 
         // NOVO LIVRO: gera código sequencial
@@ -116,86 +123,114 @@ class BooksService {
         }
         const baseCode = `${areaCode}-${subareaCode}.${seq}`;
         if (volume && parseInt(volume, 10) !== 0 && volume !== "null") {
-            return `${baseCode}-v${parseInt(volume, 10)}`;
+            const code = `${baseCode}-v${parseInt(volume, 10)}`;
+            console.log("🟢 [BooksService] Código de livro com volume gerado:", code);
+            return code;
         } else {
+            console.log("🟢 [BooksService] Código de livro gerado:", baseCode);
             return baseCode;
         }
     }
 
     async addBook(bookData) {
-        const {
-            area,
-            subarea,
-            authors,
-            edition,
-            language,
-            title,
-            subtitle,
-            addType,         
-            selectedBook,    
-            volume
-        } = bookData;
+        try {
+            console.log("🔵 [BooksService] Iniciando adição de livro:", bookData.title || bookData.code);
+            const {
+                area,
+                subarea,
+                authors,
+                edition,
+                language,
+                title,
+                subtitle,
+                addType,         
+                selectedBook,    
+                volume
+            } = bookData;
 
-        const subareaInt = parseInt(subarea, 10);
-        const code = await this.generateBookCode({ area, subarea, addType, selectedBook, volume });
+            const subareaInt = parseInt(subarea, 10);
+            const code = await this.generateBookCode({ area, subarea, addType, selectedBook, volume });
 
-        // Gere EAN-13 automaticamente
-        const id = await generateUniqueEAN13();
+            // Gere EAN-13 automaticamente
+            const id = await generateUniqueEAN13();
 
-        const bookToInsert = {
-            id,
-            area,
-            subarea: subareaInt,
-            authors,
-            edition,
-            language,
-            code,
-            title,
-            subtitle,
-            volume: volume && volume !== "null" ? parseInt(volume, 10) : null
-        };
+            const bookToInsert = {
+                id,
+                area,
+                subarea: subareaInt,
+                authors,
+                edition,
+                language,
+                code,
+                title,
+                subtitle,
+                volume: volume && volume !== "null" ? parseInt(volume, 10) : null
+            };
 
-        const result = await booksModel.insertBook(bookToInsert);
+            const result = await booksModel.insertBook(bookToInsert);
 
-        // // Gerar imagem do código de barras EAN-13 (comentado)
-        // const pngBuffer = await bwipjs.toBuffer({
-        //     bcid:        'ean13',
-        //     text:        id,
-        //     scale:       3,
-        //     height:      10,
-        //     includetext: true,
-        //     textxalign:  'center',
-        // });
-
-        return { id, code /*, barcodeImage: pngBuffer */ };
+            console.log("🟢 [BooksService] Livro inserido com sucesso:", { id, code });
+            return { id, code /*, barcodeImage: pngBuffer */ };
+        } catch (error) {
+            console.error("🔴 [BooksService] Erro ao adicionar livro:", error.message);
+            throw error;
+        }
     }
 
-    // Remova métodos e lógicas relacionadas a exemplares
-    // Exemplo: getMaxExemplarByCode, removeExemplarById, etc.
-
     async getBooks(category, subcategory, searchTerm) {
-        const books = await booksModel.getBooks(category, subcategory, searchTerm);
-        const borrowed = await booksModel.getBorrowedBooks();
-        const borrowedSet = new Set(
-            borrowed.map(b => b.book_id)
-        );
-        return books.map(book => ({
-            ...book,
-            available: !borrowedSet.has(book.id)
-        }));
+        try {
+            console.log(`🔵 [BooksService] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
+            const books = await booksModel.getBooks(category, subcategory, searchTerm);
+            const borrowed = await booksModel.getBorrowedBooks();
+            const borrowedSet = new Set(
+                borrowed.map(b => b.book_id)
+            );
+            const result = books.map(book => ({
+                ...book,
+                available: !borrowedSet.has(book.id)
+            }));
+            console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);
+            return result;
+        } catch (error) {
+            console.error("🔴 [BooksService] Erro ao buscar livros:", error.message);
+            throw error;
+        }
     }
 
     async borrowBook(bookId, studentId) {
-        return await booksModel.borrowBook(bookId, studentId);
+        try {
+            console.log(`🔵 [BooksService] Emprestando livro bookId=${bookId} para studentId=${studentId}`);
+            const result = await booksModel.borrowBook(bookId, studentId);
+            console.log(`🟢 [BooksService] Livro emprestado com sucesso: bookId=${bookId}, studentId=${studentId}`);
+            return result;
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao emprestar livro: ${error.message}`);
+            throw error;
+        }
     }
 
     async returnBook(bookId) {
-        return await booksModel.returnBook(bookId);
+        try {
+            console.log(`🔵 [BooksService] Devolvendo livro bookId=${bookId}`);
+            const result = await booksModel.returnBook(bookId);
+            console.log(`🟢 [BooksService] Livro devolvido com sucesso: bookId=${bookId}`);
+            return result;
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao devolver livro: ${error.message}`);
+            throw error;
+        }
     }
 
     async removeBookById(id) {
-        await booksModel.removeBookById(id);
-        return { success: true, message: 'Livro removido com sucesso' };
+        try {
+            console.log(`🔵 [BooksService] Removendo livro id=${id}`);
+            await booksModel.deleteBook(id);
+            console.log(`🟢 [BooksService] Livro removido com sucesso: id=${id}`);
+            return { success: true, message: 'Livro removido com sucesso' };
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao remover livro: ${error.message}`);
+            throw error;
+        }
     }
 
     async deleteBook(id) {
@@ -203,10 +238,13 @@ class BooksService {
     }
 
     getCategoryMappings() {
-        return {
+        console.log("🔵 [BooksService] Obtendo mapeamentos de categorias e subcategorias");
+        const mappings = {
             areaCodes,
             subareaCodes
         };
+        console.log("🟢 [BooksService] Mapeamentos obtidos");
+        return mappings;
     }
 }
 

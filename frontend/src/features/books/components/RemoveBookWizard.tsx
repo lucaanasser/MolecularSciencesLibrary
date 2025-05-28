@@ -7,6 +7,14 @@ import { BookOption } from "@/features/books/types/book";
 import BookAreaStep from "@/features/books/components/steps/BookAreaStep";
 import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
 
+/**
+ * Wizard para remoção de livro.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 interface RemoveBookFormProps {
   onCancel: () => void;
   onSuccess: () => void;
@@ -36,16 +44,20 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
   const { removeBook, isSubmitting } = useRemoveBook();
 
   const handleSelectBook = (book: BookOption) => {
+    console.log("🟢 [RemoveBookForm] Livro selecionado para remoção:", book);
     setSelectedBook(book);
     setStep(3);
   };
 
   const handleRemoveBook = async () => {
     if (selectedBook) {
+      console.log("🔵 [RemoveBookForm] Removendo livro:", selectedBook);
       const result = await removeBook(selectedBook.id);
       if (result.success) {
+        console.log("🟢 [RemoveBookForm] Livro removido com sucesso");
         onSuccess();
       } else if (onError && result.error) {
+        console.error("🔴 [RemoveBookForm] Erro ao remover livro:", result.error);
         onError(new Error(result.error)); 
       }
     }
@@ -102,7 +114,10 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
             </button>
             <button 
               className="bg-gray-300 px-4 py-2 rounded" 
-              onClick={() => setStep(2)}
+              onClick={() => {
+                console.warn("🟡 [RemoveBookForm] Voltar clicado");
+                setStep(2);
+              }}
             >
               Voltar
             </button>
