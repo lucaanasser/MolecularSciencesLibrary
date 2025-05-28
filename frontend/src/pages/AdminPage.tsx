@@ -12,6 +12,13 @@ import UserList from "@/features/users/components/UserList";
 import RemoveUserForm from "@/features/users/components/RemoveUserForm";
 import LoanForm from "@/features/loans/components/LoanForm"; 
 import ReturnLoanForm from "@/features/loans/components/ReturnLoanForm"; 
+import SendNotification from "@/features/notification/components/Sendnotification";
+import NotificationList from "@/features/notification/components/NotificationList";
+import AdminInboxTab from "@/features/notification/components/AdminInboxTab";
+import InboxList from "@/features/notification/components/InboxList";
+import { useNotification } from "@/features/notification/hooks/useNotification";
+import { useAdminNotifications } from "@/features/notification/hooks/useAdminNotifications";
+import { useInbox } from "@/features/notification/hooks/useInbox";
 
 // Log de início de renderização da página Admin
 console.log("🔵 [AdminPage] Renderizando painel administrativo");
@@ -443,25 +450,101 @@ const ManageLoans = () => {
 const Notifications = () => {
   // Log de início de renderização das notificações
   console.log("🔵 [AdminPage/Notifications] Renderizando notificações");
+  const [showSend, setShowSend] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showInbox, setShowInbox] = useState(false);
+  const { notifications, loading } = useAdminNotifications();
+  const { emails, loading: inboxLoading, error: inboxError, refetch } = useInbox();
+
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Notificações</h2>
       <p>Envie notificações para usuários sobre devoluções e eventos.</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        {/* Enviar Avisos */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Enviar Avisos</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-yellow hover:bg-cm-yellow/90 text-black">Enviar</Button>
+            {showSend ? (
+              <>
+                <SendNotification />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowSend(false)}
+                >
+                  Fechar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-green hover:bg-cm-green/90"
+                onClick={() => setShowSend(true)}
+              >
+                Enviar Aviso
+              </Button>
+            )}
           </CardContent>
         </Card>
+        {/* Histórico de Notificações */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Histórico de Notificações</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Ver Todos</Button>
+            {showHistory ? (
+              <>
+                <NotificationList notifications={notifications} loading={loading} adminSearch />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowHistory(false)}
+                >
+                  Fechar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-blue hover:bg-cm-blue/90"
+                onClick={() => setShowHistory(true)}
+              >
+                Ver Histórico
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+        {/* Caixa de Entrada */}
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Caixa de Entrada</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {showInbox ? (
+              <>
+                <InboxList 
+                  emails={emails} 
+                  loading={inboxLoading} 
+                  error={inboxError} 
+                  onEmailDeleted={refetch}
+                />
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowInbox(false)}
+                >
+                  Fechar
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="w-full bg-cm-orange hover:bg-cm-orange/90"
+                onClick={() => setShowInbox(true)}
+              >
+                Ver Inbox
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -614,6 +697,11 @@ const AdminPage = () => {
                   <TabsContent value="notifications">
                     <ErrorBoundary>
                       <Notifications />
+                    </ErrorBoundary>
+                  </TabsContent>
+                  <TabsContent value="inbox">
+                    <ErrorBoundary>
+                      <AdminInboxTab />
                     </ErrorBoundary>
                   </TabsContent>
                   <TabsContent value="reports">

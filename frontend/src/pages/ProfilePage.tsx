@@ -3,42 +3,33 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Clock, Bell } from "lucide-react";
+import { BookOpen, Bell } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanHistory from "@/features/loans/components/LoanHistory";
+import NotificationList from "@/features/notification/components/NotificationList";
+import { useNotification } from "@/features/notification/hooks/useNotification";
 
 // Log de início de renderização da página de perfil
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
-const mockNotifications = [
-  {
-    id: "n1",
-    message: "Livro 'Cálculo: Volume 1' deve ser devolvido em 2 dias.",
-    date: "2024-01-22",
-    read: false,
-  },
-  {
-    id: "n2",
-    message: "Sua reserva para 'Química Orgânica' está disponível para retirada.",
-    date: "2024-01-18",
-    read: true,
-  },
-  {
-    id: "n3",
-    message: "Livro 'Princípios de Bioquímica' foi devolvido com sucesso.",
-    date: "2023-12-15",
-    read: true,
-  },
-];
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("pt-BR");
-};
-
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("emprestimos");
   const { user, loading: userLoading, error: userError } = useUserProfile();
+  const { notifications, loading: notificationsLoading, refetch } = useNotification();
+
+  // Delete handler for user notifications
+  const handleDelete = async (id: string | number) => {
+    const token = localStorage.getItem("token");
+    await fetch(`/api/notifications/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: "include",
+    });
+    refetch();
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -120,37 +111,7 @@ const ProfilePage = () => {
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Notificações</h3>
-                      {mockNotifications.length > 0 ? (
-                        <div className="space-y-4">
-                          {mockNotifications.map((notification) => (
-                            <div
-                              key={notification.id}
-                              className={`p-4 rounded-xl ${
-                                notification.read
-                                  ? "bg-white"
-                                  : "bg-cm-blue/5 border-l-4 border-cm-blue"
-                              }`}
-                            >
-                              <p
-                                className={`${
-                                  notification.read ? "text-gray-600" : "font-medium"
-                                }`}
-                              >
-                                {notification.message}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-2">
-                                {formatDate(notification.date)}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500">
-                            Nenhuma notificação encontrada.
-                          </p>
-                        </div>
-                      )}
+                      <NotificationList notifications={notifications} loading={notificationsLoading} onDelete={handleDelete} />
                     </div>
                   </Card>
                 </TabsContent>
