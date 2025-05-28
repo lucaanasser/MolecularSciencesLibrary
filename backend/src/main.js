@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const booksRouter = require('./routes/BooksRoutes');
 const usersRouter = require('./routes/UsersRoutes');
 const loansRouter = require('./routes/LoansRoutes');
+const notificationsRouter = require('./routes/NotificationsRoutes');
 require('dotenv').config();
 
 /**
@@ -19,10 +21,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // Rotas da API
 app.use('/api/books', booksRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/loans', loansRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {

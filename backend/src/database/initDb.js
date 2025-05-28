@@ -124,6 +124,26 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela borrowed_books criada com sucesso');
     });
 
+    // NOTIFICATIONS TABLE
+    db.run(`
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            type TEXT NOT NULL, -- 'overdue', 'nudge', etc
+            message TEXT NOT NULL,
+            metadata TEXT,
+            status TEXT DEFAULT 'unread',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela notifications:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela notifications criada com sucesso');
+    });
+
     // Criação dos usuários especiais
     const adminEmail = 'admin@biblioteca.com';
     const proalunoEmail = 'proaluno@biblioteca.com';

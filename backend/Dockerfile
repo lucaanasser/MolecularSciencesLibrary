@@ -1,6 +1,7 @@
 FROM node:23-slim
 
-RUN apt-get update && apt-get install -y sqlite3 && \
+RUN apt-get update && \
+    apt-get install -y sqlite3 ca-certificates && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /app/database && \
     chmod 777 /app/database && \
@@ -9,7 +10,7 @@ RUN apt-get update && apt-get install -y sqlite3 && \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install && npm install jsonwebtoken dotenv bcrypt
+RUN npm install && npm install jsonwebtoken dotenv bcrypt nodemailer imap-simple mailparser
 
 COPY . .
 
