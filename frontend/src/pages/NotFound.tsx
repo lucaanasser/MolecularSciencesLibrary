@@ -15,13 +15,38 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+    <div className="min-h-screen flex items-center justify-center bg-white px-16">
+      <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-5xl">
+        <img
+          src="/images/brain-404.svg"
+          alt="Cérebro com coroa"
+          className="w-[18rem] h-[18rem] md:w-[22rem] md:h-[22rem] lg:w-[26rem] lg:h-[26rem] md:flex-[1.5]"
+        />
+        <div className="text-center md:flex-[3.5] mx-auto">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-cm-purple mb-4">
+            ERRO 404
+          </h1>
+          <p className="text-xl md:text-2xl lg:text-3xl font-bold text-black mb-6 leading-tight">
+            OOPS... ESSA PÁGINA
+            <br />
+            PARECE SER DE UM LIVRO
+            <br />
+            QUE NUNCA FOI DEVOLVIDO
+          </p>
+          <p className="text-base md:text-lg lg:text-xl text-black mb-4">
+            MAS NÃO ENTRE EM PÂNICO!
+            <br />
+            O CARLOS MAGNO PODE TE AJUDAR A ACHAR
+            <br />
+            MUITOS OUTROS LIVROS NO ACERVO
+          </p>
+          <a
+            href="/"
+            className="inline-block mt-6 px-4 py-3 text-base md:text-lg bg-cm-purple text-white rounded-2xl transition font-semibold shadow-lg"
+          >
+            Voltar para o início
+          </a>
+        </div>
       </div>
     </div>
   );

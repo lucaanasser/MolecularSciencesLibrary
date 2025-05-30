@@ -35,4 +35,10 @@ router.post('/return', (req, res) => {
     LoansController.returnBook(req, res);
 });
 
+// Listar empréstimos ativos com status de atraso
+router.get('/active', (req, res) => {
+    console.log("🔵 [LoansRoutes] GET /active - Listar empréstimos ativos com status de atraso");
+    LoansController.listActiveLoansWithOverdue(req, res);
+});
+
 module.exports = router;

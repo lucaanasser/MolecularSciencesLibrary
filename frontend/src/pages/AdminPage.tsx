@@ -19,6 +19,8 @@ import InboxList from "@/features/notification/components/InboxList";
 import { useNotification } from "@/features/notification/hooks/useNotification";
 import { useAdminNotifications } from "@/features/notification/hooks/useAdminNotifications";
 import { useInbox } from "@/features/notification/hooks/useInbox";
+import LoanRulesForm from "@/features/rules/components/LoanRulesForm";
+import LoanRulesView from "@/features/rules/components/LoanRulesView";
 
 // Log de início de renderização da página Admin
 console.log("🔵 [AdminPage] Renderizando painel administrativo");
@@ -594,6 +596,7 @@ const Reports = () => {
 const Settings = () => {
   // Log de início de renderização das configurações
   console.log("🔵 [AdminPage/Settings] Renderizando configurações");
+  const [showRulesForm, setShowRulesForm] = useState(false);
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Configurações</h2>
@@ -612,7 +615,21 @@ const Settings = () => {
             <CardTitle className="text-xl">Regras de Empréstimo</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Configurar</Button>
+            {showRulesForm ? (
+              <>
+                <LoanRulesForm onSuccess={() => setShowRulesForm(false)} />
+                <Button variant="outline" className="mt-4 w-full" onClick={() => setShowRulesForm(false)}>
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <>
+                <LoanRulesView />
+                <Button className="w-full bg-cm-blue hover:bg-cm-blue/90 mt-4" onClick={() => setShowRulesForm(true)}>
+                  Editar Regras
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

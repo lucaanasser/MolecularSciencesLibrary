@@ -170,4 +170,34 @@ module.exports = {
             );
         });
     },
+
+    // Busca todos os empréstimos ativos (não devolvidos) com detalhes do usuário e do livro
+    getActiveLoansWithDetails: () => {
+        console.log("🔵 [LoansModel] Buscando empréstimos ativos com detalhes");
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.all(
+                `SELECT bb.id as loan_id, bb.book_id, bb.student_id, bb.borrowed_at, bb.returned_at,
+                        u.name as user_name, u.email as user_email,
+                        b.title as book_title, b.authors as book_authors
+                 FROM borrowed_books bb
+                 LEFT JOIN users u ON bb.student_id = u.id
+                 LEFT JOIN books b ON bb.book_id = b.id
+                 WHERE bb.returned_at IS NULL
+                 ORDER BY bb.borrowed_at DESC`,
+                [],
+                (err, rows) => {
+                    db.close();
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao buscar empréstimos ativos: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        console.log(`🟢 [LoansModel] Empréstimos ativos encontrados: ${rows.length}`);
+                        resolve(rows);
+                    }
+                }
+            );
+        });
+    },
 };

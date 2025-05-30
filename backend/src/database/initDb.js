@@ -144,6 +144,30 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela notifications criada com sucesso');
     });
 
+    // RULES TABLE
+    db.run(`
+        CREATE TABLE IF NOT EXISTS rules (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            max_days INTEGER NOT NULL DEFAULT 7,
+            overdue_reminder_days INTEGER NOT NULL DEFAULT 3,
+            max_books_per_user INTEGER NOT NULL DEFAULT 5
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela rules:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela rules criada com sucesso');
+        // Insere registro padrão se não existir
+        db.get('SELECT * FROM rules WHERE id = 1', (err, row) => {
+            if (!row) {
+                db.run(
+                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user) VALUES (1, 7, 3, 5)`
+                );
+            }
+        });
+    });
+
     // Criação dos usuários especiais
     const adminEmail = 'admin@biblioteca.com';
     const proalunoEmail = 'proaluno@biblioteca.com';

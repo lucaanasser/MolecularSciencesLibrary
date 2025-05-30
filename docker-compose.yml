@@ -24,3 +24,14 @@ services:
       - "8080:80"  
     depends_on:
       - backend
+  cron:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: ["sh", "-c", "while true; do node scripts/checkOverdues.js; sleep 86400; done"]
+    volumes:
+      - ./database:/app/database
+    environment:
+      - DATABASE_URL=sqlite:///app/database/library.db
+    depends_on:
+      - backend

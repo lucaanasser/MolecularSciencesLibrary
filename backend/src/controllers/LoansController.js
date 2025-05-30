@@ -74,6 +74,18 @@ const LoansController = {
             console.error(`🔴 [LoansController] Erro ao registrar devolução: ${err.message}`);
             res.status(400).json({ error: err.message });
         }
+    },
+
+    // Lista todos os empréstimos ativos com status de atraso
+    listActiveLoansWithOverdue: async (req, res) => {
+        console.log("🔵 [LoansController] Listando empréstimos ativos com status de atraso");
+        try {
+            const loans = await LoansService.listActiveLoansWithOverdue();
+            res.json(loans);
+        } catch (err) {
+            console.error(`🔴 [LoansController] Erro ao listar empréstimos ativos: ${err.message}`);
+            res.status(500).json({ error: err.message });
+        }
     }
 };
 

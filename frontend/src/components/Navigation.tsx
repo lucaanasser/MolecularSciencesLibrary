@@ -55,11 +55,6 @@ const Navigation: React.FC = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/" className="flex items-center">
-                <img
-                  src="/images/logoCM.png"
-                  alt="CM Logo"
-                  className="h-8 w-auto"
-                />
                 <span className="ml-2 text-xl font-bebas text-white">Biblioteca CM</span>
               </Link>
             </div>

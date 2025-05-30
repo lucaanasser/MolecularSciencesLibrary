@@ -1,4 +1,5 @@
 const notificationsService = require('../services/NotificationsService');
+const emailService = require('../services/EmailService');
 
 /**
  * Controller responsável pelas notificações.
@@ -23,7 +24,21 @@ class NotificationsController {
             if (!user_id || !type || !message) {
                 return res.status(400).json({ error: 'user_id, type e message são obrigatórios.' });
             }
-            const id = await notificationsService.notifyUser({ user_id, type, message, metadata, sendEmail, subject });
+            
+            // Cria a notificação interna
+            const id = await notificationsService.notifyUser({ user_id, type, message, metadata });
+            
+            // Se deve enviar email, usa o EmailService
+            if (sendEmail) {
+                try {
+                    await emailService.sendNotificationEmail({ user_id, type, message, subject });
+                    console.log(`🟢 [NotificationsController] Email de notificação enviado para usuário ${user_id}`);
+                } catch (emailError) {
+                    console.error(`🔴 [NotificationsController] Erro ao enviar email para usuário ${user_id}:`, emailError.message);
+                    // Não falha a criação da notificação se o email falhar
+                }
+            }
+            
             res.status(201).json({ id });
         } catch (error) {
             console.error("🔴 [NotificationsController] Erro ao criar notificação:", error.message);

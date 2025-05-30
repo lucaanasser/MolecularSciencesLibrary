@@ -2,6 +2,7 @@ const LoansModel = require('../models/LoansModel');
 const UsersModel = require('../models/UsersModel');
 const BooksModel = require('../models/BooksModel');
 const bcrypt = require('bcrypt');
+const RulesService = require('./RulesService');
 
 /**
  * Service responsável pela lógica de negócio dos empréstimos de livros.
@@ -28,6 +29,16 @@ class LoansService {
         if (!passwordMatch) {
             console.warn(`🟡 [LoansService] Senha incorreta para NUSP ${NUSP}`);
             throw new Error('Senha incorreta');
+        }
+
+        // 2.1. Verifica se o usuário já atingiu o limite de empréstimos ativos
+        const userLoans = await LoansModel.getLoansByUser(user.id);
+        const activeLoans = userLoans.filter(l => !l.returned_at);
+        const rules = await RulesService.getRules();
+        const MAX_ACTIVE_LOANS = rules.max_books_per_user || 5;
+        if (activeLoans.length >= MAX_ACTIVE_LOANS) {
+            console.warn(`🟡 [LoansService] Usuário ${NUSP} já atingiu o limite de ${MAX_ACTIVE_LOANS} empréstimos ativos.`);
+            throw new Error(`Limite de ${MAX_ACTIVE_LOANS} empréstimos ativos atingido.`);
         }
 
         // 3. Verifica se o livro existe
@@ -101,6 +112,26 @@ class LoansService {
         // 4. Marca como devolvido
         const result = await LoansModel.returnLoan(loan.loan_id || loan.id);
         console.log(`🟢 [LoansService] Devolução registrada para empréstimo:`, result);
+        return result;
+    }
+
+    // Lista todos os empréstimos ativos com detalhes e status de atraso
+    async listActiveLoansWithOverdue() {
+        console.log("🔵 [LoansService] Listando empréstimos ativos com status de atraso");
+        const [loans, rules] = await Promise.all([
+            LoansModel.getActiveLoansWithDetails(),
+            RulesService.getRules()
+        ]);
+        const maxDays = rules.max_days;
+        const now = new Date();
+        const result = loans.map(loan => {
+            const borrowedAt = new Date(loan.borrowed_at);
+            const dueDate = new Date(borrowedAt);
+            dueDate.setDate(borrowedAt.getDate() + maxDays);
+            const is_overdue = now > dueDate;
+            return { ...loan, due_date: dueDate.toISOString(), is_overdue };
+        });
+        console.log(`🟢 [LoansService] Empréstimos ativos processados: ${result.length}`);
         return result;
     }
 }
