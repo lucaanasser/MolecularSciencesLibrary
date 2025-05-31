@@ -59,15 +59,17 @@ const LoansController = {
     },
 
     // Registra devolução de um empréstimo
+    // Agora não exige mais NUSP/senha, apenas o book_id
     returnBook: async (req, res) => {
-        const { NUSP, password, book_id } = req.body;
-        console.log(`🔵 [LoansController] Iniciando devolução: NUSP=${NUSP}, book_id=${book_id}`);
-        if (!NUSP || !password || !book_id) {
-            console.warn("🟡 [LoansController] Dados obrigatórios ausentes para devolução");
-            return res.status(400).json({ error: 'NUSP, password e book_id são obrigatórios' });
+        const { book_id } = req.body;
+        console.log(`🔵 [LoansController] Iniciando devolução: book_id=${book_id}`);
+        if (!book_id) {
+            console.warn("🟡 [LoansController] book_id não fornecido para devolução");
+            return res.status(400).json({ error: 'book_id é obrigatório' });
         }
         try {
-            const result = await LoansService.returnBookByUserAndBook(NUSP, password, book_id);
+            // Busca o empréstimo ativo para o livro
+            const result = await LoansService.returnBookByBookId(book_id);
             console.log(`🟢 [LoansController] Devolução registrada com sucesso:`, result);
             res.json(result);
         } catch (err) {

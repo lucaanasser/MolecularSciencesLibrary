@@ -9,8 +9,6 @@ import { useState } from "react";
  * 🔴 Erro
  */
 interface ReturnLoanParams {
-  NUSP: string;
-  password: string;
   book_id: number;
   loan_id?: number; 
 }

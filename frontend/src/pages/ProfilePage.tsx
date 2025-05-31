@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Bell } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
-import LoanHistory from "@/features/loans/components/LoanHistory";
+import LoanActive from "@/features/loans/components/LoanActive";
+import LoanHistoryOnly from "@/features/loans/components/LoanHistoryOnly";
 import NotificationList from "@/features/notification/components/NotificationList";
 import { useNotification } from "@/features/notification/hooks/useNotification";
 
@@ -13,7 +14,7 @@ import { useNotification } from "@/features/notification/hooks/useNotification";
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
 const ProfilePage = () => {
-  const [activeTab, setActiveTab] = useState("emprestimos");
+  const [activeTab, setActiveTab] = useState("ativos");
   const { user, loading: userLoading, error: userError } = useUserProfile();
   const { notifications, loading: notificationsLoading, refetch } = useNotification();
 
@@ -79,28 +80,46 @@ const ProfilePage = () => {
             {/* Tabs Content */}
             <div className="col-span-1 md:col-span-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="emprestimos" className="rounded-xl">
-                    <BookOpen className="mr-2 h-4 w-4" /> Empréstimos
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="ativos" className="rounded-xl">
+                    <BookOpen className="mr-2 h-4 w-4" /> Empréstimos Ativos
+                  </TabsTrigger>
+                  <TabsTrigger value="historico" className="rounded-xl">
+                    <BookOpen className="mr-2 h-4 w-4" /> Histórico
                   </TabsTrigger>
                   <TabsTrigger value="notificacoes" className="rounded-xl">
                     <Bell className="mr-2 h-4 w-4" /> Notificações
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="emprestimos">
+                <TabsContent value="ativos">
+                  <Card className="rounded-2xl">
+                    <div className="p-6">
+                      <h3 className="text-xl font-bebas mb-4">Empréstimos Ativos</h3>
+                      {userLoading ? (
+                        <div className="text-center py-8">Carregando dados do usuário...</div>
+                      ) : user && user.id ? (
+                        <LoanActive userId={user.id} />
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">Não foi possível carregar os empréstimos ativos.</p>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="historico">
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Histórico de Empréstimos</h3>
                       {userLoading ? (
                         <div className="text-center py-8">Carregando dados do usuário...</div>
                       ) : user && user.id ? (
-                        <LoanHistory userId={user.id} />
+                        <LoanHistoryOnly userId={user.id} />
                       ) : (
                         <div className="text-center py-8">
-                          <p className="text-gray-500">
-                            Não foi possível carregar o histórico de empréstimos.
-                          </p>
+                          <p className="text-gray-500">Não foi possível carregar o histórico de empréstimos.</p>
                         </div>
                       )}
                     </div>

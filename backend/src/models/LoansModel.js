@@ -200,4 +200,31 @@ module.exports = {
             );
         });
     },
+
+    // Busca empréstimo ativo para um livro (independente do usuário)
+    getActiveLoanByBookId: (bookId) => {
+        console.log(`🔵 [LoansModel] Buscando empréstimo ativo para o livro ${bookId}`);
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.get(
+                `SELECT id as loan_id FROM borrowed_books WHERE book_id = ? AND returned_at IS NULL`,
+                [bookId],
+                (err, row) => {
+                    db.close();
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao buscar empréstimo ativo: ${err.message}`);
+                        reject(err);
+                    }
+                    else {
+                        if (row) {
+                            console.log(`🟢 [LoansModel] Empréstimo ativo encontrado:`, row);
+                        } else {
+                            console.warn(`🟡 [LoansModel] Nenhum empréstimo ativo encontrado para o livro ${bookId}`);
+                        }
+                        resolve(row);
+                    }
+                }
+            );
+        });
+    },
 };

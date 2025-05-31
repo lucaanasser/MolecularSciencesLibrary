@@ -3,6 +3,7 @@ const UsersModel = require('../models/UsersModel');
 const BooksModel = require('../models/BooksModel');
 const bcrypt = require('bcrypt');
 const RulesService = require('./RulesService');
+const EmailService = require('./EmailService');
 
 /**
  * Service responsável pela lógica de negócio dos empréstimos de livros.
@@ -58,6 +59,22 @@ class LoansService {
         // 5. Cria o empréstimo
         const loan = await LoansModel.createLoan(book_id, user.id);
         console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`, loan);
+
+        // Calcula a data de devolução conforme as regras (use a mesma variável 'rules')
+        const maxDays = rules.max_days || 7;
+        const borrowedAt = new Date();
+        const dueDate = new Date(borrowedAt);
+        dueDate.setDate(borrowedAt.getDate() + maxDays);
+        const dueDateStr = dueDate.toLocaleDateString('pt-BR');
+
+        // Envia email de confirmação de novo empréstimo
+        await EmailService.sendNotificationEmail({
+            user_id: user.id,
+            type: 'novo_emprestimo',
+            subject: 'Novo empréstimo realizado na Biblioteca CM',
+            message: `Você realizou um novo empréstimo do livro "${book.title}". Data de devolução: ${dueDateStr}. Fique atento ao prazo!`,
+        });
+
         return loan;
     }
 
@@ -111,6 +128,33 @@ class LoansService {
 
         // 4. Marca como devolvido
         const result = await LoansModel.returnLoan(loan.loan_id || loan.id);
+        console.log(`🟢 [LoansService] Devolução registrada para empréstimo:`, result);
+        return result;
+    }
+
+    // Registra devolução de um empréstimo apenas pelo id do livro
+    async returnBookByBookId(book_id) {
+        // Busca o empréstimo ativo para o livro
+        const loanRow = await LoansModel.getActiveLoanByBookId(book_id);
+        if (!loanRow) {
+            console.warn(`🟡 [LoansService] Nenhum empréstimo ativo encontrado para o livro ${book_id}`);
+            throw new Error('Nenhum empréstimo ativo encontrado para este livro');
+        }
+        // Buscar detalhes do empréstimo para obter student_id
+        const allLoans = await LoansModel.getLoansWithDetails();
+        const loan = allLoans.find(l => l.loan_id === loanRow.loan_id);
+        // Marca como devolvido
+        const result = await LoansModel.returnLoan(loanRow.loan_id);
+        // Envia email de confirmação de devolução
+        if (loan) {
+            await EmailService.sendReturnConfirmationEmail({
+                user_id: loan.student_id,
+                book_title: loan.book_title || book_id,
+                returnedAt: new Date()
+            });
+        } else {
+            console.warn(`[LoansService] Não foi possível encontrar detalhes do empréstimo para enviar email de devolução.`);
+        }
         console.log(`🟢 [LoansService] Devolução registrada para empréstimo:`, result);
         return result;
     }

@@ -11,6 +11,23 @@ async function main() {
     const reminderDays = rules.overdue_reminder_days || 3;
     const loans = await LoansService.listActiveLoansWithOverdue();
     const overdueLoans = loans.filter(loan => loan.is_overdue);
+    // Notificações para empréstimos que vencem em 3 dias
+    const now = new Date();
+    const soonDueLoans = loans.filter(loan => {
+      if (loan.returned_at) return false;
+      const dueDate = new Date(loan.due_date);
+      const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+      return diffDays === 3;
+    });
+    console.log(`🟢 [checkOverdues] Empréstimos vencendo em 3 dias: ${soonDueLoans.length}`);
+    for (const loan of soonDueLoans) {
+      await EmailService.sendNotificationEmail({
+        user_id: loan.student_id,
+        type: 'lembrete_devolucao',
+        subject: 'Lembrete: Faltam 3 dias para devolver o livro',
+        message: `O prazo para devolução do livro "${loan.book_title || loan.book_id}" termina em 3 dias. Por favor, organize-se para devolver no prazo!`,
+      });
+    }
     console.log(`🟢 [checkOverdues] Empréstimos atrasados encontrados: ${overdueLoans.length}`);
     for (const loan of overdueLoans) {
       // Cria notificação interna de atraso

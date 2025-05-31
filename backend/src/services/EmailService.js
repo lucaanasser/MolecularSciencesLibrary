@@ -24,35 +24,8 @@ class EmailService {
     /**
      * Método base para envio de emails
      */
-    async sendMail({ to, subject, text, html, type = 'generic' }) {
+    async sendMail({ to, subject, text, html, type = 'generic', attachments = [] }) {
         console.log(`🔵 [EmailService] Iniciando envio de email para ${to} - Tipo: ${type}`);
-
-        // Lista de possíveis attachments
-        const attachmentsList = [
-            {
-                filename: 'Biblioteca do CM.png',
-                path: './public/images/Biblioteca do CM.png',
-                cid: 'logo'
-            },
-            {
-                filename: 'overdue.png',
-                path: './public/images/overdue.png',
-                cid: 'atraso'
-            },
-            {
-                filename: 'nudge.png',
-                path: './public/images/nudge.png',
-                cid: 'cutucada'
-            },
-            {
-                filename: 'welcome.png',
-                path: './public/images/welcome.png',
-                cid: 'boasvindas'
-            }
-        ];
-
-        // Só inclui attachments que existem no disco
-        const attachments = attachmentsList.filter(att => fs.existsSync(att.path));
 
         const mailOptions = {
             from: process.env.SMTP_FROM || process.env.SMTP_USER,
@@ -132,23 +105,28 @@ class EmailService {
             return false;
         }
 
-        const subject = 'Aviso de atraso de livro';
-        
+        const subject = 'Aviso de atraso: O Carlos Magno está com saudades dos livros dele!';
         // Monta lista de livros atrasados
         const booksList = books.map(b =>
             `<li><b>${b.book_title || b.book_id}</b> (Data limite: ${new Date(b.due_date).toLocaleDateString('pt-BR')})</li>`
         ).join('');
-        
         const textBooksList = books.map(b =>
             `- ${b.book_title || b.book_id} (Data limite: ${new Date(b.due_date).toLocaleDateString('pt-BR')})`
         ).join('\n');
 
         const htmlContent = `
-            <p>O(s) livro(s) abaixo estão em atraso:</p>
+            <p>Oh não, parece que você esqueceu de devolver algum(ns) livro(s)...</p>
             <ul>${booksList}</ul>
-            <p>Por favor, devolva o(s) livro(s) o quanto antes.</p>
-            <p><strong>Obrigado!</strong><br>
-            Equipe Biblioteca Ciências Moleculares</p>
+            <div style="text-align: center;">
+            <img src="cid:atraso" alt="Carlos Magno surpreso" style="height: 350px; margin-bottom: 10px;" />
+            </div>
+            <p>Lembre-se que outros colegas podem estar precisando desses materiais para os estudos. A devolução em dia ajuda toda a comunidade acadêmica!</p>
+            <div style="margin-top: 30px; text-align: center;">
+                <span style="font-size: 48px;"></span>
+                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+                    Sua colaboração faz a diferença! 
+                </div>
+            </div>
         `;
 
         const textContent = `O(s) livro(s) abaixo estão em atraso:\n${textBooksList}\n\nPor favor, devolva o(s) livro(s) o quanto antes.\n\nObrigado!\nEquipe Biblioteca Ciências Moleculares`;
@@ -164,7 +142,19 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'overdue'
+            type: 'overdue',
+            attachments: [
+                {
+                    filename: 'overdue.png',
+                    path: './public/images/overdue.png',
+                    cid: 'atraso'
+                },
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
         });
     }
 
@@ -179,11 +169,9 @@ class EmailService {
         }
 
         const subject = 'Lembrete: Devolução pendente de livro na Biblioteca CM';
-        
         const booksList = books.map(b =>
             `<li><b>${b.book_title || b.book_id}</b> (Data limite: ${new Date(b.due_date).toLocaleDateString('pt-BR')})</li>`
         ).join('');
-        
         const textBooksList = books.map(b =>
             `- ${b.book_title || b.book_id} (Data limite: ${new Date(b.due_date).toLocaleDateString('pt-BR')})`
         ).join('\n');
@@ -192,8 +180,17 @@ class EmailService {
             <p>Olá!</p>
             <p>Este é um lembrete amigável de que o(s) livro(s) abaixo ainda não foram devolvidos e estão em atraso:</p>
             <ul>${booksList}</ul>
+            <div style="text-align: center;">
+                <img src="cid:atraso" alt="Atraso" style="height: 350px; margin-bottom: 10px;" />
+            </div>
             <p>Por favor, devolva o(s) livro(s) o quanto antes para evitar multas e permitir que outros colegas também possam utilizá-los.</p>
             <p>Se já devolveu, desconsidere este aviso.</p>
+            <div style="margin-top: 30px; text-align: center;">
+                <span style="font-size: 48px;"></span>
+                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+                    Sua colaboração faz a diferença! 
+                </div>
+            </div>
             <p><strong>Obrigado!</strong><br>
             Equipe Biblioteca Ciências Moleculares</p>
         `;
@@ -211,7 +208,19 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'overdue_reminder'
+            type: 'overdue_reminder',
+            attachments: [
+                {
+                    filename: 'overdue.png',
+                    path: './public/images/overdue.png',
+                    cid: 'atraso'
+                },
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
         });
     }
 
@@ -225,16 +234,17 @@ class EmailService {
             return false;
         }
 
-        const subject = 'Você foi cutucado! 👀 Alguém quer esse livro!';
-        
+        const subject = 'Você foi cutucado: alguém quer esse livro!';
         const htmlContent = `
-            <p>Ei! 📚</p>
-            <p>Um colega${requester_name ? ` (${requester_name})` : ''} está de olho no livro ${book_title ? `"<strong>${book_title}</strong>"` : ''} que você ainda não devolveu... 👀</p>
-            <p>Que tal fazer esse favor e devolver logo? Assim, todo mundo consegue aproveitar melhor a nossa biblioteca! 😄</p>
+            <p>Ei! 👀</p>
+            <p>Um colega está de olho no livro ${book_title ? `"<strong>${book_title}</strong>"` : ''} que você ainda não devolveu... </p>
+            <div style="text-align: center;">
+                <img src="cid:cutucada" alt="Carlos Magno sendo cutucado" style="height: 350px; margin-bottom: 10px;" />
+            </div><p>Que tal fazer a boa e devolver logo? Assim, todo mundo consegue aproveitar melhor a nossa biblioteca! </p>
             <div style="margin-top: 30px; text-align: center;">
-                <span style="font-size: 48px;">😄📚</span>
+                <span style="font-size: 48px;"></span>
                 <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-                    Sua colaboração faz a diferença! 💜
+                    Sua colaboração faz a diferença! 
                 </div>
             </div>
         `;
@@ -252,7 +262,19 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'nudge'
+            type: 'nudge',
+            attachments: [
+                {
+                    filename: 'nudge.png',
+                    path: './public/images/nudge.png',
+                    cid: 'cutucada'
+                },
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
         });
     }
 
@@ -267,7 +289,6 @@ class EmailService {
         }
 
         const htmlContent = `<p>${message.replace(/\n/g, '<br>')}</p>`;
-        
         const html = this.generateEmailTemplate({ 
             subject, 
             content: htmlContent,
@@ -279,7 +300,14 @@ class EmailService {
             subject,
             text: message,
             html,
-            type: 'custom'
+            type: 'custom',
+            attachments: [
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
         });
     }
 
@@ -311,7 +339,7 @@ class EmailService {
      * Envia email de boas-vindas para novos usuários
      * Se sendResetLink for true, inclui link para redefinir senha
      */
-    async sendWelcomeEmail({ user_id, sendResetLink = false }) {
+    async sendWelcomeEmail({ user_id }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
             console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
@@ -319,7 +347,13 @@ class EmailService {
         }
 
         const subject = 'Bem-vindo à Biblioteca Ciências Moleculares!';
-        
+
+        // Gera token de primeiro acesso
+        const jwt = require('jsonwebtoken');
+        const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
+        const resetToken = jwt.sign({ id: user.id, email: user.email, type: 'first_access' }, SECRET, { expiresIn: '24h' });
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${resetToken}`;
+
         let htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Seja muito bem-vindo(a) à nossa biblioteca! O Carlos Magno está muito feliz em te ver por aqui!</p>
@@ -333,6 +367,10 @@ class EmailService {
                 <li>Receber notificações sobre prazos de devolução</li>
                 <li>E muito mais!</li>
             </ul>
+            <hr>
+            <p><strong>Para acessar sua conta, é necessário criar uma senha de acesso:</strong></p>
+            <p><a href="${resetUrl}" style="color: #b657b3; font-weight: bold;">Clique aqui para cadastrar sua senha</a></p>
+            <p style="font-size: 13px; color: #555;">Este link expira em 24 horas. Caso tenha expirado use a função de: esqueci minha senha</p>
             <p>Se tiver alguma dúvida, não hesite em nos contactar.</p>
             <div style="margin-top: 30px; text-align: center;">
                 <span style="font-size: 48px;"></span>
@@ -342,23 +380,7 @@ class EmailService {
             </div>
         `;
 
-        let textContent = `Olá, ${user.name || 'colega'}!\n\nSeja muito bem-vindo(a) à nossa biblioteca! 🎉\n\nAgora você pode pesquisar e reservar livros, acompanhar seus empréstimos, receber notificações sobre prazos e muito mais!\n\nSe tiver alguma dúvida, não hesite em nos contatar.\n\nBons estudos!\nEquipe Biblioteca Ciências Moleculares`;
-
-        if (sendResetLink) {
-            // Gera token de primeiro acesso
-            const jwt = require('jsonwebtoken');
-            const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
-            const resetToken = jwt.sign({ id: user.id, email: user.email, type: 'first_access' }, SECRET, { expiresIn: '1h' });
-            // Altera o valor padrão para http://localhost:8080
-            const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${resetToken}`;
-            htmlContent += `
-                <hr>
-                <p><strong>Cadastre sua senha de acesso:</strong></p>
-                <p><a href="${resetUrl}" style="color: #b657b3; font-weight: bold;">Clique aqui para cadastrar sua senha</a></p>
-                <p>Este link expira em 1 hora.</p>
-            `;
-            textContent += `\n\nCadastre sua senha de acesso: ${resetUrl}\n(Este link expira em 1 hora)`;
-        }
+        let textContent = `Olá, ${user.name || 'colega'}!\n\nSeja muito bem-vindo(a) à nossa biblioteca! 🎉\n\nAgora você pode pesquisar e reservar livros, acompanhar seus empréstimos, receber notificações sobre prazos e muito mais!\n\nPara acessar sua conta, crie sua senha de acesso: ${resetUrl}\n(Este link expira em 24 horas)\n\nSe tiver alguma dúvida, não hesite em nos contatar.\n\nBons estudos!\nEquipe Biblioteca Ciências Moleculares`;
 
         const html = this.generateEmailTemplate({ 
             subject, 
@@ -371,7 +393,19 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'welcome'
+            type: 'welcome',
+            attachments: [
+                {
+                    filename: 'welcome.png',
+                    path: './public/images/welcome.png',
+                    cid: 'boasvindas'
+                },
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
         });
     }
 
@@ -410,7 +444,14 @@ class EmailService {
             subject: emailSubject,
             text: textContent,
             html,
-            type: 'notification'
+            type: 'notification',
+            attachments: [
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
         });
     }
 
@@ -424,23 +465,77 @@ class EmailService {
             return false;
         }
         const subject = 'Redefinição de senha - Biblioteca Ciências Moleculares';
-        // Altera o valor padrão para http://localhost:8080
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${resetToken}`;
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Recebemos uma solicitação para redefinir sua senha. Para criar uma nova senha, clique no link abaixo:</p>
-            <p><a href="${resetUrl}" style="color: #b657b3; font-weight: bold;">Redefinir minha senha</a></p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="${resetUrl}" style="background: #b657b3; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 18px;">Redefinir minha senha</a>
+            </div>
             <p>Se você não solicitou, ignore este email.</p>
-            <p><strong>Equipe Biblioteca Ciências Moleculares</strong></p>
+            <div style="margin-top: 30px; text-align: center;">
+                <span style="font-size: 48px;"></span>
+                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+                    Equipe Biblioteca Ciências Moleculares
+                </div>
+            </div>
         `;
-        const textContent = `Olá, ${user.name || 'colega'}!\n\nAcesse o link para redefinir sua senha: ${resetUrl}\nSe não solicitou, ignore este email.\nEquipe Biblioteca Ciências Moleculares`;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nRecebemos uma solicitação para redefinir sua senha. Para criar uma nova senha, acesse: ${resetUrl}\n\nSe você não solicitou, ignore este email.\n\nEquipe Biblioteca Ciências Moleculares`;
+
         const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
         return await this.sendMail({
             to: user.email,
             subject,
             text: textContent,
             html,
-            type: 'reset_password'
+            type: 'reset_password',
+            attachments: [
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: './public/images/Biblioteca do CM.png',
+                    cid: 'logo'
+                }
+            ]
+        });
+    }
+
+    /**
+     * Envia email de confirmação de devolução de livro
+     */
+    async sendReturnConfirmationEmail({ user_id, book_title, returnedAt }) {
+        const user = await usersModel.getUserById(user_id);
+        if (!user || !user.email) {
+            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
+            return false;
+        }
+        const subject = 'Confirmação de devolução de livro - Biblioteca CM';
+        const dateStr = returnedAt ? new Date(returnedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
+        const htmlContent = `
+            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
+            <p>Confirmamos a devolução do livro <b>"${book_title}"</b> em ${dateStr}.</p>
+            <p>Muito obrigado por colaborar com a nossa biblioteca! Esperamos te ver em breve para novos empréstimos.</p>
+            <div style="margin-top: 30px; text-align: center;">
+                <img src="cid:logo" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
+                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+                    Equipe Biblioteca Ciências Moleculares
+                </div>
+            </div>
+        `;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nConfirmamos a devolução do livro "${book_title}" em ${dateStr}.\n\nMuito obrigado por colaborar com a nossa biblioteca! Esperamos te ver em breve para novos empréstimos.\n\nEquipe Biblioteca Ciências Moleculares`;
+        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
+        return await this.sendMail({
+            to: user.email,
+            subject,
+            text: textContent,
+            html,
+            type: 'return_confirmation',
+            attachments: [
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: path.join(__dirname, '../../public/images/Biblioteca do CM.png'),
+                    cid: 'logo'
+                }
+            ]
         });
     }
 

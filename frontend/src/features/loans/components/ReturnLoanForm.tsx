@@ -10,20 +10,18 @@ import { useReturnLoan } from "../hooks/useReturnLoan";
  * 🔴 Erro
  */
 export default function ReturnLoanForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [NUSP, setNUSP] = useState("");
-  const [password, setPassword] = useState("");
   const [bookId, setBookId] = useState("");
   const { returnLoan, loading, error, success } = useReturnLoan();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!NUSP || !password || !bookId) {
-      console.warn("🟡 [ReturnLoanForm] Campos obrigatórios não preenchidos");
+    if (!bookId) {
+      console.warn("🟡 [ReturnLoanForm] Campo obrigatório não preenchido");
       return;
     }
     try {
-      console.log("🔵 [ReturnLoanForm] Registrando devolução para NUSP:", NUSP, "Livro:", bookId);
-      await returnLoan({ NUSP, password, book_id: Number(bookId) });
+      console.log("🔵 [ReturnLoanForm] Registrando devolução para Livro:", bookId);
+      await returnLoan({ book_id: Number(bookId) });
       if (onSuccess) {
         console.log("🟢 [ReturnLoanForm] Devolução registrada com sucesso");
         onSuccess();
@@ -35,26 +33,6 @@ export default function ReturnLoanForm({ onSuccess }: { onSuccess?: () => void }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div>
-        <label className="block font-medium">NUSP do Usuário</label>
-        <input
-          type="text"
-          value={NUSP}
-          onChange={e => setNUSP(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-          required
-        />
-      </div>
-      <div>
-        <label className="block font-medium">Senha do Usuário</label>
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-          required
-        />
-      </div>
       <div>
         <label className="block font-medium">ID do Livro</label>
         <input
