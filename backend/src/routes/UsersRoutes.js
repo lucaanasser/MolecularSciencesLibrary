@@ -38,6 +38,18 @@ router.post('/login', (req, res) => {
     usersController.authenticateUser(req, res);
 });
 
+// Solicitar redefinição de senha
+router.post('/forgot-password', (req, res) => {
+    console.log("🔵 [UsersRoutes] POST /forgot-password - Solicitar redefinição de senha");
+    usersController.requestPasswordReset(req, res);
+});
+
+// Redefinir senha
+router.post('/reset-password', (req, res) => {
+    console.log("🔵 [UsersRoutes] POST /reset-password - Redefinir senha");
+    usersController.resetPassword(req, res);
+});
+
 // Listar todos os usuários (apenas admin)
 router.get('/', (req, res) => {
     console.log("🔵 [UsersRoutes] GET / - Listar todos os usuários");

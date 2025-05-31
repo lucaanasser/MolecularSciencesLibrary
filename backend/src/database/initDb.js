@@ -36,7 +36,7 @@ db.serialize(() => {
             name TEXT NOT NULL,
             NUSP INTEGER NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL,
+            password_hash TEXT, -- Agora permite NULL
             role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )

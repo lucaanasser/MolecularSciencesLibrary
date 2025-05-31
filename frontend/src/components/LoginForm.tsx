@@ -20,6 +20,7 @@ const LoginForm: React.FC = () => {
   const [matricula, setMatricula] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -73,6 +74,39 @@ const LoginForm: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!matricula) {
+      toast({
+        title: "Informe seu email ou matrícula",
+        description: "Digite seu email ou número de matrícula para redefinir a senha.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await fetch("/api/users/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ login: matricula }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao enviar email de redefinição");
+      toast({
+        title: "Email enviado!",
+        description: "Se o usuário existir, você receberá um email com instruções para redefinir sua senha.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erro ao enviar email",
+        description: err.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center p-6">
       <Card className="w-full max-w-md p-6 rounded-2xl shadow-lg">
@@ -82,10 +116,10 @@ const LoginForm: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="matricula">Número de Matrícula</Label>
+              <Label htmlFor="matricula">Número de Matrícula ou Email</Label>
               <Input
                 id="matricula"
-                placeholder="Ex: 13691375"
+                placeholder="Ex: 13691375 ou seu@email.com"
                 value={matricula}
                 onChange={(e) => setMatricula(e.target.value)}
                 className="rounded-xl"
@@ -105,6 +139,17 @@ const LoginForm: React.FC = () => {
                 required
               />
             </div>
+          </div>
+          <div className="flex justify-end mt-2">
+            <Button
+              type="button"
+              variant="link"
+              className="text-cm-blue px-0 text-sm"
+              onClick={handleForgotPassword}
+              disabled={forgotLoading}
+            >
+              {forgotLoading ? "Enviando..." : "Esqueci minha senha"}
+            </Button>
           </div>
           <Button
             type="submit"

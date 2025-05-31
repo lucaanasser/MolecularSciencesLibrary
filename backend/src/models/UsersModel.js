@@ -68,6 +68,17 @@ class UsersModel {
             [NUSP]
         );
     }
+
+    /**
+     * Atualiza a senha do usuário
+     */
+    async updateUserPassword(id, password_hash) {
+        console.log("🟢 [updateUserPassword] id:", id);
+        return await executeQuery(
+            `UPDATE users SET password_hash = ? WHERE id = ?`,
+            [password_hash, id]
+        );
+    }
 }
 
 module.exports = new UsersModel();

@@ -12,7 +12,7 @@ export function useAddUser() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function addUser(user: { name: string; email: string; password: string; NUSP: number }) {
+  async function addUser(user: { name: string; email: string; NUSP: number }) {
     setLoading(true);
     setError(null);
     try {

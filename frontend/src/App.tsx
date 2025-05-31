@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import ProAlunoPage from "./pages/ProAlunoPage"; 
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "@/components/ProtectedRoute"; 
 
 // Log de início de renderização do App
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/search" element={<SearchPage />} />
           <Route path="/virtual-shelf" element={<VirtualShelfPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/profile"
             element={

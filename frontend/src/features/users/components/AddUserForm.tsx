@@ -21,18 +21,16 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
   const [name, setName] = useState("");
   const [NUSP, setNUSP] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const { addUser, loading, error } = useAddUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       console.log("🔵 [AddUserForm] Adicionando usuário:", name, NUSP, email);
-      await addUser({ name, email, password, NUSP: Number(NUSP) });
+      await addUser({ name, email, NUSP: Number(NUSP) });
       setName("");
       setNUSP("");
       setEmail("");
-      setPassword("");
       onSuccess && onSuccess();
       console.log("🟢 [AddUserForm] Usuário adicionado com sucesso");
     } catch (err: any) {
@@ -54,10 +52,6 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
       <div>
         <Label htmlFor="email">Email</Label>
         <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="password">Senha</Label>
-        <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
       </div>
       {error && <div className="text-red-600">{error}</div>}
       <Button type="submit" disabled={loading}>

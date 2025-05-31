@@ -12,12 +12,12 @@ class UsersController {
     async createUser(req, res) {
         try {
             console.log("🔵 [createUser] Dados recebidos:", req.body);
-            const { name, email, password, role, NUSP } = req.body;
-            if (!name || !email || !password || !role || !NUSP) {
+            const { name, email, role, NUSP } = req.body;
+            if (!name || !email || !role || !NUSP) {
                 console.warn("🟡 [createUser] Campos obrigatórios faltando.");
                 return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
             }
-            const user = await usersService.createUser({ name, email, password, role, NUSP });
+            const user = await usersService.createUser({ name, email, role, NUSP });
             console.log("🟢 [createUser] Usuário criado com sucesso:", user);
             res.status(201).json(user);
         } catch (error) {
@@ -115,6 +115,40 @@ class UsersController {
         } catch (error) {
             console.error("🔴 [getProfile] Erro:", error.message);
             res.status(404).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Endpoint para solicitar redefinição de senha
+     */
+    async requestPasswordReset(req, res) {
+        try {
+            const { login } = req.body;
+            if (!login) {
+                return res.status(400).json({ error: 'Email ou NUSP são obrigatórios.' });
+            }
+            await usersService.requestPasswordReset(login);
+            res.status(200).json({ message: 'Se o usuário existir, um email foi enviado com instruções para redefinir a senha.' });
+        } catch (error) {
+            console.error("🔴 [requestPasswordReset] Erro:", error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Endpoint para redefinir a senha usando token
+     */
+    async resetPassword(req, res) {
+        try {
+            const { token, newPassword } = req.body;
+            if (!token || !newPassword) {
+                return res.status(400).json({ error: 'Token e nova senha são obrigatórios.' });
+            }
+            await usersService.resetPassword({ token, newPassword });
+            res.status(200).json({ message: 'Senha redefinida com sucesso.' });
+        } catch (error) {
+            console.error("🔴 [resetPassword] Erro:", error.message);
+            res.status(400).json({ error: error.message });
         }
     }
 }

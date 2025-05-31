@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const SALT_ROUNDS = 10;
 const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
-
+const EmailService = require('./EmailService'); 
 /**
  * Service responsável pela lógica de negócio dos usuários.
  * Inclui criação, autenticação, busca, listagem e deleção.
@@ -13,16 +13,23 @@ class UsersService {
      * Cria um novo usuário após verificar se já existe por email.
      * Retorna os dados do usuário criado (sem senha).
      */
-    async createUser({ name, email, password, role, NUSP }) {
+    async createUser({ name, email, role, NUSP }) {
         console.log("🔵 [createUser] Verificando existência do usuário por email:", email);
         const existing = await usersModel.getUserByEmail(email);
         if (existing) {
             console.warn("🟡 [createUser] Usuário já existe com este email:", email);
             throw new Error('Usuário já existe com este email');
         }
-        const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+        // Cria usuário SEM senha
+        const password_hash = null;
         const userId = await usersModel.createUser({ name, email, password_hash, role, NUSP });
         console.log("🟢 [createUser] Usuário criado com id:", userId);
+
+        // Envia email de boas-vindas com link para cadastrar senha
+        EmailService.sendWelcomeEmail({ user_id: userId, sendResetLink: true }).catch(err => {
+            console.error("🔴 [createUser] Falha ao enviar email de boas-vindas:", err.message);
+        });
+
         return { id: userId, name, email, role, NUSP };
     }
 
@@ -45,7 +52,7 @@ class UsersService {
             console.error("🔴 [authenticateUser] Usuário não encontrado:", login);
             throw new Error('Usuário não encontrado');
         }
-        const valid = await bcrypt.compare(password, user.password_hash);
+        const valid = user.password_hash && await bcrypt.compare(password, user.password_hash);
         if (!valid) {
             console.warn("🟡 [authenticateUser] Senha incorreta para usuário:", login);
             throw new Error('Senha incorreta');
@@ -59,6 +66,46 @@ class UsersService {
         const { password_hash, ...userData } = user;
         console.log("🟢 [authenticateUser] Usuário autenticado, token gerado.");
         return { ...userData, token };
+    }
+
+    /**
+     * Gera e envia token de redefinição de senha para o email do usuário
+     */
+    async requestPasswordReset(login) {
+        let user;
+        if (login && /^\d+$/.test(login)) {
+            user = await usersModel.getUserByNUSP(login);
+        } else {
+            user = await usersModel.getUserByEmail(login);
+        }
+        if (!user) throw new Error('Usuário não encontrado');
+        const jwt = require('jsonwebtoken');
+        const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
+        const resetToken = jwt.sign({ id: user.id, email: user.email, type: 'reset' }, SECRET, { expiresIn: '1h' });
+        await EmailService.sendPasswordResetEmail({ user_id: user.id, resetToken });
+        return true;
+    }
+
+    /**
+     * Redefine a senha do usuário usando o token
+     */
+    async resetPassword({ token, newPassword }) {
+        const jwt = require('jsonwebtoken');
+        const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
+        let payload;
+        try {
+            payload = jwt.verify(token, SECRET);
+        } catch (err) {
+            throw new Error('Token inválido ou expirado');
+        }
+        if (!payload || (payload.type !== 'reset' && payload.type !== 'first_access') || !payload.id) {
+            throw new Error('Token inválido');
+        }
+        const user = await usersModel.getUserById(payload.id);
+        if (!user) throw new Error('Usuário não encontrado');
+        const password_hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        await usersModel.updateUserPassword(user.id, password_hash);
+        return true;
     }
 
     /**
