@@ -8,55 +8,61 @@ import { Link } from "react-router-dom";
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
+
+const textBaseClass = "text-sm text-black";
+const linkBaseClass = `${textBaseClass} hover:text-gray-700`;
+
 const Footer: React.FC = () => {
   // Log de início de renderização
   console.log("🔵 [Footer] Renderizando rodapé");
   return (
-    <footer className="bg-cm-purple text-white py-6">
+    <footer className="bg-cm-bg text-white py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <h3 className="text-xl font-bebas mb-4">Biblioteca CM</h3>
-            <p className="text-sm text-gray-300">
-              Biblioteca do curso de Ciências Moleculares da Universidade de São Paulo.
+            <img
+              src="images/logo-estendido.png"
+              alt="Logo Biblioteca CM"
+              className="h-20 mb-4"
+            />
+            <p className={textBaseClass}>
+              Site desenvolvido com muito amor e carinho por Luca Nasser e Helena Reis, Turma 33. 
             </p>
           </div>
           <div>
-            <h4 className="text-lg font-bebas mb-3">Links Rápidos</h4>
-            <ul className="space-y-2">
+            <h4 className="text-lg text-black font-bebas mb-3">Links Rápidos</h4>
+            <ul>
               <li>
-                <Link to="/" className="text-sm text-gray-300 hover:text-white">
+                <Link to="/" className={linkBaseClass}>
                   Início
                 </Link>
               </li>
               <li>
-                <Link to="/search" className="text-sm text-gray-300 hover:text-white">
+                <Link to="/search" className={linkBaseClass}>
                   Buscar Livros
                 </Link>
               </li>
               <li>
-                <Link to="/virtual-shelf" className="text-sm text-gray-300 hover:text-white">
+                <Link to="/virtual-shelf" className={linkBaseClass}>
                   Estante Virtual
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-sm text-gray-300 hover:text-white">
+                <Link to="/login" className={linkBaseClass}>
                   Login
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="text-lg font-bebas mb-3">Contato</h4>
-            <address className="not-italic text-sm text-gray-300">
+            <h4 className="text-lg text-black font-bebas mb-3">Contato</h4>
+            <address className={`not-italic ${textBaseClass}`}>
               <p>Universidade de São Paulo</p>
+              <p>InovaUSP</p>
               <p>Cidade Universitária</p>
               <p>biblioteca.cm@usp.br</p>
             </address>
           </div>
-        </div>
-        <div className="mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Biblioteca Ciências Moleculares. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

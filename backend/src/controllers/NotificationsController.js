@@ -24,21 +24,30 @@ class NotificationsController {
             if (!user_id || !type || !message) {
                 return res.status(400).json({ error: 'user_id, type e message são obrigatórios.' });
             }
-            
             // Cria a notificação interna
             const id = await notificationsService.notifyUser({ user_id, type, message, metadata });
-            
+
             // Se deve enviar email, usa o EmailService
             if (sendEmail) {
                 try {
-                    await emailService.sendNotificationEmail({ user_id, type, message, subject });
-                    console.log(`🟢 [NotificationsController] Email de notificação enviado para usuário ${user_id}`);
+                    if (type === 'nudge') {
+                        // Para nudge, envia o email de cutucada específico
+                        // Espera-se que metadata tenha requester_name e book_title
+                        await emailService.sendNudgeEmail({
+                            user_id,
+                            requester_name: metadata?.requester_name,
+                            book_title: metadata?.book_title
+                        });
+                        console.log(`🟢 [NotificationsController] Email de nudge enviado para usuário ${user_id}`);
+                    } else {
+                        await emailService.sendNotificationEmail({ user_id, type, message, subject });
+                        console.log(`🟢 [NotificationsController] Email de notificação enviado para usuário ${user_id}`);
+                    }
                 } catch (emailError) {
                     console.error(`🔴 [NotificationsController] Erro ao enviar email para usuário ${user_id}:`, emailError.message);
                     // Não falha a criação da notificação se o email falhar
                 }
             }
-            
             res.status(201).json({ id });
         } catch (error) {
             console.error("🔴 [NotificationsController] Erro ao criar notificação:", error.message);

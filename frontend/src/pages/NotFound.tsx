@@ -18,7 +18,7 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-white px-16">
       <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-5xl">
         <img
-          src="/images/brain-404.svg"
+          src="/images/erro404.svg"
           alt="Cérebro com coroa"
           className="w-[18rem] h-[18rem] md:w-[22rem] md:h-[22rem] lg:w-[26rem] lg:h-[26rem] md:flex-[1.5]"
         />
