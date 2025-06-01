@@ -168,6 +168,44 @@ db.serialize(() => {
         });
     });
 
+    // BADGES TABLE
+    db.run(`
+        CREATE TABLE IF NOT EXISTS badges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            description TEXT,
+            image_locked TEXT NOT NULL, -- Caminho ou URL da imagem do badge bloqueado
+            image_unlocked TEXT NOT NULL, -- Caminho ou URL da imagem do badge desbloqueado
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela badges:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela badges criada com sucesso');
+
+        // Inserção dos badges padrão se não existirem
+        const defaultBadges = [
+            {
+                name: 'Leitor Frequente',
+                description: 'Você já fez 10 empréstimos.',
+                image_locked: '/images/badges/leitor_frequente_locked.png',
+                image_unlocked: '/images/badges/leitor_frequente_unlocked.png'
+            }
+        ];
+        defaultBadges.forEach(badge => {
+            db.get('SELECT * FROM badges WHERE name = ?', [badge.name], (err, row) => {
+                if (!row) {
+                    db.run(
+                        `INSERT INTO badges (name, description, image_locked, image_unlocked) VALUES (?, ?, ?, ?)`,
+                        [badge.name, badge.description, badge.image_locked, badge.image_unlocked]
+                    );
+                }
+            });
+        });
+    });
+
     // Criação dos usuários especiais
     const adminEmail = 'admin@biblioteca.com';
     const proalunoEmail = 'proaluno@biblioteca.com';

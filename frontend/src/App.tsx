@@ -13,6 +13,7 @@ import AdminPage from "./pages/AdminPage";
 import ProAlunoPage from "./pages/ProAlunoPage"; 
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "@/components/ProtectedRoute"; 
+import DonationPage from "./pages/DonationPage";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/virtual-shelf" element={<VirtualShelfPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/ajude" element={<DonationPage />} /> {/* nova rota */}
           <Route
             path="/profile"
             element={

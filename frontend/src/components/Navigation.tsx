@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Search, User, LogIn } from "lucide-react";
+import { Menu, User, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,7 +29,7 @@ const Navigation: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 100);
+      setIsScrolled(scrollTop > 0);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -60,13 +60,13 @@ const Navigation: React.FC = () => {
   };
 
   const navbarBg = isScrolled ? "bg-cm-bg" : "bg-cm-purple/50";
-  const textColor = isScrolled ? "text-gray-900" : "text-white";
-  const brandColor = isScrolled ? "text-cm-purple" : "text-white";
+  const textColor = isScrolled ? "text-gray-900" : "text-black";
+  const brandColor = isScrolled ? "text-cm-purple" : "text-black";
   const hoverBg = isScrolled ? "hover:bg-gray-100" : "hover:bg-white/20";
   const buttonVariant = isScrolled ? "outline" : "ghost";
   const buttonColors = isScrolled 
     ? "border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white" 
-    : "border-white text-white hover:bg-white hover:text-cm-purple";
+    : "border-black text-black hover:bg-cm-purple hover:text-white";
 
   return (
     <nav className={`${navbarBg} ${textColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
@@ -74,7 +74,7 @@ const Navigation: React.FC = () => {
         <div className="flex justify-between h-24">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <span className={`ml-2 text-2xl font-bebas ${brandColor}`}>Biblioteca do Ciências moleculares</span>
+              <img  src="images/logoestendido.png" alt="Logo da Biblioteca" className="h-20" />
             </Link>
           </div>
 
@@ -88,6 +88,9 @@ const Navigation: React.FC = () => {
             </Link>
             <Link to="/virtual-shelf" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
               Estante Virtual
+            </Link>
+            <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
+              Ajude a Biblioteca
             </Link>
             {user ? (
               <DropdownMenu>
@@ -120,9 +123,6 @@ const Navigation: React.FC = () => {
                 </Link>
               </Button>
             )}
-            <Button size="sm" variant="ghost" className={`${textColor} ${hoverBg}`}>
-              <Search size={20} className={isScrolled ? "text-gray-900" : "text-white"} />
-            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -175,6 +175,16 @@ const Navigation: React.FC = () => {
               }}
             >
               Estante Virtual
+            </Link>
+            <Link
+              to="/ajude"
+              className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                console.log("🟢 [Navigation] Menu mobile fechado (Ajude)");
+              }}
+            >
+              Ajude a Biblioteca
             </Link>
             {user ? (
               <>

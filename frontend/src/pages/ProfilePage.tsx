@@ -3,12 +3,13 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Bell } from "lucide-react";
+import { BookOpen, Bell, Trophy } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";
 import LoanHistoryOnly from "@/features/loans/components/LoanHistoryOnly";
 import NotificationList from "@/features/notification/components/NotificationList";
 import { useNotification } from "@/features/notification/hooks/useNotification";
+import AchievementList from "@/features/users/components/AchievementList";
 
 // Log de início de renderização da página de perfil
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
@@ -80,7 +81,7 @@ const ProfilePage = () => {
             {/* Tabs Content */}
             <div className="col-span-1 md:col-span-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsList className="grid w-full grid-cols-4 mb-6">
                   <TabsTrigger value="ativos" className="rounded-xl">
                     <BookOpen className="mr-2 h-4 w-4" /> Empréstimos Ativos
                   </TabsTrigger>
@@ -89,6 +90,9 @@ const ProfilePage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="notificacoes" className="rounded-xl">
                     <Bell className="mr-2 h-4 w-4" /> Notificações
+                  </TabsTrigger>
+                  <TabsTrigger value="conquistas" className="rounded-xl">
+                    <Trophy className="mr-2 h-4 w-4" /> Conquistas
                   </TabsTrigger>
                 </TabsList>
 
@@ -131,6 +135,15 @@ const ProfilePage = () => {
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Notificações</h3>
                       <NotificationList notifications={notifications} loading={notificationsLoading} onDelete={handleDelete} />
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="conquistas">
+                  <Card className="rounded-2xl">
+                    <div className="p-6">
+                      <h3 className="text-xl font-bebas mb-4">Conquistas</h3>
+                      <AchievementList />
                     </div>
                   </Card>
                 </TabsContent>

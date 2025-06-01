@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <img
-              src="images/logo-estendido.png"
+              src="images/logoestendido.png"
               alt="Logo Biblioteca CM"
               className="h-20 mb-4"
             />

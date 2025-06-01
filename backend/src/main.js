@@ -6,6 +6,7 @@ const usersRouter = require('./routes/UsersRoutes');
 const loansRouter = require('./routes/LoansRoutes');
 const notificationsRouter = require('./routes/NotificationsRoutes');
 const rulesRouter = require('./routes/RulesRoutes');
+const badgesRouter = require('./routes/BadgesRoutes');
 require('dotenv').config();
 
 /**
@@ -29,6 +30,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/loans', loansRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/rules', rulesRouter);
+app.use('/api/badges', badgesRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {
