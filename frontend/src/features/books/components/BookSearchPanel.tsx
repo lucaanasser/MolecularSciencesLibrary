@@ -41,16 +41,16 @@ const BookSearch: React.FC = () => {
   const subcategoryOptions = category ? Object.keys(subareaCodes[category] || {}) : [];
 
   return (
-    <div className="w-full p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="w-full">
+      <div className="mx-auto">
         <h2 className="text-3xl font-bebas mb-6">Buscar Livros</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <div className="col-span-2">
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Digite título, autor ou palavra-chave..."
+                placeholder="Digite título ou autor..."
                 value={search}
                 onChange={e => {
                   console.log("🟢 [BookSearchPanel] Termo de busca alterado:", e.target.value);
@@ -61,15 +61,31 @@ const BookSearch: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             </div>
           </div>
+          
+          <div>
+            <Select value={filterAvailable === "all" ? undefined : filterAvailable} onValueChange={v => {
+              console.log("🟢 [BookSearchPanel] Filtro de disponibilidade alterado:", v);
+              setFilterAvailable(v as any);
+            }}>
+              <SelectTrigger className="rounded-2xl">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="available">Disponíveis</SelectItem>
+                <SelectItem value="borrowed">Emprestados</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <div>
             <Select value={category || undefined} onValueChange={value => {
-              console.log("🟢 [BookSearchPanel] Categoria selecionada:", value);
+              console.log("🟢 [BookSearchPanel] Área selecionada:", value);
               setCategory(value);
               setSubcategory("");
             }}>
               <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Selecione a categoria" />
+                <SelectValue placeholder="Área" />
               </SelectTrigger>
               <SelectContent>
                 {categoryOptions
@@ -106,22 +122,6 @@ const BookSearch: React.FC = () => {
                       {sub}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Select value={filterAvailable} onValueChange={v => {
-              console.log("🟢 [BookSearchPanel] Filtro de disponibilidade alterado:", v);
-              setFilterAvailable(v as any);
-            }}>
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Disponibilidade" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="available">Disponíveis</SelectItem>
-                <SelectItem value="borrowed">Emprestados</SelectItem>
               </SelectContent>
             </Select>
           </div>

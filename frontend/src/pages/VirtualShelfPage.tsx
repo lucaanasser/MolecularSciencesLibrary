@@ -10,8 +10,11 @@ const VirtualShelfPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <div className="flex-grow bg-cm-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <VirtualBookshelf />
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8 w-full">
+          {/* Wrapper extra para responsividade */}
+          <div className="w-full overflow-x-auto">
+            <VirtualBookshelf />
+          </div>
         </div>
       </div>
       <Footer />

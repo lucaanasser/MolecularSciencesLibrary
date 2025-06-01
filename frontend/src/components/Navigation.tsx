@@ -22,6 +22,7 @@ const Navigation: React.FC = () => {
   // Log de início de renderização
   console.log("🔵 [Navigation] Renderizando barra de navegação");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const user = useCurrentUser();
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const Navigation: React.FC = () => {
     }
   };
 
-  const navbarBg = isScrolled ? "bg-cm-bg" : "bg-cm-purple/50";
+  const navbarBg = isScrolled ? "bg-cm-bg" : "bg-cm-purple/80";
   const textColor = isScrolled ? "text-gray-900" : "text-black";
   const brandColor = isScrolled ? "text-cm-purple" : "text-black";
   const hoverBg = isScrolled ? "hover:bg-gray-100" : "hover:bg-white/20";
@@ -68,8 +69,36 @@ const Navigation: React.FC = () => {
     ? "border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white" 
     : "border-black text-black hover:bg-cm-purple hover:text-white";
 
+  // Força cor roxa correta quando menu mobile está aberto
+  const effectiveNavbarBg = isMobileMenuOpen ? "bg-cm-purple/80" : navbarBg;
+  const effectiveTextColor = isMobileMenuOpen ? "text-black" : textColor;
+
+  // Controla visibilidade do drawer para permitir transição
+  useEffect(() => {
+    if (isMobileMenuOpen && !isDrawerVisible) {
+      // Garante que o drawer entra já com translate-x-full, depois ativa translate-x-0
+      setIsDrawerVisible(true);
+    }
+  }, [isMobileMenuOpen]);
+
+  // Estado para controlar a classe e duração de animação
+  const [drawerOpenClass, setDrawerOpenClass] = useState('translate-x-full');
+  const [drawerTransition, setDrawerTransition] = useState('duration-500'); // mais lento para abrir
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setDrawerTransition('duration-700'); // lento para abrir
+      const timeout = setTimeout(() => setDrawerOpenClass('translate-x-0'), 10);
+      return () => clearTimeout(timeout);
+    } else if (isDrawerVisible) {
+      setDrawerTransition('duration-500'); // um pouco mais lenta para fechar
+      setDrawerOpenClass('translate-x-full');
+      const timeout = setTimeout(() => setIsDrawerVisible(false), 350);
+      return () => clearTimeout(timeout);
+    }
+  }, [isMobileMenuOpen, isDrawerVisible]);
+
   return (
-    <nav className={`${navbarBg} ${textColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
+    <nav className={`${effectiveNavbarBg} ${effectiveTextColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-24">
           <div className="flex items-center">
@@ -96,7 +125,7 @@ const Navigation: React.FC = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className={`flex items-center px-3 py-2 ${textColor} ${hoverBg}`}>
-                    <User size={20} className={isScrolled ? "text-gray-900" : "text-white"} />
+                    <User size={20} className={isScrolled ? "text-gray-900" : "text-black"} />
                     <span className="ml-2">{user.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -136,105 +165,162 @@ const Navigation: React.FC = () => {
               }}
               className={`${textColor} ${hoverBg}`}
             >
-              <Menu size={24} className={isScrolled ? "text-gray-900" : "text-white"} />
+              <Menu size={24} className="text-black" />
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className={`md:hidden p-2 ${navbarBg} ${textColor}`}>
-          <div className="pt-2 pb-3 space-y-1">
-            <Link
-              to="/"
-              className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                console.log("🟢 [Navigation] Menu mobile fechado (Início)");
-              }}
-            >
-              Início
-            </Link>
-            <Link
-              to="/search"
-              className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                console.log("🟢 [Navigation] Menu mobile fechado (Buscar)");
-              }}
-            >
-              Buscar
-            </Link>
-            <Link
-              to="/virtual-shelf"
-              className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                console.log("🟢 [Navigation] Menu mobile fechado (Estante Virtual)");
-              }}
-            >
-              Estante Virtual
-            </Link>
-            <Link
-              to="/ajude"
-              className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                console.log("🟢 [Navigation] Menu mobile fechado (Ajude)");
-              }}
-            >
-              Ajude a Biblioteca
-            </Link>
-            {user ? (
-              <>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleProfileClick();
-                    console.log("🟢 [Navigation] Menu mobile fechado (Perfil)");
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
-                >
-                  {user.role === "admin"
-                    ? "Painel Admin"
-                    : user.role === "proaluno"
-                    ? "Painel PróAluno"
-                    : "Perfil"}
-                </button>
-                <Link
-                  to="/history"
-                  className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    console.log("🟢 [Navigation] Menu mobile fechado (Histórico)");
-                  }}
-                >
-                  Histórico
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMobileMenuOpen(false);
-                    console.log("🟢 [Navigation] Menu mobile fechado (Sair)");
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md ${isScrolled ? "text-red-600 hover:bg-red-50" : "text-red-300 hover:bg-white/20 hover:text-red-200"}`}
-                >
-                  Sair
-                </button>
-              </>
-            ) : (
+      {/* Mobile menu lateral (drawer) */}
+      {isDrawerVisible && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Overlay escuro para fechar ao clicar fora */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-40"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          {/* Drawer lateral à direita com transição suave */}
+          <div
+            className={
+              `relative w-64 max-w-[80vw] h-full bg-cm-purple text-white shadow-lg ` +
+              `transition-transform ease-in-out ` +
+              drawerTransition + ' ' +
+              drawerOpenClass
+            }
+            style={{ willChange: 'transform' }}
+          >
+            {/* Topo do drawer: botão X para fechar */}
+            <div className="flex items-center justify-start pt-6 pb-2 pl-4 pr-2">
+              <button
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition"
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Fechar menu"
+              >
+                <span className="text-3xl text-white">×</span>
+              </button>
+            </div>
+            <div className="pt-2 pb-3 px-4 space-y-1 flex-1 flex flex-col">
               <Link
-                to="/login"
-                className={`block px-3 py-2 rounded-md ${textColor} ${hoverBg}`}
+                to="/"
+                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (Entrar)");
+                  console.log("🟢 [Navigation] Menu mobile fechado (Início)");
                 }}
               >
-                Entrar
+                Início
               </Link>
-            )}
+              <Link
+                to="/search"
+                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Buscar)");
+                }}
+              >
+                Buscar
+              </Link>
+              <Link
+                to="/virtual-shelf"
+                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Estante Virtual)");
+                }}
+              >
+                Estante Virtual
+              </Link>
+              <Link
+                to="/ajude"
+                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Ajude)");
+                }}
+              >
+                Ajude a Biblioteca
+              </Link>
+              {user ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleProfileClick();
+                      console.log("🟢 [Navigation] Menu mobile fechado (Perfil)");
+                    }}
+                    className={`block w-full text-left px-3 py-2 rounded-md text-white ${hoverBg}`}
+                  >
+                    {user.role === "admin"
+                      ? "Painel Admin"
+                      : user.role === "proaluno"
+                      ? "Painel PróAluno"
+                      : "Perfil"}
+                  </button>
+                  <Link
+                    to="/history"
+                    className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      console.log("🟢 [Navigation] Menu mobile fechado (Histórico)");
+                    }}
+                  >
+                    Histórico
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                      console.log("🟢 [Navigation] Menu mobile fechado (Sair)");
+                    }}
+                    className={`block w-full text-left px-3 py-2 rounded-md text-red-200 hover:bg-white/20 hover:text-red-100`}
+                  >
+                    Sair
+                  </button>
+                </>
+              ) : (
+                <div className="pt-1 pb-1 pl-3 flex">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white px-3 text-left"
+                  >
+                    <Link
+                      to="/login"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        console.log("🟢 [Navigation] Menu mobile fechado (Entrar)");
+                      }}
+                    >
+                      <LogIn className="mr-2 h-4 w-4" /> Entrar
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+            {/* Divisória, logo e texto Fale Conosco fixos na parte de baixo do drawer */}
+            <div className="absolute left-0 right-0 bottom-0 flex flex-col items-end">
+              <hr className="w-[90%] mx-auto border-t border-white/30 mb-2 rounded" />
+              <div className="w-[90%] flex justify-center items-center gap-3 mx-auto pb-4">
+                <img
+                  src="/images/logobiblioteca.png"
+                  alt="Logo da Biblioteca"
+                  className="h-16 cursor-pointer"
+                  style={{ maxWidth: '160px', width: 'auto' }}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/404');
+                  }}
+                />
+                <a
+                  href="mailto:bibliotecamoleculares@gmail.com"
+                  className="text-gray-100 font-medium underline-offset-2 cursor-pointer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Fale Conosco
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -56,7 +56,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       {/* Hero Section - Custom */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-cm-purple/50 via-cm-purple/10 to-cm-bg">
+      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-cm-purple/80 via-cm-purple/10 to-cm-bg">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
           {/* Logo */}
           <div className="flex-1 flex justify-center md:mb-0">
@@ -88,7 +88,7 @@ const Index = () => {
             <p className="subtexto text-xl md:text-2xl lg:text-3xl text-gray-700 max-w-2xl mb-10">
               Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
             </p>
-            <Button asChild className="botao bg-cm-purple hover:bg-cm-purple/80 text-white rounded-2xl px-10 py-5 text-xl md:text-2xl font-bold shadow-lg">
+            <Button asChild className="botao bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-2xl px-10 py-5 text-xl md:text-2xl font-bold shadow-lg">
               <Link to="/search">Explorar Acervo</Link>
             </Button>
           </div>
@@ -97,7 +97,7 @@ const Index = () => {
       {/* Fim Hero Section customizada */}
 
       {/* About Section */}
-      <div className="py-24 bg-white">
+      <div className="py-24 bg-cm-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
@@ -137,46 +137,46 @@ const Index = () => {
         
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-5xl text-white mb-4">A biblioteca em números</h2>
-            <p className="text-xl text-white/90">Resultados que transformam o aprendizado</p>
+            <h2 className="text-5xl text-cm-bg mb-4">A biblioteca em números</h2>
+            <p className="text-xl text-cm-bg/90">Resultados que transformam o aprendizado</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
             <div className="text-center">
               <div className="flex justify-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
-                  <TrendingUp className="h-8 w-8 text-white" />
+                <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
+                  <TrendingUp className="h-8 w-8 text-cm-bg" />
                 </div>
               </div>
-              <div className="text-6xl font-bold text-white mb-2">85%</div>
-              <div className="text-xl text-white/90 mb-4">de melhoria no desempenho</div>
-              <div className="text-white/80 text-sm">
+              <div className="text-4xl font-bold text-cm-bg mb-2">85%</div>
+              <div className="text-xl text-cm-bg/90 mb-4">de melhoria no desempenho</div>
+              <div className="text-cm-bg/80 text-md">
                 obtido por meio de acesso facilitado aos recursos digitais e materiais atualizados
               </div>
             </div>
             
             <div className="text-center">
               <div className="flex justify-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
-                  <Users className="h-8 w-8 text-white" />
+                <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
+                  <Users className="h-8 w-8 text-cm-bg" />
                 </div>
               </div>
-              <div className="text-6xl font-bold text-white mb-2">92%</div>
-              <div className="text-xl text-white/90 mb-4">de satisfação dos usuários</div>
-              <div className="text-white/80 text-sm">
+              <div className="text-4xl font-bold text-cm-bg mb-2">92%</div>
+              <div className="text-xl text-cm-bg/90 mb-4">de satisfação dos usuários</div>
+              <div className="text-cm-bg/80 text-md">
                 obtido por meio de interface intuitiva e acesso rápido ao conhecimento
               </div>
             </div>
             
             <div className="text-center">
               <div className="flex justify-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
-                  <BookMarked className="h-8 w-8 text-white" />
+                <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
+                  <BookMarked className="h-8 w-8 text-cm-bg" />
                 </div>
               </div>
-              <div className="text-6xl font-bold text-white mb-2">78%</div>
-              <div className="text-xl text-white/90 mb-4">de aumento no uso de recursos</div>
-              <div className="text-white/80 text-sm">
+              <div className="text-4xl font-bold text-cm-bg mb-2">78%</div>
+              <div className="text-xl text-cm-bg/90 mb-4">de aumento no uso de recursos</div>
+              <div className="text-cm-bg/80 text-md">
                 obtido por meio de curadoria especializada e recomendações personalizadas
               </div>
             </div>
@@ -190,9 +190,9 @@ const Index = () => {
           <h2 className="text-5xl text-center mb-16">Recursos do site</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Card 1 */}
-            <div className="flex flex-col items-center text-center p-8 bg-white rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-white">
-                <BookOpen className="h-10 w-10 text-white" />
+            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
+                <BookOpen className="h-10 w-10 text-cm-bg" />
               </div>
               <h3 className="text-2xl mb-2">Consulte o Acervo da Biblioteca</h3>
               <p className="text-gray-600 mb-4 text-base">
@@ -200,14 +200,14 @@ const Index = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-white rounded-xl font-bold py-3 mt-auto">
+              <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
                 <Link to="/virtual-shelf">Buscar Livros</Link>
               </Button>
             </div>
             {/* Card 2 */}
-            <div className="flex flex-col items-center text-center p-8 bg-white rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-white">
-                <Search className="h-10 w-10 text-white" />
+            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
+                <Search className="h-10 w-10 text-cm-bg" />
               </div>
               <h3 className="text-2xl mb-2">Gerencie seus empréstimos</h3>
               <p className="text-gray-600 mb-4 text-base">
@@ -215,14 +215,14 @@ const Index = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-white rounded-xl font-bold py-3 mt-auto">
+              <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
                 <Link to="/search">Fazer Login</Link>
               </Button>
             </div>
             {/* Card 3 */}
-            <div className="flex flex-col items-center text-center p-8 bg-white rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green/90 border-8 border-white">
-                <User className="h-10 w-10 text-white" />
+            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green/90 border-8 border-cm-bg">
+                <User className="h-10 w-10 text-cm-bg" />
               </div>
               <h3 className="text-2xl mb-2">Explore a Estante Virtual</h3>
               <p className="text-gray-600 mb-4 text-base">
@@ -230,7 +230,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-white rounded-xl font-bold py-3 mt-auto">
+              <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
                 <Link to="/login">Explorar Estante</Link>
               </Button>
             </div>

@@ -53,11 +53,10 @@ const VirtualBookshelf: React.FC = () => {
   }, {} as Record<string, any[]>);
 
   return (
-    <div className="w-full py-8">
-      <h2 className="text-3xl font-bebas text-center mb-8">Estante Virtual</h2>
-      
+    <div className="w-full py-6 sm:py-8">
+      <h2 className="text-2xl sm:text-3xl font-bebas text-center mb-6 sm:mb-8">Estante Virtual</h2>
       {/* Shelf Selector */}
-      <div className="flex justify-center gap-2 mb-8">
+      <div className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
         {shelfOrder.map(area => (
           <Button
             key={area}
@@ -72,19 +71,17 @@ const VirtualBookshelf: React.FC = () => {
           </Button>
         ))}
       </div>
-      
       {/* Display current shelf */}
-      <div className="text-center mb-8">
-        <h3 className="text-xl font-bebas">
+      <div className="text-center mb-6 sm:mb-8">
+        <h3 className="text-lg sm:text-xl font-bebas">
           Estante: {shelves[selectedShelf]}
         </h3>
       </div>
-
       {/* Book Details Modal */}
       {selectedBook && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-2xl font-bebas mb-2">{selectedBook.title}</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full">
+            <h3 className="text-xl sm:text-2xl font-bebas mb-2">{selectedBook.title}</h3>
             <div className="mb-4 text-gray-600">
               <p>Autor: {selectedBook.authors}</p>
               <p>Código: {selectedBook.code}</p>
@@ -108,13 +105,12 @@ const VirtualBookshelf: React.FC = () => {
           </div>
         </div>
       )}
-
       {/* Bookshelves */}
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-full sm:max-w-5xl mx-auto">
         {isLoading ? (
           <div className="text-center py-8">Carregando livros...</div>
         ) : (
-          <div className="shelf">
+          <div className="shelf overflow-x-auto">
             <div className="flex flex-wrap justify-center mb-1 gap-1">
               {booksByShelf[selectedShelf]?.map((book) => (
                 <TooltipProvider key={book.id}>
@@ -127,7 +123,7 @@ const VirtualBookshelf: React.FC = () => {
                           setSelectedBook(book);
                         }}
                         title={book.title}
-                        style={{ minWidth: 16, minHeight: 60 }}
+                        style={{ minWidth: 16, minHeight: 60, maxWidth: 32 }}
                       ></div>
                     </TooltipTrigger>
                     <TooltipContent side="top">
