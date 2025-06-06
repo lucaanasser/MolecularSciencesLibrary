@@ -20,6 +20,12 @@ router.get('/me', authenticateToken, (req, res) => {
     usersController.getProfile(req, res);
 });
 
+// Atualizar imagem de perfil do usuário autenticado
+router.put('/me/profile-image', authenticateToken, (req, res) => {
+    console.log("🔵 [UsersRoutes] PUT /me/profile-image - Atualizar imagem de perfil");
+    usersController.updateProfileImage(req, res);
+});
+
 // Buscar usuário por ID
 router.get('/:id', (req, res) => {
     console.log("🔵 [UsersRoutes] GET /:id - Buscar usuário por ID:", req.params.id);

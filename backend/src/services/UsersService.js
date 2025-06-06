@@ -13,7 +13,7 @@ class UsersService {
      * Cria um novo usuário após verificar se já existe por email.
      * Retorna os dados do usuário criado (sem senha).
      */
-    async createUser({ name, email, role, NUSP }) {
+    async createUser({ name, email, role, NUSP, profile_image }) {
         console.log("🔵 [createUser] Verificando existência do usuário por email:", email);
         const existing = await usersModel.getUserByEmail(email);
         if (existing) {
@@ -22,7 +22,7 @@ class UsersService {
         }
         // Cria usuário SEM senha
         const password_hash = null;
-        const userId = await usersModel.createUser({ name, email, password_hash, role, NUSP });
+        const userId = await usersModel.createUser({ name, email, password_hash, role, NUSP, profile_image });
         console.log("🟢 [createUser] Usuário criado com id:", userId);
 
         // Envia email de boas-vindas com link para cadastrar senha
@@ -30,7 +30,7 @@ class UsersService {
             console.error("🔴 [createUser] Falha ao enviar email de boas-vindas:", err.message);
         });
 
-        return { id: userId, name, email, role, NUSP };
+        return { id: userId, name, email, role, NUSP, profile_image };
     }
 
     /**
@@ -148,6 +148,14 @@ class UsersService {
     async deleteUserById(id) {
         console.log("🔵 [deleteUserById] Deletando usuário id:", id);
         return await usersModel.deleteUserById(id);
+    }
+
+    /**
+     * Atualiza a imagem de perfil do usuário.
+     */
+    async updateUserProfileImage(id, profile_image) {
+        console.log("🔵 [UsersService] updateUserProfileImage chamada com:", { id, profile_image });
+        return usersModel.updateUserProfileImage(id, profile_image);
     }
 }
 

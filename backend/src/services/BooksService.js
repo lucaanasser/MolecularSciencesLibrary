@@ -197,6 +197,18 @@ class BooksService {
         }
     }
 
+    async getBookById(id) {
+        try {
+            console.log(`🔵 [BooksService] Buscando livro por id: ${id}`);
+            const book = await booksModel.getBookById(id);
+            console.log(`🟢 [BooksService] Livro encontrado: ${book ? book.title : 'não encontrado'}`);
+            return book;
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao buscar livro por id: ${error.message}`);
+            throw error;
+        }
+    }
+
     async borrowBook(bookId, studentId) {
         try {
             console.log(`🔵 [BooksService] Emprestando livro bookId=${bookId} para studentId=${studentId}`);

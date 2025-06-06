@@ -1,3 +1,4 @@
+// filepath: /home/luca/BibliotecaCM/frontend/src/features/books/components/BookSearchPanel.tsx
 import useBookSearchPage from "../hooks/useBookSearch";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useState, useMemo } from "react";
+import BookDetailsModal from "./BookDetailsModal";
 
 /**
  * Painel de busca de livros.
@@ -36,9 +39,32 @@ const BookSearch: React.FC = () => {
     isLoading,
   } = useBookSearchPage();
 
+  // State para detalhes do livro selecionado
+  const [selectedBook, setSelectedBook] = useState<any | null>(null);
+
   // Gera opções de categoria e subcategoria
   const categoryOptions = Object.keys(areaCodes);
   const subcategoryOptions = category ? Object.keys(subareaCodes[category] || {}) : [];
+
+  // Agrupa livros por código E idioma para exibir apenas um card por grupo
+  const groupedBooks = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    books.forEach(book => {
+      const groupKey = `${book.code}__${book.language}`;
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(book);
+    });
+    return Object.values(groups).map(exemplares => {
+      const total = exemplares.length;
+      const disponiveis = exemplares.filter(b => b.available).length;
+      return {
+        ...exemplares[0],
+        exemplares,
+        totalExemplares: total,
+        exemplaresDisponiveis: disponiveis
+      };
+    });
+  }, [books]);
 
   return (
     <div className="w-full">
@@ -132,11 +158,11 @@ const BookSearch: React.FC = () => {
           <h3 className="text-xl font-bebas mb-4">Resultados da Busca</h3>
           {isLoading ? (
             <div className="text-center py-8">Carregando livros...</div>
-          ) : books.length > 0 ? (
+          ) : groupedBooks.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {books.map(book => (
+              {groupedBooks.map(book => (
                 <div
-                  key={book.id}
+                  key={book.code}
                   className="bg-white rounded-2xl p-4 shadow-md border border-gray-100"
                 >
                   <div className="flex justify-between items-start">
@@ -145,20 +171,27 @@ const BookSearch: React.FC = () => {
                       <p className="text-gray-600">{book.authors}</p>
                       <div className="flex space-x-4 mt-2">
                         <span className="text-sm text-gray-500">
-                          {areaCodes[book.area] || book.area}
-                          {book.subarea && ` / ${subareaCodes[book.area]?.[book.subarea] || book.subarea}`}
+                          {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
+                          {book.subarea && subareaCodes && subareaCodes[book.area] && subareaCodes[book.area][book.subarea]
+                            ? ` / ${subareaCodes[book.area][book.subarea]}`
+                            : (book.subarea ? ` / ${book.subarea}` : "")}
                         </span>
                       </div>
                     </div>
                     <span
                       className={`px-3 py-1 rounded-full text-xs ${
-                        book.available
+                        book.exemplaresDisponiveis > 0
                           ? "bg-cm-green/10 text-cm-green"
                           : "bg-cm-red/10 text-cm-red"
                       }`}
                     >
-                      {book.available ? "Disponível" : "Emprestado"}
+                      {book.exemplaresDisponiveis > 0 ? "Disponível" : "Emprestado"}
                     </span>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    {book.totalExemplares > 1 && (
+                      <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
+                    )}
                   </div>
                   <div className="mt-4 flex justify-end">
                     <Button
@@ -166,8 +199,7 @@ const BookSearch: React.FC = () => {
                       size="sm"
                       className="rounded-xl text-cm-blue border-cm-blue hover:bg-cm-blue/10"
                       onClick={() => {
-                        console.log("🟢 [BookSearchPanel] Detalhes do livro clicado:", book);
-                        // Aqui você pode abrir um modal de detalhes, se desejar
+                        setSelectedBook(book);
                       }}
                     >
                       Detalhes
@@ -182,6 +214,16 @@ const BookSearch: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Modal de detalhes do livro usando o componente reutilizável */}
+        {selectedBook && (
+          <BookDetailsModal
+            book={selectedBook}
+            onClose={() => setSelectedBook(null)}
+            showAvailabilityText={true}
+            showVirtualShelfButton={true}
+          />
+        )}
       </div>
     </div>
   );

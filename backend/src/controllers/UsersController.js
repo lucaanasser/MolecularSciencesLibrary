@@ -12,12 +12,12 @@ class UsersController {
     async createUser(req, res) {
         try {
             console.log("🔵 [createUser] Dados recebidos:", req.body);
-            const { name, email, role, NUSP } = req.body;
+            const { name, email, role, NUSP, profile_image } = req.body;
             if (!name || !email || !role || !NUSP) {
                 console.warn("🟡 [createUser] Campos obrigatórios faltando.");
                 return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
             }
-            const user = await usersService.createUser({ name, email, role, NUSP });
+            const user = await usersService.createUser({ name, email, role, NUSP, profile_image });
             console.log("🟢 [createUser] Usuário criado com sucesso:", user);
             res.status(201).json(user);
         } catch (error) {
@@ -148,6 +148,25 @@ class UsersController {
             res.status(200).json({ message: 'Senha redefinida com sucesso.' });
         } catch (error) {
             console.error("🔴 [resetPassword] Erro:", error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Atualiza a imagem de perfil do usuário autenticado
+     */
+    async updateProfileImage(req, res) {
+        try {
+            const userId = req.user.id;
+            const { profile_image } = req.body;
+            console.log("🔵 [UsersController] updateProfileImage chamada com:", { userId, profile_image });
+            if (!profile_image) {
+                return res.status(400).json({ error: 'Imagem de perfil é obrigatória.' });
+            }
+            await usersService.updateUserProfileImage(userId, profile_image);
+            res.status(200).json({ message: 'Imagem de perfil atualizada com sucesso.' });
+        } catch (error) {
+            console.error("🔴 [updateProfileImage] Erro:", error.message);
             res.status(400).json({ error: error.message });
         }
     }

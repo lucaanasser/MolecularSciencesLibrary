@@ -7,6 +7,8 @@ const loansRouter = require('./routes/LoansRoutes');
 const notificationsRouter = require('./routes/NotificationsRoutes');
 const rulesRouter = require('./routes/RulesRoutes');
 const badgesRouter = require('./routes/BadgesRoutes');
+const donatorsRouter = require('./routes/DonatorsRoutes');
+const virtualBookShelfRouter = require('./routes/VirtualBookSheflRoute'); 
 require('dotenv').config();
 
 /**
@@ -31,6 +33,8 @@ app.use('/api/loans', loansRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/rules', rulesRouter);
 app.use('/api/badges', badgesRouter);
+app.use('/api/donators', donatorsRouter);
+app.use('/api/virtual-bookshelf', virtualBookShelfRouter); // Adicione esta linha
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {
@@ -50,8 +54,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor', details: err.message });
 });
 
-// Inicia o servidor na porta 3001
-const PORT = 3001;
+// Inicia o servidor na porta configurada
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🟢 [main] Backend rodando na porta ${PORT}`);
 });

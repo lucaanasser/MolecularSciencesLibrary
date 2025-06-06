@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 // Database configuration - use environment variable like db.js
-const dbUrl = process.env.DATABASE_URL || 'sqlite:///app/database/library.db';
+const dbUrl = process.env.DATABASE_URL || 'sqlite://./database/library.db';
 const dbPath = dbUrl.replace('sqlite://', '');
 const dbDir = path.dirname(dbPath);
 const SALT_ROUNDS = 10;
@@ -38,6 +38,7 @@ db.serialize(() => {
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT, -- Agora permite NULL
             role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
+            profile_image TEXT, -- Caminho da imagem de perfil
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `, (err) => {
@@ -69,7 +70,7 @@ db.serialize(() => {
         }
         console.log('🟢 [initDb] Tabela books criada com sucesso');
 
-        // Insert test data
+        // Livro de teste
         const testBook = {
             id: 9781234567890, 
             area: 'Variados',
@@ -82,7 +83,6 @@ db.serialize(() => {
             subtitle: 'Teste de Subtitulo',
             volume: 1 
         };
-
         db.run(`
             INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -104,6 +104,8 @@ db.serialize(() => {
                 console.log('🟢 [initDb] Livro de teste inserido com sucesso');
             }
         });
+        // Chama a função para inserir livros aleatórios
+        insertRandomBooks(40);
     });
 
     // BORROWED_BOOKS TABLE
@@ -205,6 +207,156 @@ db.serialize(() => {
             });
         });
     });
+
+    // DONATORS TABLE
+    db.run(`
+        CREATE TABLE IF NOT EXISTS donators (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            name TEXT,
+            book_id INTEGER,
+            donation_type TEXT NOT NULL, -- 'book' ou 'money'
+            amount REAL,
+            contact TEXT,
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(book_id) REFERENCES books(id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela donators:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela donators criada com sucesso');
+    });
+
+    // Tabela de organização da estante virtual (código inicial de cada prateleira)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS virtual_bookshelf (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            shelf_number INTEGER NOT NULL,
+            shelf_row INTEGER NOT NULL,
+            book_code_start TEXT,
+            book_code_end TEXT,
+            is_last_shelf BOOLEAN DEFAULT FALSE,
+            UNIQUE(shelf_number, shelf_row)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela virtual_bookshelf:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela virtual_bookshelf criada com sucesso');
+        
+        // Insere configuração padrão das prateleiras (4 estantes x 6 prateleiras)
+        const defaultShelves = [];
+        for (let shelf_number = 1; shelf_number <= 4; shelf_number++) {
+            for (let shelf_row = 1; shelf_row <= 6; shelf_row++) {
+                defaultShelves.push([shelf_number, shelf_row, null, null, false]);
+            }
+        }
+        
+        const insertShelf = db.prepare(`
+            INSERT OR IGNORE INTO virtual_bookshelf (shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf)
+            VALUES (?, ?, ?, ?, ?)
+        `);
+        
+        defaultShelves.forEach(shelf => {
+            insertShelf.run(shelf);
+        });
+        insertShelf.finalize();
+        
+        console.log('🟢 [initDb] Configuração padrão de prateleiras inserida');
+    });
+
+    // Função para gerar código de livro no padrão BooksService
+    function generateBookCode(area, subarea, seq, volume) {
+        const areaCodes = {
+            "Física": "FIS",
+            "Química": "QUI",
+            "Biologia": "BIO",
+            "Matemática": "MAT",
+            "Computação": "CMP",
+            "Variados": "VAR"
+        };
+        const areaCode = areaCodes[area] || "XXX";
+        const subareaCode = String(subarea).padStart(2, "0");
+        const seqCode = String(seq).padStart(2, "0");
+        let code = `${areaCode}-${subareaCode}.${seqCode}`;
+        if (volume && parseInt(volume, 10) > 0) {
+            code += `-v${parseInt(volume, 10)}`;
+        }
+        return code;
+    }
+
+    // Função para inserir vários livros aleatórios com códigos únicos e corretos
+    function insertRandomBooks(qtd = 100) {
+        const areas = [
+            { area: 'Física', subareas: [1, 2, 3] },
+            { area: 'Química', subareas: [1, 2] },
+            { area: 'Biologia', subareas: [1, 2, 3, 4] },
+            { area: 'Matemática', subareas: [1, 2] },
+            { area: 'Computação', subareas: [1, 2, 3] },
+            { area: 'Variados', subareas: [1] }
+        ];
+        const titulos = [
+            'Introdução à', 'Fundamentos de', 'Teoria de', 'Princípios de', 'Manual de', 'Guia Prático de', 'Compêndio de'
+        ];
+        const temas = [
+            'Mecânica', 'Química Orgânica', 'Genética', 'Álgebra Linear', 'Programação', 'Estatística', 'Física Moderna', 'Redes', 'Cálculo', 'Bioquímica'
+        ];
+        const autores = [
+            'João Silva', 'Maria Souza', 'Carlos Pereira', 'Ana Lima', 'Fernanda Costa', 'Ricardo Alves', 'Patrícia Rocha', 'Lucas Martins', 'Juliana Dias', 'Bruno Teixeira'
+        ];
+        const idiomas = [1, 2, 3]; // pt, en, es
+        let baseId = 9781000000000;
+        let exemplarCount = 0;
+
+        // Map para controlar o sequencial por área/subárea/volume
+        const seqMap = {};
+
+        for (let i = 0; i < qtd; i++) {
+            const areaObj = areas[Math.floor(Math.random() * areas.length)];
+            const area = areaObj.area;
+            const subarea = areaObj.subareas[Math.floor(Math.random() * areaObj.subareas.length)];
+            const key = `${area}_${subarea}`;
+            if (!seqMap[key]) seqMap[key] = {};
+            // Decide se terá volume
+            let volume = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : null;
+            let volumeKey = volume || 0;
+            if (!seqMap[key][volumeKey]) seqMap[key][volumeKey] = 1;
+            const seq = seqMap[key][volumeKey];
+
+            const titulo = titulos[Math.floor(Math.random() * titulos.length)] + ' ' + temas[Math.floor(Math.random() * temas.length)];
+            const autor = autores[Math.floor(Math.random() * autores.length)];
+            const edition = Math.floor(Math.random() * 5) + 1;
+            const language = idiomas[Math.floor(Math.random() * idiomas.length)];
+            const code = generateBookCode(area, subarea, seq, volume);
+            const title = titulo;
+            const subtitle = Math.random() > 0.5 ? `Volume especial ${edition}` : null;
+
+            // Decide quantos exemplares para este livro (1 a 3)
+            const exemplares = Math.random() < 0.3 ? Math.floor(Math.random() * 3) + 2 : 1;
+            for (let ex = 1; ex <= exemplares; ex++) {
+                const id = baseId + exemplarCount;
+                db.run(
+                    `INSERT OR IGNORE INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [id, area, subarea, autor, edition, language, code, title, subtitle, volume],
+                    function(err) {
+                        if (err) {
+                            console.error('🟡 [initDb] Erro ao inserir exemplar aleatório:', err.message);
+                        }
+                    }
+                );
+                exemplarCount++;
+            }
+            // Incrementa o sequencial para próxima chamada
+            seqMap[key][volumeKey]++;
+        }
+        console.log(`🟢 [initDb] Livros aleatórios (com exemplares) inseridos: ${exemplarCount}`);
+    }
 
     // Criação dos usuários especiais
     const adminEmail = 'admin@biblioteca.com';

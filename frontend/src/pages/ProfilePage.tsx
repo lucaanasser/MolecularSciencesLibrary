@@ -10,14 +10,25 @@ import LoanHistoryOnly from "@/features/loans/components/LoanHistoryOnly";
 import NotificationList from "@/features/notification/components/NotificationList";
 import { useNotification } from "@/features/notification/hooks/useNotification";
 import AchievementList from "@/features/users/components/AchievementList";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 // Log de início de renderização da página de perfil
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
+
+const PROFILE_IMAGES = [
+  "/images/logoCM.png",
+  "/images/generic-icon.png",
+  "/images/custom-icon.png",
+  "/images/placeholder.svg",
+  // Adicione mais caminhos conforme necessário
+];
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("ativos");
   const { user, loading: userLoading, error: userError } = useUserProfile();
   const { notifications, loading: notificationsLoading, refetch } = useNotification();
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Delete handler for user notifications
   const handleDelete = async (id: string | number) => {
@@ -31,6 +42,28 @@ const ProfilePage = () => {
       credentials: "include",
     });
     refetch();
+  };
+
+  const handleImageChange = async (img: string) => {
+    // Garante que o caminho seja sempre /images/nomedaimagem.png
+    let imagePath = img;
+    if (img && !img.startsWith("/images/")) {
+      const fileName = img.split("/").pop();
+      imagePath = `/images/${fileName}`;
+    }
+    setSelectedImage(imagePath);
+    setShowImageSelector(false);
+    const token = localStorage.getItem("token");
+    console.log("[ProfilePage] Enviando imagem de perfil:", imagePath);
+    await fetch("/api/users/me/profile-image", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ profile_image: imagePath }),
+    });
+    window.location.reload(); // Simples, recarrega perfil
   };
 
   return (
@@ -48,11 +81,44 @@ const ProfilePage = () => {
                   <div className="text-red-600">{userError}</div>
                 ) : user ? (
                   <>
-                    <div className="w-24 h-24 rounded-full bg-cm-blue/10 flex items-center justify-center mb-4">
-                      <span className="text-3xl font-bebas text-cm-blue">
-                        {user.name?.charAt(0)}
-                      </span>
+                    <div className="w-24 h-24 rounded-full bg-cm-blue/10 flex items-center justify-center mb-4 relative">
+                      {user.profile_image ? (
+                        <Avatar className="w-24 h-24">
+                          <AvatarImage src={user.profile_image} alt="Foto de perfil" />
+                          <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <span className="text-3xl font-bebas text-cm-blue">
+                          {user.name?.charAt(0)}
+                        </span>
+                      )}
+                      <button
+                        className="absolute bottom-0 right-0 bg-cm-blue text-white rounded-full p-1 text-xs hover:bg-cm-yellow"
+                        onClick={() => setShowImageSelector(true)}
+                        title="Alterar imagem de perfil"
+                      >
+                        Trocar
+                      </button>
                     </div>
+                    {showImageSelector && (
+                      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center">
+                          <h3 className="mb-4 font-bebas text-lg">Escolha sua imagem de perfil</h3>
+                          <div className="flex gap-4 flex-wrap mb-4">
+                            {PROFILE_IMAGES.map((img) => (
+                              <button
+                                key={img}
+                                className={`border-2 rounded-full p-1 ${selectedImage === img ? 'border-cm-blue' : 'border-transparent'}`}
+                                onClick={() => handleImageChange(img)}
+                              >
+                                <img src={img} alt="Opção" className="w-16 h-16 rounded-full object-cover" />
+                              </button>
+                            ))}
+                          </div>
+                          <button className="cm-btn cm-btn-secondary" onClick={() => setShowImageSelector(false)}>Cancelar</button>
+                        </div>
+                      </div>
+                    )}
                     <h2 className="text-2xl font-bebas">{user.name}</h2>
                     <p className="text-gray-500 mb-4">#{user.NUSP}</p>
 

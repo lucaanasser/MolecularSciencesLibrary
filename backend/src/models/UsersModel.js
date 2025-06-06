@@ -7,11 +7,11 @@ class UsersModel {
     /**
      * Cria um novo usuário no banco de dados.
      */
-    async createUser({ name, email, password_hash, role, NUSP }) {
-        console.log("🟢 [createUser] Criando usuário:", { name, email, role, NUSP });
+    async createUser({ name, email, password_hash, role, NUSP, profile_image }) {
+        console.log("🟢 [createUser] Criando usuário:", { name, email, role, NUSP, profile_image });
         return await executeQuery(
-            `INSERT INTO users (name, NUSP, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
-            [name, NUSP, email, password_hash, role]
+            `INSERT INTO users (name, NUSP, email, password_hash, role, profile_image) VALUES (?, ?, ?, ?, ?, ?)`,
+            [name, NUSP, email, password_hash, role, profile_image]
         );
     }
 
@@ -43,7 +43,7 @@ class UsersModel {
     async getAllUsers() {
         console.log("🟢 [getAllUsers] Listando todos os usuários.");
         return await allQuery(
-            `SELECT id, name, NUSP, email, role, created_at FROM users`
+            `SELECT id, name, NUSP, email, role, profile_image, created_at FROM users`
         );
     }
 
@@ -77,6 +77,23 @@ class UsersModel {
         return await executeQuery(
             `UPDATE users SET password_hash = ? WHERE id = ?`,
             [password_hash, id]
+        );
+    }
+
+    /**
+     * Atualiza a imagem de perfil do usuário
+     */
+    async updateUserProfileImage(id, profile_image) {
+        // Garante que o caminho seja sempre /images/nomedaimagem.png
+        let imagePath = profile_image;
+        if (profile_image && !profile_image.startsWith("/images/")) {
+            const fileName = profile_image.split("/").pop();
+            imagePath = `/images/${fileName}`;
+        }
+        console.log("🟢 [updateUserProfileImage] id:", id, "profile_image:", imagePath);
+        return await executeQuery(
+            `UPDATE users SET profile_image = ? WHERE id = ?`,
+            [imagePath, id]
         );
     }
 }

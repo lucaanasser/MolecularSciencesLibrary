@@ -42,6 +42,12 @@ class BooksModel {
         }
     }
 
+    // Método para buscar todos os livros sem filtros
+    async getAll() {
+        console.log("🔵 [BooksModel] Buscando todos os livros");
+        return this.getBooks();
+    }
+
     async insertBook(bookData) {
         console.log("🔵 [BooksModel] Inserindo livro:", bookData.title || bookData.code);
         const query = `

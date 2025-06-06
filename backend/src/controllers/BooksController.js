@@ -7,6 +7,7 @@
 // 🔴 Erro
 
 const booksService = require('../services/BooksService');
+const BooksModel = require('../models/BooksModel');
 
 class BooksController {
     constructor() {
@@ -133,6 +134,34 @@ class BooksController {
         } catch (error) {
             console.error(`🔴 [BooksController] Erro ao devolver livro: ${error.message}`);
             res.status(400).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
+     * Lista todos os livros ordenados, delegando ao modelo e à função de ordenação
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async listOrdered(req, res) {
+        try {
+            const books = await BooksModel.getAll();
+            // Apenas retorna os livros sem ordenar aqui, pois a ordenação é feita na VirtualBookShelfService
+            res.json(books);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
+    /**
+     * Lista todos os livros ordenados conforme a estante virtual
+     */
+    async listVirtualOrdered(req, res) {
+        try {
+            const books = await require('../services/VirtualBookShelfService').getAllBooksOrdered();
+            res.json(books);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
         }
     }
 }

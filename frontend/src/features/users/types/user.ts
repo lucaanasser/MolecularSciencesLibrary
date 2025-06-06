@@ -14,4 +14,5 @@ export interface User {
   email?: string;
   photoUrl?: string;
   token?: string;
+  profile_image?: string; // Caminho da imagem de perfil
 }

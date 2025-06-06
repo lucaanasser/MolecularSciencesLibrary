@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
 
-const dbUrl = process.env.DATABASE_URL || 'sqlite:///app/database/library.db';
+const dbUrl = process.env.DATABASE_URL || 'sqlite://./database/library.db';
 const dbPath = dbUrl.replace('sqlite://', '');
 const dbDir = path.dirname(dbPath);
 
