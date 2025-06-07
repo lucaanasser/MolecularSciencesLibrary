@@ -19,6 +19,27 @@ const db = new sqlite3.Database(dbPath, (err) => {
         process.exit(1);
     }
     console.log('🟢 [db] Conectado ao banco de dados SQLite.');
+    
+    // Configurar timeout para evitar SQLITE_BUSY
+    db.configure("busyTimeout", 30000);
+    
+    // Configurar WAL mode para melhor concorrência
+    db.run("PRAGMA journal_mode=WAL", (err) => {
+        if (err) {
+            console.warn('🟡 [db] Não foi possível configurar WAL mode:', err.message);
+        } else {
+            console.log('🟢 [db] WAL mode configurado para melhor concorrência.');
+        }
+    });
+    
+    // Configurar busy timeout via PRAGMA também
+    db.run("PRAGMA busy_timeout=30000", (err) => {
+        if (err) {
+            console.warn('🟡 [db] Não foi possível configurar busy_timeout:', err.message);
+        } else {
+            console.log('🟢 [db] Busy timeout configurado para 30 segundos.');
+        }
+    });
 });
 
 // Função utilitária para executar queries com Promise

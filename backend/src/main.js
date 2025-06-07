@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 const booksRouter = require('./routes/BooksRoutes');
 const usersRouter = require('./routes/UsersRoutes');
 const loansRouter = require('./routes/LoansRoutes');
@@ -54,8 +57,52 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor', details: err.message });
 });
 
-// Inicia o servidor na porta configurada
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🟢 [main] Backend rodando na porta ${PORT}`);
+// Inicia o servidor HTTP e HTTPS
+const HTTP_PORT = process.env.HTTP_PORT || 3001;
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
+
+// Middleware para redirecionar HTTP para HTTPS em produção
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
+    res.redirect(`https://${req.header('host')}${req.url}`);
+  } else {
+    next();
+  }
+});
+
+// Criar servidor HTTP
+const httpServer = http.createServer(app);
+
+// Criar servidor HTTPS (apenas se os certificados existirem)
+let httpsServer = null;
+try {
+  // Caminho absoluto para os certificados dentro do container Docker
+  const sslKeyPath = '/app/ssl/private.key';
+  const sslCertPath = '/app/ssl/certificate.crt';
+  
+  if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
+    const httpsOptions = {
+      key: fs.readFileSync(sslKeyPath),
+      cert: fs.readFileSync(sslCertPath)
+    };
+    
+    httpsServer = https.createServer(httpsOptions, app);
+    
+    httpsServer.listen(HTTPS_PORT, () => {
+      console.log(`🟢 [main] Backend HTTPS rodando na porta ${HTTPS_PORT}`);
+      console.log(`🔒 [main] Acesse: https://localhost:${HTTPS_PORT}`);
+    });
+  } else {
+    console.log('🟡 [main] Certificados SSL não encontrados. Rodando apenas HTTP.');
+    console.log(`🔍 [main] Procurando em: ${sslKeyPath} e ${sslCertPath}`);
+  }
+} catch (error) {
+  console.error('🔴 [main] Erro ao configurar HTTPS:', error.message);
+  console.log('🟡 [main] Continuando apenas com HTTP.');
+}
+
+// Servidor HTTP sempre ativo
+httpServer.listen(HTTP_PORT, () => {
+  console.log(`🟢 [main] Backend HTTP rodando na porta ${HTTP_PORT}`);
+  console.log(`🌐 [main] Acesse: http://localhost:${HTTP_PORT}`);
 });
