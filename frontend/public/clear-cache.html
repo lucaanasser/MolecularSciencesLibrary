@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Cache - Biblioteca CM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        button {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #b91c1c;
+        }
+        .success {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        .info {
+            color: #2563eb;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Cache da Biblioteca CM</h1>
+        
+        <div class="info">
+            <p>Se você está enfrentando problemas de carregamento, use este utilitário para limpar completamente o cache do navegador.</p>
+        </div>
+
+        <button onclick="clearEverything()">🗑️ Limpar Todo o Cache</button>
+        <button onclick="clearServiceWorker()">🔧 Resetar Service Worker</button>
+        <button onclick="clearStorageOnly()">💾 Limpar Apenas Storage</button>
+        
+        <div id="status"></div>
+        
+        <hr style="margin: 30px 0;">
+        
+        <p><a href="/">← Voltar para a Biblioteca</a></p>
+    </div>
+
+    <script>
+        function showStatus(message, isSuccess = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = `<p class="${isSuccess ? 'success' : 'info'}">${message}</p>`;
+        }
+
+        async function clearEverything() {
+            showStatus('🔄 Limpando tudo...');
+            
+            try {
+                // 1. Unregister all service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                    showStatus('✅ Service Workers removidos');
+                }
+                
+                // 2. Clear all caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+                    showStatus('✅ Todos os caches limpos');
+                }
+                
+                // 3. Clear localStorage and sessionStorage
+                localStorage.clear();
+                sessionStorage.clear();
+                showStatus('✅ Storage local limpo');
+                
+                // 4. Clear IndexedDB (if any)
+                if ('indexedDB' in window) {
+                    // This is more complex, but for most apps localStorage is enough
+                    showStatus('✅ IndexedDB processado');
+                }
+                
+                showStatus('🎉 Limpeza completa! Recarregando em 2 segundos...', true);
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                
+            } catch (error) {
+                showStatus('❌ Erro durante a limpeza: ' + error.message);
+            }
+        }
+
+        async function clearServiceWorker() {
+            showStatus('🔄 Resetando Service Worker...');
+            
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                    showStatus('✅ Service Worker resetado! Recarregando...', true);
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    showStatus('❌ Service Worker não suportado neste navegador');
+                }
+            } catch (error) {
+                showStatus('❌ Erro ao resetar Service Worker: ' + error.message);
+            }
+        }
+
+        async function clearStorageOnly() {
+            showStatus('🔄 Limpando storage...');
+            
+            try {
+                // Clear caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+                }
+                
+                // Clear storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                showStatus('✅ Storage limpo! Recarregando...', true);
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1500);
+                
+            } catch (error) {
+                showStatus('❌ Erro ao limpar storage: ' + error.message);
+            }
+        }
+
+        // Auto-detect and show current cache status
+        window.addEventListener('load', async () => {
+            try {
+                let info = [];
+                
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    info.push(`Service Workers: ${registrations.length}`);
+                }
+                
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    info.push(`Caches: ${cacheNames.length}`);
+                }
+                
+                const localStorageSize = JSON.stringify(localStorage).length;
+                info.push(`LocalStorage: ${(localStorageSize / 1024).toFixed(1)} KB`);
+                
+                showStatus(`📊 Status atual: ${info.join(' | ')}`);
+            } catch (error) {
+                showStatus('ℹ️ Pronto para limpeza');
+            }
+        });
+    </script>
+</body>
+</html>

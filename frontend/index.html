@@ -6,13 +6,112 @@
     <title>Biblioteca Ciências Moleculares</title>
     <meta name="description" content="Sistema de Biblioteca para o curso de Ciências Moleculares" />
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e293b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BibliotecaCM" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="BibliotecaCM" />
+    <meta name="msapplication-TileColor" content="#1e293b" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
     <!-- Favicon -->
-    <link rel="icon" href="public/favicon.ico0" sizes="any" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/images/icon-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png" />
+    
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="/manifest.json" />
   </head>
 
   <body>
     <div id="root"></div>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <script src="/pwa-installer.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Função para limpar cache em caso de erro do Service Worker
+      window.clearAppCache = function() {
+        console.log('Iniciando limpeza de cache...');
+        
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister();
+              console.log('Service Worker desregistrado');
+            }
+          });
+        }
+        
+        if ('caches' in window) {
+          caches.keys().then(function(cacheNames) {
+            return Promise.all(
+              cacheNames.map(function(cacheName) {
+                console.log('Limpando cache:', cacheName);
+                return caches.delete(cacheName);
+              })
+            );
+          }).then(function() {
+            console.log('Todos os caches foram limpos');
+            alert('Cache limpo! A página será recarregada.');
+            window.location.reload(true);
+          });
+        } else {
+          window.location.reload(true);
+        }
+      };
+      
+      // Auto-limpa cache se detectar erro de Service Worker nos assets
+      window.addEventListener('error', function(e) {
+        if (e.message && (e.message.includes('ServiceWorker') || e.message.includes('intercepted'))) {
+          console.log('Erro do Service Worker detectado, limpando cache automaticamente');
+          setTimeout(() => window.clearAppCache(), 1000);
+        }
+      });
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', function() {
+                console.log('New service worker found, installing...');
+              });
+            })
+            .catch(function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+              // Em caso de erro, limpa caches antigos
+              window.clearAppCache();
+            });
+        });
+        
+        // Listen for beforeinstallprompt event
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', function(e) {
+          console.log('beforeinstallprompt event fired');
+          e.preventDefault();
+          deferredPrompt = e;
+          
+          // Show install button or banner
+          showInstallPromotion();
+        });
+        
+        // Function to show install promotion
+        function showInstallPromotion() {
+          // You can customize this to show your own install UI
+          console.log('App is ready to be installed');
+        }
+        
+        // Handle app installed event
+        window.addEventListener('appinstalled', function(evt) {
+          console.log('App was installed successfully');
+        });
+      }
+    </script>
   </body>
 </html>
