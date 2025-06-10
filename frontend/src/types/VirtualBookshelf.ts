@@ -1,11 +1,11 @@
 // Types para o sistema de estante virtual
 export interface VirtualShelf {
-  id: number;
+  id?: number;
   shelf_number: number;
   shelf_row: number;
   book_code_start: string | null;
   book_code_end: string | null;
-  calculated_book_code_end?: string;
+  calculated_book_code_end?: string | null;
   is_last_shelf: boolean;
 }
 

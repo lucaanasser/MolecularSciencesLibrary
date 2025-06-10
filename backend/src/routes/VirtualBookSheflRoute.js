@@ -80,4 +80,14 @@ router.get('/shelf-books', (req, res) => {
     VirtualBookShelfController.getBooksForShelf(req, res);
 });
 
+// POST /api/virtual-bookshelf/shelf - Adiciona nova prateleira (admin only)
+router.post('/shelf', authenticateToken, (req, res) => {
+    console.log("🔵 [VirtualBookShelfRoutes] POST /shelf - Adicionando nova prateleira");
+    if (req.user && req.user.role !== 'admin') {
+        console.warn("🟡 [VirtualBookShelfRoutes] Acesso negado - usuário não é admin");
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem adicionar prateleiras.' });
+    }
+    VirtualBookShelfController.addShelf(req, res);
+});
+
 module.exports = router;

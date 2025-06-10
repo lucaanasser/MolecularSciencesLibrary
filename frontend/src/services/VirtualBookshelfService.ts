@@ -177,6 +177,32 @@ class VirtualBookshelfService {
       throw error;
     }
   }
+
+  /**
+   * Adiciona uma nova prateleira (estante ou prateleira nova)
+   */
+  async addShelf(data: {
+    shelf_number: number;
+    shelf_row: number;
+    book_code_start?: string | null;
+    book_code_end?: string | null;
+    is_last_shelf?: boolean;
+  }) {
+    const token = localStorage.getItem("token");
+    const res = await fetch("/api/virtual-bookshelf/shelf", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Erro ao adicionar prateleira");
+    }
+    return res.json();
+  }
 }
 
 export default new VirtualBookshelfService();

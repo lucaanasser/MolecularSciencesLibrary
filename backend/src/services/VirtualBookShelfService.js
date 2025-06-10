@@ -398,6 +398,26 @@ class VirtualBookShelfService {
             throw error;
         }
     }
+
+    /**
+     * Adiciona uma nova prateleira a uma estante existente ou nova estante
+     */
+    async addShelf({ shelf_number, shelf_row, book_code_start = null, book_code_end = null, is_last_shelf = false }) {
+        console.log(`🔵 [VirtualBookShelfService] Adicionando nova prateleira: estante ${shelf_number}, prateleira ${shelf_row}`);
+        try {
+            // Verifica se já existe
+            const existing = await VirtualBookShelfModel.getShelf(shelf_number, shelf_row);
+            if (existing) {
+                throw new Error('Já existe uma prateleira com esse número de estante e prateleira.');
+            }
+            await VirtualBookShelfModel.insertShelf(shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf);
+            console.log("🟢 [VirtualBookShelfService] Nova prateleira inserida com sucesso");
+            return { success: true };
+        } catch (error) {
+            console.error("🔴 [VirtualBookShelfService] Erro ao adicionar prateleira:", error.message);
+            throw error;
+        }
+    }
 }
 
 module.exports = new VirtualBookShelfService();

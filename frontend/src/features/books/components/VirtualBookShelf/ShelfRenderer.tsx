@@ -128,9 +128,9 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
   }, [highlightCode]);
 
   return (
-    <div className="mb-6">
+    <div className="mb-12 px-2">
       {/* Linha da prateleira */}
-      <div className="relative w-full h-[70px] flex items-end">
+      <div className="relative w-full h-[100px] flex items-end pt-8">
         {/* Se está editando, mostra editor inline */}
         {isAdmin && editMode && editing ? (
           <div className="flex w-full items-center justify-between bg-white border rounded px-4 py-2 shadow z-10">
@@ -152,13 +152,13 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          className={`book-spine ${getBookColor(book)} cursor-pointer mb-3${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "pulse-highlight" : ""}`}
+                          className={`book-spine ${getBookColor(book)} cursor-pointer mb-6${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "pulse-highlight" : ""}`}
                           onClick={() => onBookSelect(book)}
                           title={book.title}
-                          style={{ minWidth: 16, minHeight: 60 }}
+                          style={{ minWidth: 16, minHeight: 70 }}
                         ></div>
                       </TooltipTrigger>
-                      <TooltipContent side="top">
+                      <TooltipContent side="top" className="z-50">
                         <div className="text-xs">
                           <p className="font-semibold">{book.title}</p>
                           <p>{book.authors}</p>
@@ -172,7 +172,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                   </TooltipProvider>
                 ))
               ) : (
-                <div className="text-gray-400 text-sm italic">
+                <div className="text-gray-400 text-sm italic mb-6">
                   {shelf.book_code_start ? "Nenhum livro nesta prateleira" : "Prateleira vazia"}
                 </div>
               )}

@@ -162,6 +162,24 @@ class VirtualBookShelfModel {
             throw error;
         }
     }
+
+    /**
+     * Insere uma nova prateleira (linha) na tabela virtual_bookshelf
+     */
+    async insertShelf(shelf_number, shelf_row, book_code_start = null, book_code_end = null, is_last_shelf = false) {
+        console.log(`🔵 [VirtualBookShelfModel] Inserindo nova prateleira: estante ${shelf_number}, prateleira ${shelf_row}`);
+        try {
+            const result = await executeQuery(`
+                INSERT INTO virtual_bookshelf (shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf)
+                VALUES (?, ?, ?, ?, ?)
+            `, [shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf]);
+            console.log(`🟢 [VirtualBookShelfModel] Nova prateleira inserida`);
+            return result;
+        } catch (error) {
+            console.error("🔴 [VirtualBookShelfModel] Erro ao inserir prateleira:", error.message);
+            throw error;
+        }
+    }
 }
 
 module.exports = new VirtualBookShelfModel();

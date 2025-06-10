@@ -119,6 +119,25 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
     }
   };
 
+  const handleAddNewShelf = async () => {
+    try {
+      await VirtualBookshelfService.addShelf({
+        shelf_number: shelf.shelf_number,
+        shelf_row: shelf.shelf_row,
+        book_code_start: newShelfCode,
+        book_code_end: newShelfLast ? newShelfEndCode : null,
+        is_last_shelf: newShelfLast,
+      });
+      setAddingShelf(null);
+      setNewShelfCode("");
+      setNewShelfLast(false);
+      setNewShelfEndCode("");
+      onConfigUpdate();
+    } catch (error) {
+      onError(error instanceof Error ? error.message : 'Erro ao adicionar prateleira');
+    }
+  };
+
   const handleCancelAdd = () => {
     setAddingShelf(null);
     setNewShelfCode("");
@@ -133,6 +152,96 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
       if (addingShelf) handleCancelAdd();
     }
   };
+
+  // Se shelf não tem id (não existe no banco), mostra interface para adicionar nova prateleira
+  if (!("id" in shelf)) {
+    return (
+      <div className="mb-2 p-3 bg-white bg-opacity-95 rounded-lg border flex items-center justify-between relative z-0" style={{boxShadow: '0 2px 8px 0 rgba(0,0,0,0.03)'}}>
+        <span className="font-medium text-sm">
+          Prateleira {shelf.shelf_row}
+        </span>
+        {addingShelf === shelf.shelf_row ? (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={newShelfCode}
+              onChange={e => setNewShelfCode(e.target.value)}
+              className="border px-2 py-1 rounded text-xs w-24"
+              placeholder="Código inicial"
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === "Enter") handleAddNewShelf();
+                if (e.key === "Escape") {
+                  setAddingShelf(null);
+                  setNewShelfCode("");
+                  setNewShelfLast(false);
+                  setNewShelfEndCode("");
+                }
+              }}
+            />
+            <label className="text-xs flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={newShelfLast}
+                onChange={e => setNewShelfLast(e.target.checked)}
+                className="text-xs"
+              />
+              Última
+            </label>
+            {newShelfLast && (
+              <input
+                type="text"
+                value={newShelfEndCode}
+                onChange={e => setNewShelfEndCode(e.target.value)}
+                className="border px-2 py-1 rounded text-xs w-24"
+                placeholder="Código final"
+                onKeyDown={e => {
+                  if (e.key === "Enter") handleAddNewShelf();
+                  if (e.key === "Escape") {
+                    setAddingShelf(null);
+                    setNewShelfCode("");
+                    setNewShelfLast(false);
+                    setNewShelfEndCode("");
+                  }
+                }}
+              />
+            )}
+            <Button
+              size="sm"
+              onClick={handleAddNewShelf}
+              disabled={loading || !newShelfCode || (newShelfLast && !newShelfEndCode)}
+              className="h-6 w-6 p-0"
+            >
+              <Check className="h-3 w-3" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setAddingShelf(null);
+                setNewShelfCode("");
+                setNewShelfLast(false);
+                setNewShelfEndCode("");
+              }}
+              disabled={loading}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setAddingShelf(shelf.shelf_row)}
+            className="h-6 w-6 p-0"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    );
+  }
 
   // Se não tem código inicial, mostra interface para adicionar
   if (!shelf.book_code_start) {

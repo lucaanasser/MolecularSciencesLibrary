@@ -174,6 +174,31 @@ class VirtualBookShelfController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    /**
+     * Adiciona uma nova prateleira a uma estante existente ou nova estante
+     */
+    async addShelf(req, res) {
+        try {
+            console.log("🔵 [VirtualBookShelfController] POST /api/virtual-bookshelf/shelf - Adicionando nova prateleira");
+            const { shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf } = req.body;
+            if (!shelf_number || !shelf_row) {
+                return res.status(400).json({ error: 'shelf_number e shelf_row são obrigatórios' });
+            }
+            const result = await VirtualBookShelfService.addShelf({
+                shelf_number,
+                shelf_row,
+                book_code_start,
+                book_code_end,
+                is_last_shelf
+            });
+            console.log("🟢 [VirtualBookShelfController] Nova prateleira adicionada com sucesso");
+            res.json(result);
+        } catch (error) {
+            console.error("🔴 [VirtualBookShelfController] Erro ao adicionar prateleira:", error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new VirtualBookShelfController();
