@@ -10,7 +10,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install && npm install jsonwebtoken dotenv bcrypt nodemailer imap-simple mailparser
+RUN npm install && npm install jsonwebtoken dotenv bcrypt nodemailer imap-simple mailparser bwip-js pdf-lib
 
 COPY . .
 

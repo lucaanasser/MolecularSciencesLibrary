@@ -6,7 +6,8 @@
 // 🔴 Erro
 
 const booksModel = require('../models/BooksModel');
-// const bwipjs = require('bwip-js'); // Descomente se for gerar imagem
+const bwipjs = require('bwip-js');
+const { PDFDocument, rgb } = require('pdf-lib');
 
 // Mapeamento de códigos de área (ex: Física -> FIS)
 const areaCodes = {
@@ -257,6 +258,82 @@ class BooksService {
         };
         console.log("🟢 [BooksService] Mapeamentos obtidos");
         return mappings;
+    }
+
+    /**
+     * Gera um PDF com etiquetas para os livros informados
+     * @param {Array} books - [{id, code, ...}]
+     * @param {string} spineType - 'normal' ou 'fina'
+     * @returns {Promise<Buffer>} PDF buffer
+     */
+    async generateLabelsPdf(books, spineType) {
+        // Tamanho da folha A4 em pontos
+        const pageWidth = 595.28;
+        const pageHeight = 841.89;
+        // Tamanho da etiqueta: largura total da folha, altura para 6 por página
+        const labelsPerPage = 6;
+        const labelWidth = pageWidth;
+        const gapY = 10; // Espaço vertical entre etiquetas
+        const totalGap = gapY * (labelsPerPage - 1);
+        const labelHeight = (pageHeight - totalGap) / labelsPerPage;
+
+        const pdfDoc = await PDFDocument.create();
+
+        let page = null;
+        let labelIndex = 0;
+
+        for (let i = 0; i < books.length; i++) {
+            if (labelIndex % labelsPerPage === 0) {
+                page = pdfDoc.addPage([pageWidth, pageHeight]);
+            }
+            const row = labelIndex % labelsPerPage;
+            const x = 0;
+            // De cima para baixo
+            const y = pageHeight - (row + 1) * labelHeight - row * gapY;
+
+            const book = books[i];
+            const barcodePng = await bwipjs.toBuffer({
+                bcid: 'ean13',
+                text: String(book.id).padStart(13, '0'),
+                scale: 3,
+                height: 20,
+                includetext: true,
+                textxalign: 'center',
+            });
+            const barcodeImg = await pdfDoc.embedPng(barcodePng);
+
+            if (spineType === 'fina') {
+                // Código em pé (vertical)
+                page.drawText(
+                    (book.code || '').replace(/-/g, '\n').replace(/\./g, '\n'),
+                    { x: x + 20, y: y + labelHeight - 35, size: 12, color: rgb(0,0,0), lineHeight: 14 }
+                );
+                page.drawImage(barcodeImg, {
+                    x: x + 120, y: y + 20, width: 300, height: 80
+                });
+            } else {
+                // Código deitado (horizontal)
+                page.drawText(book.code || '', { x: x + 20, y: y + labelHeight - 35, size: 14, color: rgb(0,0,0) });
+                page.drawImage(barcodeImg, {
+                    x: x + 20, y: y + 20, width: 400, height: 60
+                });
+            }
+
+            // Opcional: desenhar borda da etiqueta para facilitar corte
+            page.drawRectangle({
+                x, y,
+                width: labelWidth,
+                height: labelHeight,
+                borderColor: rgb(0.8,0.8,0.8),
+                borderWidth: 0.5,
+                opacity: 0.3
+            });
+
+            labelIndex++;
+        }
+
+        const pdfBytes = await pdfDoc.save();
+        return Buffer.from(pdfBytes);
     }
 }
 

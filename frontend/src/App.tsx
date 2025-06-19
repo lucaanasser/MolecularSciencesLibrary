@@ -33,6 +33,7 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/ajude" element={<DonationPage />} /> {/* nova rota */}
+          {/* <Route path="/etiquetas" element={<GenerateLabelsPage />} /> */}
           <Route
             path="/profile"
             element={

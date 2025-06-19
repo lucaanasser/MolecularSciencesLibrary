@@ -3,11 +3,14 @@ import useStep from "@/features/books/hooks/useStep";
 import useAreaSelection from "@/features/books/hooks/useAreaSelection";
 import useBookSearch from "@/features/books/hooks/useBookList";
 import useAddBook from "@/features/books/hooks/useCreatBook";
+import useBookLabelSession from "@/features/books/hooks/useBookLabelSession";
 import { AddBookType, BookOption } from "@/features/books/types/book";
 import BookAreaStep from "@/features/books/components/steps/BookAreaStep";
 import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
 import BookLanguageStep from "@/features/books/components/steps/BookLanguageStep";
 import BookDetailsStep from "@/features/books/components/steps/BookDetailsStep";
+import BookSpineStep from "@/features/books/components/steps/BookSpineStep";
+import BookFinishStep from "@/features/books/components/steps/BookFinishStep";
 
 /**
  * Wizard para adicionar livro.
@@ -19,11 +22,12 @@ import BookDetailsStep from "@/features/books/components/steps/BookDetailsStep";
  */
 interface AddBookFormProps {
   onCancel: () => void;
-  onSuccess: () => void;
+  // Altera para receber o livro adicionado
+  onSuccess: (book: BookOption) => void;
   onError?: (error: Error) => void;
 }
 
-export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFormProps) {
+function AddBookWizard({ onCancel, onSuccess, onError }: AddBookFormProps) {
   const { step, setStep } = useStep(1);
 
   const {
@@ -57,6 +61,9 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
     onError
   );
   const { addBook, isSubmitting } = useAddBook();
+
+  // Etiquetas session
+  const labelSession = useBookLabelSession();
 
   // Handler para adicionar novo exemplar
   const handleAddExemplar = (book: BookOption) => {
@@ -113,6 +120,7 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
     setStep(3);
   };
 
+  // Handler para submissão do formulário de livro
   const handleSubmit = async () => {
     console.log("🔵 [AddBookForm] Submissão do formulário de livro");
     // Para novo exemplar, volume é herdado do livro selecionado
@@ -153,12 +161,47 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
     const result = await addBook(bookData);
 
     if (result.success) {
-      console.log("🟢 [AddBookForm] Livro adicionado com sucesso");
-      onSuccess();
+      // 🟢 [AddBookForm] Livro adicionado com sucesso
+      // Retorna o livro adicionado para o fluxo de etiquetas
+      const data = result.data || {};
+      const addedBook = {
+        code: data.code || bookData.selectedBook?.code || '',
+        title: actualTitle,
+        authors: actualAuthors,
+        edition: actualEdition,
+        volume: realVolume,
+        area: category,
+        subarea: subcategory,
+        language: String(language ?? ''),
+        id: data.id || '',
+        available: true,
+      };
+      labelSession.addBook(addedBook);
+      setStep(5); // Vai para o step da lombada
     } else if (onError && result.error) {
       console.error("🔴 [AddBookForm] Erro ao adicionar livro:", result.error);
       onError(result.error);
     }
+  };
+
+  // Handler para seleção da lombada
+  const handleSpineSelect = (spineType: 'normal' | 'fina') => {
+    labelSession.setSpineType(spineType);
+    setStep(6); // Vai para o step final
+  };
+
+  // Handler para adicionar outro livro
+  const handleAddAnother = () => {
+    setTitle("");
+    setSubtitle("");
+    setAuthors("");
+    setEdition("");
+    setVolume("");
+    setIsVolumeLocked(false);
+    setSelectedBook(null);
+    setAddType(null);
+    setLanguage(null);
+    setStep(1);
   };
 
   switch (step) {
@@ -223,11 +266,29 @@ export default function AddBookForm({ onCancel, onSuccess, onError }: AddBookFor
           onSubmit={handleSubmit}
           onPrevious={() => setStep(3)}
           isSubmitting={isSubmitting}
-          isVolumeLocked={isVolumeLocked} // passa nova prop
+          isVolumeLocked={isVolumeLocked}
         />
       );
-
+    case 5:
+      return (
+        <BookSpineStep
+          onSelect={handleSpineSelect}
+          onPrevious={() => setStep(4)}
+        />
+      );
+    case 6:
+      return (
+        <BookFinishStep
+          onAddAnother={handleAddAnother}
+          onGeneratePdf={labelSession.generatePdf}
+          isGenerating={labelSession.isGenerating}
+          pdfUrl={labelSession.pdfUrl}
+          books={labelSession.books}
+        />
+      );
     default:
       return null;
   }
 }
+
+export default AddBookWizard;
