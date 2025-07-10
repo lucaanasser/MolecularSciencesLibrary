@@ -1,4 +1,4 @@
-const DonatorsService = require('../services/DonatorsServcie');
+const DonatorsService = require('../services/DonatorsService');
 
 const DonatorsController = {
     async addDonator(req, res) {
@@ -30,6 +30,20 @@ const DonatorsController = {
             const donator = await DonatorsService.getDonatorById(req.params.id);
             if (!donator) return res.status(404).json({ error: 'Donator not found' });
             res.json(donator);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
+    async getFilteredDonators(req, res) {
+        try {
+            const { isUser, donationType, name } = req.query;
+            const filters = {
+                isUser: isUser !== undefined ? isUser === 'true' : undefined,
+                donationType,
+                name
+            };
+            const donators = await DonatorsService.getFilteredDonators(filters);
+            res.json(donators);
         } catch (err) {
             res.status(400).json({ error: err.message });
         }

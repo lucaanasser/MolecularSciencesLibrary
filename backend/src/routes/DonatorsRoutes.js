@@ -6,5 +6,6 @@ router.post('/', DonatorsController.addDonator);
 router.delete('/:id', DonatorsController.removeDonator);
 router.get('/', DonatorsController.getAllDonators);
 router.get('/:id', DonatorsController.getDonatorById);
+router.get('/filter', DonatorsController.getFilteredDonators);
 
 module.exports = router;

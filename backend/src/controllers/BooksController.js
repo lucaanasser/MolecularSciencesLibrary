@@ -164,16 +164,6 @@ class BooksController {
             res.status(500).json({ error: err.message });
         }
     }
-
-    /**
-     * Gera um PDF com etiquetas para os livros informados
-     * @param {Array} books - Lista de livros [{id, code, ...}]
-     * @param {string} spineType - 'normal' ou 'fina'
-     * @returns {Promise<Buffer>} PDF buffer
-     */
-    async generateLabelsPdf(books, spineType) {
-        return await booksService.generateLabelsPdf(books, spineType);
-    }
 }
 
 // Exporta uma instância única do controlador

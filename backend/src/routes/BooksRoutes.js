@@ -102,21 +102,4 @@ router.post('/return', (req, res) => {
     booksController.returnBook(req, res);
 });
 
-// Gerar PDF de etiquetas para livros selecionados
-router.post('/labels/pdf', async (req, res) => {
-    try {
-        const { books, spineType } = req.body; // books: [{id, code, ...}], spineType: 'normal'|'fina'
-        console.log("🔵 [BooksRoutes] POST /labels/pdf - Gerar etiquetas PDF");
-        const pdfBuffer = await booksController.generateLabelsPdf(books, spineType);
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename="etiquetas.pdf"',
-        });
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error("🔴 [BooksRoutes] Erro ao gerar etiquetas PDF:", error.message);
-        res.status(500).json({ message: 'Erro ao gerar etiquetas PDF: ' + error.message });
-    }
-});
-
 module.exports = router;

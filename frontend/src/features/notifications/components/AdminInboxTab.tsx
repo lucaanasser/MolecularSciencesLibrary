@@ -1,5 +1,5 @@
-import { useInbox } from "@/features/notification/hooks/useInbox";
-import InboxList from "@/features/notification/components/InboxList";
+import { useInbox } from "@/features/notifications/hooks/useInbox";
+import InboxList from "@/features/notifications/components/InboxList";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function AdminInboxTab() {

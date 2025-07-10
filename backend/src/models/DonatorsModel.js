@@ -37,6 +37,28 @@ class DonatorsModel {
         const query = `SELECT * FROM donators WHERE id = ?`;
         return getQuery(query, [id]);
     }
+
+    async getFilteredDonators({ isUser, donationType, name }) {
+        let query = `SELECT * FROM donators WHERE 1=1`;
+        const params = [];
+        if (isUser !== undefined) {
+            if (isUser) {
+                query += ` AND user_id IS NOT NULL`;
+            } else {
+                query += ` AND user_id IS NULL`;
+            }
+        }
+        if (donationType) {
+            query += ` AND donation_type = ?`;
+            params.push(donationType);
+        }
+        if (name) {
+            query += ` AND name LIKE ?`;
+            params.push(`%${name}%`);
+        }
+        query += ` ORDER BY created_at DESC`;
+        return allQuery(query, params);
+    }
 }
 
 module.exports = new DonatorsModel();

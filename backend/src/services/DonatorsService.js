@@ -16,6 +16,10 @@ class DonatorsService {
     async getDonatorById(id) {
         return donatorsModel.getDonatorById(id);
     }
+
+    async getFilteredDonators(filters) {
+        return donatorsModel.getFilteredDonators(filters);
+    }
 }
 
 module.exports = new DonatorsService();

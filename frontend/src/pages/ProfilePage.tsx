@@ -7,8 +7,6 @@ import { BookOpen, Bell, Trophy } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";
 import LoanHistoryOnly from "@/features/loans/components/LoanHistoryOnly";
-import NotificationList from "@/features/notification/components/NotificationList";
-import { useNotification } from "@/features/notification/hooks/useNotification";
 import AchievementList from "@/features/users/components/AchievementList";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -26,23 +24,14 @@ const PROFILE_IMAGES = [
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("ativos");
   const { user, loading: userLoading, error: userError } = useUserProfile();
-  const { notifications, loading: notificationsLoading, refetch } = useNotification();
   const [showImageSelector, setShowImageSelector] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Delete handler for user notifications
-  const handleDelete = async (id: string | number) => {
-    const token = localStorage.getItem("token");
-    await fetch(`/api/notifications/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      credentials: "include",
-    });
-    refetch();
-  };
+  // const { notifications, loading: notificationsLoading, refetch } = useNotification();
+  const notifications = [];
+  const notificationsLoading = false;
+  const handleDelete = () => {};
 
   const handleImageChange = async (img: string) => {
     // Garante que o caminho seja sempre /images/nomedaimagem.png
@@ -200,7 +189,7 @@ const ProfilePage = () => {
                   <Card className="rounded-2xl">
                     <div className="p-6">
                       <h3 className="text-xl font-bebas mb-4">Notificações</h3>
-                      <NotificationList notifications={notifications} loading={notificationsLoading} onDelete={handleDelete} />
+                      <div>Notificações indisponíveis no momento.</div>
                     </div>
                   </Card>
                 </TabsContent>
