@@ -133,7 +133,7 @@ class BooksModel {
     async borrowBook(bookId, studentId) {
         console.log(`🔵 [BooksModel] Emprestando livro bookId=${bookId} para studentId=${studentId}`);
         const query = `
-            INSERT INTO borrowed_books (book_id, student_id)
+            INSERT INTO loans (book_id, student_id)
             VALUES (?, ?)
         `;
         try {
@@ -149,7 +149,7 @@ class BooksModel {
     async returnBook(bookId) {
         console.log(`🔵 [BooksModel] Devolvendo livro bookId=${bookId}`);
         const query = `
-            UPDATE borrowed_books
+            UPDATE loans
             SET returned_at = CURRENT_TIMESTAMP
             WHERE book_id = ? AND returned_at IS NULL
         `;
@@ -166,7 +166,7 @@ class BooksModel {
     async getBorrowedBooks() {
         console.log("🔵 [BooksModel] Buscando livros emprestados (ativos)");
         const query = `
-            SELECT * FROM borrowed_books WHERE returned_at IS NULL
+            SELECT * FROM loans WHERE returned_at IS NULL
         `;
         try {
             const borrowed = await allQuery(query);

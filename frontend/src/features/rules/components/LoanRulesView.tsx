@@ -13,6 +13,8 @@ export default function LoanRulesView() {
       <div><b>Dias máximos de empréstimo:</b> {rules.max_days}</div>
       <div><b>Máximo de livros por usuário:</b> {rules.max_books_per_user}</div>
       <div><b>Intervalo de lembrete de atraso:</b> {rules.overdue_reminder_days} dias</div>
+      <div><b>Máximo de renovações por empréstimo:</b> {rules.max_renewals}</div>
+      <div><b>Dias de cada renovação:</b> {rules.renewal_days}</div>
     </div>
   );
 }

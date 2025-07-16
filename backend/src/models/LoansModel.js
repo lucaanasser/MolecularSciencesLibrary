@@ -15,13 +15,18 @@ function getDb() {
 
 module.exports = {
     // Cria um novo empréstimo
-    createLoan: (book_id, student_id) => {
+    createLoan: (book_id, student_id, due_date) => {
         console.log(`🔵 [LoansModel] Criando empréstimo: book_id=${book_id}, student_id=${student_id}`);
+        let dueDateSql = due_date;
+        if (due_date && typeof due_date === 'string') {
+            // Remove o 'T' e o 'Z' do ISO, pega só a parte relevante
+            dueDateSql = due_date.replace('T', ' ').replace(/\..*$/, '');
+        }
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(
-                `INSERT INTO borrowed_books (book_id, student_id) VALUES (?, ?)`,
-                [book_id, student_id],
+                `INSERT INTO loans (book_id, student_id, due_date) VALUES (?, ?, ?)`,
+                [book_id, student_id, dueDateSql],
                 function (err) {
                     db.close();
                     if (err) {
@@ -43,13 +48,13 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT bb.id as loan_id, bb.book_id, bb.student_id, bb.borrowed_at, bb.returned_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
-                 FROM borrowed_books bb
-                 LEFT JOIN users u ON bb.student_id = u.id
-                 LEFT JOIN books b ON bb.book_id = b.id
-                 ORDER BY bb.borrowed_at DESC`,
+                 FROM loans l
+                 LEFT JOIN users u ON l.student_id = u.id
+                 LEFT JOIN books b ON l.book_id = b.id
+                 ORDER BY l.borrowed_at DESC`,
                 [],
                 (err, rows) => {
                     db.close();
@@ -67,18 +72,18 @@ module.exports = {
     },
 
     // Busca empréstimos de um usuário específico
-    getLoansByUser: (userId) => {
-        console.log(`🔵 [LoansModel] Buscando empréstimos do usuário: userId=${userId}`);
+    getLoansByUser: (user_id) => {
+        console.log(`🔵 [LoansModel] Buscando empréstimos do usuário: ${user_id}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT bb.id as loan_id, bb.book_id, bb.student_id, bb.borrowed_at, bb.returned_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
                         b.title as book_title, b.authors as book_authors
-                 FROM borrowed_books bb
-                 LEFT JOIN books b ON bb.book_id = b.id
-                 WHERE bb.student_id = ?
-                 ORDER BY bb.borrowed_at DESC`,
-                [userId],
+                 FROM loans l
+                 LEFT JOIN books b ON l.book_id = b.id
+                 WHERE l.student_id = ?
+                 ORDER BY l.borrowed_at DESC`,
+                [user_id],
                 (err, rows) => {
                     db.close();
                     if (err) {
@@ -86,7 +91,6 @@ module.exports = {
                         reject(err);
                     }
                     else {
-                        console.log(`🟢 [LoansModel] Empréstimos do usuário ${userId} encontrados: ${rows.length}`);
                         resolve(rows);
                     }
                 }
@@ -100,7 +104,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(
-                `UPDATE borrowed_books SET returned_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL`,
+                `UPDATE loans SET returned_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL`,
                 [loan_id],
                 function (err) {
                     db.close();
@@ -117,13 +121,37 @@ module.exports = {
         });
     },
 
+    // Devolve um empréstimo
+    returnBook: (loan_id) => {
+        console.log(`🔵 [LoansModel] Devolvendo empréstimo: loan_id=${loan_id}`);
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(
+                `UPDATE loans SET returned_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL`,
+                [loan_id],
+                function (err) {
+                    db.close();
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao devolver empréstimo: ${err.message}`);
+                        reject(err);
+                    } else if (this.changes === 0) {
+                        reject(new Error('Empréstimo não encontrado ou já devolvido.'));
+                    } else {
+                        console.log(`🟢 [LoansModel] Empréstimo devolvido com sucesso: loan_id=${loan_id}`);
+                        resolve();
+                    }
+                }
+            );
+        });
+    },
+
     // Verifica se existe empréstimo ativo para um livro
     hasActiveLoan: (book_id) => {
         console.log(`🔵 [LoansModel] Verificando empréstimo ativo para book_id=${book_id}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.get(
-                `SELECT id FROM borrowed_books WHERE book_id = ? AND returned_at IS NULL`,
+                `SELECT id FROM loans WHERE book_id = ? AND returned_at IS NULL`,
                 [book_id],
                 (err, row) => {
                     db.close();
@@ -145,25 +173,17 @@ module.exports = {
     },
 
     // Busca empréstimo ativo de um usuário para um livro
-    getActiveLoanByUserAndBook: (userId, bookId) => {
-        console.log(`🔵 [LoansModel] Buscando empréstimo ativo do usuário ${userId} para o livro ${bookId}`);
+    getActiveLoanByUserAndBook: (user_id, book_id) => {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.get(
-                `SELECT id as loan_id FROM borrowed_books WHERE student_id = ? AND book_id = ? AND returned_at IS NULL`,
-                [userId, bookId],
+                `SELECT id as loan_id FROM loans WHERE student_id = ? AND book_id = ? AND returned_at IS NULL`,
+                [user_id, book_id],
                 (err, row) => {
                     db.close();
                     if (err) {
-                        console.error(`🔴 [LoansModel] Erro ao buscar empréstimo ativo: ${err.message}`);
                         reject(err);
-                    }
-                    else {
-                        if (row) {
-                            console.log(`🟢 [LoansModel] Empréstimo ativo encontrado:`, row);
-                        } else {
-                            console.warn(`🟡 [LoansModel] Nenhum empréstimo ativo encontrado para usuário ${userId} e livro ${bookId}`);
-                        }
+                    } else {
                         resolve(row);
                     }
                 }
@@ -177,14 +197,14 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT bb.id as loan_id, bb.book_id, bb.student_id, bb.borrowed_at, bb.returned_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
-                 FROM borrowed_books bb
-                 LEFT JOIN users u ON bb.student_id = u.id
-                 LEFT JOIN books b ON bb.book_id = b.id
-                 WHERE bb.returned_at IS NULL
-                 ORDER BY bb.borrowed_at DESC`,
+                 FROM loans l
+                 LEFT JOIN users u ON l.student_id = u.id
+                 LEFT JOIN books b ON l.book_id = b.id
+                 WHERE l.returned_at IS NULL
+                 ORDER BY l.borrowed_at DESC`,
                 [],
                 (err, rows) => {
                     db.close();
@@ -207,7 +227,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.get(
-                `SELECT id as loan_id FROM borrowed_books WHERE book_id = ? AND returned_at IS NULL`,
+                `SELECT id as loan_id FROM loans WHERE book_id = ? AND returned_at IS NULL`,
                 [bookId],
                 (err, row) => {
                     db.close();
@@ -222,6 +242,75 @@ module.exports = {
                             console.warn(`🟡 [LoansModel] Nenhum empréstimo ativo encontrado para o livro ${bookId}`);
                         }
                         resolve(row);
+                    }
+                }
+            );
+        });
+    },
+
+    // Renova um empréstimo
+    renewLoan: (loan_id, renewal_days) => {
+        console.log(`🔵 [LoansModel] Renovando empréstimo: loan_id=${loan_id}, renewal_days=${renewal_days}`);
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(
+                `UPDATE loans SET renewals = renewals + 1, due_date = datetime(due_date, '+' || ? || ' days') WHERE id = ? AND returned_at IS NULL`,
+                [renewal_days, loan_id],
+                function (err) {
+                    db.close();
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao renovar empréstimo: ${err.message}`);
+                        reject(err);
+                    } else if (this.changes === 0) {
+                        reject(new Error('Empréstimo não encontrado ou já devolvido.'));
+                    } else {
+                        console.log(`🟢 [LoansModel] Empréstimo renovado com sucesso: loan_id=${loan_id}`);
+                        resolve();
+                    }
+                }
+            );
+        });
+    },
+
+    // Verifica se um livro está emprestado
+    isBookLoaned: (book_id) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.get(
+                `SELECT id FROM loans WHERE book_id = ? AND returned_at IS NULL`,
+                [book_id],
+                (err, row) => {
+                    db.close();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(!!row);
+                    }
+                }
+            );
+        });
+    },
+
+    // Busca todos os empréstimos ativos (não devolvidos)
+    getActiveLoans: () => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.all(
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
+                        u.name as user_name, u.email as user_email,
+                        b.title as book_title, b.authors as book_authors
+                 FROM loans l
+                 LEFT JOIN users u ON l.student_id = u.id
+                 LEFT JOIN books b ON l.book_id = b.id
+                 WHERE l.returned_at IS NULL
+                 ORDER BY l.borrowed_at DESC`,
+                [],
+                (err, rows) => {
+                    db.close();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(rows);
                     }
                 }
             );

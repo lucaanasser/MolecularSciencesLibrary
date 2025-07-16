@@ -10,7 +10,7 @@ const borrowedAt = '2025-05-10T12:00:00Z'; // 10 de maio de 2025
 
 function addOverdueLoan() {
   db.run(
-    `INSERT INTO borrowed_books (book_id, student_id, borrowed_at) VALUES (?, ?, ?)`,
+    `INSERT INTO loans (book_id, student_id, borrowed_at) VALUES (?, ?, ?)`,
     [bookId, userId, borrowedAt],
     function (err) {
       if (err) {

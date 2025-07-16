@@ -57,22 +57,20 @@ class LoansService {
         }
 
         // 5. Cria o empréstimo
-        const loan = await LoansModel.createLoan(book_id, user.id);
-        console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`, loan);
-
-        // Calcula a data de devolução conforme as regras (use a mesma variável 'rules')
         const maxDays = rules.max_days || 7;
         const borrowedAt = new Date();
         const dueDate = new Date(borrowedAt);
         dueDate.setDate(borrowedAt.getDate() + maxDays);
-        const dueDateStr = dueDate.toLocaleDateString('pt-BR');
+        const dueDateISO = dueDate.toISOString();
+        const loan = await LoansModel.createLoan(book_id, user.id, dueDateISO);
+        console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`, loan);
 
         // Envia email de confirmação de novo empréstimo
         await EmailService.sendNotificationEmail({
             user_id: user.id,
             type: 'novo_emprestimo',
             subject: 'Novo empréstimo realizado na Biblioteca CM',
-            message: `Você realizou um novo empréstimo do livro "${book.title}". Data de devolução: ${dueDateStr}. Fique atento ao prazo!`,
+            message: `Você realizou um novo empréstimo do livro "${book.title}". Data de devolução: ${dueDateISO}. Fique atento ao prazo!`,
         });
 
         return loan;
@@ -177,6 +175,21 @@ class LoansService {
         });
         console.log(`🟢 [LoansService] Empréstimos ativos processados: ${result.length}`);
         return result;
+    }
+
+    // Renova um empréstimo
+    async renewLoan(loan_id, user_id) {
+        console.log(`🔵 [LoansService] Renovando empréstimo: loan_id=${loan_id}, user_id=${user_id}`);
+        // Busca o empréstimo
+        const loans = await LoansModel.getLoansByUser(user_id);
+        const loan = loans.find(l => l.id === loan_id && !l.returned_at);
+        if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
+        // Busca regras
+        const rules = await RulesService.getRules();
+        if (loan.renewals >= rules.max_renewals) throw new Error('Limite de renovações atingido.');
+        // Atualiza empréstimo
+        await LoansModel.renewLoan(loan_id, rules.renewal_days);
+        return { message: 'Empréstimo renovado com sucesso.' };
     }
 }
 

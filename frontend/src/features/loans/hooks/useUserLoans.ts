@@ -14,7 +14,7 @@ export function useUserLoans(userId: number | undefined) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchLoans = () => {
     if (!userId) {
       // Do not fetch if userId is not available
       setLoans([]);
@@ -42,7 +42,12 @@ export function useUserLoans(userId: number | undefined) {
         console.error("🔴 [useUserLoans] Erro ao buscar histórico:", err);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchLoans();
+    // eslint-disable-next-line
   }, [userId]);
 
-  return { loans, loading, error };
+  return { loans, loading, error, refetch: fetchLoans };
 }

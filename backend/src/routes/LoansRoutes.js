@@ -41,4 +41,10 @@ router.get('/active', (req, res) => {
     LoansController.listActiveLoansWithOverdue(req, res);
 });
 
+// Renovar empréstimo
+router.put('/:id/renew', (req, res) => {
+    console.log('🔵 [LoansRoutes] PUT /:id/renew - Renovar empréstimo');
+    LoansController.renewLoan(req, res);
+});
+
 module.exports = router;

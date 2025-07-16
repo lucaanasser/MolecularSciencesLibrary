@@ -79,6 +79,30 @@ export default function LoanRulesForm({ onSuccess }: LoanRulesFormProps) {
           required
         />
       </div>
+      <div>
+        <label className="block font-medium">Máximo de renovações por empréstimo</label>
+        <input
+          type="number"
+          name="max_renewals"
+          value={form.max_renewals}
+          onChange={handleChange}
+          min={0}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block font-medium">Dias de cada renovação</label>
+        <input
+          type="number"
+          name="renewal_days"
+          value={form.renewal_days}
+          onChange={handleChange}
+          min={1}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
       <Button type="submit" className="bg-cm-blue text-white px-4 py-2 rounded">
         Salvar Regras
       </Button>

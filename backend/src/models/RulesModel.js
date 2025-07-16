@@ -10,7 +10,7 @@ const RulesModel = {
         console.log('🔵 [RulesModel] Buscando regras de empréstimo');
         return new Promise((resolve, reject) => {
             const db = getDb();
-            db.get('SELECT max_days, overdue_reminder_days, max_books_per_user FROM rules WHERE id = 1', (err, row) => {
+            db.get('SELECT max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days FROM rules WHERE id = 1', (err, row) => {
                 db.close();
                 if (err) {
                     console.error('🔴 [RulesModel] Erro ao buscar regras:', err.message);
@@ -28,8 +28,8 @@ const RulesModel = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(
-                `UPDATE rules SET max_days = ?, overdue_reminder_days = ?, max_books_per_user = ? WHERE id = 1`,
-                [data.max_days, data.overdue_reminder_days, data.max_books_per_user],
+                `UPDATE rules SET max_days = ?, overdue_reminder_days = ?, max_books_per_user = ?, max_renewals = ?, renewal_days = ? WHERE id = 1`,
+                [data.max_days, data.overdue_reminder_days, data.max_books_per_user, data.max_renewals, data.renewal_days],
                 function (err) {
                     db.close();
                     if (err) {

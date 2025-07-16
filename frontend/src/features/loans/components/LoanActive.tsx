@@ -1,7 +1,8 @@
-import { Clock } from "lucide-react";
+import { Clock, RotateCcw } from "lucide-react";
 import { useUserLoans } from "../hooks/useUserLoans";
 import { Loan } from "../types/loan";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface LoanActiveProps {
   userId: number | undefined;
@@ -14,19 +15,24 @@ const formatDate = (dateString: string | null | undefined) => {
 };
 
 export default function LoanActive({ userId }: LoanActiveProps) {
-  const { loans, loading, error } = useUserLoans(userId);
+  const { loans, loading, error, refetch } = useUserLoans(userId);
   const [nudgeTimestamps, setNudgeTimestamps] = useState<{ [loanId: number]: string }>({});
   const [nudgeLoading, setNudgeLoading] = useState<number | null>(null);
   const [nudgeError, setNudgeError] = useState<string>("");
   const [nudgeSuccess, setNudgeSuccess] = useState<string>("");
 
+  const [renewLoading, setRenewLoading] = useState<number | null>(null);
+  const [renewError, setRenewError] = useState<string>("");
+  const [renewSuccess, setRenewSuccess] = useState<string>("");
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogDescription, setDialogDescription] = useState("");
+
   // Helper: check if loan is overdue
   function isOverdue(loan: Loan) {
-    if (!loan.borrowed_at) return false;
-    const borrowed = new Date(loan.borrowed_at);
-    const due = new Date(borrowed);
-    due.setDate(borrowed.getDate() + 7); // TODO: get maxDays from backend/rules if dynamic
-    return new Date() > due;
+    if (!loan.due_date) return false;
+    return new Date() > new Date(loan.due_date);
   }
 
   // Helper: check if can nudge (1 day cooldown)
@@ -75,6 +81,41 @@ export default function LoanActive({ userId }: LoanActiveProps) {
     }
   }
 
+  async function handleRenew(loan: Loan) {
+    setRenewError("");
+    setRenewSuccess("");
+    setRenewLoading(loan.loan_id);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/loans/${loan.loan_id}/renew`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ user_id: loan.student_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        // Limite de renovações ou outro erro
+        setDialogTitle("Limite de renovações atingido");
+        setDialogDescription(data.error || "Você não pode mais renovar este empréstimo.");
+        setDialogOpen(true);
+        throw new Error(data.error || "Erro ao renovar empréstimo");
+      }
+      // Sucesso: mostra nova data de entrega
+      setDialogTitle("Renovação realizada");
+      setDialogDescription(`Você renovou o livro '${loan.book_title}'. A nova data de entrega é: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}`);
+      setDialogOpen(true);
+      setRenewSuccess("Empréstimo renovado com sucesso!");
+      refetch && refetch();
+    } catch (err: any) {
+      setRenewError(err.message || "Erro ao renovar empréstimo");
+    } finally {
+      setRenewLoading(null);
+    }
+  }
+
   const activeLoans = (loans || []).filter((loan: Loan) => !loan.returned_at);
 
   if (loading) {
@@ -105,6 +146,16 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                     <Clock className="mr-1 h-3 w-3" />
                     <span>Empréstimo: {formatDate(item.borrowed_at)}</span>
                   </div>
+                  <div className="flex items-center">
+                    <Clock className="mr-1 h-3 w-3" />
+                    <span>Devolução prevista: {formatDate(item.due_date)}</span>
+                  </div>
+                  {item.returned_at && (
+                    <div className="flex items-center">
+                      <Clock className="mr-1 h-3 w-3" />
+                      <span>Devolução: {formatDate(item.returned_at)}</span>
+                    </div>
+                  )}
                   {overdue && (
                     <span className="ml-2 text-cm-red font-semibold">Atrasado</span>
                   )}
@@ -123,13 +174,41 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                     {nudgeLoading === item.loan_id ? "Enviando..." : canNudgeNow ? "Cutucar" : "Aguarde 1 dia"}
                   </button>
                 )}
+                {!overdue && (
+                  <button
+                    className="flex items-center gap-2 bg-cm-blue text-white px-4 py-2 rounded hover:bg-cm-yellow disabled:opacity-50"
+                    onClick={() => handleRenew(item)}
+                    disabled={renewLoading === item.loan_id}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    {renewLoading === item.loan_id ? "Renovando..." : "Renovar"}
+                  </button>
+                )}
               </div>
             </div>
+            {renewError && renewLoading === item.loan_id && (
+              <div className="text-red-600 text-xs mt-1">{renewError}</div>
+            )}
+            {renewSuccess && renewLoading === item.loan_id && (
+              <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>
+            )}
           </div>
         );
       })}
       {nudgeError && <div className="text-red-600 mt-2">{nudgeError}</div>}
       {nudgeSuccess && <div className="text-green-600 mt-2">{nudgeSuccess}</div>}
+
+      {/* Dialog de feedback */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{dialogTitle}</DialogTitle>
+            <DialogDescription>
+              {dialogDescription}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -13,7 +13,6 @@ const SALT_ROUNDS = 10;
 // Create database directory if it doesn't exist
 if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
-    // Add permissions to directory
     fs.chmodSync(dbDir, 0o777);
 }
 
@@ -110,20 +109,22 @@ db.serialize(() => {
 
     // BORROWED_BOOKS TABLE
     db.run(`
-        CREATE TABLE IF NOT EXISTS borrowed_books (
+        CREATE TABLE IF NOT EXISTS loans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             book_id INTEGER NOT NULL,
             student_id INTEGER NOT NULL,
             borrowed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             returned_at TIMESTAMP,
+            renewals INTEGER NOT NULL DEFAULT 0, 
+            due_date TIMESTAMP, 
             FOREIGN KEY(book_id) REFERENCES books(id)
         )
     `, (err) => {
         if (err) {
-            console.error('🔴 [initDb] Erro ao criar tabela borrowed_books:', err.message);
+            console.error('🔴 [initDb] Erro ao criar tabela loans:', err.message);
             process.exit(1);
         }
-        console.log('🟢 [initDb] Tabela borrowed_books criada com sucesso');
+        console.log('🟢 [initDb] Tabela loans criada com sucesso');
     });
 
     // NOTIFICATIONS TABLE
@@ -152,7 +153,9 @@ db.serialize(() => {
             id INTEGER PRIMARY KEY CHECK (id = 1),
             max_days INTEGER NOT NULL DEFAULT 7,
             overdue_reminder_days INTEGER NOT NULL DEFAULT 3,
-            max_books_per_user INTEGER NOT NULL DEFAULT 5
+            max_books_per_user INTEGER NOT NULL DEFAULT 5,
+            max_renewals INTEGER NOT NULL DEFAULT 2,
+            renewal_days INTEGER NOT NULL DEFAULT 7 
         )
     `, (err) => {
         if (err) {
@@ -164,7 +167,7 @@ db.serialize(() => {
         db.get('SELECT * FROM rules WHERE id = 1', (err, row) => {
             if (!row) {
                 db.run(
-                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user) VALUES (1, 7, 3, 5)`
+                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days) VALUES (1, 7, 3, 5, 2, 7)`
                 );
             }
         });
@@ -433,6 +436,5 @@ db.serialize(() => {
         }
     }
 
-    // Chame a função após a criação das tabelas
     insertSpecialUsersAndClose();
 });

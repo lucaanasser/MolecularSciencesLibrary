@@ -88,7 +88,20 @@ const LoansController = {
             console.error(`🔴 [LoansController] Erro ao listar empréstimos ativos: ${err.message}`);
             res.status(500).json({ error: err.message });
         }
-    }
+    },
+
+    // Renova um empréstimo
+    renewLoan: async (req, res) => {
+        const { id } = req.params;
+        const user_id = req.body.user_id; // ou obtenha do token, se necessário
+        if (!user_id) return res.status(400).json({ error: 'user_id é obrigatório' });
+        try {
+            const result = await LoansService.renewLoan(Number(id), user_id);
+            res.json(result);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
 };
 
 module.exports = LoansController;

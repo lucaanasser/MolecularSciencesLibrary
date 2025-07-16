@@ -4,11 +4,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"  # HTTP
-      - "3443:3443"  # HTTPS
+      - "3001:3001"  
+      - "3443:3443"  
     volumes:
       - ./database:/app/database
-      - ./ssl:/app/ssl  # Montar certificados SSL
+      - ./ssl:/app/ssl 
     env_file:
       - ./backend/.env
     environment:
