@@ -25,7 +25,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(
-                `INSERT INTO loans (book_id, student_id, due_date) VALUES (?, ?, ?)`,
+                `INSERT INTO loans (book_id, student_id, due_date, renewals) VALUES (?, ?, ?, 0)`,
                 [book_id, student_id, dueDateSql],
                 function (err) {
                     db.close();
@@ -91,6 +91,10 @@ module.exports = {
                         reject(err);
                     }
                     else {
+                        // Corrige o tipo de returned_at para null se vier como string 'null'
+                        rows.forEach(row => {
+                            if (row.returned_at === 'null') row.returned_at = null;
+                        });
                         resolve(rows);
                     }
                 }
@@ -253,8 +257,9 @@ module.exports = {
         console.log(`🔵 [LoansModel] Renovando empréstimo: loan_id=${loan_id}, renewal_days=${renewal_days}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
+            // Atualiza due_date para a data atual + renewal_days
             db.run(
-                `UPDATE loans SET renewals = renewals + 1, due_date = datetime(due_date, '+' || ? || ' days') WHERE id = ? AND returned_at IS NULL`,
+                `UPDATE loans SET renewals = renewals + 1, due_date = datetime('now', '+' || ? || ' days') WHERE id = ? AND returned_at IS NULL`,
                 [renewal_days, loan_id],
                 function (err) {
                     db.close();

@@ -102,6 +102,40 @@ const LoansController = {
             res.status(400).json({ error: err.message });
         }
     },
+
+    // Preview da renovação
+    previewRenewLoan: async (req, res) => {
+        const loan_id = req.params.id;
+        const { user_id } = req.body;
+        console.log(`🔵 [LoansController] Preview renovação: loan_id=${loan_id}, user_id=${user_id}`);
+        if (!loan_id || !user_id) {
+            return res.status(400).json({ error: 'loan_id e user_id são obrigatórios' });
+        }
+        try {
+            const preview = await LoansService.previewRenewLoan(loan_id, user_id);
+            res.json(preview);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
+
+    // Lista empréstimos ativos de um usuário específico
+    listActiveLoansByUser: async (req, res) => {
+        const userId = req.params.userId;
+        console.log(`🔵 [LoansController] Listando empréstimos ativos do usuário: userId=${userId}`);
+        if (!userId) {
+            console.warn("🟡 [LoansController] userId não fornecido");
+            return res.status(400).json({ error: 'userId é obrigatório' });
+        }
+        try {
+            const loans = await LoansService.listActiveLoansByUser(userId);
+            console.log(`🟢 [LoansController] Empréstimos ativos do usuário ${userId} encontrados: ${loans.length}`);
+            res.json(loans);
+        } catch (err) {
+            console.error(`🔴 [LoansController] Erro ao listar empréstimos ativos do usuário: ${err.message}`);
+            res.status(500).json({ error: err.message });
+        }
+    },
 };
 
 module.exports = LoansController;

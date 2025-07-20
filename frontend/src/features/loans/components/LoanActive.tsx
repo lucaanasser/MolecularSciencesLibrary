@@ -81,14 +81,15 @@ export default function LoanActive({ userId }: LoanActiveProps) {
     }
   }
 
-  async function handleRenew(loan: Loan) {
+  // Nova função para preview da renovação
+  async function handlePreviewRenew(loan: Loan) {
     setRenewError("");
     setRenewSuccess("");
     setRenewLoading(loan.loan_id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`/api/loans/${loan.loan_id}/renew`, {
-        method: "PUT",
+      const res = await fetch(`/api/loans/${loan.loan_id}/preview-renew`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -97,15 +98,52 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        // Limite de renovações ou outro erro
         setDialogTitle("Limite de renovações atingido");
         setDialogDescription(data.error || "Você não pode mais renovar este empréstimo.");
         setDialogOpen(true);
         throw new Error(data.error || "Erro ao renovar empréstimo");
       }
-      // Sucesso: mostra nova data de entrega
+      // Mostra confirmação antes de renovar
+      setDialogTitle("Confirmação de renovação");
+      setDialogDescription(`Você está renovando o livro '${loan.book_title}' para a nova data: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}. Tem certeza disso?`);
+      setDialogOpen(true);
+      // Salva dados para confirmar depois
+      setPendingRenew({ loan, due_date: data.due_date });
+    } catch (err: any) {
+      setRenewError(err.message || "Erro ao renovar empréstimo");
+    } finally {
+      setRenewLoading(null);
+    }
+  }
+
+  // Estado para confirmação
+  const [pendingRenew, setPendingRenew] = useState<{ loan: Loan, due_date: string | null } | null>(null);
+
+  // Função para confirmar renovação
+  async function handleConfirmRenew() {
+    if (!pendingRenew) return;
+    setRenewError("");
+    setRenewSuccess("");
+    setRenewLoading(pendingRenew.loan.loan_id);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/loans/${pendingRenew.loan.loan_id}/renew`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ user_id: pendingRenew.loan.student_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDialogTitle("Limite de renovações atingido");
+        setDialogDescription(data.error || "Você não pode mais renovar este empréstimo.");
+        setDialogOpen(true);
+        throw new Error(data.error || "Erro ao renovar empréstimo");
+      }
       setDialogTitle("Renovação realizada");
-      setDialogDescription(`Você renovou o livro '${loan.book_title}'. A nova data de entrega é: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}`);
+      setDialogDescription(`Você renovou o livro '${pendingRenew.loan.book_title}'. A nova data de entrega é: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}`);
       setDialogOpen(true);
       setRenewSuccess("Empréstimo renovado com sucesso!");
       refetch && refetch();
@@ -113,6 +151,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       setRenewError(err.message || "Erro ao renovar empréstimo");
     } finally {
       setRenewLoading(null);
+      setPendingRenew(null);
     }
   }
 
@@ -177,7 +216,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 {!overdue && (
                   <button
                     className="flex items-center gap-2 bg-cm-blue text-white px-4 py-2 rounded hover:bg-cm-yellow disabled:opacity-50"
-                    onClick={() => handleRenew(item)}
+                    onClick={() => handlePreviewRenew(item)}
                     disabled={renewLoading === item.loan_id}
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -207,6 +246,24 @@ export default function LoanActive({ userId }: LoanActiveProps) {
               {dialogDescription}
             </DialogDescription>
           </DialogHeader>
+          {/* Botões de confirmação dentro do pop-up */}
+          {pendingRenew && dialogTitle === "Confirmação de renovação" && (
+            <div className="flex gap-2 mt-4">
+              <button
+                className="bg-green-600 text-white px-3 py-1 rounded"
+                onClick={handleConfirmRenew}
+                disabled={renewLoading === pendingRenew.loan.loan_id}
+              >
+                Confirmar renovação
+              </button>
+              <button
+                className="bg-gray-400 text-white px-3 py-1 rounded"
+                onClick={() => { setPendingRenew(null); setDialogOpen(false); }}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

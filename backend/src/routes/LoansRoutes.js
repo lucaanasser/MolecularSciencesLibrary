@@ -47,4 +47,16 @@ router.put('/:id/renew', (req, res) => {
     LoansController.renewLoan(req, res);
 });
 
+// Preview da renovação
+router.post('/:id/preview-renew', (req, res) => {
+    console.log('🔵 [LoansRoutes] POST /:id/preview-renew - Preview renovação');
+    LoansController.previewRenewLoan(req, res);
+});
+
+// Listar empréstimos ativos de um usuário específico
+router.get('/user/:userId/active', (req, res) => {
+    console.log(`🔵 [LoansRoutes] GET /user/${req.params.userId}/active - Listar empréstimos ativos do usuário`);
+    LoansController.listActiveLoansByUser(req, res);
+});
+
 module.exports = router;

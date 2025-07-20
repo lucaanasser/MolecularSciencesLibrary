@@ -92,6 +92,15 @@ class LoansService {
         return loans;
     }
 
+    // Lista empréstimos ativos de um usuário específico
+    async listActiveLoansByUser(userId) {
+        console.log(`🔵 [LoansService] Listando empréstimos ativos do usuário: userId=${userId}`);
+        const loans = await LoansModel.getLoansByUser(userId);
+        const activeLoans = loans.filter(l => !l.returned_at);
+        console.log(`🟢 [LoansService] Empréstimos ativos do usuário ${userId} encontrados: ${activeLoans.length}`);
+        return activeLoans;
+    }
+
     // Registra devolução de um empréstimo
     async returnBook(loan_id) {
         console.log(`🔵 [LoansService] Registrando devolução do empréstimo: loan_id=${loan_id}`);
@@ -182,14 +191,64 @@ class LoansService {
         console.log(`🔵 [LoansService] Renovando empréstimo: loan_id=${loan_id}, user_id=${user_id}`);
         // Busca o empréstimo
         const loans = await LoansModel.getLoansByUser(user_id);
-        const loan = loans.find(l => l.id === loan_id && !l.returned_at);
-        if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
+        console.log('[DEBUG] Empréstimos do usuário:', JSON.stringify(loans, null, 2));
+        console.log('[DEBUG] Lista de loan_id e returned_at:', loans.map(l => ({ loan_id: l.loan_id, typeof_loan_id: typeof l.loan_id, returned_at: l.returned_at, typeof_returned_at: typeof l.returned_at })));
+        const loanIdNum = Number(loan_id);
+        const loan = loans.find(l => Number(l.loan_id) === loanIdNum && (l.returned_at === null || l.returned_at === 'null'));
+        console.log('[DEBUG] Tentando encontrar empréstimo ativo: loan_id=', loanIdNum, 'Encontrado:', loan);
+        if (!loan) {
+            console.error('[ERROR] Empréstimo não encontrado ou já devolvido. loan_id:', loan_id, 'user_id:', user_id);
+            throw new Error('Empréstimo não encontrado ou já devolvido.');
+        }
         // Busca regras
         const rules = await RulesService.getRules();
-        if (loan.renewals >= rules.max_renewals) throw new Error('Limite de renovações atingido.');
+        console.log('[DEBUG] Valor de renewals:', loan.renewals, 'Max:', rules.max_renewals);
+        if ((loan.renewals ?? 0) >= rules.max_renewals) {
+            console.error('[ERROR] Limite de renovações atingido. loan_id:', loan_id, 'renewals:', loan.renewals, 'max_renewals:', rules.max_renewals);
+            throw new Error('Limite de renovações atingido.');
+        }
         // Atualiza empréstimo
         await LoansModel.renewLoan(loan_id, rules.renewal_days);
-        return { message: 'Empréstimo renovado com sucesso.' };
+        // Busca o empréstimo atualizado para pegar a nova data
+        const updatedLoans = await LoansModel.getLoansByUser(user_id);
+        const updatedLoan = updatedLoans.find(l => l.loan_id === loan_id && !l.returned_at);
+        console.log('[DEBUG] Empréstimo após renovação:', updatedLoan);
+        return {
+            message: 'Empréstimo renovado com sucesso.',
+            due_date: updatedLoan ? updatedLoan.due_date : null
+        };
+    }
+
+    // Preview da renovação
+    async previewRenewLoan(loan_id, user_id) {
+        // Busca o empréstimo
+        const loans = await LoansModel.getLoansByUser(user_id);
+        console.log('[DEBUG] Empréstimos do usuário (preview):', JSON.stringify(loans, null, 2));
+        console.log('[DEBUG] Lista de loan_id e returned_at (preview):', loans.map(l => ({ loan_id: l.loan_id, typeof_loan_id: typeof l.loan_id, returned_at: l.returned_at, typeof_returned_at: typeof l.returned_at })));
+        const loanIdNum = Number(loan_id);
+        const loan = loans.find(l => Number(l.loan_id) === loanIdNum && (l.returned_at === null || l.returned_at === 'null'));
+        console.log('[DEBUG] Tentando encontrar empréstimo ativo (preview): loan_id=', loanIdNum, 'Encontrado:', loan);
+        if (!loan) {
+            console.error('[ERROR] Empréstimo não encontrado ou já devolvido. loan_id:', loan_id, 'user_id:', user_id);
+            throw new Error('Empréstimo não encontrado ou já devolvido.');
+        }
+        // Busca regras
+        const rules = await RulesService.getRules();
+        console.log('[DEBUG] Valor de renewals (preview):', loan.renewals, 'Max:', rules.max_renewals);
+        if (loan.renewals >= rules.max_renewals) {
+            console.error('[ERROR] Limite de renovações atingido (preview). loan_id:', loan_id, 'renewals:', loan.renewals, 'max_renewals:', rules.max_renewals);
+            throw new Error('Limite de renovações atingido.');
+        }
+        // Calcula nova data de devolução (data atual + renewal_days)
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        now.setDate(now.getDate() + rules.renewal_days);
+        // Formata para string compatível com frontend
+        const due_date = now.toISOString();
+        return {
+            due_date,
+            message: `Nova data de devolução será ${due_date}`
+        };
     }
 }
 
