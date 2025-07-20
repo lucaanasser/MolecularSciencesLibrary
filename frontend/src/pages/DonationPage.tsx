@@ -1,7 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { BookHeart, Mail, Gift, PiggyBank } from "lucide-react";
+import { BookHeart, Mail, Gift, PiggyBank, Lightbulb, MessageCircle, ShoppingBag, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 
@@ -39,7 +39,7 @@ function SupportersCarousel() {
 	useEffect(() => {
 		if (!listRef.current) return;
 		listRef.current.style.transition = "transform 0.5s ease-in-out";
-		listRef.current.style.transform = `translateY(-${index * 3.5}rem)`;
+		listRef.current.style.transform = `translateY(-${index * 2.2}rem)`;
 
 		if (index === supporters.length) {
 			// Após a transição, reseta instantaneamente para o início, sem animação
@@ -61,10 +61,10 @@ function SupportersCarousel() {
 	}, [index]);
 
 	return (
-		<div className="text-center text-2xl md:text-4xl font-bold flex flex-wrap justify-center items-center gap-2">
+		<div className="text-center text-xl md:text-2xl font-semibold flex flex-wrap justify-center items-center gap-2">
 			<span className="text-black">Obrigado</span>
 			<div
-				className="overflow-hidden h-[17.5rem] relative"
+				className="overflow-hidden h-[12rem] relative"
 				style={{ width: "auto", minWidth: "12rem" }}
 			>
 				<div
@@ -74,7 +74,7 @@ function SupportersCarousel() {
 					{displaySupporters.map((supporter, i) => (
 						<div
 							key={i}
-							className={`h-[3.5rem] flex items-center justify-center ${
+							className={`h-[2.2rem] flex items-center justify-center font-bold ${
 								i === index + 2 ? "text-cm-purple" : "text-gray-400"
 							}`}
 						>
@@ -82,172 +82,189 @@ function SupportersCarousel() {
 						</div>
 					))}
 				</div>
-				<div className="absolute top-0 h-[3.5rem] w-full bg-gradient-to-b from-cm-bg to-transparent pointer-events-none" />
-				<div className="absolute bottom-0 h-[3.5rem] w-full bg-gradient-to-t from-cm-bg to-transparent pointer-events-none" />
+				<div className="absolute top-0 h-[4rem] w-full bg-gradient-to-b from-cm-bg to-transparent pointer-events-none" />
+				<div className="absolute bottom-0 h-[4rem] w-full bg-gradient-to-t from-cm-bg to-transparent pointer-events-none" />
 			</div>
 			<span className="text-black">pelo apoio!</span>
 		</div>
 	);
 }
 
-// Mock de produtos
-const products = [
-	{
-		name: "Caneca CM",
-		description: "Caneca personalizada do Ciências Moleculares. Ideal para café, chá ou decorar sua mesa.",
-		price: "R$ 35,00",
-		image: "https://images.unsplash.com/photo-1517685352821-92cf88aee5a5?auto=format&fit=crop&w=400&q=80", // imagem ilustrativa
-	},
-	{
-		name: "Caderno CM",
-		description: "Caderno exclusivo com capa do CM. Perfeito para suas anotações e estudos.",
-		price: "R$ 28,00",
-		image: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
-	},
-	{
-		name: "Adesivos CM",
-		description: "Kit com 5 adesivos divertidos do CM para personalizar seus itens.",
-		price: "R$ 12,00",
-		image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-	},
-];
+// CardTabs Section (adaptado do prompt)
+import React from "react";
+type Tab = 'Feedback' | 'Sugestões de livros' | 'Doação de Livros';
 
-const bentoColors = [
-	"bg-gradient-to-br from-pink-100 via-pink-50 to-purple-100",
-	"bg-gradient-to-br from-blue-100 via-cyan-50 to-green-100",
-	"bg-gradient-to-br from-yellow-100 via-orange-50 to-pink-100",
-];
+interface CardData {
+  title: string;
+  description: string;
+  image: string; // Caminho da imagem para cada tab
+  imageAlt?: string;
+}
 
+const cardContent: Record<Tab, CardData> = {
+  'Feedback': {
+    title: 'Envie seu feedback',
+    description: 'Ajude-nos a melhorar! Compartilhe suas sugestões, críticas ou ideias para tornar nossa biblioteca ainda melhor.',
+    image: '/images/feedback.png',
+    imageAlt: 'Feedback'
+  },
+  'Sugestões de livros': {
+    title: 'Sugira um livro',
+    description: 'Compartilhe títulos que você considera valiosos para enriquecer nosso acervo e oferecer novas perspectivas à comunidade.',
+    image: '/images/suggestion.png',
+    imageAlt: 'Sugestão de livros'
+  },
+  'Doação de Livros': {
+    title: 'Doe um livro',
+    description: 'Contribua para a disseminação do conhecimento. Doar livros em bom estado ajuda a expandir nosso alcance e recursos.',
+    image: '/images/donation.png',
+    imageAlt: 'Doação de livros'
+  }
+};
+
+// Novo componente de formulário reutilizável para as tabs
+const TabForm: React.FC<{ tab: Tab }> = ({ tab }) => {
+  // Define assunto e placeholder conforme a tab
+  let subjectPrefix = '';
+  let placeholder = '';
+  switch (tab) {
+    case 'Feedback':
+      subjectPrefix = 'Feedback';
+      placeholder = 'Compartilhe suas ideias, sugestões ou feedback...';
+      break;
+    case 'Sugestões de livros':
+      subjectPrefix = 'Sugestão de Livros';
+      placeholder = 'Indique o(s) livro(s) que gostaria de sugerir...';
+      break;
+    case 'Doação de Livros':
+      subjectPrefix = 'Doação de Livros';
+      placeholder = 'Descreva os livros que deseja doar ou tire suas dúvidas...';
+      break;
+  }
+
+  return (
+    <form className="space-y-4 mt-4">
+      <div>
+        <label htmlFor={`email-${tab}`} className="block text-sm font-medium text-gray-700 mb-2">
+          Seu email
+        </label>
+        <input
+          type="email"
+          id={`email-${tab}`}
+          name="email"
+          required
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent text-sm"
+          placeholder="seu.email@exemplo.com"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Assunto
+        </label>
+        <input
+          type="text"
+          value={subjectPrefix}
+          readOnly
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed text-sm"
+          tabIndex={-1}
+        />
+      </div>
+      <div>
+        <label htmlFor={`message-${tab}`} className="block text-sm font-medium text-gray-700 mb-2">
+          Mensagem
+        </label>
+        <textarea
+          id={`message-${tab}`}
+          name="message"
+          rows={4}
+          required
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent resize-none text-sm"
+          placeholder={placeholder}
+        />
+      </div>
+      <Button
+        type="submit"
+        className="w-full bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-xl font-bold py-3 flex items-center justify-center gap-2"
+        onClick={e => {
+          e.preventDefault();
+          const form = e.currentTarget.form;
+          if (form) {
+            const formData = new FormData(form);
+            const email = formData.get('email');
+            const message = formData.get('message');
+            const mailtoLink = `mailto:biblioteca.cm@usp.br?subject=${encodeURIComponent(subjectPrefix)}&body=${encodeURIComponent(`De: ${email}\n\n${message}`)}`;
+            window.location.href = mailtoLink;
+          }
+        }}
+      >
+        <Send className="h-4 w-4" />
+        ENVIAR
+      </Button>
+    </form>
+  );
+};
+
+const CardTabs: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<Tab>('Feedback');
+  const data = cardContent[activeTab];
+
+  return (
+    <div className="w-full max-w-7xl mx-auto my-16 px-4 sm:px-6 lg:px-8">
+      {/* Abas alinhadas à esquerda, estilo mais próximo dos cards */}
+      <div className="flex border-b border-gray-200 mb-0">
+        {(Object.keys(cardContent) as Tab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`py-2 px-5 font-semibold text-xl transition-colors border-b-2 -mb-px
+              ${
+                activeTab === tab
+                  ? 'text-cm-bg border-cm-purple bg-cm-purple'
+                  : 'text-gray-600 border-transparent hover:text-cm-purple hover:bg-gray-100'
+              }
+              rounded-t-xl
+            `}
+            style={{ outline: "none" }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+      <div className="border border-gray-200 rounded-b-2xl p-8 flex flex-col md:flex-row justify-between items-center bg-cm-bg shadow-md">
+        <div className="w-full md:w-[60%] md:pr-8">
+          <h2 className="text-2xl mb-3">{data.title}</h2>
+          <p className="text-gray-700 mb-4">{data.description}</p>
+          {/* Formulário específico da tab */}
+          <TabForm tab={activeTab} />
+        </div>
+        <div className="flex flex-col items-center mt-6 md:mt-0 w-full md:w-[40%]">
+          <img
+            src={data.image}
+            alt={data.imageAlt}
+            className="w-full max-w-xs md:max-w-none object-contain"
+            style={{ width: "100%" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const DonationPage = () => (
 	<div className="min-h-screen flex flex-col">
 		<Navigation />
-		{/* Roleta de agradecimento aos apoiadores */}
-		<div className="mt-24 flex flex-col items-center">
-			<h2 className="text-5xl font-bold mb-4">Apoiadores</h2>
+		
+		<CardTabs />
+
+		{/* Texto com número de apoiadores e incentivo */}
+		<div className="mt-18 flex flex-col items-center mb-24">
+			<h2 className="text-5xl text-center mb-8">
+				{supporters.length}+ pessoas já apoiaram a Biblioteca! 
+			</h2>
+			
+			{/* Roleta de agradecimento aos apoiadores movida para o final */}
 			<SupportersCarousel />
 		</div>
-		<section className="flex-1 bg-cm-bg py-20">
-			<div className="mx-auto px-4">
-				<div className="flex flex-col items-center text-center mb-12">
-					<BookHeart className="w-20 h-20 text-cm-purple mb-4" />
-					<h1 className="text-5xl font-bold mb-4">Ajude a Biblioteca</h1>
-					<p className="text-xl text-gray-700 max-w-2xl">
-						Sua colaboração é fundamental para mantermos nosso acervo atualizado e acessível a todos os estudantes do
-						Ciências Moleculares. Doe livros, colabore com ideias, seja voluntário ou contribua financeiramente!
-					</p>
-				</div>
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
-					{/* Card 1 - Doação de Livros */}
-					<div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-						<div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-cm-bg">
-							<Gift className="h-10 w-10 text-cm-bg" />
-						</div>
-						<h3 className="text-2xl mb-2">Doe Livros</h3>
-						<p className="text-gray-600 mb-4 text-base">
-							Tem livros usados ou novos que possam ajudar outros alunos? Sua doação faz a diferença!
-						</p>
-						<Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-							<a href="mailto:biblioteca.cm@usp.br?subject=Doação de Livros - Biblioteca CM">Entrar em contato</a>
-						</Button>
-					</div>
-					{/* Card 2 - Colabore com Ideias */}
-					<div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-						<div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
-							<Mail className="h-10 w-10 text-cm-bg" />
-						</div>
-						<h3 className="text-2xl mb-2">Colabore com Ideias</h3>
-						<p className="text-gray-600 mb-4 text-base">Sugestões de melhorias, projetos ou eventos? Fale conosco!</p>
-						<Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-							<a href="mailto:biblioteca.cm@usp.br?subject=Colaboração - Biblioteca CM">Enviar sugestão</a>
-						</Button>
-					</div>
-					{/* Card 3 - Doação Financeira */}
-					<div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-						<div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-purple border-8 border-cm-bg">
-							<PiggyBank className="h-10 w-10 text-cm-bg" />
-						</div>
-						<h3 className="text-2xl mb-2">Doação Financeira</h3>
-						<p className="text-gray-600 mb-4 text-base">
-							Contribua financeiramente para projetos, compra de livros e melhorias na biblioteca.
-						</p>
-						<Button asChild className="w-full bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-							<a href="mailto:biblioteca.cm@usp.br?subject=Doação Financeira - Biblioteca CM">Apoiar financeiramente</a>
-						</Button>
-					</div>
-				</div>
-				{/* Seção de Produtos à Venda - Bento Grid */}
-				<div className="mb-16">
-					<h2 className="text-3xl font-semibold mb-8 text-cm-purple text-center">Produtos à venda</h2>
-					<div
-						className="grid gap-6"
-						style={{
-							gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-							gridTemplateRows: "masonry",
-						}}
-					>
-						{products.map((product, idx) => (
-							<div
-								key={idx}
-								className={`
-									relative flex flex-col items-center text-center
-									rounded-3xl shadow-xl border-2 border-cm-bg/70
-									${bentoColors[idx % bentoColors.length]}
-									${idx === 0 ? "md:row-span-2 md:h-[370px]" : ""}
-									${idx === 1 ? "md:col-span-2 md:h-[220px]" : ""}
-									${idx === 2 ? "md:row-span-1 md:h-[180px]" : ""}
-									transition-transform hover:scale-105
-									overflow-hidden
-								`}
-								style={{
-									padding: idx === 0 ? "2.5rem 1.5rem" : "1.5rem 1rem",
-									boxShadow: "0 8px 32px 0 rgba(76, 34, 112, 0.10)",
-								}}
-							>
-								<img
-									src={product.image}
-									alt={product.name}
-									className={`
-										rounded-2xl border-4 border-cm-bg shadow-lg mb-2
-										${idx === 0 ? "w-28 h-28" : idx === 1 ? "w-20 h-20" : "w-16 h-16"}
-										bg-cm-bg object-cover
-									`}
-									style={{
-										marginTop: idx === 0 ? "1.5rem" : "2.5rem",
-										marginBottom: "0.5rem",
-									}}
-								/>
-								<h3 className="text-xl font-extrabold mb-1 text-cm-purple drop-shadow-sm">{product.name}</h3>
-								<p className="text-gray-700 mb-2 text-base font-medium max-w-xs mx-auto">
-									{product.description}
-								</p>
-								<span className="text-cm-purple font-bold text-lg mb-3 block">{product.price}</span>
-								<Button
-									asChild
-									className="bg-cm-purple/90 hover:bg-cm-purple text-cm-bg rounded-xl font-bold px-6 py-2 mt-auto shadow-md"
-									style={{
-										fontSize: "1rem",
-										marginTop: "0.5rem",
-										boxShadow: "0 2px 8px 0 rgba(108, 62, 165, 0.10)",
-									}}
-								>
-									<a href={`mailto:biblioteca.cm@usp.br?subject=Quero comprar: ${encodeURIComponent(product.name)}`}>
-										Quero este produto
-									</a>
-								</Button>
-							</div>
-						))}
-					</div>
-				</div>
-				<div className="text-center text-gray-700">
-					<p>
-						Toda ajuda é bem-vinda! Juntos, construímos uma biblioteca cada vez melhor para a comunidade do CM.
-					</p>
-					
-				</div>
-				
-			</div>
-		</section>
 		<Footer />
 	</div>
 );

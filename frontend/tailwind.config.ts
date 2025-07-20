@@ -25,7 +25,7 @@ export default {
         "cm-green": "#00c80e",
         "cm-blue": "#008cff",
         "cm-purple": "#b657b3",
-        "cm-bg": "#fffdf8",
+        "cm-bg": "#ffffff",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
