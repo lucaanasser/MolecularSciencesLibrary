@@ -155,9 +155,55 @@ const TabForm: React.FC<{ tab: Tab }> = ({ tab }) => {
 
   // Campos extras para triagem de doação
   const isDonation = tab === 'Doação de exemplares';
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   return (
-    <form className="space-y-4 mt-4">
+    <form className="space-y-4 mt-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setSuccess(null);
+        setError(null);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
+        const email = formData.get("email") as string;
+        let body = "";
+        if (isDonation) {
+          body =
+            `Título: ${formData.get("titulo")}\n` +
+            `Autor: ${formData.get("autor")}\n` +
+            `Área: ${formData.get("area")}\n` +
+            `Estado: ${formData.get("estado")}\n` +
+            `Motivo: ${formData.get("motivo")}\n` +
+            `Mensagem: ${formData.get("message")}`;
+        } else {
+          body = `${formData.get("message")}`;
+        }
+        try {
+          const res = await fetch("/api/forms/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email,
+              subject: subjectPrefix,
+              message: body,
+              type: tab,
+            }),
+          });
+          if (!res.ok) {
+            throw new Error("Erro ao enviar. Tente novamente mais tarde.");
+          }
+          setSuccess("Mensagem enviada! Você receberá um email de confirmação.");
+          form.reset();
+        } catch (err: any) {
+          setError("Erro ao enviar. Tente novamente mais tarde.");
+        } finally {
+          setLoading(false);
+        }
+      }}
+    >
       <div>
         <label htmlFor={`email-${tab}`} className="block text-sm font-medium text-gray-700 mb-2">
           Seu email
@@ -274,32 +320,13 @@ const TabForm: React.FC<{ tab: Tab }> = ({ tab }) => {
       <Button
         type="submit"
         className="w-full bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-xl font-bold py-3 flex items-center justify-center gap-2"
-        onClick={e => {
-          e.preventDefault();
-          const form = e.currentTarget.form;
-          if (form) {
-            const formData = new FormData(form);
-            const email = formData.get('email');
-            let body = '';
-            if (isDonation) {
-              body =
-                `Título: ${formData.get('titulo')}\n` +
-                `Autor: ${formData.get('autor')}\n` +
-                `Área: ${formData.get('area')}\n` +
-                `Estado: ${formData.get('estado')}\n` +
-                `Motivo: ${formData.get('motivo')}\n` +
-                `Mensagem: ${formData.get('message')}`;
-            } else {
-              body = `${formData.get('message')}`;
-            }
-            const mailtoLink = `mailto:biblioteca.cm@usp.br?subject=${encodeURIComponent(subjectPrefix)}&body=${encodeURIComponent(`De: ${email}\n\n${body}`)}`;
-            window.location.href = mailtoLink;
-          }
-        }}
+        disabled={loading}
       >
         <Send className="h-4 w-4" />
-        ENVIAR
+        {loading ? "Enviando..." : "ENVIAR"}
       </Button>
+      {success && <div className="text-green-600 mt-2">{success}</div>}
+      {error && <div className="text-red-600 mt-2">{error}</div>}
     </form>
   );
 };

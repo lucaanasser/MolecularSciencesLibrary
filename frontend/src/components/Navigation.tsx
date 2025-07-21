@@ -137,9 +137,6 @@ const Navigation: React.FC = () => {
                       ? "Painel PróAluno"
                       : "Perfil"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:bg-neutral-100 focus:bg-neutral-100">
-                    <Link to="/history" className="w-full">Histórico</Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600 hover:bg-red-50 focus:bg-red-50 hover:text-red-700 focus:text-red-700">
                     Sair
                   </DropdownMenuItem>
@@ -256,16 +253,6 @@ const Navigation: React.FC = () => {
                       ? "Painel PróAluno"
                       : "Perfil"}
                   </button>
-                  <Link
-                    to="/history"
-                    className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      console.log("🟢 [Navigation] Menu mobile fechado (Histórico)");
-                    }}
-                  >
-                    Histórico
-                  </Link>
                   <button
                     onClick={() => {
                       handleLogout();
