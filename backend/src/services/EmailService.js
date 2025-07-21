@@ -159,72 +159,6 @@ class EmailService {
     }
 
     /**
-     * Envia email de lembrete de atraso
-     */
-    async sendOverdueReminderEmail({ user_id, books }) {
-        const user = await usersModel.getUserById(user_id);
-        if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
-            return false;
-        }
-
-        const subject = 'Lembrete: Devolução pendente de livro na Biblioteca CM';
-        const booksList = books.map(b =>
-            `<li><b>${b.book_title || b.book_id}</b> (Data limite: ${new Date(b.due_date).toLocaleDateString('pt-BR')})</li>`
-        ).join('');
-        const textBooksList = books.map(b =>
-            `- ${b.book_title || b.book_id} (Data limite: ${new Date(b.due_date).toLocaleDateString('pt-BR')})`
-        ).join('\n');
-
-        const htmlContent = `
-            <p>Olá!</p>
-            <p>Este é um lembrete amigável de que o(s) livro(s) abaixo ainda não foram devolvidos e estão em atraso:</p>
-            <ul>${booksList}</ul>
-            <div style="text-align: center;">
-                <img src="cid:atraso" alt="Atraso" style="height: 350px; margin-bottom: 10px;" />
-            </div>
-            <p>Por favor, devolva o(s) livro(s) o quanto antes para evitar multas e permitir que outros colegas também possam utilizá-los.</p>
-            <p>Se já devolveu, desconsidere este aviso.</p>
-            <div style="margin-top: 30px; text-align: center;">
-                <span style="font-size: 48px;"></span>
-                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-                    Sua colaboração faz a diferença! 
-                </div>
-            </div>
-            <p><strong>Obrigado!</strong><br>
-            Equipe Biblioteca Ciências Moleculares</p>
-        `;
-
-        const textContent = `Olá!\n\nEste é um lembrete amigável de que o(s) livro(s) abaixo ainda não foram devolvidos e estão em atraso:\n${textBooksList}\n\nPor favor, devolva o(s) livro(s) o quanto antes para evitar multas e permitir que outros colegas também possam utilizá-los.\n\nSe já devolveu, desconsidere este aviso.\n\nObrigado!\nEquipe Biblioteca Ciências Moleculares`;
-
-        const html = this.generateEmailTemplate({ 
-            subject, 
-            content: htmlContent,
-            isAutomatic: true 
-        });
-
-        return await this.sendMail({
-            to: user.email,
-            subject,
-            text: textContent,
-            html,
-            type: 'overdue_reminder',
-            attachments: [
-                {
-                    filename: 'overdue.png',
-                    path: './public/images/overdue.png',
-                    cid: 'atraso'
-                },
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
-        });
-    }
-
-    /**
      * Envia email de "cutucada" quando alguém quer um livro
      */
     async sendNudgeEmail({ user_id, requester_name, book_title }) {
@@ -400,52 +334,6 @@ class EmailService {
                     path: './public/images/welcome.png',
                     cid: 'boasvindas'
                 },
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
-        });
-    }
-
-    /**
-     * Envia email de notificação personalizada
-     */
-    async sendNotificationEmail({ user_id, type, message, subject = null }) {
-        const user = await usersModel.getUserById(user_id);
-        if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
-            return false;
-        }
-
-        const emailSubject = subject || `Nova notificação - ${type}`;
-        
-        const htmlContent = `
-            <h2>Nova Notificação</h2>
-            <p><strong>Tipo:</strong> ${type}</p>
-            <p><strong>Mensagem:</strong> ${message}</p>
-            <hr>
-            <p style="font-size: 12px; color: #666;">
-                Esta é uma notificação automática da Biblioteca do CM.
-            </p>
-        `;
-
-        const textContent = `Nova Notificação\n\nTipo: ${type}\nMensagem: ${message}\n\nEsta é uma notificação automática da Biblioteca do CM.`;
-
-        const html = this.generateEmailTemplate({ 
-            subject: emailSubject, 
-            content: htmlContent,
-            isAutomatic: true 
-        });
-
-        return await this.sendMail({
-            to: user.email,
-            subject: emailSubject,
-            text: textContent,
-            html,
-            type: 'notification',
-            attachments: [
                 {
                     filename: 'Biblioteca do CM.png',
                     path: './public/images/Biblioteca do CM.png',
