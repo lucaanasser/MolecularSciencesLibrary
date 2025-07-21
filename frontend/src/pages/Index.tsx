@@ -201,7 +201,7 @@ const Index = () => {
               <div className="flex flex-col items-center mb-4">
               </div>
               <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-                <Link to="/virtual-shelf">Buscar Livros</Link>
+                <Link to="/search">Buscar Livros</Link>
               </Button>
             </div>
             {/* Card 2 */}
@@ -211,12 +211,12 @@ const Index = () => {
               </div>
               <h3 className="text-2xl mb-2">Gerencie seus empréstimos</h3>
               <p className="text-gray-600 mb-4 text-base">
-                Acesse a Área do Usuário para verificar prazos de empréstimo e renovar livros com autonomia e praticidade.
+                Acesse a "Área do Usuário" para verificar prazos de empréstimo e renovar livros com autonomia e praticidade.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
               <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-                <Link to="/search">Fazer Login</Link>
+                <Link to="/login">Fazer Login</Link>
               </Button>
             </div>
             {/* Card 3 */}
@@ -226,12 +226,12 @@ const Index = () => {
               </div>
               <h3 className="text-2xl mb-2">Explore a Estante Virtual</h3>
               <p className="text-gray-600 mb-4 text-base">
-                Navegue virtualmente por todo o acervo da biblioteca.
+                Navegue virtualmente por todo o acervo da biblioteca de uma forma visual.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
               <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-                <Link to="/login">Explorar Estante</Link>
+                <Link to="/virtual-shelf">Explorar Estante</Link>
               </Button>
             </div>
           </div>

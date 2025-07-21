@@ -144,7 +144,7 @@ const LoginForm: React.FC = () => {
             <Button
               type="button"
               variant="link"
-              className="text-cm-blue px-0 text-sm"
+              className="text-cm-purple px-0 text-sm"
               onClick={handleForgotPassword}
               disabled={forgotLoading}
             >
@@ -153,7 +153,7 @@ const LoginForm: React.FC = () => {
           </div>
           <Button
             type="submit"
-            className="w-full mt-6 bg-cm-blue hover:bg-cm-blue/90 rounded-xl"
+            className="w-full mt-6 bg-cm-purple hover:bg-cm-purple/90 rounded-xl"
             disabled={isLoading}
           >
             {isLoading ? "Entrando..." : "Entrar"}
