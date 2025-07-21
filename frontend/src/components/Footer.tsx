@@ -16,9 +16,10 @@ const Footer: React.FC = () => {
   // Log de início de renderização
   console.log("🔵 [Footer] Renderizando rodapé");
   return (
-    <footer className="bg-cm-bg text-cm-bg py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <footer className="bg-gray-200 text-cm-bg py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        {/* Ajuste do grid para desktop: coluna do meio menor */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_0.6fr_1fr] gap-4">
           <div>
             <img
               src="images/logoestendido.png"
@@ -61,12 +62,12 @@ const Footer: React.FC = () => {
                   <p>Universidade de São Paulo</p>
                   <p>InovaUSP</p>
                   <p>Cidade Universitária</p>
-                  <p>biblioteca.cm@usp.br</p>
+                  <p>bibliotecamoleculares@gmail.com</p>
                 </address>
               </div>
             </div>
           </div>
-          {/* Desktop: Links e Contato em colunas separadas */}
+          {/* Desktop: Links com largura menor */}
           <div className="hidden md:block">
             <h4 className="text-lg text-black font-bebas mb-3">Links Rápidos</h4>
             <ul>
@@ -98,7 +99,7 @@ const Footer: React.FC = () => {
               <p>Universidade de São Paulo</p>
               <p>InovaUSP</p>
               <p>Cidade Universitária</p>
-              <p>biblioteca.cm@usp.br</p>
+              <p>bibliotecamoleculares@gmail.com</p>
             </address>
           </div>
         </div>
