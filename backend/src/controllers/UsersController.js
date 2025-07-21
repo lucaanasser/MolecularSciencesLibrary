@@ -32,15 +32,16 @@ class UsersController {
      */
     async authenticateUser(req, res) {
         try {
-            console.log("🔵 [authenticateUser] Dados recebidos:", req.body);
+            // Não logar senha recebida
+            console.log("🔵 [authenticateUser] Dados recebidos: email/NUSP recebido");
             const { email, NUSP, password } = req.body;
-            // Permitir login por email OU NUSP
             if ((!email && !NUSP) || !password) {
                 console.warn("🟡 [authenticateUser] Email/NUSP ou senha não fornecidos.");
                 return res.status(400).json({ error: 'Email ou NUSP e senha são obrigatórios.' });
             }
             const user = await usersService.authenticateUser(email || NUSP, password);
-            console.log("🟢 [authenticateUser] Usuário autenticado:", user);
+            // Nunca logar objeto completo do usuário
+            console.log("🟢 [authenticateUser] Usuário autenticado: id:", user.id, "NUSP:", user.NUSP, "email:", user.email);
             res.status(200).json(user);
         } catch (error) {
             console.error("🔴 [authenticateUser] Falha na autenticação:", error.message);
@@ -56,7 +57,8 @@ class UsersController {
             const { id } = req.params;
             console.log("🔵 [getUserById] Buscando usuário por id:", id);
             const user = await usersService.getUserById(id);
-            console.log("🟢 [getUserById] Usuário encontrado:", user);
+            // Nunca logar objeto completo do usuário
+            console.log("🟢 [getUserById] Usuário encontrado: id:", user.id, "NUSP:", user.NUSP, "email:", user.email);
             res.status(200).json(user);
         } catch (error) {
             console.error("🔴 [getUserById] Usuário não encontrado:", error.message);
@@ -71,6 +73,7 @@ class UsersController {
         try {
             console.log("🔵 [getAllUsers] Listando todos os usuários.");
             const users = await usersService.getAllUsers();
+            // Nunca logar objetos completos dos usuários
             console.log("🟢 [getAllUsers] Usuários encontrados:", users.length);
             res.status(200).json(users);
         } catch (error) {
@@ -100,15 +103,16 @@ class UsersController {
      */
     async getProfile(req, res) {
         try {
-            console.log("🔵 [getProfile] Token payload recebido:", req.user);
+            console.log("🔵 [getProfile] Token payload recebido: id:", req.user.id, "NUSP:", req.user.NUSP);
             let user = null;
             if (req.user.id) {
                 user = await usersService.getUserById(req.user.id);
-                console.log("🟢 [getProfile] Busca por id:", req.user.id, "Resultado:", user);
+                // Nunca logar objeto completo do usuário
+                console.log("🟢 [getProfile] Busca por id:", req.user.id, "Resultado: id:", user.id, "NUSP:", user.NUSP, "email:", user.email);
             }
             if (!user && req.user.NUSP) {
                 user = await usersService.getUserByNUSP(req.user.NUSP);
-                console.log("🟡 [getProfile] Busca por NUSP:", req.user.NUSP, "Resultado:", user);
+                console.log("🟡 [getProfile] Busca por NUSP:", req.user.NUSP, "Resultado: id:", user.id, "NUSP:", user.NUSP, "email:", user.email);
             }
             if (!user) throw new Error('Usuário não encontrado');
             res.status(200).json(user);

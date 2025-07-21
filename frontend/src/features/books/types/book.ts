@@ -19,8 +19,10 @@ export interface BookOption {
   area: string;        
   subarea: string | number;
   available: boolean;
+  is_reserved?: number;
 }
-  
+
+
 export interface BookFormData {
   title: string;
   authors: string;

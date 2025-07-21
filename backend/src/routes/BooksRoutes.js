@@ -102,4 +102,16 @@ router.post('/return', (req, res) => {
     booksController.returnBook(req, res);
 });
 
+// Define ou remove reserva didática
+router.post('/reserve', (req, res) => {
+    console.log("🔵 [BooksRoutes] POST /reserve - Definir/remover reserva didática");
+    booksController.setReservedStatus(req, res);
+});
+
+// Lista livros reservados didaticamente
+router.get('/reserved', (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /reserved - Listar livros reservados didaticamente");
+    booksController.getReservedBooks(req, res);
+});
+
 module.exports = router;

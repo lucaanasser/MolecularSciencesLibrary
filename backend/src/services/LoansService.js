@@ -48,6 +48,11 @@ class LoansService {
             console.warn(`🟡 [LoansService] Livro id ${book_id} não encontrado`);
             throw new Error('Livro não encontrado');
         }
+        // Verifica se o livro está reservado didaticamente
+        if (book.is_reserved === 1) {
+            console.warn(`🟡 [LoansService] Livro ${book_id} está reservado didaticamente e não pode ser emprestado.`);
+            throw new Error('Este livro está reservado didaticamente e não pode ser emprestado durante o semestre.');
+        }
 
         // 4. Verifica se NÃO existe empréstimo ativo para este livro
         const emprestimoAtivo = await LoansModel.hasActiveLoan(book_id);

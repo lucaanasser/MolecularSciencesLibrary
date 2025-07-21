@@ -165,7 +165,8 @@ class BooksService {
                 code,
                 title,
                 subtitle,
-                volume: volume && volume !== "null" ? parseInt(volume, 10) : null
+                volume: volume && volume !== "null" ? parseInt(volume, 10) : null,
+                is_reserved: bookData.is_reserved || 0
             };
 
             const result = await booksModel.insertBook(bookToInsert);
@@ -258,6 +259,30 @@ class BooksService {
         };
         console.log("🟢 [BooksService] Mapeamentos obtidos");
         return mappings;
+    }
+
+    async setReservedStatus(bookId, isReserved) {
+        try {
+            console.log(`🔵 [BooksService] Alterando status de reserva didática: bookId=${bookId}, isReserved=${isReserved}`);
+            await booksModel.setReservedStatus(bookId, isReserved);
+            console.log(`🟢 [BooksService] Status de reserva didática alterado: bookId=${bookId}, isReserved=${isReserved}`);
+            return { success: true, is_reserved: isReserved };
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao alterar status de reserva didática: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async getReservedBooks() {
+        try {
+            console.log(`🔵 [BooksService] Buscando livros reservados didaticamente`);
+            const books = await booksModel.getBooks(null, null, null, true);
+            console.log(`🟢 [BooksService] Livros reservados encontrados: ${books.length}`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksService] Erro ao buscar livros reservados:", error.message);
+            throw error;
+        }
     }
 }
 

@@ -164,6 +164,37 @@ class BooksController {
             res.status(500).json({ error: err.message });
         }
     }
+
+    /**
+     * Define o status de reserva didática de um livro
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async setReservedStatus(req, res) {
+        const { bookId, isReserved } = req.body;
+        try {
+            const result = await booksService.setReservedStatus(bookId, isReserved);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
+     * Lista todos os livros reservados
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async getReservedBooks(req, res) {
+        try {
+            const books = await booksService.getReservedBooks();
+            res.status(200).json(books);
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
 
 // Exporta uma instância única do controlador

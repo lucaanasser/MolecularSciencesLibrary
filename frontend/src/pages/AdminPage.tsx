@@ -22,6 +22,7 @@ import LoanRulesForm from "@/features/rules/components/LoanRulesForm";
 import LoanRulesView from "@/features/rules/components/LoanRulesView";
 import DonatorsList from "@/features/donators/components/DonatorsList";
 import DonatorForm from "@/features/donators/components/DonatorForm";
+import BookReservePanel from '@/features/books/components/BookReservePanel';
 
 // Log de início de renderização da página Admin
 console.log("🔵 [AdminPage] Renderizando painel administrativo");
@@ -601,16 +602,9 @@ const Settings = () => {
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Configurações</h2>
-      <p>Ajuste as configurações do sistema da biblioteca.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        <Card className="rounded-xl shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Configurações Gerais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full bg-gray-700 hover:bg-gray-800">Editar</Button>
-          </CardContent>
-        </Card>
+        {/* Painel de Reserva Didática substitui Configurações Gerais */}
+        <BookReservePanel />
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Regras de Empréstimo</CardTitle>

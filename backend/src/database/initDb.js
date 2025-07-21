@@ -60,7 +60,8 @@ db.serialize(() => {
             authors TEXT NOT NULL,
             edition INTEGER NOT NULL,
             volume INTEGER,
-            language INTEGER NOT NULL
+            language INTEGER NOT NULL,
+            is_reserved INTEGER DEFAULT 0
         )
     `, (err) => {
         if (err) {

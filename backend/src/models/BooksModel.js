@@ -11,8 +11,8 @@ const { executeQuery, getQuery, allQuery } = require('../database/db');
  * 🔴 Erro
  */
 class BooksModel {
-    async getBooks(category, subcategory, searchTerm) {
-        console.log(`🔵 [BooksModel] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
+    async getBooks(category, subcategory, searchTerm, onlyReserved = null) {
+        console.log(`🔵 [BooksModel] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}, onlyReserved=${onlyReserved}`);
         let query = `SELECT * FROM books`;
         const params = [];
         const conditions = [];
@@ -29,6 +29,10 @@ class BooksModel {
             conditions.push(`(title LIKE ? OR authors LIKE ? OR subtitle LIKE ?)`);
             params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
         }
+        if (onlyReserved !== null) {
+            conditions.push(`is_reserved = ?`);
+            params.push(onlyReserved ? 1 : 0);
+        }
         if (conditions.length > 0) {
             query += ` WHERE ` + conditions.join(' AND ');
         }
@@ -42,6 +46,19 @@ class BooksModel {
         }
     }
 
+    async setReservedStatus(bookId, isReserved) {
+        console.log(`🔵 [BooksModel] Alterando status de reserva didática: bookId=${bookId}, isReserved=${isReserved}`);
+        const query = `UPDATE books SET is_reserved = ? WHERE id = ?`;
+        try {
+            const result = await executeQuery(query, [isReserved ? 1 : 0, bookId]);
+            console.log(`🟢 [BooksModel] Status de reserva didática alterado: bookId=${bookId}, isReserved=${isReserved}`);
+            return result;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao alterar status de reserva didática:", error.message);
+            throw error;
+        }
+    }
+
     // Método para buscar todos os livros sem filtros
     async getAll() {
         console.log("🔵 [BooksModel] Buscando todos os livros");
@@ -51,8 +68,8 @@ class BooksModel {
     async insertBook(bookData) {
         console.log("🔵 [BooksModel] Inserindo livro:", bookData.title || bookData.code);
         const query = `
-            INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume, is_reserved)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const params = [
             bookData.id,
@@ -64,7 +81,8 @@ class BooksModel {
             bookData.code,
             bookData.title,
             bookData.subtitle,
-            bookData.volume
+            bookData.volume,
+            bookData.is_reserved || 0
         ];
         try {
             const result = await executeQuery(query, params);
