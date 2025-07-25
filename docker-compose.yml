@@ -4,14 +4,16 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"  
-      - "3443:3443"  
+      - "3001:3001"
+      - "3443:3443"
     volumes:
+      - ./backend:/app/backend
       - ./database:/app/database
-      - ./ssl:/app/ssl 
+      - ./ssl:/app/ssl
     env_file:
       - ./backend/.env
     environment:
+      - FRONTEND_URL=http://52.67.57.177:8080
       - DEBUG=True
       - DATABASE_URL=sqlite:///app/database/library.db
       - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
@@ -23,7 +25,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "8080:80"  
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./frontend:/app/frontend
+      - ./ssl:/etc/nginx/ssl
     depends_on:
       - backend
   cron:
