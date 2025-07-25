@@ -10,12 +10,12 @@ RUN apt-get update && \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install && npm install jsonwebtoken dotenv bcrypt nodemailer imap-simple mailparser bwip-js pdf-lib
+RUN npm install
 
 COPY . .
 
 USER node
 
-EXPOSE 3001  
+EXPOSE 3001 3443
 
 CMD ["sh", "-c", "node src/database/initDb.js && node src/main.js"]
