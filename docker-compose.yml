@@ -18,7 +18,8 @@ services:
       - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
       - NODE_OPTIONS=--use-openssl-ca
     user: "node"
-    entrypoint: ["/bin/sh", "-c", "mkdir -p /app/database && chown -R node:node /app/database && node src/database/initDb.js && node src/main.js"]
+    entrypoint: ["/bin/sh", "-c", "mkdir -p /app/database && node src/database/initDb.js && node src/main.js"]
+
   frontend:
     build:
       context: ./frontend
