@@ -286,7 +286,7 @@ class EmailService {
         const jwt = require('jsonwebtoken');
         const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
         const resetToken = jwt.sign({ id: user.id, email: user.email, type: 'first_access' }, SECRET, { expiresIn: '24h' });
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${resetToken}`;
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/redefinir-senha?token=${resetToken}`;
 
         let htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
@@ -353,7 +353,7 @@ class EmailService {
             return false;
         }
         const subject = 'Redefinição de senha - Biblioteca Ciências Moleculares';
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${resetToken}`;
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/redefinir-senha?token=${resetToken}`;
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Recebemos uma solicitação para redefinir sua senha. Para criar uma nova senha, clique no link abaixo:</p>
