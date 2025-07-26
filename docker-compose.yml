@@ -45,9 +45,9 @@ services:
     volumes:
       - ./ssl:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - backend
+
 
   certbot:
     image: certbot/certbot
