@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+RUN npm install vite-plugin-static-copy --save-dev
 RUN npm run build
 
 FROM nginx:alpine
