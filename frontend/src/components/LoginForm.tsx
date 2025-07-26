@@ -60,7 +60,7 @@ const LoginForm: React.FC = () => {
       } else if (data.role === "proaluno") {
         navigate("/proaluno");
       } else {
-        navigate("/profile");
+        navigate("/perfil");
       }
     } catch (err: any) {
       console.error("🔴 [LoginForm] Erro ao autenticar:", err.message);

@@ -28,14 +28,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/virtual-shelf" element={<VirtualShelfPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/buscar" element={<SearchPage />} />
+          <Route path="/estante-virtual" element={<VirtualShelfPage />} />
+          <Route path="/entrar" element={<LoginPage />} />
+          <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
           <Route path="/ajude" element={<DonationPage />} /> {/* nova rota */}
           {/* <Route path="/etiquetas" element={<GenerateLabelsPage />} /> */}
           <Route
-            path="/profile"
+            path="/perfil"
             element={
               <ProtectedRoute allowedRoles={["aluno", "admin", "proaluno"]}>
                 <ProfilePage />

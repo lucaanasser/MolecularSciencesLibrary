@@ -41,7 +41,7 @@ const Navigation: React.FC = () => {
     console.log("🔵 [Navigation] Logout iniciado");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    navigate("/login");
+    navigate("/entrar");
     console.log("🟢 [Navigation] Logout realizado e redirecionado para login");
   };
 
@@ -56,7 +56,7 @@ const Navigation: React.FC = () => {
     }
     else {
       console.log("🟢 [Navigation] Redirecionando para perfil");
-      navigate("/profile");
+      navigate("/perfil");
     }
   };
 
@@ -112,10 +112,10 @@ const Navigation: React.FC = () => {
             <Link to="/" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
               Início
             </Link>
-            <Link to="/search" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
+            <Link to="/buscar" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               Buscar
             </Link>
-            <Link to="/virtual-shelf" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
+            <Link to="/estante-virtual" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               Estante Virtual
             </Link>
             <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
@@ -144,7 +144,7 @@ const Navigation: React.FC = () => {
               </DropdownMenu>
             ) : (
               <Button variant={buttonVariant} size="sm" asChild className={buttonColors}>
-                <Link to="/login">
+                <Link to="/entrar"> 
                   <LogIn className="mr-2 h-4 w-4" /> Entrar
                 </Link>
               </Button>
@@ -208,7 +208,7 @@ const Navigation: React.FC = () => {
                 Início
               </Link>
               <Link
-                to="/search"
+                to="/buscar"
                 className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
                 onClick={() => {
                   setIsMobileMenuOpen(false);
@@ -218,7 +218,7 @@ const Navigation: React.FC = () => {
                 Buscar
               </Link>
               <Link
-                to="/virtual-shelf"
+                to="/estante-virtual"
                 className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
                 onClick={() => {
                   setIsMobileMenuOpen(false);
@@ -273,7 +273,7 @@ const Navigation: React.FC = () => {
                     className="border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white px-3 text-left"
                   >
                     <Link
-                      to="/login"
+                      to="/entrar"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         console.log("🟢 [Navigation] Menu mobile fechado (Entrar)");

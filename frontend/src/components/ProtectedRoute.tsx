@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   // Não autenticado
   if (!user || !user.token) {
     console.warn("🟡 [ProtectedRoute] Usuário não autenticado. Redirecionando para login.");
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/entrar" state={{ from: location }} replace />;
   }
 
   // Não autorizado

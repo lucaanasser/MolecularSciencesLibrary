@@ -184,7 +184,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
           {showVirtualShelfButton && (
             <button
               onClick={() => {
-                navigate(`/virtual-shelf?highlight=${encodeURIComponent(book.code)}`);
+                navigate(`/estante-virtual?highlight=${encodeURIComponent(book.code)}`);
               }}
               className="bg-cm-blue text-white px-4 py-2 rounded-xl hover:bg-cm-blue/80"
             >
