@@ -89,7 +89,7 @@ const Index = () => {
               Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
             </p>
             <Button asChild className="botao bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-2xl px-10 py-5 text-xl md:text-2xl font-bold shadow-lg">
-              <Link to="/search">Explorar Acervo</Link>
+              <Link to="/buscar">Explorar Acervo</Link>
             </Button>
           </div>
         </div>
@@ -113,7 +113,7 @@ const Index = () => {
                 explorar diferentes áreas do conhecimento.
               </p>
               <Button asChild className="bg-cm-orange hover:bg-cm-orange/90 rounded-2xl px-8 py-4 text-lg">
-                <Link to="/search">Explorar Acervo</Link>
+                <Link to="/buscar">Explorar Acervo</Link>
               </Button>
             </div>
             <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden">
@@ -201,7 +201,7 @@ const Index = () => {
               <div className="flex flex-col items-center mb-4">
               </div>
               <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-                <Link to="/search">Buscar Livros</Link>
+                <Link to="/buscar">Buscar Livros</Link>
               </Button>
             </div>
             {/* Card 2 */}
@@ -216,7 +216,7 @@ const Index = () => {
               <div className="flex flex-col items-center mb-4">
               </div>
               <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-                <Link to="/login">Fazer Login</Link>
+                <Link to="/entrar">Fazer Login</Link>
               </Button>
             </div>
             {/* Card 3 */}
@@ -231,7 +231,7 @@ const Index = () => {
               <div className="flex flex-col items-center mb-4">
               </div>
               <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
-                <Link to="/virtual-shelf">Explorar Estante</Link>
+                <Link to="/estante-virtual">Explorar Estante</Link>
               </Button>
             </div>
           </div>

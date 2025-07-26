@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
         return;
       }
       setSuccess(true);
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("/entrar"), 2000);
     } catch (err: any) {
       setError("Erro ao redefinir senha.");
     } finally {
