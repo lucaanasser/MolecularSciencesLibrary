@@ -12,11 +12,6 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-    require('vite-plugin-static-copy').default({
-      targets: [
-        { src: 'public/sitemap.xml', dest: '' }
-      ]
-    })
   ].filter(Boolean),
   resolve: {
     alias: {
