@@ -178,15 +178,27 @@ const BookSearch: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs ${
-                        book.exemplaresDisponiveis > 0
-                          ? "bg-cm-green/10 text-cm-green"
-                          : "bg-cm-red/10 text-cm-red"
-                      }`}
-                    >
-                      {book.exemplaresDisponiveis > 0 ? "Disponível" : "Emprestado"}
-                    </span>
+                    {/* Status do livro com cor e texto conforme solicitado */}
+                    {(() => {
+                      // Prioridade: atrasado > reservado > emprestado > disponível
+                      if (book.loanInfo && book.loanInfo.due_date && new Date(book.loanInfo.due_date) < new Date()) {
+                        return (
+                          <span className="px-3 py-1 rounded-full text-xs bg-cm-red/10 text-cm-red font-semibold">Atrasado</span>
+                        );
+                      } else if (book.is_reserved) {
+                        return (
+                          <span className="px-3 py-1 rounded-full text-xs bg-purple-100 text-purple-700 font-semibold">Reservado</span>
+                        );
+                      } else if (book.exemplaresDisponiveis === 0) {
+                        return (
+                          <span className="px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700 font-semibold">Emprestado</span>
+                        );
+                      } else {
+                        return (
+                          <span className="px-3 py-1 rounded-full text-xs bg-cm-green/10 text-cm-green font-semibold">Disponível</span>
+                        );
+                      }
+                    })()}
                   </div>
                   <div className="mt-2 text-xs text-gray-500">
                     {book.totalExemplares > 1 && (
