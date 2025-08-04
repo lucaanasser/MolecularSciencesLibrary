@@ -214,15 +214,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                {overdue && (
-                  <button
-                    className={`px-2 py-1 rounded bg-cm-blue text-white text-xs mt-2 disabled:opacity-50`}
-                    disabled={!canNudgeNow || nudgeLoading === item.loan_id}
-                    onClick={() => handleNudge(item)}
-                  >
-                    {nudgeLoading === item.loan_id ? "Enviando..." : canNudgeNow ? "Cutucar" : "Aguarde 1 dia"}
-                  </button>
-                )}
+                {/* Botão de nudge removido da Profile Page. */}
                 {!overdue && (
                   <button
                     className="flex items-center gap-2 bg-cm-blue text-white px-4 py-2 rounded hover:bg-cm-yellow disabled:opacity-50"

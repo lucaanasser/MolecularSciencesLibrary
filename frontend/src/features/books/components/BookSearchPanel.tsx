@@ -217,7 +217,7 @@ const BookSearch: React.FC = () => {
                       Detalhes
                     </Button>
                     {/* Botão de nudge para livros atrasados */}
-                    {book.loanInfo && book.loanInfo.due_date && new Date(book.loanInfo.due_date) < new Date() && (
+                    {book.overdue && (
                       <NudgeButton book={book} />
                     )}
                   </div>
