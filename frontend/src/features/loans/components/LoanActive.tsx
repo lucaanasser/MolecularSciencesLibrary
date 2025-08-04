@@ -211,14 +211,6 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                     onClick={() => handleNudge(item)}
                   >
                     {nudgeLoading === item.loan_id ? "Enviando..." : canNudgeNow ? "Cutucar" : "Aguarde 1 dia"}
-                  </button>
-                )}
-                {!overdue && (
-                  <button
-                    className="flex items-center gap-2 bg-cm-blue text-white px-4 py-2 rounded hover:bg-cm-yellow disabled:opacity-50"
-                    onClick={() => handlePreviewRenew(item)}
-                    disabled={renewLoading === item.loan_id}
-                  >
                     <RotateCcw className="w-4 h-4" />
                     {renewLoading === item.loan_id ? "Renovando..." : "Renovar"}
                   </button>
