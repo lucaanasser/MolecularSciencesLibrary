@@ -20,6 +20,9 @@ export interface BookOption {
   subarea: string | number;
   available: boolean;
   is_reserved?: number;
+  status?: string;
+  overdue?: boolean;
+  student_id?: string;
 }
 
 

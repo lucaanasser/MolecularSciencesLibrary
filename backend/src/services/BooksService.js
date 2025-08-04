@@ -184,13 +184,34 @@ class BooksService {
             console.log(`🔵 [BooksService] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
             const books = await booksModel.getBooks(category, subcategory, searchTerm);
             const borrowed = await booksModel.getBorrowedBooks();
-            const borrowedSet = new Set(
-                borrowed.map(b => b.book_id)
-            );
-            const result = books.map(book => ({
-                ...book,
-                available: !borrowedSet.has(book.id)
-            }));
+            const now = new Date();
+            // Mapeia empréstimos ativos por book_id
+            const borrowedMap = {};
+            borrowed.forEach(b => {
+                borrowedMap[b.book_id] = b;
+            });
+            const result = books.map(book => {
+                const loan = borrowedMap[book.id];
+                let overdue = false;
+                if (loan && loan.due_date) {
+                    const dueDate = new Date(loan.due_date);
+                    overdue = dueDate < now;
+                }
+                let status = "disponível";
+                if (book.is_reserved === 1) {
+                    status = "reserva didática";
+                } else if (loan && overdue) {
+                    status = "atrasado";
+                } else if (loan) {
+                    status = "emprestado";
+                }
+                return {
+                    ...book,
+                    available: !loan,
+                    overdue,
+                    status,
+                };
+            });
             console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);
             return result;
         } catch (error) {

@@ -107,81 +107,95 @@ export default function BookSearchList({
           <h3 className="font-medium">
             {mode === "remove" ? "Livros disponíveis para remoção:" : "Livros disponíveis:"}
           </h3>
-          {Object.entries(grouped).map(([code, exemplares]) => (
-            <div key={code} className="border rounded p-2 flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <b>{exemplares[0].title}</b>
-                  {exemplares[0].authors && <> – {exemplares[0].authors}</>}
-                  {exemplares[0].edition && <> (Edição: {exemplares[0].edition})</>}
-                  {exemplares[0].volume && <> Vol. {exemplares[0].volume}</>}
+          {Object.entries(grouped).map(([code, exemplares]) => {
+            const exemplar = exemplares[0];
+            let statusColor = "text-gray-500";
+            if (exemplar.status === "disponível") statusColor = "text-green-600";
+            else if (exemplar.status === "reserva didática") statusColor = "text-[#641161]";
+            else if (exemplar.status === "atrasado") statusColor = "text-red-600";
+            else if (exemplar.status === "emprestado") statusColor = "text-gray-500";
+            return (
+              <div key={code} className="border rounded p-2 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <b>{exemplar.title}</b>
+                    {exemplar.authors && <> – {exemplar.authors}</>}
+                    {exemplar.edition && <> (Edição: {exemplar.edition})</>}
+                    {exemplar.volume && <> Vol. {exemplar.volume}</>}
+                    <span className={`ml-2 font-semibold ${statusColor}`}>{exemplar.status}</span>
+                  </div>
+                  {mode === "remove" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setOpenGroup(openGroup === code ? null : code);
+                      }}
+                    >
+                      {openGroup === code ? "Fechar Exemplares" : "Ver Exemplares"}
+                    </Button>
+                  )}
+                  {mode === "add" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onSelectBook(exemplar, "exemplar")}
+                        className="bg-cm-blue text-white px-2 py-1 rounded"
+                      >
+                        Adicionar Novo Exemplar
+                      </button>
+                      <button
+                        onClick={() => onAddNewVolume ? onAddNewVolume(exemplar) : onSelectBook(exemplar, "volume")}
+                        className="bg-cm-green text-white px-2 py-1 rounded"
+                      >
+                        Adicionar Novo Volume
+                      </button>
+                      {exemplar.status === "atrasado" && (
+                        <button
+                          onClick={() => {
+                            fetch(`/api/notifications/nudge`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ user_id: exemplar.student_id, book_title: exemplar.title })
+                            })
+                              .then(res => res.json())
+                              .then(() => {
+                                alert("Cutucada enviada!");
+                              })
+                              .catch(() => alert("Erro ao enviar cutucada"));
+                          }}
+                          className="bg-red-600 text-white px-2 py-1 rounded font-bold"
+                        >
+                          Cutucar
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {mode === "remove" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      console.log("🟢 [BookSearchList] Ver exemplares clicado:", code);
-                      setOpenGroup(openGroup === code ? null : code);
-                    }}
-                  >
-                    {openGroup === code ? "Fechar Exemplares" : "Ver Exemplares"}
-                  </Button>
-                )}
-                {mode === "add" && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        console.log("🟢 [BookSearchList] Adicionar novo exemplar clicado:", exemplares[0]);
-                        onSelectBook(exemplares[0], "exemplar");
-                      }}
-                      className="bg-cm-blue text-white px-2 py-1 rounded"
-                    >
-                      Adicionar Novo Exemplar
-                    </button>
-                    <button
-                      onClick={() => {
-                        console.log("🟢 [BookSearchList] Adicionar novo volume clicado:", exemplares[0]);
-                        if (onAddNewVolume) {
-                          onAddNewVolume(exemplares[0]);
-                        } else {
-                          onSelectBook(exemplares[0], "volume");
-                        }
-                      }}
-                      className="bg-cm-green text-white px-2 py-1 rounded"
-                    >
-                      Adicionar Novo Volume
-                    </button>
+                {mode === "remove" && openGroup === code && (
+                  <div className="mt-2 space-y-2">
+                    {exemplares.map(exemplar => (
+                      <div key={exemplar.id} className="flex items-center justify-between border rounded px-2 py-1">
+                        <div>
+                          <span className="font-medium">Exemplar {exemplar.exemplar}</span>
+                          {exemplar.language && <> | Idioma: {LANGUAGE_MAP[Number(exemplar.language)] || exemplar.language}</>}
+                          {exemplar.edition && <> | Edição: {exemplar.edition}</>}
+                          {exemplar.volume && <> | Volume: {exemplar.volume}</>}
+                          {exemplar.subtitle && <> | {exemplar.subtitle}</>}
+                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-red-500 text-white"
+                          onClick={() => onSelectBook(exemplar)}
+                        >
+                          Remover
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-              {mode === "remove" && openGroup === code && (
-                <div className="mt-2 space-y-2">
-                  {exemplares.map(exemplar => (
-                    <div key={exemplar.id} className="flex items-center justify-between border rounded px-2 py-1">
-                      <div>
-                        <span className="font-medium">Exemplar {exemplar.exemplar}</span>
-                        {exemplar.language && <> | Idioma: {LANGUAGE_MAP[Number(exemplar.language)] || exemplar.language}</>}
-                        {exemplar.edition && <> | Edição: {exemplar.edition}</>}
-                        {exemplar.volume && <> | Volume: {exemplar.volume}</>}
-                        {exemplar.subtitle && <> | {exemplar.subtitle}</>}
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-red-500 text-white"
-                        onClick={() => {
-                          console.log("🟢 [BookSearchList] Remover exemplar clicado:", exemplar);
-                          onSelectBook(exemplar);
-                        }}
-                      >
-                        Remover
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
