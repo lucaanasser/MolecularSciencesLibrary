@@ -181,7 +181,7 @@ const BookSearch: React.FC = () => {
                     {/* Status do livro com cor e texto conforme solicitado */}
                     {(() => {
                       // Prioridade: atrasado > reservado > emprestado > disponível
-                      if (book.loanInfo && book.loanInfo.due_date && new Date(book.loanInfo.due_date) < new Date()) {
+                      if (book.overdue) {
                         return (
                           <span className="px-3 py-1 rounded-full text-xs bg-cm-red/10 text-cm-red font-semibold">Atrasado</span>
                         );
