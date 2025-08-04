@@ -169,9 +169,24 @@ export default function LoanActive({ userId }: LoanActiveProps) {
 
   return (
     <div className="space-y-4">
-      {activeLoans.map((item: Loan) => {
+      {activeLoans.map((item: any) => {
         const overdue = isOverdue(item);
         const canNudgeNow = canNudge(item);
+
+        // Determina status e cor
+        let statusText = "Disponível";
+        let statusColor = "bg-cm-green/20 text-cm-green";
+        if (item.is_reserved) {
+          statusText = "Reservado";
+          statusColor = "bg-purple-200 text-purple-700";
+        } else if (overdue) {
+          statusText = "Atrasado";
+          statusColor = "bg-cm-red/20 text-cm-red";
+        } else if (!item.returned_at) {
+          statusText = "Emprestado";
+          statusColor = "bg-yellow-200 text-yellow-700";
+        }
+
         return (
           <div
             key={item.loan_id}
@@ -195,15 +210,10 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                       <span>Devolução: {formatDate(item.returned_at)}</span>
                     </div>
                   )}
-                  {overdue && (
-                    <span className="ml-2 text-cm-red font-semibold">Atrasado</span>
-                  )}
+                  <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>{statusText}</span>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="px-3 py-1 rounded-full text-xs bg-cm-yellow/10 text-cm-orange">
-                  Em andamento
-                </span>
                 {overdue && (
                   <button
                     className={`px-2 py-1 rounded bg-cm-blue text-white text-xs mt-2 disabled:opacity-50`}
@@ -211,6 +221,14 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                     onClick={() => handleNudge(item)}
                   >
                     {nudgeLoading === item.loan_id ? "Enviando..." : canNudgeNow ? "Cutucar" : "Aguarde 1 dia"}
+                  </button>
+                )}
+                {!overdue && (
+                  <button
+                    className="flex items-center gap-2 bg-cm-blue text-white px-4 py-2 rounded hover:bg-cm-yellow disabled:opacity-50"
+                    onClick={() => handlePreviewRenew(item)}
+                    disabled={renewLoading === item.loan_id}
+                  >
                     <RotateCcw className="w-4 h-4" />
                     {renewLoading === item.loan_id ? "Renovando..." : "Renovar"}
                   </button>

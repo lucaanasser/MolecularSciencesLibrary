@@ -1,4 +1,3 @@
-// filepath: /home/luca/BibliotecaCM/frontend/src/features/books/components/BookSearchPanel.tsx
 import useBookSearchPage from "../hooks/useBookSearch";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useState, useMemo } from "react";
 import BookDetailsModal from "./BookDetailsModal";
+import NudgeButton from "./NudgeButton";
 
 /**
  * Painel de busca de livros.
@@ -193,7 +193,7 @@ const BookSearch: React.FC = () => {
                       <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
                     )}
                   </div>
-                  <div className="mt-4 flex justify-end">
+                  <div className="mt-4 flex justify-end gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -204,6 +204,10 @@ const BookSearch: React.FC = () => {
                     >
                       Detalhes
                     </Button>
+                    {/* Botão de nudge para livros atrasados */}
+                    {book.loanInfo && book.loanInfo.due_date && new Date(book.loanInfo.due_date) < new Date() && (
+                      <NudgeButton book={book} />
+                    )}
                   </div>
                 </div>
               ))}

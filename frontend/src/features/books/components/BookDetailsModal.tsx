@@ -25,123 +25,15 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
   showVirtualShelfButton = true,
 }) => {
   const navigate = useNavigate();
-  const [loanInfo, setLoanInfo] = useState<any>(null);
-  const [nudgeLoading, setNudgeLoading] = useState(false);
-  const [nudgeSuccess, setNudgeSuccess] = useState("");
-  const [nudgeError, setNudgeError] = useState("");
-  const [nudgeTimestamp, setNudgeTimestamp] = useState<string | null>(null);
+  // ...existing code...
 
   if (!book) return null;
 
   console.log("🔵 [BookDetailsModal] Renderizando modal para livro:", book?.title);
 
-  // Carrega informações de empréstimo quando um livro é selecionado
-  useEffect(() => {
-    if (book && !book.available) {
-      const nudgeKey = `nudge_${book.id}`;
-      setNudgeTimestamp(localStorage.getItem(nudgeKey));
-      fetchLoanInfo(book.id);
-    } else {
-      setLoanInfo(null);
-      setNudgeTimestamp(null);
-    }
-  }, [book]);
+  // ...existing code...
 
-  const fetchLoanInfo = async (bookId: number) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/books/${bookId}/loan-info`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setLoanInfo(data);
-      }
-    } catch (error) {
-      console.error("🔴 [BookDetailsModal] Erro ao buscar informações de empréstimo:", error);
-    }
-  };
-
-  const isOverdue = (loanInfo: any) => {
-    if (!loanInfo?.due_date) return false;
-    return new Date(loanInfo.due_date) < new Date();
-  };
-
-  const canNudge = () => {
-    if (!nudgeTimestamp) return true;
-    const last = new Date(nudgeTimestamp);
-    return (Date.now() - last.getTime()) > 24 * 60 * 60 * 1000;
-  };
-
-  const handleNudge = async () => {
-    if (!loanInfo) return;
-    setNudgeLoading(true);
-    setNudgeError("");
-    setNudgeSuccess("");
-    try {
-      const token = localStorage.getItem("token");
-      const currentUser = JSON.parse(localStorage.getItem("currentUser") || '{}');
-      const requester_name = currentUser?.name || undefined;
-      const res = await fetch("/api/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          user_id: loanInfo.student_id,
-          type: "nudge",
-          message: "nudge",
-          sendEmail: true,
-          metadata: {
-            book_title: book.title,
-            book_id: book.id,
-            loan_id: loanInfo.loan_id,
-            requester_name
-          }
-        })
-      });
-      if (!res.ok) throw new Error("Erro ao cutucar usuário");
-      const nudgeKey = `nudge_${book.id}`;
-      localStorage.setItem(nudgeKey, new Date().toISOString());
-      setNudgeTimestamp(new Date().toISOString());
-      setNudgeSuccess("Cutucada enviada com sucesso!");
-    } catch (e: any) {
-      setNudgeError(e.message || "Erro ao cutucar");
-    } finally {
-      setNudgeLoading(false);
-    }
-  };
-
-  const getAvailabilityDisplay = () => {
-    // Para livros com múltiplos exemplares (como no BookSearchPanel)
-    if (book.totalExemplares && book.exemplaresDisponiveis !== undefined) {
-      return {
-        text: book.exemplaresDisponiveis > 0 ? "Disponível" : "Emprestado",
-        className: book.exemplaresDisponiveis > 0 ? "text-cm-green" : "text-cm-red",
-        showCount: book.totalExemplares > 1,
-        countText: `${book.exemplaresDisponiveis}/${book.totalExemplares} exemplares disponíveis`
-      };
-    }
-    
-    // Para livros simples (como no VirtualBookshelfPanel)
-    return {
-      text: book.available ? "Disponível" : "Emprestado",
-      className: book.available ? "text-cm-green" : "text-cm-red",
-      showCount: false,
-      countText: ""
-    };
-  };
-
-  const availability = getAvailabilityDisplay();
-  const shouldShowNudge = () => {
-    // Para livros com múltiplos exemplares
-    if (book.totalExemplares && book.exemplaresDisponiveis !== undefined) {
-      return book.exemplaresDisponiveis < book.totalExemplares && loanInfo && isOverdue(loanInfo);
-    }
-    // Para livros simples
-    return !book.available && loanInfo && isOverdue(loanInfo);
-  };
+  // ...existing code...
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -155,29 +47,18 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
           
           {showAvailabilityText && (
             <>
-              <p className={`font-semibold ${availability.className}`}>
-                {availability.text}
+              <p className="font-semibold">
+                {book.exemplaresDisponiveis !== undefined && book.totalExemplares !== undefined
+                  ? `${book.exemplaresDisponiveis > 0 ? "Disponível" : "Emprestado"}`
+                  : book.available ? "Disponível" : "Emprestado"}
               </p>
-              {availability.showCount && (
-                <p className="mt-2 text-sm">{availability.countText}</p>
+              {book.totalExemplares > 1 && (
+                <p className="mt-2 text-sm">{`${book.exemplaresDisponiveis}/${book.totalExemplares} exemplares disponíveis`}</p>
               )}
             </>
           )}
 
-          {/* Botão de cutucar para livros atrasados */}
-          {shouldShowNudge() && (
-            <div className="mt-4">
-              <Button
-                className="bg-cm-blue text-white"
-                disabled={!canNudge() || nudgeLoading}
-                onClick={handleNudge}
-              >
-                {nudgeLoading ? "Enviando..." : canNudge() ? "Cutucar" : "Aguarde 1 dia"}
-              </Button>
-              {nudgeSuccess && <div className="text-green-600 mt-2">{nudgeSuccess}</div>}
-              {nudgeError && <div className="text-red-600 mt-2">{nudgeError}</div>}
-            </div>
-          )}
+          {/* ...existing code... */}
         </div>
         
         <div className="flex justify-between gap-2 mt-4">
