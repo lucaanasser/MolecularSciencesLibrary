@@ -113,7 +113,7 @@ export default function BookSearchList({
             if (exemplar.status === "disponível") statusColor = "text-green-600";
             else if (exemplar.status === "reserva didática") statusColor = "text-[#641161]";
             else if (exemplar.status === "atrasado") statusColor = "text-red-600";
-            else if (exemplar.status === "emprestado") statusColor = "text-gray-500";
+            else if (exemplar.status === "emprestado") statusColor = "text-yellow-500";
             return (
               <div key={code} className="border rounded p-2 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
