@@ -32,14 +32,14 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          user_id: book.loanInfo.student_id,
+          user_id: book.student_id,
           type: "nudge",
           message: "nudge",
           sendEmail: true,
           metadata: {
             book_title: book.title,
             book_id: book.id,
-            loan_id: book.loanInfo.loan_id,
+            loan_id: book.loan_id,
             requester_name
           }
         })

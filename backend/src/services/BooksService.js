@@ -210,6 +210,8 @@ class BooksService {
                     available: !loan,
                     overdue,
                     status,
+                    student_id: loan ? loan.student_id : null,
+                    loan_id: loan ? loan.loan_id : null,
                 };
             });
             console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);
