@@ -173,16 +173,16 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       {activeLoans.map((item: Loan) => {
         const overdue = isOverdue(item);
         let statusText = "Disponível";
-        let statusColor = "bg-cm-green/20 text-cm-green";
+        let statusColor = "bg-cm-green/10 text-cm-green";
         if (item.is_reserved === 1) {
           statusText = "Reservado";
           statusColor = "bg-purple-200 text-purple-700";
         } else if (overdue) {
           statusText = "Atrasado";
-          statusColor = "bg-cm-red/20 text-cm-red";
+          statusColor = "bg-cm-red/10 text-cm-red";
         } else if (!item.returned_at) {
           statusText = "Emprestado";
-          statusColor = "bg-yellow-200 text-yellow-700";
+          statusColor = "bg-cm-yellow/10 text-cm-orange";
         }
         return (
           <LoanItem
