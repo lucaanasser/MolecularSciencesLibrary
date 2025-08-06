@@ -163,7 +163,7 @@ const BookSearch: React.FC = () => {
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200"
+                  className="bg-cm-blue/100 rounded-2xl p-4 shadow-lg border border-gray-200"
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -220,7 +220,7 @@ const BookSearch: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-xl text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
+                      className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
                       onClick={() => {
                         setSelectedBook(book);
                       }}
