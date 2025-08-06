@@ -35,12 +35,12 @@ class PWAInstaller {
     if (!installButton) {
       installButton = document.createElement('button');
       installButton.id = 'pwa-install-button';
-      installButton.innerHTML = '📱 Instalar App';
+      installButton.innerHTML = 'Instalar App';
       installButton.style.cssText = `
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background: #1e293b;
+        background: #7c3aed;
         color: white;
         border: none;
         padding: 12px 20px;
