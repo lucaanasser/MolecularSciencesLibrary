@@ -159,7 +159,7 @@ const BookSearch: React.FC = () => {
           {isLoading ? (
             <div className="text-center py-8">Carregando livros...</div>
           ) : groupedBooks.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
@@ -183,19 +183,19 @@ const BookSearch: React.FC = () => {
                       // Prioridade: atrasado > reservado > emprestado > disponível
                       let color = "bg-cm-green";
                       let text = "Disponível";
-                      let textColor = "text-cm-green";
+                      let textColor = "text-white";
                       if (book.overdue) {
                         color = "bg-cm-red";
                         text = "Atrasado";
-                        textColor = "text-cm-red";
+                        textColor = "text-white";
                       } else if (book.is_reserved) {
                         color = "bg-purple-700";
                         text = "Reservado";
-                        textColor = "text-purple-700";
+                        textColor = "text-white";
                       } else if (book.exemplaresDisponiveis === 0) {
                         color = "bg-yellow-400";
                         text = "Emprestado";
-                        textColor = "text-yellow-700";
+                        textColor = "text-white";
                       }
                       return (
                         <span
