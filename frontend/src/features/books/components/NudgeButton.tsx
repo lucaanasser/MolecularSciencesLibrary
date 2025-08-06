@@ -58,20 +58,26 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
   return (
     <div className="flex flex-col items-end">
       <button
-        className={`group flex items-center transition-all duration-200 bg-cm-purple text-white font-semibold rounded-full focus:outline-none shadow-sm px-0 w-8 h-8 overflow-hidden hover:px-4 hover:w-auto disabled:opacity-60 disabled:cursor-not-allowed`}
+        className={`group flex items-center justify-center transition-all duration-200 bg-white text-cm-purple font-semibold rounded-full focus:outline-none shadow-sm px-0 w-8 h-8 overflow-hidden hover:bg-cm-purple hover:text-white hover:px-4 hover:w-auto disabled:opacity-60 disabled:cursor-not-allowed`}
         style={{ minWidth: '2rem', minHeight: '2rem' }}
         disabled={!canNudge() || nudgeLoading}
         onClick={handleNudge}
         type="button"
         title={canNudge() ? 'Cutucar' : 'Cutucado'}
       >
-        {/* Ícone hand-point-left do svgrepo.com */}
-        <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2.25 12c0-.414.336-.75.75-.75h7.19a.25.25 0 0 0 .25-.25v-.5a.25.25 0 0 0-.25-.25H5.75a.75.75 0 0 1 0-1.5h4.44a.25.25 0 0 0 .25-.25v-.5a.25.25 0 0 0-.25-.25H7.75a.75.75 0 0 1 0-1.5h2.44a.25.25 0 0 0 .25-.25v-.5a.25.25 0 0 0-.25-.25H9.75a.75.75 0 0 1 0-1.5h2.5c.966 0 1.75.784 1.75 1.75v7.5c0 .138.112.25.25.25h2.25a.75.75 0 0 1 0 1.5h-2.25a1.75 1.75 0 0 1-1.75-1.75v-.25a.25.25 0 0 0-.25-.25H3a.75.75 0 0 1-.75-.75Z"/>
-        </svg>
-        {/* Texto aparece ao hover */}
-        <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap text-xs">
-          {nudgeLoading ? "Enviando..." : canNudge() ? "Cutucar" : "Cutucado"}
+        <span className="flex items-center justify-center w-full h-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-5 h-5 flex-shrink-0 transition-colors duration-200 group-hover:text-white text-cm-purple"
+          >
+            <path d="M10 3.914V.5h2v3.414zM7.414 5.5L5 3.084L3.586 4.499L6 6.913zM11 4.81a2.26 2.26 0 0 0-2.26 2.26v8.064l-2.677-.529a1.88 1.88 0 0 0-1.927.802l-.95 1.425l4.299 5.591A2.76 2.76 0 0 0 9.67 23.5h7.086c1.187 0 2.24-.76 2.615-1.886l1.783-5.35a2.76 2.76 0 0 0-1.226-3.252l-3.625-2.116a2.76 2.76 0 0 0-1.39-.376H13.26V7.07A2.26 2.26 0 0 0 11 4.81m6-1.725l-2.414 2.414L16 6.913L18.414 4.5z"/>
+          </svg>
+          {/* Texto aparece ao hover */}
+          <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap text-xs">
+            {nudgeLoading ? "Cutucando..." : canNudge() ? "Cutucar" : "Cutucado"}
+          </span>
         </span>
       </button>
       {nudgeSuccess && <div className="text-green-600 mt-2 text-xs">{nudgeSuccess}</div>}
