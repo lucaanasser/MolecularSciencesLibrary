@@ -168,7 +168,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="px-3 py-1 rounded-full text-xs">
       {activeLoans.map((item: any) => {
         const overdue = isOverdue(item);
         const canNudgeNow = canNudge(item);
