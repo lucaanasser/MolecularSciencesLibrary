@@ -56,12 +56,12 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
                 <div className="flex items-center">
                   <Clock className="mr-1 h-3 w-3" />
                   <span>
-                    Empréstimo: {formatDate(item.borrowed_at)}
+                    Emprestado: {formatDate(item.borrowed_at)}
                   </span>
                 </div>
                 <div>
                   <span>
-                    Devolução: {item.returned_at ? formatDate(item.returned_at) : "Em aberto"}
+                    Devolvido: {item.returned_at ? formatDate(item.returned_at) : "Em aberto"}
                   </span>
                 </div>
               </div>

@@ -82,7 +82,7 @@ const ProfilePage = () => {
                         </span>
                       )}
                       <button
-                        className="absolute bottom-0 right-0 bg-cm-purple text-white rounded-full p-1 text-xs hover:bg-cm-blue"
+                        className="absolute bottom-0 right-0 bg-cm-purple text-white rounded-full p-1 text-xs hover:bg-cm-purple/80"
                         onClick={() => setShowImageSelector(true)}
                         title="Alterar imagem de perfil"
                       >
