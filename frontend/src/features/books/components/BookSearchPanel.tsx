@@ -69,8 +69,6 @@ const BookSearch: React.FC = () => {
   return (
     <div className="w-full">
       <div className="mx-auto">
-        <h2 className="text-3xl font-bebas mb-6">Buscar Livros</h2>
-
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <div className="col-span-2">
             <div className="relative">
@@ -167,7 +165,7 @@ const BookSearch: React.FC = () => {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-semibold text-lg">{book.title}</h4>
+                      <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
                       <p className="text-gray-600">{book.authors}</p>
                       <div className="flex space-x-4 mt-2">
                         <span className="text-sm text-gray-500">
