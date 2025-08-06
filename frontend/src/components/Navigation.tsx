@@ -108,8 +108,15 @@ const Navigation: React.FC = () => {
   }, [isMobileMenuOpen, isDrawerVisible]);
 
   return (
-    <nav className={`${effectiveNavbarBg} ${effectiveTextColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className={`relative ${effectiveNavbarBg} ${effectiveTextColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
+      {/* Fundo branco + camada roxa translúcida apenas se NÃO for index */}
+      {location.pathname !== "/" && (
+        <>
+          <div className="absolute inset-0 w-full h-full bg-white z-0" />
+          <div className="absolute inset-0 w-full h-full bg-cm-purple/80 z-10" />
+        </>
+      )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="flex justify-between h-24">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
@@ -128,9 +135,11 @@ const Navigation: React.FC = () => {
             <Link to="/estante-virtual" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               Estante Virtual
             </Link>
+            {/*
             <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
               Ajude a Biblioteca
             </Link>
+            */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

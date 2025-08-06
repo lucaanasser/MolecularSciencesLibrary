@@ -57,8 +57,6 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
               )}
             </>
           )}
-
-          {/* ...existing code... */}
         </div>
         
         <div className="flex justify-between gap-2 mt-4">
@@ -67,7 +65,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
               onClick={() => {
                 navigate(`/estante-virtual?highlight=${encodeURIComponent(book.code)}`);
               }}
-              className="bg-cm-blue text-white px-4 py-2 rounded-xl hover:bg-cm-blue/80"
+              className="bg-cm-purple text-white px-4 py-2 rounded-xl hover:bg-cm-purple/80"
             >
               Ver na Estante
             </button>

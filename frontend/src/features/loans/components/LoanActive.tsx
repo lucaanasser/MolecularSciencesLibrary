@@ -207,7 +207,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="tracking-wide">{dialogTitle}</DialogTitle>
+            <DialogTitle className="tracking-wider">{dialogTitle}</DialogTitle>
             <DialogDescription>
               {dialogDescription}
             </DialogDescription>
