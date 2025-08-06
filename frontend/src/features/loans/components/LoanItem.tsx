@@ -35,7 +35,7 @@ export const LoanItem: React.FC<LoanItemProps> = ({
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
             <div className="flex items-center">
               <Clock className="mr-1 h-3 w-3" />
-              <span>Emprestado: {formatDate(loan.borrowed_at)}</span>
+              <span>Empréstimo: {formatDate(loan.borrowed_at)}</span>
             </div>
             {loan.due_date && (
               <div className="flex items-center">
@@ -46,7 +46,7 @@ export const LoanItem: React.FC<LoanItemProps> = ({
             {loan.returned_at && (
               <div className="flex items-center">
                 <Clock className="mr-1 h-3 w-3" />
-                <span>Devolvido: {formatDate(loan.returned_at)}</span>
+                <span>Devolução: {formatDate(loan.returned_at)}</span>
               </div>
             )}
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>{statusText}</span>

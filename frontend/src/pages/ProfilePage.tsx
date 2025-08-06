@@ -136,15 +136,27 @@ const ProfilePage = () => {
             {/* Tabs Content */}
             <div className="col-span-1 md:col-span-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="ativos" className="rounded-xl">
-                    <BookOpen className="mr-2 w-6 h-6 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" /> Empréstimos
+                <TabsList className="grid w-full grid-cols-3 mb-6 gap-2">
+                  <TabsTrigger
+                    value="ativos"
+                    className="rounded min-w-0 px-2 py-2 flex items-center justify-center text-xs md:text-sm truncate"
+                  >
+                    <BookOpen className="mr-1 w-5 h-5 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" />
+                    <span className="truncate">Empréstimos</span>
                   </TabsTrigger>
-                  <TabsTrigger value="historico" className="rounded-xl">
-                    <History className="mr-2 w-6 h-6 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" /> Histórico
+                  <TabsTrigger
+                    value="historico"
+                    className="rounded min-w-0 px-2 py-2 flex items-center justify-center text-xs md:text-sm truncate"
+                  >
+                    <History className="mr-1 w-5 h-5 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" />
+                    <span className="truncate">Histórico</span>
                   </TabsTrigger>
-                  <TabsTrigger value="notificacoes" className="rounded-xl">
-                    <Bell className="mr-2 w-6 h-6 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" /> Notificações
+                  <TabsTrigger
+                    value="notificacoes"
+                    className="rounded min-w-0 px-2 py-2 flex items-center justify-center text-xs md:text-sm truncate"
+                  >
+                    <Bell className="mr-1 w-5 h-5 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" />
+                    <span className="truncate">Notificações</span>
                   </TabsTrigger>
                   {/*
                   <TabsTrigger value="conquistas" className="rounded-xl">

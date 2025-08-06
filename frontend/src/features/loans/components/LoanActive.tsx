@@ -4,6 +4,7 @@ import { Loan } from "../types/loan";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { LoanItem } from "./LoanItem";
+import { getLoanStatusProps } from "../utils/getLoanStatusProps";
 
 interface LoanActiveProps {
   userId: number | undefined;
@@ -172,17 +173,13 @@ export default function LoanActive({ userId }: LoanActiveProps) {
     <div className="space-y-4">
       {activeLoans.map((item: Loan) => {
         const overdue = isOverdue(item);
-        let statusText = "Disponível";
-        let statusColor = "bg-cm-green/10 text-cm-green";
-        if (item.is_reserved === 1) {
-          statusText = "Reservado";
-          statusColor = "bg-purple-200 text-purple-700";
-        } else if (overdue) {
+        let statusText: string;
+        let statusColor: string;
+        if (overdue) {
           statusText = "Atrasado";
           statusColor = "bg-cm-red/10 text-cm-red";
-        } else if (!item.returned_at) {
-          statusText = "Emprestado";
-          statusColor = "bg-cm-yellow/10 text-cm-orange";
+        } else {
+          ({ statusText, statusColor } = getLoanStatusProps(item));
         }
         return (
           <LoanItem
@@ -210,7 +207,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{dialogTitle}</DialogTitle>
+            <DialogTitle className="tracking-wide">{dialogTitle}</DialogTitle>
             <DialogDescription>
               {dialogDescription}
             </DialogDescription>

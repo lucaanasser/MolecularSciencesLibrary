@@ -1,6 +1,7 @@
 import { useUserLoans } from "../hooks/useUserLoans";
 import { Loan } from "../types/loan";
 import { LoanItem } from "./LoanItem";
+import { getLoanStatusProps } from "../utils/getLoanStatusProps";
 
 /**
  * Histórico de empréstimos do usuário.
@@ -41,14 +42,7 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
   return (
     <div className="space-y-4">
       {loans.map((item: Loan) => {
-        let statusText = item.returned_at ? "Devolvido" : "Em andamento";
-        let statusColor = item.returned_at
-          ? "bg-cm-green/10 text-cm-green"
-          : "bg-cm-yellow/10 text-cm-orange";
-        if (item.is_reserved === 1) {
-          statusText = "Reservado";
-          statusColor = "bg-purple-200 text-purple-700";
-        }
+        const { statusText, statusColor } = getLoanStatusProps(item);
         return (
           <LoanItem
             key={item.loan_id}
