@@ -35,6 +35,7 @@ db.serialize(() => {
             name TEXT NOT NULL,
             NUSP INTEGER NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
+            phone TEXT NOT NULL,
             password_hash TEXT, -- Agora permite NULL
             role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
             profile_image TEXT, -- Caminho da imagem de perfil

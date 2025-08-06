@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Bell, Trophy } from "lucide-react";
+import { BookOpen, Bell, Trophy, History } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";
 import LoanHistoryOnly from "@/features/loans/components/LoanHistoryOnly";
@@ -70,19 +70,19 @@ const ProfilePage = () => {
                   <div className="text-red-600">{userError}</div>
                 ) : user ? (
                   <>
-                    <div className="w-24 h-24 rounded-full bg-cm-blue/10 flex items-center justify-center mb-4 relative">
+                    <div className="w-24 h-24 rounded-full bg-cm-purple/10 flex items-center justify-center mb-4 relative">
                       {user.profile_image ? (
                         <Avatar className="w-24 h-24">
                           <AvatarImage src={user.profile_image} alt="Foto de perfil" />
                           <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                       ) : (
-                        <span className="text-3xl font-bebas text-cm-blue">
+                        <span className="text-3xl font-bebas text-cm-purple">
                           {user.name?.charAt(0)}
                         </span>
                       )}
                       <button
-                        className="absolute bottom-0 right-0 bg-cm-blue text-white rounded-full p-1 text-xs hover:bg-cm-yellow"
+                        className="absolute bottom-0 right-0 bg-cm-purple text-white rounded-full p-1 text-xs hover:bg-cm-blue"
                         onClick={() => setShowImageSelector(true)}
                         title="Alterar imagem de perfil"
                       >
@@ -119,7 +119,7 @@ const ProfilePage = () => {
                       {/* Adicione outros campos se existirem */}
                     </div>
 
-                    <div className="w-full mt-6 p-4 bg-cm-yellow/10 rounded-xl">
+                    <div className="w-full mt-6 p-4 bg-cm-purple/10 rounded-xl">
                       <h3 className="text-lg font-bebas mb-2">Status da Conta</h3>
                       <div className="flex items-center space-x-2">
                         <div className="w-3 h-3 rounded-full bg-cm-green"></div>
@@ -136,19 +136,21 @@ const ProfilePage = () => {
             {/* Tabs Content */}
             <div className="col-span-1 md:col-span-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
                   <TabsTrigger value="ativos" className="rounded-xl">
-                    <BookOpen className="mr-2 h-4 w-4" /> Empréstimos Ativos
+                    <BookOpen className="mr-2 w-6 h-6 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" /> Empréstimos
                   </TabsTrigger>
                   <TabsTrigger value="historico" className="rounded-xl">
-                    <BookOpen className="mr-2 h-4 w-4" /> Histórico
+                    <History className="mr-2 w-6 h-6 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" /> Histórico
                   </TabsTrigger>
                   <TabsTrigger value="notificacoes" className="rounded-xl">
-                    <Bell className="mr-2 h-4 w-4" /> Notificações
+                    <Bell className="mr-2 w-6 h-6 min-w-[1rem] min-h-[1rem] max-w-[1rem] max-h-[1rem]" /> Notificações
                   </TabsTrigger>
+                  {/*
                   <TabsTrigger value="conquistas" className="rounded-xl">
                     <Trophy className="mr-2 h-4 w-4" /> Conquistas
                   </TabsTrigger>
+                  */}
                 </TabsList>
 
                 <TabsContent value="ativos">

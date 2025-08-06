@@ -88,7 +88,7 @@
   }
   
   .cm-btn-secondary {
-    @apply cm-btn bg-cm-blue text-white hover:bg-opacity-90;
+    @apply cm-btn bg-cm-purple text-white hover:bg-opacity-90;
   }
   
   .cm-card {

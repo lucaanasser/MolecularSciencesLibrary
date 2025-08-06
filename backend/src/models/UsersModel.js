@@ -7,11 +7,11 @@ class UsersModel {
     /**
      * Cria um novo usuário no banco de dados.
      */
-    async createUser({ name, email, password_hash, role, NUSP, profile_image }) {
-        console.log("🟢 [createUser] Criando usuário:", { name, email, role, NUSP, profile_image });
+    async createUser({ name, email, phone, password_hash, role, NUSP, profile_image }) {
+        console.log("🟢 [createUser] Criando usuário:", { name, email, phone, role, NUSP, profile_image });
         return await executeQuery(
-            `INSERT INTO users (name, NUSP, email, password_hash, role, profile_image) VALUES (?, ?, ?, ?, ?, ?)`,
-            [name, NUSP, email, password_hash, role, profile_image]
+            `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [name, NUSP, email, phone, password_hash, role, profile_image]
         );
     }
 
@@ -43,7 +43,7 @@ class UsersModel {
     async getAllUsers() {
         console.log("🟢 [getAllUsers] Listando todos os usuários.");
         return await allQuery(
-            `SELECT id, name, NUSP, email, role, profile_image, created_at FROM users`
+            `SELECT id, name, NUSP, email, phone, role, profile_image, created_at FROM users`
         );
     }
 
