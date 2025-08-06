@@ -178,26 +178,37 @@ const BookSearch: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    {/* Status do livro com cor e texto conforme solicitado */}
+                    {/* Status: bolinha colorida com texto ao hover */}
                     {(() => {
                       // Prioridade: atrasado > reservado > emprestado > disponível
+                      let color = "bg-cm-green";
+                      let text = "Disponível";
+                      let textColor = "text-cm-green";
                       if (book.overdue) {
-                        return (
-                          <span className="px-3 py-1 rounded-full text-xs bg-cm-red/10 text-cm-red font-semibold">Atrasado</span>
-                        );
+                        color = "bg-cm-red";
+                        text = "Atrasado";
+                        textColor = "text-cm-red";
                       } else if (book.is_reserved) {
-                        return (
-                          <span className="px-3 py-1 rounded-full text-xs bg-purple-100 text-purple-700 font-semibold">Reservado</span>
-                        );
+                        color = "bg-purple-700";
+                        text = "Reservado";
+                        textColor = "text-purple-700";
                       } else if (book.exemplaresDisponiveis === 0) {
-                        return (
-                          <span className="px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700 font-semibold">Emprestado</span>
-                        );
-                      } else {
-                        return (
-                          <span className="px-3 py-1 rounded-full text-xs bg-cm-green/10 text-cm-green font-semibold">Disponível</span>
-                        );
+                        color = "bg-yellow-400";
+                        text = "Emprestado";
+                        textColor = "text-yellow-700";
                       }
+                      return (
+                        <span
+                          className={`group inline-flex items-center cursor-default select-none`}
+                        >
+                          <span
+                            className={`transition-all duration-200 w-4 h-4 rounded-full ${color} group-hover:w-auto group-hover:px-3 group-hover:py-1 group-hover:rounded-full group-hover:shadow-sm flex items-center justify-center ${textColor} text-xs font-semibold overflow-hidden`}
+                            style={{ minWidth: '1rem' }}
+                          >
+                            <span className="opacity-0 group-hover:opacity-100 ml-2 whitespace-nowrap transition-opacity duration-200">{text}</span>
+                          </span>
+                        </span>
+                      );
                     })()}
                   </div>
                   <div className="mt-2 text-xs text-gray-500">
