@@ -30,7 +30,7 @@ const Footer: React.FC = () => {
               Site desenvolvido com muito amor e carinho por Luca Nasser e Helena Reis, Turma 33. 
             </p>
             {/* Mobile: Links e Contato lado a lado */}
-            <div className="grid grid-cols-[0.5fr_1fr] md:grid-cols-[0.5fr_1fr] gap-4 mt-6 md:hidden">
+            <div className="grid grid-cols-[1fr_1fr] md:grid-cols-[0.5fr_1fr] gap-4 mt-6 md:hidden">
               <div>
                 <h4 className="text-lg text-black font-bebas mb-3">Links Rápidos</h4>
                 <ul>
