@@ -4,7 +4,82 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, Clock, BookMarked } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+// Hook para animar contagem de números
+function useCountUp(target: number | null, duration = 1200) {
+  const [value, setValue] = useState(0);
+  const raf = useRef<number | null>(null);
+  useEffect(() => {
+    if (typeof target !== 'number' || isNaN(target)) return;
+    let start = 0;
+    let startTime: number | null = null;
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const current = Math.floor(progress * (target - start) + start);
+      setValue(current);
+      if (progress < 1) {
+        raf.current = requestAnimationFrame(animate);
+      } else {
+        setValue(target);
+      }
+    };
+    raf.current = requestAnimationFrame(animate);
+    return () => {
+      if (raf.current !== null) cancelAnimationFrame(raf.current);
+    };
+  }, [target, duration]);
+  return value;
+}
+
+// Componente separado para animar os números
+type StatsType = { users: number | null, books: number | null, subareas: number | null };
+function StatsGrid({ stats }: { stats: StatsType }) {
+  const users = useCountUp(stats.users, 1200);
+  const subareas = useCountUp(stats.subareas, 1200);
+  const books = useCountUp(stats.books, 1200);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+      <div className="text-center">
+        <div className="flex justify-center mb-6">
+          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
+            <TrendingUp className="h-8 w-8 text-cm-bg" />
+          </div>
+        </div>
+        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.users == null ? '-' : users}</div>
+        <div className="text-xl text-cm-bg/90 mb-4">usuários ativos</div>
+        <div className="text-cm-bg/80 text-md">
+          facilitando o acesso aos recursos da biblioteca
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="flex justify-center mb-6">
+          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
+            <Users className="h-8 w-8 text-cm-bg" />
+          </div>
+        </div>
+        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.subareas == null ? '-' : subareas}</div>
+        <div className="text-xl text-cm-bg/90 mb-4">áreas do conhecimento</div>
+        <div className="text-cm-bg/80 text-md">
+          promovendo a interdisciplinaridade e o aprendizado contínuo
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="flex justify-center mb-6">
+          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
+            <BookMarked className="h-8 w-8 text-cm-bg" />
+          </div>
+        </div>
+        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.books == null ? '-' : books}</div>
+        <div className="text-xl text-cm-bg/90 mb-4">exemplares disponíveis</div>
+        <div className="text-cm-bg/80 text-md">
+          oferecendo uma vasta coleção de livros e recursos digitais
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Log de início de renderização da página inicial
 console.log("🔵 [Index] Renderizando página inicial");
@@ -51,6 +126,36 @@ const Index = () => {
   useEffect(() => {
     if (typing) setDisplayText("");
   }, [areaIndex]);
+
+  // Estados para estatísticas
+  const [stats, setStats] = useState({ users: null, books: null, subareas: null });
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+
+  useEffect(() => {
+    setLoadingStats(true);
+    setStatsError(null);
+    Promise.all([
+      fetch("/api/users").then(r => r.json()),
+      fetch("/api/books").then(r => r.json())
+    ])
+      .then(([users, books]) => {
+        // Conta subáreas únicas
+        const subareasSet = new Set();
+        books.forEach(b => {
+          if (b.subarea !== undefined && b.subarea !== null) subareasSet.add(b.subarea);
+        });
+        setStats({
+          users: users.length,
+          books: books.length,
+          subareas: subareasSet.size
+        });
+      })
+      .catch((err) => {
+        setStatsError("Erro ao carregar estatísticas");
+      })
+      .finally(() => setLoadingStats(false));
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -131,56 +236,20 @@ const Index = () => {
       <section className="relative py-40 bg-cm-purple">
         {/* Top Diagonal Cut */}
         <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
-        
         {/* Bottom Diagonal Cut */}
         <div className="absolute bottom-0 right-0 w-full h-24 bg-gray-100 transform -skew-y-3 origin-bottom-right"></div>
-        
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
             <h2 className="text-5xl text-cm-bg mb-4">A biblioteca em números</h2>
             <p className="text-xl text-cm-bg/90">Resultados que transformam o aprendizado</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-                  <TrendingUp className="h-8 w-8 text-cm-bg" />
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-cm-bg mb-2">85%</div>
-              <div className="text-xl text-cm-bg/90 mb-4">de melhoria no desempenho</div>
-              <div className="text-cm-bg/80 text-md">
-                obtido por meio de acesso facilitado aos recursos digitais e materiais atualizados
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-                  <Users className="h-8 w-8 text-cm-bg" />
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-cm-bg mb-2">92%</div>
-              <div className="text-xl text-cm-bg/90 mb-4">de satisfação dos usuários</div>
-              <div className="text-cm-bg/80 text-md">
-                obtido por meio de interface intuitiva e acesso rápido ao conhecimento
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-                  <BookMarked className="h-8 w-8 text-cm-bg" />
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-cm-bg mb-2">78%</div>
-              <div className="text-xl text-cm-bg/90 mb-4">de aumento no uso de recursos</div>
-              <div className="text-cm-bg/80 text-md">
-                obtido por meio de curadoria especializada e recomendações personalizadas
-              </div>
-            </div>
-          </div>
+          {loadingStats ? (
+            <div className="text-center text-cm-bg text-xl">Carregando...</div>
+          ) : statsError ? (
+            <div className="text-center text-red-200 text-xl">{statsError}</div>
+          ) : (
+            <StatsGrid stats={stats} />
+          )}
         </div>
       </section>
 
