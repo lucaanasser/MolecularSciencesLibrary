@@ -1,6 +1,6 @@
-/* NudgeButton SVG color fix */
+
 .group svg {
-  --icon-fill: #7c3aed;
+  --icon-fill: cm-purple;
 }
 .group:hover svg {
   --icon-fill: #fff;
@@ -19,10 +19,7 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em cm-purple);
 }
 
 @keyframes logo-spin {

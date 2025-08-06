@@ -58,7 +58,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
   return (
     <div className="flex flex-col items-end">
       <button
-        className={`group flex items-center justify-center transition-all duration-200 bg-transparent text-current font-semibold rounded-full focus:outline-none shadow-sm px-0 w-8 h-8 overflow-hidden hover:bg-purple-600 hover:text-white hover:px-4 hover:w-auto border border-purple-600 disabled:opacity-60 disabled:cursor-not-allowed`}
+        className={`group flex items-center justify-center transition-all duration-200 bg-white text-current font-semibold rounded-full focus:outline-none shadow-sm px-0 w-8 h-8 overflow-hidden hover:bg-cm-purple hover:text-white hover:px-4 hover:w-auto border border-cm-purple disabled:opacity-60 disabled:cursor-not-allowed`}
         style={{ minWidth: '2rem', minHeight: '2rem' }}
         disabled={!canNudge() || nudgeLoading}
         onClick={handleNudge}

@@ -159,11 +159,11 @@ const BookSearch: React.FC = () => {
           {isLoading ? (
             <div className="text-center py-8">Carregando livros...</div>
           ) : groupedBooks.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="bg-cm-purple/40 rounded-2xl p-4 shadow-lg border border-gray-200"
+                  className="bg-white rounded-2xl p-4 shadow-lg border border-cm-purple"
                 >
                   <div className="flex justify-between items-start">
                     <div>
