@@ -103,7 +103,7 @@ const Navigation: React.FC = () => {
         <div className="flex justify-between h-24">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img  src="images/LogoBrancoBiblioteca.png" alt="Logo da Biblioteca" className="h-20" />
+              <img  src="images/logoestendido.png" alt="Logo da Biblioteca" className="h-20" />
             </Link>
           </div>
 

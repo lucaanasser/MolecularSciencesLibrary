@@ -40,7 +40,7 @@ class PWAInstaller {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background: #7c3aed;
+        background: #b657b3;
         color: white;
         border: none;
         padding: 12px 20px;
