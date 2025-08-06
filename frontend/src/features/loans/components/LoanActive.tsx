@@ -198,16 +198,16 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 <div className="flex space-x-4 mt-1 text-sm text-gray-500">
                   <div className="flex items-center">
                     <Clock className="mr-1 h-3 w-3" />
-                    <span>Empréstimo: {formatDate(item.borrowed_at)}</span>
+                    <span>Emprestado em: {formatDate(item.borrowed_at)}</span>
                   </div>
                   <div className="flex items-center">
                     <Clock className="mr-1 h-3 w-3" />
-                    <span>Devolução prevista: {formatDate(item.due_date)}</span>
+                    <span>Prazo: {formatDate(item.due_date)}</span>
                   </div>
                   {item.returned_at && (
                     <div className="flex items-center">
                       <Clock className="mr-1 h-3 w-3" />
-                      <span>Devolução: {formatDate(item.returned_at)}</span>
+                      <span>Devolvido em: {formatDate(item.returned_at)}</span>
                     </div>
                   )}
                   <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>{statusText}</span>
@@ -217,7 +217,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 {/* Botão de nudge removido da Profile Page. */}
                 {!overdue && (
                   <button
-                    className="flex items-center gap-2 bg-cm-blue text-white px-4 py-2 rounded hover:bg-cm-yellow disabled:opacity-50"
+                    className="flex items-center gap-2 bg-cm-purple text-white px-4 py-2 rounded hover:bg-cm-purple/50 disabled:opacity-50"
                     onClick={() => handlePreviewRenew(item)}
                     disabled={renewLoading === item.loan_id}
                   >

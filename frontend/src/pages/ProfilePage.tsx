@@ -119,7 +119,7 @@ const ProfilePage = () => {
                       {/* Adicione outros campos se existirem */}
                     </div>
 
-                    <div className="w-full mt-6 p-4 bg-cm-purple/10 rounded-xl">
+                    <div className="w-full mt-6 p-4 bg-cm-blue/10 rounded-xl">
                       <h3 className="text-lg font-bebas mb-2">Status da Conta</h3>
                       <div className="flex items-center space-x-2">
                         <div className="w-3 h-3 rounded-full bg-cm-green"></div>
