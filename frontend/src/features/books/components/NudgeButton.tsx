@@ -86,15 +86,3 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
 };
 
 export default NudgeButton;
-export default NudgeButton;
-
-// Adiciona estilos para o preenchimento do ícone no hover
-// Você pode colocar este bloco em um arquivo CSS global/importado, ou usar style jsx se preferir inline
-// Aqui está um exemplo para tailwind + css global:
-//
-// .group:hover svg {
-//   --icon-fill: #fff;
-// }
-// .group svg {
-//   --icon-fill: #7c3aed;
-// }
