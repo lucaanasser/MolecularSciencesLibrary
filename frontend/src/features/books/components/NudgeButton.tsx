@@ -49,7 +49,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
       setNudgeTimestamp(new Date().toISOString());
       setNudgeSuccess("Cutucada enviada com sucesso!");
     } catch (e: any) {
-      setNudgeError(e.message || "Erro ao cutucar");
+      setNudgeError(e.message || "Você precisa estar logado para cutucar!");
     } finally {
       setNudgeLoading(false);
     }
@@ -58,12 +58,12 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
   return (
     <div className="flex flex-col items-end">
       <Button
-        className="bg-cm-blue text-white"
+        className="bg-cm-purple text-white hover:bg-cm-purple/80"
         disabled={!canNudge() || nudgeLoading}
         onClick={handleNudge}
         size="sm"
       >
-        {nudgeLoading ? "Enviando..." : canNudge() ? "Cutucar" : "Aguarde 1 dia"}
+        {nudgeLoading ? "Enviando..." : canNudge() ? "Cutucar" : "Cutucado"}
       </Button>
       {nudgeSuccess && <div className="text-green-600 mt-2 text-xs">{nudgeSuccess}</div>}
       {nudgeError && <div className="text-red-600 mt-2 text-xs">{nudgeError}</div>}
