@@ -1,8 +1,9 @@
-import { Clock, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useUserLoans } from "../hooks/useUserLoans";
 import { Loan } from "../types/loan";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { LoanItem } from "./LoanItem";
 
 interface LoanActiveProps {
   userId: number | undefined;
@@ -168,15 +169,12 @@ export default function LoanActive({ userId }: LoanActiveProps) {
   }
 
   return (
-    <div className="px-3 py-1 rounded-full text-xs">
-      {activeLoans.map((item: any) => {
+    <div className="space-y-4">
+      {activeLoans.map((item: Loan) => {
         const overdue = isOverdue(item);
-        const canNudgeNow = canNudge(item);
-
-        // Determina status e cor
         let statusText = "Disponível";
         let statusColor = "bg-cm-green/20 text-cm-green";
-        if (item.is_reserved) {
+        if (item.is_reserved === 1) {
           statusText = "Reservado";
           statusColor = "bg-purple-200 text-purple-700";
         } else if (overdue) {
@@ -186,54 +184,23 @@ export default function LoanActive({ userId }: LoanActiveProps) {
           statusText = "Emprestado";
           statusColor = "bg-yellow-200 text-yellow-700";
         }
-
         return (
-          <div
+          <LoanItem
             key={item.loan_id}
-            className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
+            loan={item}
+            statusText={statusText}
+            statusColor={statusColor}
+            showRenew={!overdue}
+            onRenew={() => handlePreviewRenew(item)}
+            renewLoading={renewLoading === item.loan_id}
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h4 className="font-medium">{item.book_title || `Livro ID: ${item.book_id}`}</h4>
-                <div className="flex space-x-4 mt-1 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Clock className="mr-1 h-3 w-3" />
-                    <span>Emprestado: {formatDate(item.borrowed_at)}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="mr-1 h-3 w-3" />
-                    <span>Prazo: {formatDate(item.due_date)}</span>
-                  </div>
-                  {item.returned_at && (
-                    <div className="flex items-center">
-                      <Clock className="mr-1 h-3 w-3" />
-                      <span>Devolvido: {formatDate(item.returned_at)}</span>
-                    </div>
-                  )}
-                  <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>{statusText}</span>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                {/* Botão de nudge removido da Profile Page. */}
-                {!overdue && (
-                  <button
-                    className="flex items-center gap-2 bg-cm-purple text-white px-4 py-2 rounded hover:bg-cm-purple/80 disabled:opacity-50"
-                    onClick={() => handlePreviewRenew(item)}
-                    disabled={renewLoading === item.loan_id}
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    {renewLoading === item.loan_id ? "Renovando..." : "Renovar"}
-                  </button>
-                )}
-              </div>
-            </div>
             {renewError && renewLoading === item.loan_id && (
               <div className="text-red-600 text-xs mt-1">{renewError}</div>
             )}
             {renewSuccess && renewLoading === item.loan_id && (
               <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>
             )}
-          </div>
+          </LoanItem>
         );
       })}
       {nudgeError && <div className="text-red-600 mt-2">{nudgeError}</div>}

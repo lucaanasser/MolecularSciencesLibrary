@@ -1,6 +1,6 @@
-import { Clock } from "lucide-react";
 import { useUserLoans } from "../hooks/useUserLoans";
-import { Loan } from "../types/loan"; 
+import { Loan } from "../types/loan";
+import { LoanItem } from "./LoanItem";
 
 /**
  * Histórico de empréstimos do usuário.
@@ -14,11 +14,7 @@ interface LoanHistoryProps {
   userId: number | undefined;
 }
 
-const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("pt-BR");
-};
+// Usa o formatDate do LoanItem
 
 export default function LoanHistory({ userId }: LoanHistoryProps) {
   const { loans, loading, error } = useUserLoans(userId);
@@ -44,40 +40,24 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
 
   return (
     <div className="space-y-4">
-      {loans.map((item: Loan) => (
-        <div
-          key={item.loan_id}
-          className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <h4 className="font-medium">{item.book_title || `Livro ID: ${item.book_id}`}</h4>
-              <div className="flex space-x-4 mt-1 text-sm text-gray-500">
-                <div className="flex items-center">
-                  <Clock className="mr-1 h-3 w-3" />
-                  <span>
-                    Emprestado: {formatDate(item.borrowed_at)}
-                  </span>
-                </div>
-                <div>
-                  <span>
-                    Devolvido: {item.returned_at ? formatDate(item.returned_at) : "Em aberto"}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <span
-              className={`px-3 py-1 rounded-full text-xs ${
-                item.returned_at
-                  ? "bg-cm-green/10 text-cm-green"
-                  : "bg-cm-yellow/10 text-cm-orange"
-              }`}
-            >
-              {item.returned_at ? "Devolvido" : "Em andamento"}
-            </span>
-          </div>
-        </div>
-      ))}
+      {loans.map((item: Loan) => {
+        let statusText = item.returned_at ? "Devolvido" : "Em andamento";
+        let statusColor = item.returned_at
+          ? "bg-cm-green/10 text-cm-green"
+          : "bg-cm-yellow/10 text-cm-orange";
+        if (item.is_reserved === 1) {
+          statusText = "Reservado";
+          statusColor = "bg-purple-200 text-purple-700";
+        }
+        return (
+          <LoanItem
+            key={item.loan_id}
+            loan={item}
+            statusText={statusText}
+            statusColor={statusColor}
+          />
+        );
+      })}
     </div>
   );
 }

@@ -7,10 +7,11 @@ export interface Loan {
   student_id: number;
   borrowed_at: string;
   returned_at: string | null;
-  due_date?: string | null; 
-  renewals?: number; 
+  due_date?: string | null;
+  renewals?: number;
   book_title?: string;
   book_authors?: string;
   user_name?: string;
   user_email?: string;
+  is_reserved?: number; // 1 = reservado para reserva didática, 0 = não reservado
 }
