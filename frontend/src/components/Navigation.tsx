@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, User, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,16 +26,21 @@ const Navigation: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const user = useCurrentUser();
   const navigate = useNavigate();
+  const location = useLocation();
+
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (location.pathname === "/") {
+      const handleScroll = () => {
+        const scrollTop = window.scrollY;
+        setIsScrolled(scrollTop > 0);
+      };
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    } else {
+      setIsScrolled(false); // sempre roxo nas outras páginas
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     console.log("🔵 [Navigation] Logout iniciado");
@@ -60,14 +65,19 @@ const Navigation: React.FC = () => {
     }
   };
 
-  const navbarBg = isScrolled ? "bg-cm-bg" : "bg-cm-purple/80";
-  const textColor = isScrolled ? "text-gray-900" : "text-black";
-  const brandColor = isScrolled ? "text-cm-purple" : "text-black";
-  const hoverBg = isScrolled ? "hover:bg-gray-100" : "hover:bg-white/20";
-  const buttonVariant = isScrolled ? "outline" : "ghost";
-  const buttonColors = isScrolled 
-    ? "border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white" 
-    : "border-black text-black hover:bg-cm-purple hover:text-white";
+
+  // Só permite transição de cor na home, nas demais páginas sempre roxo
+  const alwaysPurple = location.pathname !== "/";
+  const navbarBg = alwaysPurple ? "bg-cm-purple/80" : (isScrolled ? "bg-cm-bg" : "bg-cm-purple/80");
+  const textColor = alwaysPurple ? "text-black" : (isScrolled ? "text-gray-900" : "text-black");
+  const brandColor = alwaysPurple ? "text-black" : (isScrolled ? "text-cm-purple" : "text-black");
+  const hoverBg = alwaysPurple ? "hover:bg-white/20" : (isScrolled ? "hover:bg-gray-100" : "hover:bg-white/20");
+  const buttonVariant = alwaysPurple ? "ghost" : (isScrolled ? "outline" : "ghost");
+  const buttonColors = alwaysPurple
+    ? "border-black text-black hover:bg-cm-purple hover:text-white"
+    : (isScrolled 
+      ? "border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white" 
+      : "border-black text-black hover:bg-cm-purple hover:text-white");
 
   // Força cor roxa correta quando menu mobile está aberto
   const effectiveNavbarBg = isMobileMenuOpen ? "bg-cm-purple/80" : navbarBg;
