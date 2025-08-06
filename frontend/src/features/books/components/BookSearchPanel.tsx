@@ -163,7 +163,7 @@ const BookSearch: React.FC = () => {
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="bg-white rounded-2xl p-4 shadow-md border border-cm-blue/50"
+                  className="bg-white rounded-2xl p-4 shadow-md border border-gray-100"
                 >
                   <div className="flex justify-between items-start">
                     <div>
