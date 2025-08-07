@@ -187,7 +187,7 @@ const VirtualBookshelf = () => {
         )}
       </div>
 
-      {/* Botão para adicionar nova estante (admin) */}
+      {/* Botão para adicionar nova estante (admin). */}
       {isAdmin && editMode && Number(selectedShelf) === shelfNumbers.length && (
         <div className="flex justify-center mb-4">
           <Button onClick={handleAddShelfNumber} variant="outline">
