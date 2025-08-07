@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VirtualShelf } from "@/types/VirtualBookshelf";
@@ -312,138 +313,145 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
     );
   }
 
-  // Se já tem código inicial, mostra interface de edição completa
+  // Se já tem código inicial, mostra interface de edição completa com animação slide
   return (
-    <div className="mb-2 p-3 bg-white bg-opacity-95 rounded-lg border relative z-0" style={{boxShadow: '0 2px 8px 0 rgba(0,0,0,0.03)'}}>
-      <div className="flex items-center justify-between">
-        <span className="font-medium text-sm">
-          Prateleira {shelf.shelf_row}
-        </span>
-        
-        <div className="flex items-center gap-4">
-          {/* Código Inicial */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-blue-600">Início:</span>
-            {editingShelf?.shelfId === shelf.id && editingShelf.field === 'start' ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={editingValue}
-                  onChange={(e) => setEditingValue(e.target.value)}
-                  className="h-6 w-24 text-xs"
-                  placeholder="Ex: FIS-01.01"
-                  autoFocus
-                  onKeyDown={(e) => handleKeyDown(e, handleSaveEdit)}
-                />
-                <Button
-                  size="sm"
-                  onClick={handleSaveEdit}
-                  disabled={loading}
-                  className="h-6 w-6 p-0"
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleCancelEdit}
-                  disabled={loading}
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                <span className="text-xs bg-blue-100 px-2 py-1 rounded">
-                  {shelf.book_code_start || 'Auto'}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleStartEdit('start')}
-                  disabled={loading}
-                  className="h-6 w-6 p-0"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Código Final */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-600">Fim:</span>
-            {editingShelf?.shelfId === shelf.id && editingShelf.field === 'end' ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={editingValue}
-                  onChange={(e) => setEditingValue(e.target.value)}
-                  className="h-6 w-24 text-xs"
-                  placeholder="Ex: FIS-01.05"
-                  autoFocus
-                  onKeyDown={(e) => handleKeyDown(e, handleSaveEdit)}
-                />
-                <Button
-                  size="sm"
-                  onClick={handleSaveEdit}
-                  disabled={loading}
-                  className="h-6 w-6 p-0"
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleCancelEdit}
-                  disabled={loading}
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                  {shelf.calculated_book_code_end || shelf.book_code_end || 'Auto'}
-                </span>
-                {shelf.is_last_shelf && (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={shelf.id || shelf.shelf_row}
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: -100, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="mb-2 p-3 bg-white bg-opacity-95 rounded-lg border relative z-0"
+        style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.03)' }}
+      >
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-sm">
+            Prateleira {shelf.shelf_row}
+          </span>
+          <div className="flex items-center gap-4">
+            {/* Código Inicial */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-blue-600">Início:</span>
+              {editingShelf?.shelfId === shelf.id && editingShelf.field === 'start' ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="text"
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    className="h-6 w-24 text-xs"
+                    placeholder="Ex: FIS-01.01"
+                    autoFocus
+                    onKeyDown={(e) => handleKeyDown(e, handleSaveEdit)}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSaveEdit}
+                    disabled={loading}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={loading}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs bg-blue-100 px-2 py-1 rounded">
+                    {shelf.book_code_start || 'Auto'}
+                  </span>
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleStartEdit('end')}
+                    onClick={() => handleStartEdit('start')}
                     disabled={loading}
                     className="h-6 w-6 p-0"
                   >
                     <Edit className="h-3 w-3" />
                   </Button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Toggle Última Prateleira */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={shelf.is_last_shelf}
-                onChange={handleToggleLastShelf}
-                disabled={loading}
-                className="text-xs"
-              />
-              Última
-            </label>
-            {shelf.is_last_shelf && (
-              <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">
-                🔚
-              </span>
-            )}
+                </div>
+              )}
+            </div>
+            {/* Código Final */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-600">Fim:</span>
+              {editingShelf?.shelfId === shelf.id && editingShelf.field === 'end' ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="text"
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    className="h-6 w-24 text-xs"
+                    placeholder="Ex: FIS-01.05"
+                    autoFocus
+                    onKeyDown={(e) => handleKeyDown(e, handleSaveEdit)}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSaveEdit}
+                    disabled={loading}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={loading}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                    {shelf.calculated_book_code_end || shelf.book_code_end || 'Auto'}
+                  </span>
+                  {shelf.is_last_shelf && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleStartEdit('end')}
+                      disabled={loading}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+            {/* Toggle Última Prateleira */}
+            <div className="flex items-center gap-2">
+              <label className="text-xs flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={shelf.is_last_shelf}
+                  onChange={handleToggleLastShelf}
+                  disabled={loading}
+                  className="text-xs"
+                />
+                Última
+              </label>
+              {shelf.is_last_shelf && (
+                <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">
+                  🔚
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

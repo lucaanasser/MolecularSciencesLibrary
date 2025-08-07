@@ -116,10 +116,10 @@ const LoginForm: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="matricula">Número de Matrícula ou Email</Label>
+              <Label htmlFor="matricula">Número USP ou Email</Label>
               <Input
                 id="matricula"
-                placeholder="Ex: 13691375 ou seu@email.com"
+                placeholder="Ex: 123456789 ou seuemail@usp.br"
                 value={matricula}
                 onChange={(e) => setMatricula(e.target.value)}
                 className="rounded-xl"

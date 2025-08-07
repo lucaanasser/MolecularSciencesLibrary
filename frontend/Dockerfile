@@ -5,6 +5,7 @@ FROM node:20 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+RUN npm install framer-motion
 COPY . .
 RUN npm run build
 RUN cp public/sitemap.xml dist/sitemap.xml
