@@ -210,14 +210,7 @@ class EmailService {
             subject,
             text: message,
             html,
-            type: 'custom',
-            attachments: [
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
+            type: 'custom'
         });
     }
 
@@ -340,14 +333,7 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'reset_password',
-            attachments: [
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
+            type: 'reset_password'
         });
     }
 
