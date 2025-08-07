@@ -144,9 +144,6 @@ const VirtualBookshelf = () => {
     <div className="w-full py-6 px-4">
       {/* Header de navegação entre estantes - menor e com menos espaçamento */}
       <div className="flex justify-center items-center gap-2 mb-8">
-        <span className="font-bebas select-none text-2xl sm:text-3xl font-bold min-w-[100px] text-center transition-all duration-200">
-          Estantes
-        </span>
         {isAdmin && (
           <Button
             variant={editMode ? "default" : "outline"}
