@@ -160,22 +160,21 @@ const VirtualBookshelf = () => {
         )}
       </div>
 
-      {/* Container em grid para mostrar 2x2 estantes antes do scroll */}
+      {/* Container horizontal para mostrar 2 estantes por vez antes do scroll */}
       <div
-        className="max-w-5xl mx-auto mt-10 px-6 py-8 relative overflow-auto"
+        className="max-w-5xl mx-auto mt-10 px-6 py-8 relative overflow-x-auto"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
+          display: 'flex',
           gap: '32px',
-          height: '900px', // Ajuste conforme necessário para caber 2 linhas
+          width: '900px', // largura suficiente para 2 estantes
+          minHeight: '600px',
         }}
       >
-        {shelfNumbers.map((shelfNum, idx) => (
+        {shelfNumbers.map((shelfNum) => (
           <div
             key={shelfNum}
-            className="w-full h-full bg-white rounded-lg shadow p-2 flex flex-col gap-1"
-            style={{ minWidth: 0, minHeight: 0 }}
+            className="bg-white rounded-lg shadow p-2 flex flex-col gap-1"
+            style={{ width: '400px', minWidth: '400px', minHeight: 0 }}
           >
             <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
             <div className="flex flex-col gap-1">
