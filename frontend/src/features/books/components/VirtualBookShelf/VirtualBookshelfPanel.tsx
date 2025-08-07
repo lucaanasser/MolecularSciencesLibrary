@@ -177,7 +177,7 @@ const VirtualBookshelf = () => {
             style={{ width: '400px', minWidth: '400px', minHeight: 0 }}
           >
             <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.2">
               {(editMode && isAdmin
                 ? rowNumbers.map(rowNum => {
                     const shelf = shelvesConfig.find(
