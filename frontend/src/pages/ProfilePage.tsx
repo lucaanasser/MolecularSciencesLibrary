@@ -14,11 +14,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
 const PROFILE_IMAGES = [
-  "/images/logoCM.png",
-  "/images/generic-icon.png",
-  "/images/custom-icon.png",
-  "/images/placeholder.svg",
-  // Adicione mais caminhos conforme necessário
+  // As imagens agora são puxadas da pasta /images/user-images
+  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png"].map(img => `/images/user-images/${img}`)
 ];
 
 const ProfilePage = () => {
@@ -116,7 +113,10 @@ const ProfilePage = () => {
                         <span className="text-gray-500">Email:</span>
                         <span>{user.email}</span>
                       </div>
-                      {/* Adicione outros campos se existirem */}
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Telefone:</span>
+                        <span>{user.phone || "Não informado"}</span>
+                      </div>
                     </div>
 
                     <div className="w-full mt-6 p-4 bg-cm-blue/10 rounded-xl">
