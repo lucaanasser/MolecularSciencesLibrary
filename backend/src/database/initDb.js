@@ -383,8 +383,8 @@ db.serialize(() => {
                 const adminHash = await bcrypt.hash(adminPassword, SALT_ROUNDS);
                 await new Promise((resolve, reject) => {
                     db.run(
-                        `INSERT INTO users (name, NUSP, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
-                        ['Administrador', adminNUSP, adminEmail, adminHash, 'admin'],
+                        `INSERT INTO users (name, NUSP, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)`,
+                        ['Administrador', adminNUSP, adminEmail, '', adminHash, 'admin'],
                         (err) => {
                             if (err) {
                                 console.error('🔴 [initDb] Erro ao criar admin:', err.message);
@@ -410,8 +410,8 @@ db.serialize(() => {
                 const proalunoHash = await bcrypt.hash(proalunoPassword, SALT_ROUNDS);
                 await new Promise((resolve, reject) => {
                     db.run(
-                        `INSERT INTO users (name, NUSP, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`,
-                        ['Pro Aluno', proalunoNUSP, proalunoEmail, proalunoHash, 'proaluno'],
+                        `INSERT INTO users (name, NUSP, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)`,
+                        ['Pro Aluno', proalunoNUSP, proalunoEmail, '', proalunoHash, 'proaluno'],
                         (err) => {
                             if (err) {
                                 console.error('🔴 [initDb] Erro ao criar proaluno:', err.message);
