@@ -38,89 +38,19 @@ const ScanSection = ({
   }, [step]);
 
   // Mock das funções de validação (substitua por chamadas reais à API)
-  async function validarNusp(nusp: string) {
-    setLoading(true);
-    try {
-      // Busca usuário pelo NUSP
-      const res = await fetch(`/api/users/${nusp}`);
-      setLoading(false);
-      if (res.ok) {
-        const usuario = await res.json();
-        return !!usuario && usuario.NUSP == nusp;
-      }
-      return false;
-    } catch (err) {
-      setLoading(false);
-      return false;
-    }
-  }
 
-  async function validarSenha(nusp: string, senha: string) {
-    setLoading(true);
-    try {
-      // Autentica usuário pelo NUSP e senha
-      const res = await fetch(`/api/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ NUSP: nusp, password: senha })
-      });
-      setLoading(false);
-      if (res.ok) {
-        const data = await res.json();
-        return !!data && data.token;
-      }
-      return false;
-    } catch (err) {
-      setLoading(false);
-      return false;
-    }
-  }
-
-  async function validarLivro(codigoLivro: string) {
-    setLoading(true);
-    try {
-      // Busca livro pelo código/id
-      const res = await fetch(`/api/books/${codigoLivro}`);
-      setLoading(false);
-      if (res.ok) {
-        const livro = await res.json();
-        // Verifica se está disponível para empréstimo
-        return !!livro && livro.available !== false;
-      }
-      return false;
-    } catch (err) {
-      setLoading(false);
-      return false;
-    }
-  }
-
-  const handleNext = async () => {
+  const handleNext = () => {
     setError("");
     if (step === "nusp" && nusp.trim()) {
-      const valido = await validarNusp(nusp.trim());
-      if (valido) {
-        setStep("senha");
-      } else {
-        setError("NUSP não encontrado.");
-      }
+      setStep("senha");
     } else if (step === "senha" && senha.trim()) {
-      const valido = await validarSenha(nusp.trim(), senha.trim());
-      if (valido) {
-        setStep("livro");
-      } else {
-        setError("Senha incorreta.");
-      }
+      setStep("livro");
     } else if (step === "livro" && codigoLivro.trim()) {
-      const disponivel = await validarLivro(codigoLivro.trim());
-      if (disponivel) {
-        onScanComplete(nusp.trim(), codigoLivro.trim(), senha.trim());
-        setNusp("");
-        setSenha("");
-        setCodigoLivro("");
-        setStep("nusp");
-      } else {
-        setError("Livro não disponível para empréstimo.");
-      }
+      onScanComplete(nusp.trim(), codigoLivro.trim(), senha.trim());
+      setNusp("");
+      setSenha("");
+      setCodigoLivro("");
+      setStep("nusp");
     }
   };
 
