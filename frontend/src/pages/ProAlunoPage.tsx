@@ -21,50 +21,35 @@ const ScanSection = ({
 }) => {
   const [nusp, setNusp] = useState("");
   const [codigoLivro, setCodigoLivro] = useState("");
-  const [step, setStep] = useState<"nusp" | "livro">("nusp");
 
-  const handleNext = () => {
-    if (step === "nusp" && nusp.trim()) {
-      setStep("livro");
-    } else if (step === "livro" && codigoLivro.trim()) {
+  useEffect(() => {
+    if (nusp.trim() && codigoLivro.trim()) {
       onScanComplete(nusp, codigoLivro);
       setNusp("");
       setCodigoLivro("");
-      setStep("nusp");
     }
-  };
+  }, [nusp, codigoLivro, onScanComplete]);
 
   return (
     <div className="mb-4">
-      {step === "nusp" ? (
-        <>
-          <label className="block mb-2 font-medium">Escaneie seu NUSP:</label>
-          <input
-            type="text"
-            className="border rounded px-3 py-2 w-full mb-2"
-            value={nusp}
-            onChange={(e) => setNusp(e.target.value)}
-            placeholder="NUSP"
-          />
-          <Button className="w-full" onClick={handleNext} disabled={!nusp.trim()}>
-            Próximo
-          </Button>
-        </>
-      ) : (
-        <>
-          <label className="block mb-2 font-medium">Escaneie o código de barras do livro:</label>
-          <input
-            type="text"
-            className="border rounded px-3 py-2 w-full mb-2"
-            value={codigoLivro}
-            onChange={(e) => setCodigoLivro(e.target.value)}
-            placeholder="Código de barras do livro"
-          />
-          <Button className="w-full" onClick={handleNext} disabled={!codigoLivro.trim()}>
-            {actionLabel}
-          </Button>
-        </>
-      )}
+      <label className="block mb-2 font-medium">Escaneie seu NUSP:</label>
+      <input
+        type="text"
+        className="border rounded px-3 py-2 w-full mb-2"
+        value={nusp}
+        onChange={(e) => setNusp(e.target.value)}
+        placeholder="NUSP"
+        autoFocus
+      />
+      <label className="block mb-2 font-medium">Escaneie o código de barras do livro:</label>
+      <input
+        type="text"
+        className="border rounded px-3 py-2 w-full mb-2"
+        value={codigoLivro}
+        onChange={(e) => setCodigoLivro(e.target.value)}
+        placeholder="Código de barras do livro"
+      />
+      {/* Nenhum botão aqui, tudo automático */}
     </div>
   );
 };
