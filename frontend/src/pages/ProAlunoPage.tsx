@@ -41,12 +41,12 @@ const ScanSection = ({
   async function validarNusp(nusp: string) {
     setLoading(true);
     try {
-      // Exemplo de chamada à API (ajuste a URL conforme seu backend)
-      const res = await fetch(`/api/alunos/${nusp}`);
+      // Busca usuário pelo NUSP
+      const res = await fetch(`/api/users/${nusp}`);
       setLoading(false);
       if (res.ok) {
-        const aluno = await res.json();
-        return !!aluno; // retorna true se encontrou o aluno
+        const usuario = await res.json();
+        return !!usuario && usuario.NUSP == nusp;
       }
       return false;
     } catch (err) {
@@ -54,17 +54,44 @@ const ScanSection = ({
       return false;
     }
   }
+
   async function validarSenha(nusp: string, senha: string) {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setLoading(false);
-    return senha === "senha123"; // Exemplo: só aceita senha123
+    try {
+      // Autentica usuário pelo NUSP e senha
+      const res = await fetch(`/api/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ NUSP: nusp, password: senha })
+      });
+      setLoading(false);
+      if (res.ok) {
+        const data = await res.json();
+        return !!data && data.token;
+      }
+      return false;
+    } catch (err) {
+      setLoading(false);
+      return false;
+    }
   }
+
   async function validarLivro(codigoLivro: string) {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setLoading(false);
-    return codigoLivro === "LIVRO001"; // Exemplo: só aceita LIVRO001
+    try {
+      // Busca livro pelo código/id
+      const res = await fetch(`/api/books/${codigoLivro}`);
+      setLoading(false);
+      if (res.ok) {
+        const livro = await res.json();
+        // Verifica se está disponível para empréstimo
+        return !!livro && livro.available !== false;
+      }
+      return false;
+    } catch (err) {
+      setLoading(false);
+      return false;
+    }
   }
 
   const handleNext = async () => {
