@@ -118,7 +118,7 @@ class EmailService {
             <p>Oh não, parece que você esqueceu de devolver algum(ns) livro(s)...</p>
             <ul>${booksList}</ul>
             <div style="text-align: center;">
-            <img src="cid:atraso" alt="Carlos Magno surpreso" style="height: 350px; margin-bottom: 10px;" />
+            <img src="https://bibliotecamoleculares.com/images/email-images/nudge.png" alt="Carlos Magno surpreso" style="height: 350px; margin-bottom: 10px;" />
             </div>
             <p>Lembre-se que outros colegas podem estar precisando desses materiais para os estudos. A devolução em dia ajuda toda a comunidade acadêmica!</p>
             <div style="margin-top: 30px; text-align: center;">
@@ -142,19 +142,7 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'overdue',
-            attachments: [
-                {
-                    filename: 'overdue.png',
-                    path: './public/images/overdue.png',
-                    cid: 'atraso'
-                },
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
+            type: 'overdue'
         });
     }
 
@@ -173,7 +161,7 @@ class EmailService {
             <p>Ei! 👀</p>
             <p>Um colega está de olho no livro ${book_title ? `"<strong>${book_title}</strong>"` : ''} que você ainda não devolveu... </p>
             <div style="text-align: center;">
-                <img src="cid:cutucada" alt="Carlos Magno sendo cutucado" style="height: 350px; margin-bottom: 10px;" />
+                <img src="https://bibliotecamoleculares.com/images/email-images/nudge.png" alt="Carlos Magno sendo cutucado" style="height: 350px; margin-bottom: 10px;" />
             </div><p>Que tal fazer a boa e devolver logo? Assim, todo mundo consegue aproveitar melhor a nossa biblioteca! </p>
             <div style="margin-top: 30px; text-align: center;">
                 <span style="font-size: 48px;"></span>
@@ -196,19 +184,7 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'nudge',
-            attachments: [
-                {
-                    filename: 'nudge.png',
-                    path: './public/images/nudge.png',
-                    cid: 'cutucada'
-                },
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
+            type: 'nudge'
         });
     }
 
@@ -292,7 +268,7 @@ class EmailService {
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Seja muito bem-vindo(a) à nossa biblioteca! O Carlos Magno está muito feliz em te ver por aqui!</p>
             <div style="text-align: center;">
-                <img src="cid:boasvindas" alt="Carlos Magno e novo usuário" style="height: 350px; margin-bottom: 10px;" />
+                <img src="https://bibliotecamoleculares.com/images/email-images/welcome.png" alt="Carlos Magno e novo usuário" style="height: 350px; margin-bottom: 10px;" />
             </div>
             <p>Agora você pode:</p>
             <ul>
@@ -327,19 +303,7 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'welcome',
-            attachments: [
-                {
-                    filename: 'welcome.png',
-                    path: './public/images/welcome.png',
-                    cid: 'boasvindas'
-                },
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: './public/images/Biblioteca do CM.png',
-                    cid: 'logo'
-                }
-            ]
+            type: 'welcome'
         });
     }
 
@@ -403,7 +367,7 @@ class EmailService {
             <p>Confirmamos a devolução do livro <b>"${book_title}"</b> em ${dateStr}.</p>
             <p>Muito obrigado por colaborar com a nossa biblioteca! Esperamos te ver em breve para novos empréstimos.</p>
             <div style="margin-top: 30px; text-align: center;">
-                <img src="cid:logo" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
+                <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
                 <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
                     Equipe Biblioteca Ciências Moleculares
                 </div>
@@ -416,14 +380,7 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'return_confirmation',
-            attachments: [
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: path.join(__dirname, '../../public/images/Biblioteca do CM.png'),
-                    cid: 'logo'
-                }
-            ]
+            type: 'return_confirmation'
         });
     }
 
@@ -443,7 +400,7 @@ class EmailService {
             <p>Confirmamos o registro do empréstimo do livro <b>"${book_title}"</b> em ${dateStr}.</p>
             <p>Fique atento ao prazo de devolução e aproveite a leitura!</p>
             <div style="margin-top: 30px; text-align: center;">
-                <img src="cid:logo" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
+                <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
                 <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
                     Equipe Biblioteca Ciências Moleculares
                 </div>
@@ -456,14 +413,7 @@ class EmailService {
             subject,
             text: textContent,
             html,
-            type: 'loan_confirmation',
-            attachments: [
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: path.join(__dirname, '../../public/images/Biblioteca do CM.png'),
-                    cid: 'logo'
-                }
-            ]
+            type: 'loan_confirmation'
         });
     }
 
