@@ -20,16 +20,18 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
   const [showPopup, setShowPopup] = React.useState(false);
   const [loanDetails, setLoanDetails] = React.useState<any>(null);
 
-  async function validarNusp(nusp: string) {
+
+  // Busca usuário pelo NUSP usando GET /api/users e filtra localmente
+  async function buscarUsuarioPorNusp(nusp: string) {
     try {
-      const res = await fetch(`/api/users/${nusp}`);
+      const res = await fetch(`/api/users`);
       if (res.ok) {
-        const usuario = await res.json();
-        return !!usuario && usuario.NUSP == nusp;
+        const usuarios = await res.json();
+        return usuarios.find((u: any) => String(u.NUSP) === String(nusp));
       }
-      return false;
+      return null;
     } catch {
-      return false;
+      return null;
     }
   }
 
@@ -71,10 +73,13 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
       setFormError("Preencha todos os campos.");
       return;
     }
-    if (!(await validarNusp(nusp))) {
+    // Busca usuário pelo NUSP na lista
+    const usuario = await buscarUsuarioPorNusp(nusp);
+    if (!usuario) {
       setFormError("NUSP não encontrado ou inválido.");
       return;
     }
+    // Autentica usuário como no LoginForm
     if (!(await validarSenha(nusp, senha))) {
       setFormError("Senha incorreta ou usuário inválido.");
       return;
