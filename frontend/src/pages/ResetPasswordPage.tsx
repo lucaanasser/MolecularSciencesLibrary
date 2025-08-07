@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -55,50 +54,54 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navigation />
-      <div className="flex-grow bg-cm-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex justify-center items-center">
-          <div className="w-full max-w-md p-8 bg-white rounded shadow">
-            <h1 className="text-2xl font-bold mb-6 text-center">Definir nova senha</h1>
-            {success ? (
-              <div className="text-green-600 text-center mb-4">
-                Senha redefinida com sucesso! Redirecionando para o login...
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="newPassword">Nova senha</Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
-                </div>
-                {error && <div className="text-red-600 text-sm">{error}</div>}
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? "Salvando..." : "Salvar nova senha"}
-                </Button>
-              </form>
-            )}
-          </div>
+    <div className="flex justify-center items-center p-6 min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md p-6 rounded-2xl shadow-lg">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bebas">Definir nova senha</h2>
         </div>
-      </div>
-      <Footer />
+        {success ? (
+          <div className="text-green-600 text-center mb-4">
+            Senha redefinida com sucesso! Redirecionando para o login...
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Nova senha</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  minLength={8}
+                  className="rounded-xl"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  minLength={8}
+                  className="rounded-xl"
+                  required
+                />
+              </div>
+              {error && <div className="text-red-600 text-sm">{error}</div>}
+            </div>
+            <Button
+              type="submit"
+              className="w-full mt-6 bg-cm-purple hover:bg-cm-purple/90 rounded-xl"
+              disabled={loading}
+            >
+              {loading ? "Salvando..." : "Salvar nova senha"}
+            </Button>
+          </form>
+        )}
+      </Card>
     </div>
   );
 }
