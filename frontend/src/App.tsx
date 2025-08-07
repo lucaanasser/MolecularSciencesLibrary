@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import ProAlunoPage from "./pages/ProAlunoPage"; 
+import TestePage from "./pages/teste";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "@/components/ProtectedRoute"; 
 import DonationPage from "./pages/DonationPage";

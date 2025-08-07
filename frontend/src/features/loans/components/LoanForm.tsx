@@ -154,40 +154,45 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
   return (
     <>
       {step === 0 && (
-        <div className="flex flex-row items-center justify-center gap-8">
-          <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center">
-            <h2 className="text-lg font-bold mb-4 text-cm-purple">Empréstimo</h2>
-            <button
-              className="w-full bg-cm-purple text-white py-2 rounded text-lg"
-              onClick={() => { setOperation("emprestimo"); setStep(1); }}
-            >
-              Empréstimo
-            </button>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center">
-            <h2 className="text-lg font-bold mb-4 text-cm-purple">Devolução</h2>
-            <button
-              className="w-full bg-cm-purple text-white py-2 rounded text-lg"
-              onClick={() => { setOperation("devolucao"); setStep(1); }}
-            >
-              Devolução
-            </button>
+        <div className="flex items-center justify-center w-full bg-transparent px-4">
+          <div className="bg-white flex flex-col items-center mx-4 min-w-[350px] max-w-2xl w-full">
+            <img
+              src="/images/loan.png"
+              alt="Biblioteca do CM"
+              className="mb-6 w-96 object-contain"
+            />
+            <div className="flex flex-row gap-4 w-full">
+              <button
+                className="w-full bg-cm-purple text-white py-4 rounded-xl text-lg font-bold"
+                onClick={() => { setOperation("emprestimo"); setStep(1); }}
+                aria-label="Iniciar Empréstimo"
+              >
+                Empréstimo
+              </button>
+              <button
+                className="w-full bg-cm-purple text-white py-4 rounded-xl text-lg font-bold"
+                onClick={() => { setOperation("devolucao"); setStep(1); }}
+                aria-label="Iniciar Devolução"
+              >
+                Devolução
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {operation === "emprestimo" && step > 0 && (
-        <form className="space-y-4 max-w-md" onSubmit={e => { e.preventDefault(); handleNextStep(); }}>
+        <form className="mt-12 space-y-4 max-w-md" onSubmit={e => { e.preventDefault(); handleNextStep(); }}>
           <div className="mb-4">
             {step === 1 && (
               <div>
-                <label className="font-medium">NUSP:</label>
+                <label className="font-medium ml-2">Número USP:</label>
                 <input
                   type="text"
-                  className="border rounded px-3 py-2 w-full mb-2"
+                  className="border rounded-xl px-3 py-2 w-full mb-2"
                   value={nusp}
                   onChange={e => setNusp(e.target.value)}
-                  placeholder="NUSP"
+                  placeholder="ex: 123456789"
                   disabled={loading}
                   autoFocus
                 />
@@ -195,13 +200,13 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             )}
             {step === 2 && (
               <div>
-                <label className="font-medium">Senha:</label>
+                <label className="font-medium ml-2">Senha:</label>
                 <input
                   type="password"
-                  className="border rounded px-3 py-2 w-full mb-2"
+                  className="border rounded-xl px-3 py-2 w-full mb-2"
                   value={senha}
                   onChange={e => setSenha(e.target.value)}
-                  placeholder="Senha"
+                  placeholder="ex: minhaSenha123"
                   disabled={loading}
                   autoFocus
                 />
@@ -209,13 +214,13 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             )}
             {step === 3 && (
               <div>
-                <label className="font-medium">Código do Livro:</label>
+                <label className="font-medium ml-2">Código do Livro:</label>
                 <input
                   type="text"
-                  className="border rounded px-3 py-2 w-full mb-2"
+                  className="border rounded-xl px-3 py-2 w-full mb-2"
                   value={codigoLivro}
                   onChange={e => setCodigoLivro(e.target.value)}
-                  placeholder="Código do Livro"
+                  placeholder="Escaneie ou digite o código de barras"
                   disabled={loading}
                   autoFocus
                 />
@@ -225,7 +230,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
           <div className="flex gap-2">
             <button
               type="button"
-              className="bg-gray-200 text-gray-700 py-2 px-4 rounded w-1/2"
+              className="bg-gray-200 text-gray-700 py-2 px-4 rounded-xl w-1/2"
               onClick={() => {
                 if (step > 1) setStep(step - 1);
               }}
@@ -235,7 +240,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             </button>
             <button
               type="submit"
-              className="bg-cm-green text-white py-2 px-4 rounded w-1/2"
+              className="bg-cm-green text-white py-2 px-4 rounded-xl w-1/2"
               disabled={loading}
             >
               {step < 3 ? "Próximo" : loading ? "Registrando..." : "Confirmar Empréstimo"}
@@ -243,7 +248,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
           </div>
           <button
             type="button"
-            className="w-full bg-cm-red text-white py-2 rounded mt-2"
+            className="w-full bg-cm-red text-white py-2 rounded-xl mt-2"
             onClick={() => {
               setStep(0);
               setOperation("");
@@ -262,15 +267,15 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
       )}
 
       {operation === "devolucao" && step > 0 && (
-        <form className="space-y-4 max-w-md" onSubmit={e => { e.preventDefault(); handleNextStep(); }}>
+        <form className="mt-12 space-y-4 max-w-md" onSubmit={e => { e.preventDefault(); handleNextStep(); }}>
           <div className="mb-4">
-            <label className="font-medium">Código do Livro:</label>
+            <label className="font-medium ml-2">Código do Livro:</label>
             <input
               type="text"
-              className="border rounded px-3 py-2 w-full mb-2"
+              className="border rounded-xl px-3 py-2 w-full mb-2"
               value={codigoLivro}
               onChange={e => setCodigoLivro(e.target.value)}
-              placeholder="Código do Livro"
+              placeholder="Escaneie ou digite o código de barras"
               disabled={loading}
               autoFocus
             />
@@ -278,7 +283,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
           <div className="flex gap-2">
             <button
               type="button"
-              className="bg-cm-red text-white py-2 px-4 rounded w-1/2"
+              className="bg-cm-red text-white py-2 px-4 rounded-xl w-1/2"
               onClick={() => {
                 setStep(0);
                 setOperation("");
@@ -291,7 +296,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             </button>
             <button
               type="submit"
-              className="bg-cm-green text-white py-2 px-4 rounded w-1/2"
+              className="bg-cm-green text-white py-2 px-4 rounded-xl w-1/2"
               disabled={loading}
             >
               {loading ? "Processando..." : "Confirmar"}

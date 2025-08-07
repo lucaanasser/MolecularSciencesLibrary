@@ -15,22 +15,11 @@ console.log("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");
 
 
 const ProAlunoLoanManagement = () => (
-  <div className="p-4">
-    <h2 className="text-2xl font-semibold mb-4">Gerenciamento de Empréstimos e Devoluções (Pró-Aluno)</h2>
-    <p className="text-gray-600 mb-6">
-      Utilize esta seção para registrar novos empréstimos ou processar devoluções de livros em um único fluxo.
-    </p>
+  <>
     <div className="flex justify-center">
-      <Card className="rounded-xl shadow-lg w-full max-w-xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Empréstimo ou Devolução</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LoanForm />
-        </CardContent>
-      </Card>
+      <LoanForm />
     </div>
-  </div>
+  </>
 );
 
 const ProAlunoPage = () => {
