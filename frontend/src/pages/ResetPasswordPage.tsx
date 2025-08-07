@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,42 +55,50 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-8 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-6 text-center">Definir nova senha</h1>
-      {success ? (
-        <div className="text-green-600 text-center mb-4">
-          Senha redefinida com sucesso! Redirecionando para o login...
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
+      <div className="flex-grow bg-cm-bg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex justify-center items-center">
+          <div className="w-full max-w-md p-8 bg-white rounded shadow">
+            <h1 className="text-2xl font-bold mb-6 text-center">Definir nova senha</h1>
+            {success ? (
+              <div className="text-green-600 text-center mb-4">
+                Senha redefinida com sucesso! Redirecionando para o login...
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="newPassword">Nova senha</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    minLength={8}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    minLength={8}
+                    required
+                  />
+                </div>
+                {error && <div className="text-red-600 text-sm">{error}</div>}
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? "Salvando..." : "Salvar nova senha"}
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="newPassword">Nova senha</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              minLength={8}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              minLength={8}
-              required
-            />
-          </div>
-          {error && <div className="text-red-600 text-sm">{error}</div>}
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Salvando..." : "Salvar nova senha"}
-          </Button>
-        </form>
-      )}
+      </div>
+      <Footer />
     </div>
   );
 }
