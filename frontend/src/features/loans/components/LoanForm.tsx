@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useCreateLoan } from "../hooks/useCreateLoan";
 
 /**
@@ -19,10 +19,13 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
   const [senha, setSenha] = React.useState<string>(propSenha);
   const [showPopup, setShowPopup] = React.useState(false);
   const [loanDetails, setLoanDetails] = React.useState<any>(null);
+  const [step, setStep] = React.useState<number>(0); // 0: escolha, 1+: wizard
+  const [operation, setOperation] = React.useState<"emprestimo" | "devolucao" | "">("");
+  const [returnSuccess, setReturnSuccess] = React.useState(false);
 
 
-  // Busca usuário pelo NUSP usando GET /api/users e filtra localmente
   async function buscarUsuarioPorNusp(nusp: string) {
+ 
     try {
       const res = await fetch(`/api/users`);
       if (res.ok) {
@@ -36,6 +39,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
   }
 
   async function validarSenha(nusp: string, senha: string) {
+
     try {
       const res = await fetch(`/api/users/login`, {
         method: "POST",
@@ -53,6 +57,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
   }
 
   async function validarLivro(codigoLivro: string) {
+    // ...existing code...
     try {
       const res = await fetch(`/api/books/${codigoLivro}`);
       if (res.ok) {
@@ -65,62 +70,167 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError("");
-    setSuccessMsg("");
-    if (!nusp || !senha || !codigoLivro) {
-      setFormError("Preencha todos os campos.");
-      return;
-    }
-    // Busca usuário pelo NUSP na lista
-    const usuario = await buscarUsuarioPorNusp(nusp);
-    if (!usuario) {
-      setFormError("NUSP não encontrado ou inválido.");
-      return;
-    }
-    // Autentica usuário como no LoginForm
-    if (!(await validarSenha(nusp, senha))) {
-      setFormError("Senha incorreta ou usuário inválido.");
-      return;
-    }
-    if (!(await validarLivro(codigoLivro))) {
-      setFormError("Livro não encontrado ou não disponível para empréstimo.");
-      return;
-    }
+  async function processarDevolucao(codigoLivro: string) {
     try {
-      const result = await createLoan({ NUSP: nusp, password: senha, book_id: Number(codigoLivro) });
-      setLoanDetails(result || loan);
-      setShowPopup(true);
-      setSuccessMsg("");
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
-      // Adaptação para erro do EmailService
-      if (err?.message?.includes("EmailService.sendNotificationEmail is not a function")) {
-        setFormError("Empréstimo registrado, mas houve um erro ao enviar a notificação por email. Informe o administrador.");
+      // Chama a API de devolução real
+      const res = await fetch(`/api/loans/return`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ book_id: Number(codigoLivro) })
+      });
+      if (res.ok) {
+        setReturnSuccess(true);
         setShowPopup(true);
       } else {
-        setFormError("Erro ao registrar empréstimo.");
+        const data = await res.json();
+        setFormError(data?.error || "Erro ao processar devolução.");
+      }
+    } catch {
+      setFormError("Erro ao processar devolução.");
+    }
+  }
+
+  // Handler para cada step
+  const handleNextStep = async () => {
+    setFormError("");
+    if (operation === "emprestimo") {
+      if (step === 1) {
+        if (!nusp) {
+          setFormError("Informe o NUSP.");
+          return;
+        }
+        const usuario = await buscarUsuarioPorNusp(nusp);
+        if (!usuario) {
+          setFormError("NUSP não encontrado ou inválido.");
+          return;
+        }
+        setStep(2);
+      } else if (step === 2) {
+        if (!senha) {
+          setFormError("Informe a senha.");
+          return;
+        }
+        if (!(await validarSenha(nusp, senha))) {
+          setFormError("Senha incorreta ou usuário inválido.");
+          return;
+        }
+        setStep(3);
+      } else if (step === 3) {
+        if (!codigoLivro) {
+          setFormError("Informe o código do livro.");
+          return;
+        }
+        if (!(await validarLivro(codigoLivro))) {
+          setFormError("Livro não encontrado ou não disponível para empréstimo.");
+          return;
+        }
+        // Confirmação do empréstimo
+        try {
+          const result = await createLoan({ NUSP: nusp, password: senha, book_id: Number(codigoLivro) });
+          setLoanDetails(result || loan);
+          setShowPopup(true);
+          setSuccessMsg("");
+          if (onSuccess) onSuccess();
+        } catch (err: any) {
+          if (err?.message?.includes("EmailService.sendNotificationEmail is not a function")) {
+            setFormError("Empréstimo registrado, mas houve um erro ao enviar a notificação por email. Informe o administrador.");
+            setShowPopup(true);
+          } else {
+            setFormError("Erro ao registrar empréstimo.");
+          }
+        }
+      }
+    } else if (operation === "devolucao") {
+      if (step === 1) {
+        if (!codigoLivro) {
+          setFormError("Informe o código do livro.");
+          return;
+        }
+        await processarDevolucao(codigoLivro);
       }
     }
   };
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-        <div className="mb-4">
-          <div>
-            <label className="font-medium">NUSP:</label>
-            <input
-              type="text"
-              className="border rounded px-3 py-2 w-full mb-2"
-              value={nusp}
-              onChange={e => setNusp(e.target.value)}
-              placeholder="NUSP"
-              disabled={loading}
-            />
+      {step === 0 && (
+        <div className="flex flex-col items-center gap-4">
+          <button
+            className="w-48 bg-cm-green text-white py-2 rounded text-lg"
+            onClick={() => { setOperation("emprestimo"); setStep(1); }}
+          >
+            Empréstimo
+          </button>
+          <button
+            className="w-48 bg-cm-green text-white py-2 rounded text-lg"
+            onClick={() => { setOperation("devolucao"); setStep(1); }}
+          >
+            Devolução
+          </button>
+        </div>
+      )}
+
+      {operation === "emprestimo" && step > 0 && (
+        <form className="space-y-4 max-w-md" onSubmit={e => { e.preventDefault(); handleNextStep(); }}>
+          <div className="mb-4">
+            {step === 1 && (
+              <div>
+                <label className="font-medium">NUSP:</label>
+                <input
+                  type="text"
+                  className="border rounded px-3 py-2 w-full mb-2"
+                  value={nusp}
+                  onChange={e => setNusp(e.target.value)}
+                  placeholder="NUSP"
+                  disabled={loading}
+                  autoFocus
+                />
+              </div>
+            )}
+            {step === 2 && (
+              <div>
+                <label className="font-medium">Senha:</label>
+                <input
+                  type="password"
+                  className="border rounded px-3 py-2 w-full mb-2"
+                  value={senha}
+                  onChange={e => setSenha(e.target.value)}
+                  placeholder="Senha"
+                  disabled={loading}
+                  autoFocus
+                />
+              </div>
+            )}
+            {step === 3 && (
+              <div>
+                <label className="font-medium">Código do Livro:</label>
+                <input
+                  type="text"
+                  className="border rounded px-3 py-2 w-full mb-2"
+                  value={codigoLivro}
+                  onChange={e => setCodigoLivro(e.target.value)}
+                  placeholder="Código do Livro"
+                  disabled={loading}
+                  autoFocus
+                />
+              </div>
+            )}
           </div>
-          <div>
+          <button
+            type="submit"
+            className="w-full bg-cm-green text-white py-2 rounded"
+            disabled={loading}
+          >
+            {step < 3 ? "Próximo" : loading ? "Registrando..." : "Confirmar Empréstimo"}
+          </button>
+          {formError && <div className="text-red-600">{formError}</div>}
+          {error && <div className="text-red-600">{error}</div>}
+        </form>
+      )}
+
+      {operation === "devolucao" && step > 0 && (
+        <form className="space-y-4 max-w-md" onSubmit={e => { e.preventDefault(); handleNextStep(); }}>
+          <div className="mb-4">
             <label className="font-medium">Código do Livro:</label>
             <input
               type="text"
@@ -129,31 +239,21 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
               onChange={e => setCodigoLivro(e.target.value)}
               placeholder="Código do Livro"
               disabled={loading}
+              autoFocus
             />
           </div>
-          <div>
-            <label className="font-medium">Senha:</label>
-            <input
-              type="password"
-              className="border rounded px-3 py-2 w-full mb-2"
-              value={senha}
-              onChange={e => setSenha(e.target.value)}
-              placeholder="Senha"
-              disabled={loading}
-            />
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-cm-green text-white py-2 rounded"
-          disabled={loading}
-        >
-          {loading ? "Registrando..." : "Confirmar Empréstimo"}
-        </button>
-        {formError && <div className="text-red-600">{formError}</div>}
-        {error && <div className="text-red-600">{error}</div>}
-      </form>
-      {showPopup && (
+          <button
+            type="submit"
+            className="w-full bg-cm-green text-white py-2 rounded"
+            disabled={loading}
+          >
+            {loading ? "Processando..." : "Confirmar Devolução"}
+          </button>
+          {formError && <div className="text-red-600">{formError}</div>}
+        </form>
+      )}
+
+      {showPopup && operation === "emprestimo" && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
             <h3 className="text-xl font-bebas mb-4 text-cm-green">Empréstimo Confirmado!</h3>
@@ -170,7 +270,24 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             )}
             <button
               className="mt-4 w-full bg-cm-green text-white py-2 rounded"
-              onClick={() => setShowPopup(false)}
+              onClick={() => { setShowPopup(false); setStep(0); setOperation(""); setNusp(""); setSenha(""); setCodigoLivro(""); setLoanDetails(null); }}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showPopup && operation === "devolucao" && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h3 className="text-xl font-bebas mb-4 text-cm-green">Devolução Confirmada!</h3>
+            <div className="mb-2">
+              <strong>Código do Livro:</strong> {codigoLivro}
+            </div>
+            <button
+              className="mt-4 w-full bg-cm-green text-white py-2 rounded"
+              onClick={() => { setShowPopup(false); setStep(0); setOperation(""); setCodigoLivro(""); setReturnSuccess(false); }}
             >
               Fechar
             </button>
