@@ -81,7 +81,7 @@ class EmailService {
             <tr>
             <td style="padding: 0 30px 30px 30px; background: #b657b3; border-radius: 0 0 8px 8px;">
             <div style="color: #fff; font-size: 14px; text-align: center; line-height: 1.5; font-family: 'Segoe UI', 'Roboto', Arial, Helvetica, sans-serif;">
-            <img src="cid:logo" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 5px;" /><br>
+            <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 5px;" /><br>
             <b> Biblioteca Ciências Moleculares </b> <br>
             <a href="mailto:bibliotecamoleculares@gmail.com" style="color: #fff; text-decoration: none;">
             bibliotecamoleculares@gmail.com
