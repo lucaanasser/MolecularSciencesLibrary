@@ -21,35 +21,65 @@ const ScanSection = ({
 }) => {
   const [nusp, setNusp] = useState("");
   const [codigoLivro, setCodigoLivro] = useState("");
+  const [step, setStep] = useState<"nusp" | "livro">("nusp");
 
+  // Adiciona refs para inputs
+  const nuspInputRef = React.useRef<HTMLInputElement>(null);
+  const livroInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Foca automaticamente no input correto ao mudar de passo
   useEffect(() => {
-    if (nusp.trim() && codigoLivro.trim()) {
+    if (step === "nusp" && nuspInputRef.current) {
+      nuspInputRef.current.focus();
+    } else if (step === "livro" && livroInputRef.current) {
+      livroInputRef.current.focus();
+    }
+  }, [step]);
+
+  const handleNext = () => {
+    if (step === "nusp" && nusp.trim()) {
+      setStep("livro");
+    } else if (step === "livro" && codigoLivro.trim()) {
       onScanComplete(nusp, codigoLivro);
       setNusp("");
       setCodigoLivro("");
+      setStep("nusp");
     }
-  }, [nusp, codigoLivro, onScanComplete]);
+  };
 
   return (
     <div className="mb-4">
-      <label className="block mb-2 font-medium">Escaneie seu NUSP:</label>
-      <input
-        type="text"
-        className="border rounded px-3 py-2 w-full mb-2"
-        value={nusp}
-        onChange={(e) => setNusp(e.target.value)}
-        placeholder="NUSP"
-        autoFocus
-      />
-      <label className="block mb-2 font-medium">Escaneie o código de barras do livro:</label>
-      <input
-        type="text"
-        className="border rounded px-3 py-2 w-full mb-2"
-        value={codigoLivro}
-        onChange={(e) => setCodigoLivro(e.target.value)}
-        placeholder="Código de barras do livro"
-      />
-      {/* Nenhum botão aqui, tudo automático */}
+      {step === "nusp" ? (
+        <>
+          <label className="block mb-2 font-medium">Escaneie seu NUSP:</label>
+          <input
+            type="text"
+            className="border rounded px-3 py-2 w-full mb-2"
+            value={nusp}
+            onChange={(e) => setNusp(e.target.value)}
+            placeholder="NUSP"
+            ref={nuspInputRef}
+          />
+          <Button className="w-full" onClick={handleNext} disabled={!nusp.trim()}>
+            Próximo
+          </Button>
+        </>
+      ) : (
+        <>
+          <label className="block mb-2 font-medium">Escaneie o código de barras do livro:</label>
+          <input
+            type="text"
+            className="border rounded px-3 py-2 w-full mb-2"
+            value={codigoLivro}
+            onChange={(e) => setCodigoLivro(e.target.value)}
+            placeholder="Código de barras do livro"
+            ref={livroInputRef}
+          />
+          <Button className="w-full" onClick={handleNext} disabled={!codigoLivro.trim()}>
+            {actionLabel}
+          </Button>
+        </>
+      )}
     </div>
   );
 };
