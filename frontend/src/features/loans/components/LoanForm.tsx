@@ -155,7 +155,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
     <>
       {step === 0 && (
         <div className="flex flex-row items-center justify-center gap-8">
-          <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center w-128">
+          <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center">
             <h2 className="text-lg font-bold mb-4 text-cm-purple">Empréstimo</h2>
             <button
               className="w-full bg-cm-purple text-white py-2 rounded text-lg"
@@ -164,7 +164,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
               Empréstimo
             </button>
           </div>
-          <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center w-128">
+          <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center">
             <h2 className="text-lg font-bold mb-4 text-cm-purple">Devolução</h2>
             <button
               className="w-full bg-cm-purple text-white py-2 rounded text-lg"
