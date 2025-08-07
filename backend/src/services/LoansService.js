@@ -71,11 +71,10 @@ class LoansService {
         console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`, loan);
 
         // Envia email de confirmação de novo empréstimo
-        await EmailService.sendNotificationEmail({
+        await EmailService.sendLoanConfirmationEmail({
             user_id: user.id,
-            type: 'novo_emprestimo',
-            subject: 'Novo empréstimo realizado na Biblioteca CM',
-            message: `Você realizou um novo empréstimo do livro "${book.title}". Data de devolução: ${dueDateISO}. Fique atento ao prazo!`,
+            book_title: book.title,
+            borrowedAt: borrowedAt
         });
 
         return loan;
