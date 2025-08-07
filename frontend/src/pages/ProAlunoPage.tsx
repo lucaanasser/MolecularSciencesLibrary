@@ -16,42 +16,86 @@ const ScanSection = ({
   onScanComplete,
   actionLabel,
 }: {
-  onScanComplete: (nusp: string, codigoLivro: string) => void;
+  onScanComplete: (nusp: string, codigoLivro: string, senha: string) => void;
   actionLabel: string;
 }) => {
   const [nusp, setNusp] = useState("");
+  const [senha, setSenha] = useState("");
   const [codigoLivro, setCodigoLivro] = useState("");
-  const [step, setStep] = useState<"nusp" | "livro">("nusp");
+  const [step, setStep] = useState<"nusp" | "senha" | "livro">("nusp");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Adiciona refs para inputs
   const nuspInputRef = React.useRef<HTMLInputElement>(null);
+  const senhaInputRef = React.useRef<HTMLInputElement>(null);
   const livroInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Foca automaticamente no input correto ao mudar de passo
   useEffect(() => {
-    if (step === "nusp" && nuspInputRef.current) {
-      nuspInputRef.current.focus();
-    } else if (step === "livro" && livroInputRef.current) {
-      livroInputRef.current.focus();
-    }
+    setError("");
+    if (step === "nusp" && nuspInputRef.current) nuspInputRef.current.focus();
+    if (step === "senha" && senhaInputRef.current) senhaInputRef.current.focus();
+    if (step === "livro" && livroInputRef.current) livroInputRef.current.focus();
   }, [step]);
 
-  const handleNext = () => {
+  // Mock das funções de validação (substitua por chamadas reais à API)
+  async function validarNusp(nusp: string) {
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 400));
+    setLoading(false);
+    return nusp === "123456"; // Exemplo: só aceita 123456
+  }
+  async function validarSenha(nusp: string, senha: string) {
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 400));
+    setLoading(false);
+    return senha === "senha123"; // Exemplo: só aceita senha123
+  }
+  async function validarLivro(codigoLivro: string) {
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 400));
+    setLoading(false);
+    return codigoLivro === "LIVRO001"; // Exemplo: só aceita LIVRO001
+  }
+
+  const handleNext = async () => {
+    setError("");
     if (step === "nusp" && nusp.trim()) {
-      setStep("livro");
+      const valido = await validarNusp(nusp.trim());
+      if (valido) {
+        setStep("senha");
+      } else {
+        setError("NUSP não encontrado.");
+      }
+    } else if (step === "senha" && senha.trim()) {
+      const valido = await validarSenha(nusp.trim(), senha.trim());
+      if (valido) {
+        setStep("livro");
+      } else {
+        setError("Senha incorreta.");
+      }
     } else if (step === "livro" && codigoLivro.trim()) {
-      onScanComplete(nusp, codigoLivro);
-      setNusp("");
-      setCodigoLivro("");
-      setStep("nusp");
+      const disponivel = await validarLivro(codigoLivro.trim());
+      if (disponivel) {
+        onScanComplete(nusp.trim(), codigoLivro.trim(), senha.trim());
+        setNusp("");
+        setSenha("");
+        setCodigoLivro("");
+        setStep("nusp");
+      } else {
+        setError("Livro não disponível para empréstimo.");
+      }
     }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleNext();
   };
 
   return (
     <div className="mb-4">
-      {step === "nusp" ? (
+      {step === "nusp" && (
         <>
-          <label className="block mb-2 font-medium">Escaneie seu NUSP:</label>
+          <label className="block mb-2 font-medium">Digite ou escaneie seu NUSP:</label>
           <input
             type="text"
             className="border rounded px-3 py-2 w-full mb-2"
@@ -59,14 +103,35 @@ const ScanSection = ({
             onChange={(e) => setNusp(e.target.value)}
             placeholder="NUSP"
             ref={nuspInputRef}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
           />
-          <Button className="w-full" onClick={handleNext} disabled={!nusp.trim()}>
+          <Button className="w-full" onClick={handleNext} disabled={!nusp.trim() || loading}>
             Próximo
           </Button>
         </>
-      ) : (
+      )}
+      {step === "senha" && (
         <>
-          <label className="block mb-2 font-medium">Escaneie o código de barras do livro:</label>
+          <label className="block mb-2 font-medium">Digite sua senha:</label>
+          <input
+            type="password"
+            className="border rounded px-3 py-2 w-full mb-2"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            placeholder="Senha"
+            ref={senhaInputRef}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
+          />
+          <Button className="w-full" onClick={handleNext} disabled={!senha.trim() || loading}>
+            Próximo
+          </Button>
+        </>
+      )}
+      {step === "livro" && (
+        <>
+          <label className="block mb-2 font-medium">Digite ou escaneie o código do livro:</label>
           <input
             type="text"
             className="border rounded px-3 py-2 w-full mb-2"
@@ -74,12 +139,15 @@ const ScanSection = ({
             onChange={(e) => setCodigoLivro(e.target.value)}
             placeholder="Código de barras do livro"
             ref={livroInputRef}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
           />
-          <Button className="w-full" onClick={handleNext} disabled={!codigoLivro.trim()}>
+          <Button className="w-full" onClick={handleNext} disabled={!codigoLivro.trim() || loading}>
             {actionLabel}
           </Button>
         </>
       )}
+      {error && <div className="text-red-600 mt-2">{error}</div>}
     </div>
   );
 };
@@ -88,10 +156,13 @@ const ProAlunoLoanManagement = () => {
   const [showLoanForm, setShowLoanForm] = useState(false);
   const [showReturnForm, setShowReturnForm] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
+  const [scanData, setScanData] = useState<{ nusp: string; codigoLivro: string; senha: string } | null>(null);
 
-  // Reset scanCompleted when closing forms
   useEffect(() => {
-    if (!showLoanForm && !showReturnForm) setScanCompleted(false);
+    if (!showLoanForm && !showReturnForm) {
+      setScanCompleted(false);
+      setScanData(null);
+    }
   }, [showLoanForm, showReturnForm]);
 
   return (
@@ -107,7 +178,7 @@ const ProAlunoLoanManagement = () => {
           </CardHeader>
           <CardContent>
             {showLoanForm ? (
-              scanCompleted ? (
+              scanCompleted && scanData ? (
                 <>
                   <LoanForm
                     onSuccess={() => {
@@ -125,7 +196,10 @@ const ProAlunoLoanManagement = () => {
               ) : (
                 <ScanSection
                   actionLabel="Registrar Empréstimo"
-                  onScanComplete={() => setScanCompleted(true)}
+                  onScanComplete={(nusp, codigoLivro, senha) => {
+                    setScanData({ nusp, codigoLivro, senha });
+                    setScanCompleted(true);
+                  }}
                 />
               )
             ) : (
