@@ -12,9 +12,72 @@ console.log("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");
 // Implementar lógica de autenticação/autorização para garantir
 // que apenas usuários "Pró-Aluno" possam acessar esta página.
 
+const ScanSection = ({
+  onScanComplete,
+  actionLabel,
+}: {
+  onScanComplete: (nusp: string, codigoLivro: string) => void;
+  actionLabel: string;
+}) => {
+  const [nusp, setNusp] = useState("");
+  const [codigoLivro, setCodigoLivro] = useState("");
+  const [step, setStep] = useState<"nusp" | "livro">("nusp");
+
+  const handleNext = () => {
+    if (step === "nusp" && nusp.trim()) {
+      setStep("livro");
+    } else if (step === "livro" && codigoLivro.trim()) {
+      onScanComplete(nusp, codigoLivro);
+      setNusp("");
+      setCodigoLivro("");
+      setStep("nusp");
+    }
+  };
+
+  return (
+    <div className="mb-4">
+      {step === "nusp" ? (
+        <>
+          <label className="block mb-2 font-medium">Escaneie seu NUSP:</label>
+          <input
+            type="text"
+            className="border rounded px-3 py-2 w-full mb-2"
+            value={nusp}
+            onChange={(e) => setNusp(e.target.value)}
+            placeholder="NUSP"
+          />
+          <Button className="w-full" onClick={handleNext} disabled={!nusp.trim()}>
+            Próximo
+          </Button>
+        </>
+      ) : (
+        <>
+          <label className="block mb-2 font-medium">Escaneie o código de barras do livro:</label>
+          <input
+            type="text"
+            className="border rounded px-3 py-2 w-full mb-2"
+            value={codigoLivro}
+            onChange={(e) => setCodigoLivro(e.target.value)}
+            placeholder="Código de barras do livro"
+          />
+          <Button className="w-full" onClick={handleNext} disabled={!codigoLivro.trim()}>
+            {actionLabel}
+          </Button>
+        </>
+      )}
+    </div>
+  );
+};
+
 const ProAlunoLoanManagement = () => {
   const [showLoanForm, setShowLoanForm] = useState(false);
   const [showReturnForm, setShowReturnForm] = useState(false);
+  const [scanCompleted, setScanCompleted] = useState(false);
+
+  // Reset scanCompleted when closing forms
+  useEffect(() => {
+    if (!showLoanForm && !showReturnForm) setScanCompleted(false);
+  }, [showLoanForm, showReturnForm]);
 
   return (
     <div className="p-4">
@@ -29,22 +92,27 @@ const ProAlunoLoanManagement = () => {
           </CardHeader>
           <CardContent>
             {showLoanForm ? (
-              <>
-                <LoanForm
-                  onSuccess={() => {
-                    setShowLoanForm(false);
-                    // Adicionar feedback de sucesso, se necessário
-                  }}
-                  // onError para tratamento de erros, se necessário
+              scanCompleted ? (
+                <>
+                  <LoanForm
+                    onSuccess={() => {
+                      setShowLoanForm(false);
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    className="mt-4 w-full"
+                    onClick={() => setShowLoanForm(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              ) : (
+                <ScanSection
+                  actionLabel="Registrar Empréstimo"
+                  onScanComplete={() => setScanCompleted(true)}
                 />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full"
-                  onClick={() => setShowLoanForm(false)}
-                >
-                  Cancelar
-                </Button>
-              </>
+              )
             ) : (
               <Button
                 className="w-full bg-cm-green hover:bg-cm-green/90 text-white"
@@ -61,22 +129,27 @@ const ProAlunoLoanManagement = () => {
           </CardHeader>
           <CardContent>
             {showReturnForm ? (
-              <>
-                <ReturnLoanForm
-                  onSuccess={() => {
-                    setShowReturnForm(false);
-                    // Adicionar feedback de sucesso, se necessário
-                  }}
-                  // onError para tratamento de erros, se necessário
+              scanCompleted ? (
+                <>
+                  <ReturnLoanForm
+                    onSuccess={() => {
+                      setShowReturnForm(false);
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    className="mt-4 w-full"
+                    onClick={() => setShowReturnForm(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              ) : (
+                <ScanSection
+                  actionLabel="Processar Devolução"
+                  onScanComplete={() => setScanCompleted(true)}
                 />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full"
-                  onClick={() => setShowReturnForm(false)}
-                >
-                  Cancelar
-                </Button>
-              </>
+              )
             ) : (
               <Button
                 className="w-full bg-cm-orange hover:bg-cm-orange/90 text-white"
@@ -123,16 +196,6 @@ const ProAlunoPage = () => {
           {/* Seção de Gerenciamento de Empréstimos para Pró-Aluno */}
           <ProAlunoLoanManagement />
 
-          {/* 
-            TODO: Adicionar aqui as outras seções/componentes que são visíveis
-            para usuários não logados (ex: busca de livros, lista de livros populares, etc.)
-            Exemplo:
-            <div className="mt-12">
-              <h2 className="text-3xl font-bebas text-center mb-6">Consultar Acervo</h2>
-              <SearchBar onSearch={(query) => console.log(query)} />
-              <BookList /> 
-            </div>
-          */}
         </div>
       </main>
       <Footer />
