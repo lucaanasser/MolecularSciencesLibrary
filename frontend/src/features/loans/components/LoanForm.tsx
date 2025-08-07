@@ -9,10 +9,16 @@ import { useCreateLoan } from "../hooks/useCreateLoan";
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
-export default function LoanForm({ nusp, codigoLivro, senha, onSuccess }: { nusp: string; codigoLivro: string; senha: string; onSuccess?: () => void }) {
+
+export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoLivro = "", senha: propSenha = "", onSuccess }: { nusp?: string; codigoLivro?: string; senha?: string; onSuccess?: () => void } = {}) {
   const { createLoan, loading, error, loan } = useCreateLoan();
   const [formError, setFormError] = React.useState<string>("");
   const [successMsg, setSuccessMsg] = React.useState<string>("");
+  const [nusp, setNusp] = React.useState<string>(propNusp);
+  const [codigoLivro, setCodigoLivro] = React.useState<string>(propCodigoLivro);
+  const [senha, setSenha] = React.useState<string>(propSenha);
+  const [showPopup, setShowPopup] = React.useState(false);
+  const [loanDetails, setLoanDetails] = React.useState<any>(null);
 
   async function validarNusp(nusp: string) {
     try {
@@ -57,9 +63,6 @@ export default function LoanForm({ nusp, codigoLivro, senha, onSuccess }: { nusp
     }
   }
 
-  const [showPopup, setShowPopup] = React.useState(false);
-  const [loanDetails, setLoanDetails] = React.useState<any>(null);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
@@ -97,15 +100,36 @@ export default function LoanForm({ nusp, codigoLivro, senha, onSuccess }: { nusp
         <div className="mb-4">
           <div>
             <label className="font-medium">NUSP:</label>
-            <div className="font-mono">{nusp}</div>
+            <input
+              type="text"
+              className="border rounded px-3 py-2 w-full mb-2"
+              value={nusp}
+              onChange={e => setNusp(e.target.value)}
+              placeholder="NUSP"
+              disabled={loading}
+            />
           </div>
           <div>
             <label className="font-medium">Código do Livro:</label>
-            <div className="font-mono">{codigoLivro}</div>
+            <input
+              type="text"
+              className="border rounded px-3 py-2 w-full mb-2"
+              value={codigoLivro}
+              onChange={e => setCodigoLivro(e.target.value)}
+              placeholder="Código do Livro"
+              disabled={loading}
+            />
           </div>
           <div>
             <label className="font-medium">Senha:</label>
-            <div className="font-mono">••••••••</div>
+            <input
+              type="password"
+              className="border rounded px-3 py-2 w-full mb-2"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
+              placeholder="Senha"
+              disabled={loading}
+            />
           </div>
         </div>
         <button
