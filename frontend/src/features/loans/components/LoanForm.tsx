@@ -156,18 +156,18 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
       {step === 0 && (
         <div className="flex flex-row items-center justify-center gap-8">
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center w-64">
-            <h2 className="text-lg font-bold mb-4 text-cm-green">Empréstimo</h2>
+            <h2 className="text-lg font-bold mb-4 text-cm-purple">Empréstimo</h2>
             <button
-              className="w-full bg-cm-green text-white py-2 rounded text-lg"
+              className="w-full bg-cm-purple text-white py-2 rounded text-lg"
               onClick={() => { setOperation("emprestimo"); setStep(1); }}
             >
               Empréstimo
             </button>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center w-64">
-            <h2 className="text-lg font-bold mb-4 text-cm-green">Devolução</h2>
+            <h2 className="text-lg font-bold mb-4 text-cm-purple">Devolução</h2>
             <button
-              className="w-full bg-cm-green text-white py-2 rounded text-lg"
+              className="w-full bg-cm-purple text-white py-2 rounded text-lg"
               onClick={() => { setOperation("devolucao"); setStep(1); }}
             >
               Devolução
@@ -225,21 +225,6 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
           <div className="flex gap-2">
             <button
               type="button"
-              className="bg-gray-300 text-gray-700 py-2 px-4 rounded w-1/2"
-              onClick={() => {
-                setStep(0);
-                setOperation("");
-                setNusp("");
-                setSenha("");
-                setCodigoLivro("");
-                setFormError("");
-                setLoanDetails(null);
-              }}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
               className="bg-gray-200 text-gray-700 py-2 px-4 rounded w-1/2"
               onClick={() => {
                 if (step > 1) setStep(step - 1);
@@ -248,13 +233,28 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             >
               Voltar
             </button>
+            <button
+              type="submit"
+              className="bg-cm-green text-white py-2 px-4 rounded w-1/2"
+              disabled={loading}
+            >
+              {step < 3 ? "Próximo" : loading ? "Registrando..." : "Confirmar Empréstimo"}
+            </button>
           </div>
           <button
-            type="submit"
-            className="w-full bg-cm-green text-white py-2 rounded mt-2"
-            disabled={loading}
+            type="button"
+            className="w-full bg-cm-purple text-white py-2 rounded mt-2"
+            onClick={() => {
+              setStep(0);
+              setOperation("");
+              setNusp("");
+              setSenha("");
+              setCodigoLivro("");
+              setFormError("");
+              setLoanDetails(null);
+            }}
           >
-            {step < 3 ? "Próximo" : loading ? "Registrando..." : "Confirmar Empréstimo"}
+            Cancelar
           </button>
           {formError && <div className="text-red-600">{formError}</div>}
           {error && <div className="text-red-600">{error}</div>}
@@ -278,7 +278,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
           <div className="flex gap-2">
             <button
               type="button"
-              className="bg-gray-300 text-gray-700 py-2 px-4 rounded w-1/2"
+              className="bg-cm-red text-white py-2 px-4 rounded w-1/2"
               onClick={() => {
                 setStep(0);
                 setOperation("");
@@ -290,23 +290,13 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
               Cancelar
             </button>
             <button
-              type="button"
-              className="bg-gray-200 text-gray-700 py-2 px-4 rounded w-1/2"
-              onClick={() => {
-                if (step > 1) setStep(step - 1);
-              }}
-              disabled={step <= 1}
+              type="submit"
+              className="bg-cm-green text-white py-2 px-4 rounded w-1/2"
+              disabled={loading}
             >
-              Voltar
+              {loading ? "Processando..." : "Confirmar"}
             </button>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-cm-green text-white py-2 rounded mt-2"
-            disabled={loading}
-          >
-            {loading ? "Processando..." : "Confirmar Devolução"}
-          </button>
           {formError && <div className="text-red-600">{formError}</div>}
         </form>
       )}
