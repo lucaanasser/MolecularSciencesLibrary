@@ -40,9 +40,19 @@ const ScanSection = ({
   // Mock das funções de validação (substitua por chamadas reais à API)
   async function validarNusp(nusp: string) {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setLoading(false);
-    return nusp === "123456"; // Exemplo: só aceita 123456
+    try {
+      // Exemplo de chamada à API (ajuste a URL conforme seu backend)
+      const res = await fetch(`/api/alunos/${nusp}`);
+      setLoading(false);
+      if (res.ok) {
+        const aluno = await res.json();
+        return !!aluno; // retorna true se encontrou o aluno
+      }
+      return false;
+    } catch (err) {
+      setLoading(false);
+      return false;
+    }
   }
   async function validarSenha(nusp: string, senha: string) {
     setLoading(true);
