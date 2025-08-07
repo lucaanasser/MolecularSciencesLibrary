@@ -160,70 +160,80 @@ const VirtualBookshelf = () => {
         )}
       </div>
 
-      {/* Container horizontal de estantes */}
-      <div className="max-w-5xl mx-auto mt-10 px-6 py-8 relative overflow-x-auto" style={{ whiteSpace: 'nowrap' }}>
-        {shelfNumbers.map(shelfNum => (
+      {/* Container em grid para mostrar 2x2 estantes antes do scroll */}
+      <div
+        className="max-w-5xl mx-auto mt-10 px-6 py-8 relative overflow-auto"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
+          gap: '32px',
+          height: '900px', // Ajuste conforme necessário para caber 2 linhas
+        }}
+      >
+        {shelfNumbers.map((shelfNum, idx) => (
           <div
             key={shelfNum}
-            className="inline-block align-top w-[400px] mr-6"
-            style={{ verticalAlign: 'top' }}
+            className="w-full h-full bg-white rounded-lg shadow p-2 flex flex-col gap-1"
+            style={{ minWidth: 0, minHeight: 0 }}
           >
-            <div className="mb-4 text-center font-bold text-lg">Estante {shelfNum}</div>
-            {/* Renderiza prateleiras da estante */}
-            {(editMode && isAdmin
-              ? rowNumbers.map(rowNum => {
-                  const shelf = shelvesConfig.find(
-                    (s: VirtualShelf) => s.shelf_number === shelfNum && s.shelf_row === rowNum
-                  ) || {
-                    id: rowNum,
-                    shelf_number: shelfNum,
-                    shelf_row: rowNum,
-                    book_code_start: null,
-                    book_code_end: null,
-                    is_last_shelf: false,
-                  } as VirtualShelf;
-                  return (
-                    <ShelfRenderer
-                      key={`${shelfNum}-${rowNum}`}
-                      shelf={shelf}
-                      books={books}
-                      shelvesConfig={shelvesConfig}
-                      isAdmin={isAdmin}
-                      editMode={editMode}
-                      loading={isLoading}
-                      highlightCode={highlightCode}
-                      onConfigUpdate={handleConfigUpdate}
-                      onError={handleError}
-                      onBookSelect={setSelectedBook}
-                    />
-                  );
-                })
-              : shelvesConfig
-                  .filter((s: VirtualShelf) => s.shelf_number === shelfNum)
-                  .sort((a, b) => a.shelf_row - b.shelf_row)
-                  .map((shelf: VirtualShelf) => (
-                    <ShelfRenderer
-                      key={`${shelf.shelf_number}-${shelf.shelf_row}`}
-                      shelf={shelf}
-                      books={books}
-                      shelvesConfig={shelvesConfig}
-                      isAdmin={isAdmin}
-                      editMode={editMode}
-                      loading={isLoading}
-                      highlightCode={highlightCode}
-                      onConfigUpdate={handleConfigUpdate}
-                      onError={handleError}
-                      onBookSelect={setSelectedBook}
-                    />
-                  ))
-            )}
+            <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
+            <div className="flex flex-col gap-1">
+              {(editMode && isAdmin
+                ? rowNumbers.map(rowNum => {
+                    const shelf = shelvesConfig.find(
+                      (s: VirtualShelf) => s.shelf_number === shelfNum && s.shelf_row === rowNum
+                    ) || {
+                      id: rowNum,
+                      shelf_number: shelfNum,
+                      shelf_row: rowNum,
+                      book_code_start: null,
+                      book_code_end: null,
+                      is_last_shelf: false,
+                    } as VirtualShelf;
+                    return (
+                      <ShelfRenderer
+                        key={`${shelfNum}-${rowNum}`}
+                        shelf={shelf}
+                        books={books}
+                        shelvesConfig={shelvesConfig}
+                        isAdmin={isAdmin}
+                        editMode={editMode}
+                        loading={isLoading}
+                        highlightCode={highlightCode}
+                        onConfigUpdate={handleConfigUpdate}
+                        onError={handleError}
+                        onBookSelect={setSelectedBook}
+                      />
+                    );
+                  })
+                : shelvesConfig
+                    .filter((s: VirtualShelf) => s.shelf_number === shelfNum)
+                    .sort((a, b) => a.shelf_row - b.shelf_row)
+                    .map((shelf: VirtualShelf) => (
+                      <ShelfRenderer
+                        key={`${shelf.shelf_number}-${shelf.shelf_row}`}
+                        shelf={shelf}
+                        books={books}
+                        shelvesConfig={shelvesConfig}
+                        isAdmin={isAdmin}
+                        editMode={editMode}
+                        loading={isLoading}
+                        highlightCode={highlightCode}
+                        onConfigUpdate={handleConfigUpdate}
+                        onError={handleError}
+                        onBookSelect={setSelectedBook}
+                      />
+                    ))
+              )}
+            </div>
             {/* Botão para adicionar prateleira individual (admin) */}
             {isAdmin && editMode && (() => {
               const prateleirasNaEstante = shelvesConfig.filter(s => s.shelf_number === shelfNum).length;
               if (prateleirasNaEstante < NUM_ROWS) {
                 return (
-                  <div className="flex justify-center mt-4">
-                    <Button onClick={handleAddShelfRow} variant="outline">
+                  <div className="flex justify-center mt-2">
+                    <Button onClick={handleAddShelfRow} variant="outline" className="text-xs py-1 px-2">
                       + Adicionar prateleira à estante {shelfNum}
                     </Button>
                   </div>
