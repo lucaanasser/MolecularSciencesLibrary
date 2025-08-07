@@ -55,10 +55,16 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="flex justify-center items-center p-6 min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md p-6 rounded-2xl shadow-lg">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bebas">Definir nova senha</h2>
-        </div>
+      <div className="w-full max-w-md flex flex-col items-center">
+        <img
+          src="/images/erro404.png"
+          alt="Carlos Magno esquecido"
+          className="w-full mb-4 rounded-2xl object-cover"
+        />
+        <Card className="w-full p-6 rounded-2xl shadow-lg">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bebas">Definir nova senha</h2>
+          </div>
         {success ? (
           <div className="text-green-600 text-center mb-4">
             Senha redefinida com sucesso! Redirecionando para o login...
@@ -101,7 +107,8 @@ export default function ResetPasswordPage() {
             </Button>
           </form>
         )}
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
