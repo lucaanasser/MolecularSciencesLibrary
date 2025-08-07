@@ -94,8 +94,14 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
       setShowPopup(true);
       setSuccessMsg("");
       if (onSuccess) onSuccess();
-    } catch (err) {
-      setFormError("Erro ao registrar empréstimo.");
+    } catch (err: any) {
+      // Adaptação para erro do EmailService
+      if (err?.message?.includes("EmailService.sendNotificationEmail is not a function")) {
+        setFormError("Empréstimo registrado, mas houve um erro ao enviar a notificação por email. Informe o administrador.");
+        setShowPopup(true);
+      } else {
+        setFormError("Erro ao registrar empréstimo.");
+      }
     }
   };
 
