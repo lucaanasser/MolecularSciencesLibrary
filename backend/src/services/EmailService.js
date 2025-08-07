@@ -1,42 +1,3 @@
-    /**
-     * Envia email de confirmação de novo empréstimo
-     */
-    async sendLoanConfirmationEmail({ user_id, book_title, borrowedAt }) {
-        const user = await usersModel.getUserById(user_id);
-        if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
-            return false;
-        }
-        const subject = 'Confirmação de novo empréstimo - Biblioteca CM';
-        const dateStr = borrowedAt ? new Date(borrowedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
-        const htmlContent = `
-            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
-            <p>Confirmamos o registro do empréstimo do livro <b>"${book_title}"</b> em ${dateStr}.</p>
-            <p>Fique atento ao prazo de devolução e aproveite a leitura!</p>
-            <div style="margin-top: 30px; text-align: center;">
-                <img src="cid:logo" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
-                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-                    Equipe Biblioteca Ciências Moleculares
-                </div>
-            </div>
-        `;
-        const textContent = `Olá, ${user.name || 'colega'}!\n\nConfirmamos o registro do empréstimo do livro "${book_title}" em ${dateStr}.\n\nFique atento ao prazo de devolução e aproveite a leitura!\n\nEquipe Biblioteca Ciências Moleculares`;
-        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
-        return await this.sendMail({
-            to: user.email,
-            subject,
-            text: textContent,
-            html,
-            type: 'loan_confirmation',
-            attachments: [
-                {
-                    filename: 'Biblioteca do CM.png',
-                    path: path.join(__dirname, '../../public/images/Biblioteca do CM.png'),
-                    cid: 'logo'
-                }
-            ]
-        });
-    }
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 const usersModel = require('../models/UsersModel');
@@ -465,6 +426,47 @@ class EmailService {
             ]
         });
     }
+
+    /**
+     * Envia email de confirmação de novo empréstimo
+     */
+    async sendLoanConfirmationEmail({ user_id, book_title, borrowedAt }) {
+        const user = await usersModel.getUserById(user_id);
+        if (!user || !user.email) {
+            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
+            return false;
+        }
+        const subject = 'Confirmação de novo empréstimo - Biblioteca CM';
+        const dateStr = borrowedAt ? new Date(borrowedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
+        const htmlContent = `
+            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
+            <p>Confirmamos o registro do empréstimo do livro <b>"${book_title}"</b> em ${dateStr}.</p>
+            <p>Fique atento ao prazo de devolução e aproveite a leitura!</p>
+            <div style="margin-top: 30px; text-align: center;">
+                <img src="cid:logo" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
+                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+                    Equipe Biblioteca Ciências Moleculares
+                </div>
+            </div>
+        `;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nConfirmamos o registro do empréstimo do livro "${book_title}" em ${dateStr}.\n\nFique atento ao prazo de devolução e aproveite a leitura!\n\nEquipe Biblioteca Ciências Moleculares`;
+        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
+        return await this.sendMail({
+            to: user.email,
+            subject,
+            text: textContent,
+            html,
+            type: 'loan_confirmation',
+            attachments: [
+                {
+                    filename: 'Biblioteca do CM.png',
+                    path: path.join(__dirname, '../../public/images/Biblioteca do CM.png'),
+                    cid: 'logo'
+                }
+            ]
+        });
+    }
+
 
     /**
      * Testa a configuração de email
