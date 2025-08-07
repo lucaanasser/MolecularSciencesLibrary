@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useCreateLoan } from "../hooks/useCreateLoan";
 
 /**
@@ -9,21 +8,14 @@ import { useCreateLoan } from "../hooks/useCreateLoan";
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
-export default function LoanForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [NUSP, setNUSP] = useState("");
-  const [password, setPassword] = useState("");
-  const [bookId, setBookId] = useState("");
+export default function LoanForm({ nusp, codigoLivro, senha, onSuccess }: { nusp: string; codigoLivro: string; senha: string; onSuccess?: () => void }) {
   const { createLoan, loading, error, loan } = useCreateLoan();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!NUSP || !password || !bookId) {
-      console.warn("🟡 [LoanForm] Campos obrigatórios não preenchidos");
-      return;
-    }
     try {
-      console.log("🔵 [LoanForm] Registrando empréstimo para NUSP:", NUSP, "Livro:", bookId);
-      await createLoan({ NUSP, password, book_id: Number(bookId) });
+      console.log("🔵 [LoanForm] Registrando empréstimo para NUSP:", nusp, "Livro:", codigoLivro);
+      await createLoan({ NUSP: nusp, password: senha, book_id: Number(codigoLivro) });
       if (onSuccess) {
         console.log("🟢 [LoanForm] Empréstimo registrado com sucesso");
         onSuccess();
@@ -35,42 +27,26 @@ export default function LoanForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div>
-        <label className="block font-medium">NUSP do Usuário</label>
-        <input
-          type="text"
-          value={NUSP}
-          onChange={e => setNUSP(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-          required
-        />
-      </div>
-      <div>
-        <label className="block font-medium">Senha do Usuário</label>
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-          required
-        />
-      </div>
-      <div>
-        <label className="block font-medium">ID do Livro</label>
-        <input
-          type="number"
-          value={bookId}
-          onChange={e => setBookId(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-          required
-        />
+      <div className="mb-4">
+        <div>
+          <label className="font-medium">NUSP:</label>
+          <div className="font-mono">{nusp}</div>
+        </div>
+        <div>
+          <label className="font-medium">Código do Livro:</label>
+          <div className="font-mono">{codigoLivro}</div>
+        </div>
+        <div>
+          <label className="font-medium">Senha:</label>
+          <div className="font-mono">••••••••</div>
+        </div>
       </div>
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        className="w-full bg-cm-green text-white py-2 rounded"
         disabled={loading}
       >
-        {loading ? "Registrando..." : "Registrar Empréstimo"}
+        {loading ? "Registrando..." : "Confirmar Empréstimo"}
       </button>
       {error && <div className="text-red-600">{error}</div>}
       {loan && <div className="text-green-600">Empréstimo registrado com sucesso!</div>}

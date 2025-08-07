@@ -181,6 +181,9 @@ const ProAlunoLoanManagement = () => {
               scanCompleted && scanData ? (
                 <>
                   <LoanForm
+                    nusp={scanData.nusp}
+                    codigoLivro={scanData.codigoLivro}
+                    senha={scanData.senha}
                     onSuccess={() => {
                       setShowLoanForm(false);
                     }}
