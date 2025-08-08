@@ -141,9 +141,9 @@ const VirtualBookshelf = () => {
   };
 
   return (
-    <div className="w-full py-2 px-1">
+    <div className="w-full py-6 px-2">
       {/* Header de navegação entre estantes - menor e com menos espaçamento */}
-      <div className="flex justify-center items-center gap-1 mb-2">
+      <div className="flex justify-center items-center gap-2 mb-8">
         {isAdmin && (
           <Button
             variant={editMode ? "default" : "outline"}
@@ -160,19 +160,18 @@ const VirtualBookshelf = () => {
       {/* Container flexível para as estantes lado a lado com scroll horizontal */}
       <div
         className="overflow-x-auto w-full"
-        style={{ WebkitOverflowScrolling: 'touch', maxHeight: '100vh' }}
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div
-          className="flex flex-row flex-nowrap gap-2 py-1 px-0"
+          className="flex flex-row flex-nowrap gap-6 px-1"
         >
           {shelfNumbers.map((shelfNum) => (
             <div
               key={shelfNum}
-              className="bg-white p-2 flex flex-col gap-1 min-w-[180px] w-[32vw] sm:min-w-[180px] sm:w-[180px] lg:min-w-[180px] lg:w-[180px] xl:min-w-[180px] xl:w-[180px]"
-              style={{ minHeight: '14vh', maxHeight: '16vh' }}
+              className="bg-white p-4 flex flex-col gap-2 min-w-[340px] w-[95vw] sm:min-w-[480px] sm:w-[480px] lg:min-w-[520px] lg:w-[520px] xl:min-w-[600px] xl:w-[600px]"
             >
-              <div className="mb-1 text-center font-bold text-xs">Estante {shelfNum}</div>
-              <div className="flex flex-col gap-0.5">
+            <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
+            <div className="flex flex-col gap-0.1">
               {(editMode && isAdmin
                 ? rowNumbers.map(rowNum => {
                     const shelf = shelvesConfig.find(
