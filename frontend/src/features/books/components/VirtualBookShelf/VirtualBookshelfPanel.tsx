@@ -141,7 +141,7 @@ const VirtualBookshelf = () => {
   };
 
   return (
-    <div className="w-full py-6 px-4">
+    <div className="w-full py-6 px-2">
       {/* Header de navegação entre estantes - menor e com menos espaçamento */}
       <div className="flex justify-center items-center gap-2 mb-8">
         {isAdmin && (
@@ -157,24 +157,21 @@ const VirtualBookshelf = () => {
         )}
       </div>
 
-      {/* Container horizontal para mostrar 2 estantes por vez antes do scroll */}
+      {/* Container flexível para as estantes lado a lado com scroll horizontal */}
       <div
-        className="max-w-5xl mx-auto mt-10 px-6 py-8 relative overflow-x-auto"
-        style={{
-          display: 'flex',
-          gap: '32px',
-          width: '900px', // largura suficiente para 2 estantes
-          minHeight: '600px',
-        }}
+        className="overflow-x-auto w-full"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        {shelfNumbers.map((shelfNum) => (
-          <div
-            key={shelfNum}
-            className="bg-white rounded-lg shadow p-2 flex flex-col gap-1"
-            style={{ width: '400px', minWidth: '400px', minHeight: 0 }}
-          >
+        <div
+          className="flex flex-row flex-nowrap gap-6 py-2 px-1"
+        >
+          {shelfNumbers.map((shelfNum) => (
+            <div
+              key={shelfNum}
+              className="bg-white rounded-lg shadow p-2 flex flex-col gap-1 min-w-[280px] w-[90vw] sm:w-[340px]"
+            >
             <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
-            <div className="flex flex-col gap-0.2">
+            <div className="flex flex-col gap-0.5">
               {(editMode && isAdmin
                 ? rowNumbers.map(rowNum => {
                     const shelf = shelvesConfig.find(
@@ -238,7 +235,8 @@ const VirtualBookshelf = () => {
               return null;
             })()}
           </div>
-        ))}
+            ))}
+        </div>
       </div>
 
       {/* Modal de detalhes do livro */}
