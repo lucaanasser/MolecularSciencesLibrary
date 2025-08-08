@@ -168,7 +168,7 @@ const VirtualBookshelf = () => {
           {shelfNumbers.map((shelfNum) => (
             <div
               key={shelfNum}
-              className="bg-white rounded-lg shadow p-4 flex flex-col gap-2 min-w-[600px] w-[95vw] sm:w-[480px] lg:w-[520px] xl:w-[600px]"
+              className="bg-white rounded-lg shadow p-4 flex flex-col gap-2 min-w-[340px] w-[95vw] sm:min-w-[480px] sm:w-[480px] lg:min-w-[520px] lg:w-[520px] xl:min-w-[600px] xl:w-[600px]"
             >
             <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
             <div className="flex flex-col gap-0.5">
