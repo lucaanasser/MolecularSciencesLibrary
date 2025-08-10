@@ -49,6 +49,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: biblioteca-frontend
     ports:
       - "80:80"
       - "443:443"
@@ -64,6 +65,6 @@ services:
     volumes:
       - ./ssl:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    entrypoint: ["/bin/sh", "-c", "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot; sleep 86400; done"]
+    entrypoint: ["/bin/sh", "-c", "trap exit TERM; while true; do certbot renew --webroot -w /var/www/certbot && docker exec biblioteca-frontend nginx -s reload; sleep 86400; done"]
     depends_on:
       - frontend
