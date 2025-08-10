@@ -47,28 +47,6 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
     }
   })();
 
-  // Determinar status e cores (mesma lógica do painel de busca)
-  const { statusText, dotColor, textColor } = (() => {
-    let statusText = "Disponível";
-    let dotColor = "bg-cm-green";
-    let textColor = "text-cm-green";
-    const exemplaresIndisponiveis = (book.exemplaresDisponiveis === 0) || (!book.available && !book.overdue && !book.is_reserved);
-    if (book.overdue) {
-      statusText = "Atrasado";
-      dotColor = "bg-cm-red";
-      textColor = "text-cm-red";
-    } else if (book.is_reserved) {
-      statusText = "Reservado";
-      dotColor = "bg-purple-700";
-      textColor = "text-purple-700";
-    } else if (exemplaresIndisponiveis) {
-      statusText = "Emprestado";
-      dotColor = "bg-yellow-400";
-      textColor = "text-yellow-500";
-    }
-    return { statusText, dotColor, textColor };
-  })();
-
   // ...existing code...
 
   return (
@@ -83,9 +61,10 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
           
           {showAvailabilityText && (
             <>
-              <p className="font-semibold flex items-center gap-2">
-                <span className={`w-3 h-3 rounded-full ${dotColor}`}></span>
-                <span className={textColor}>{statusText}</span>
+              <p className="font-semibold">
+                {book.exemplaresDisponiveis !== undefined && book.totalExemplares !== undefined
+                  ? `${book.exemplaresDisponiveis > 0 ? "Disponível" : "Emprestado"}`
+                  : book.available ? "Disponível" : "Emprestado"}
               </p>
               {book.totalExemplares > 1 && (
                 <p className="mt-2 text-sm">{`${book.exemplaresDisponiveis}/${book.totalExemplares} exemplares disponíveis`}</p>
