@@ -79,8 +79,8 @@ const httpServer = http.createServer(app);
 let httpsServer = null;
 try {
   // Tenta primeiro os caminhos diretos do Let's Encrypt
-  let sslKeyPath = '/etc/letsencrypt/live/bibliotecamoleculares.com-0001/privkey.pem';
-  let sslCertPath = '/etc/letsencrypt/live/bibliotecamoleculares.com-0001/fullchain.pem';
+  let sslKeyPath = '/etc/letsencrypt/live/bibliotecamoleculares.com/privkey.pem';
+  let sslCertPath = '/etc/letsencrypt/live/bibliotecamoleculares.com/fullchain.pem';
   
   // Se não encontrar, tenta os caminhos locais
   if (!fs.existsSync(sslKeyPath) || !fs.existsSync(sslCertPath)) {
