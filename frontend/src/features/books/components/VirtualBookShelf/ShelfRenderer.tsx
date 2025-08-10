@@ -133,11 +133,10 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                           onClick={() => onBookSelect(book)}
                           title={book.title}
                           style={{
-                            width: `calc(100% / ${shelfBooks.length})`,
-                            minWidth: 16,
+                            width: 24,
+                            minWidth: 24,
                             minHeight: 70,
-                            maxWidth: 40,
-                            transition: 'width 0.2s',
+                            maxWidth: 24,
                           }}
                         ></div>
                       </TooltipTrigger>
