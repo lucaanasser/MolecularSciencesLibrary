@@ -414,38 +414,18 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
               ) : (
                 <div className="flex items-center gap-1">
                   <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                    {shelf.calculated_book_code_end || shelf.book_code_end || 'Auto'}
+                    {shelf.book_code_end || 'Auto'}
                   </span>
-                  {shelf.is_last_shelf && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleStartEdit('end')}
-                      disabled={loading}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleStartEdit('end')}
+                    disabled={loading}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
                 </div>
-              )}
-            </div>
-            {/* Toggle Última Prateleira */}
-            <div className="flex items-center gap-2">
-              <label className="text-xs flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={shelf.is_last_shelf}
-                  onChange={handleToggleLastShelf}
-                  disabled={loading}
-                  className="text-xs"
-                />
-                Última
-              </label>
-              {shelf.is_last_shelf && (
-                <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">
-                  🔚
-                </span>
               )}
             </div>
           </div>
