@@ -144,7 +144,7 @@ const VirtualBookshelf = () => {
 
   return (
     <div className="w-full py-6 px-2">
-      {/* Header de navegação entre estantes - menor e com menos espaçamento */}
+      {/* Header de navegação entre estantes */}
       <div className="flex justify-center items-center gap-2 mb-8">
         {isAdmin && (
           <Button
@@ -159,28 +159,42 @@ const VirtualBookshelf = () => {
         )}
       </div>
 
-      {/* Container flexível para as estantes lado a lado com scroll horizontal */}
-      <div
-        className="overflow-x-auto w-full"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        <div
-          className="flex flex-row flex-nowrap gap-6 px-1"
-        >
-          {shelfNumbers.map((shelfNum) => (
-            <div
-              key={shelfNum}
-              className="bg-white p-4 flex flex-col gap-2 min-w-[340px] w-[95vw] sm:min-w-[480px] sm:w-[480px] lg:min-w-[520px] lg:w-[520px] xl:min-w-[600px] xl:w-[600px]"
+      {/* Mensagem para telas pequenas */}
+      <div className="block sm:hidden w-full text-center py-16">
+        <span className="text-lg font-semibold text-gray-700">Para visualizar a estante virtual, acesse pelo computador.</span>
+      </div>
+
+      {/* Exibe prateleira apenas em telas médias/grandes */}
+      <div className="hidden sm:block w-full">
+        <div className="flex flex-col items-center">
+          {/* Navegação entre estantes */}
+          <div className="flex items-center gap-4 mb-4">
+            <Button
+              variant="outline"
+              onClick={() => handleShelfChange("prev")}
+              disabled={selectedShelf === "1"}
             >
-            <div className="mb-2 text-center font-bold text-lg">Estante {shelfNum}</div>
-            <div className="flex flex-col gap-0.1">
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <span className="font-bold text-xl">Estante {selectedShelf}</span>
+            <Button
+              variant="outline"
+              onClick={() => handleShelfChange("next")}
+              disabled={selectedShelf === NUM_SHELVES.toString()}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <div className="bg-white p-4 flex flex-col gap-2 w-full max-w-2xl">
+            <div className="flex flex-col gap-0.5">
               {(editMode && isAdmin
                 ? rowNumbers.map(rowNum => {
                     const shelf = shelvesConfig.find(
-                      (s: VirtualShelf) => s.shelf_number === shelfNum && s.shelf_row === rowNum
+                      (s: VirtualShelf) => s.shelf_number.toString() === selectedShelf && s.shelf_row === rowNum
                     ) || {
                       id: rowNum,
-                      shelf_number: shelfNum,
+                      shelf_number: Number(selectedShelf),
                       shelf_row: rowNum,
                       book_code_start: null,
                       book_code_end: null,
@@ -188,7 +202,7 @@ const VirtualBookshelf = () => {
                     } as VirtualShelf;
                     return (
                       <ShelfRenderer
-                        key={`${shelfNum}-${rowNum}`}
+                        key={`${selectedShelf}-${rowNum}`}
                         shelf={shelf}
                         books={books}
                         shelvesConfig={shelvesConfig}
@@ -203,7 +217,7 @@ const VirtualBookshelf = () => {
                     );
                   })
                 : shelvesConfig
-                    .filter((s: VirtualShelf) => s.shelf_number === shelfNum)
+                    .filter((s: VirtualShelf) => s.shelf_number.toString() === selectedShelf)
                     .sort((a, b) => a.shelf_row - b.shelf_row)
                     .map((shelf: VirtualShelf) => (
                       <ShelfRenderer
@@ -224,12 +238,12 @@ const VirtualBookshelf = () => {
             </div>
             {/* Botão para adicionar prateleira individual (admin) */}
             {isAdmin && editMode && (() => {
-              const prateleirasNaEstante = shelvesConfig.filter(s => s.shelf_number === shelfNum).length;
+              const prateleirasNaEstante = shelvesConfig.filter(s => s.shelf_number.toString() === selectedShelf).length;
               if (prateleirasNaEstante < NUM_ROWS) {
                 return (
                   <div className="flex justify-center mt-2">
                     <Button onClick={handleAddShelfRow} variant="outline" className="text-xs py-1 px-2">
-                      + Adicionar prateleira à estante {shelfNum}
+                      + Adicionar prateleira à estante {selectedShelf}
                     </Button>
                   </div>
                 );
@@ -237,7 +251,6 @@ const VirtualBookshelf = () => {
               return null;
             })()}
           </div>
-            ))}
         </div>
       </div>
 
