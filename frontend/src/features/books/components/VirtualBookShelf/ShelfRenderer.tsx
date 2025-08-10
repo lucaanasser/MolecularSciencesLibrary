@@ -15,6 +15,7 @@ interface ShelfRendererProps {
   onConfigUpdate: () => void;
   onError: (error: string) => void;
   onBookSelect: (book: any) => void;
+  maxBooks?: number;
 }
 
 /**
@@ -31,7 +32,8 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
   highlightCode,
   onConfigUpdate,
   onError,
-  onBookSelect
+  onBookSelect,
+  maxBooks = 40
 }) => {
   const [editing, setEditing] = useState(false);
   
@@ -113,7 +115,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
     return `${prefix}-${paddedMajor}.${paddedMinor}`;
   };
 
-  const shelfBooks = getBooksForShelf(shelf, shelvesConfig, books);
+  const shelfBooks = getBooksForShelf(shelf, shelvesConfig, books).slice(0, maxBooks);
 
   // Estado para controlar destaque passageiro
   const [highlightedBook, setHighlightedBook] = useState<string | null>(null);

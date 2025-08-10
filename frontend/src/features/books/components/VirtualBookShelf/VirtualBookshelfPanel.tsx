@@ -14,6 +14,7 @@ const NUM_SHELVES = 4; // estantes
 const NUM_ROWS = 6;    // prateleiras por estante
 const shelfNumbers = Array.from({ length: NUM_SHELVES }, (_, i) => i + 1);
 const rowNumbers = Array.from({ length: NUM_ROWS }, (_, i) => i + 1); // prateleiras por estante
+const MAX_BOOKS_PER_SHELF = 40;
 
 /**
  * Painel de estante virtual de livros.
@@ -166,7 +167,7 @@ const VirtualBookshelf = () => {
 
       {/* Exibe prateleira apenas em telas médias/grandes */}
       <div className="hidden sm:flex w-full justify-center items-center">
-        <div className="relative w-full max-w-2xl flex items-center">
+        <div className="relative w-full max-w-5xl flex items-center" style={{ minHeight: '700px' }}>
           {/* Seta esquerda */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20">
             <Button
@@ -183,7 +184,7 @@ const VirtualBookshelf = () => {
           {/* Conteúdo da estante */}
           <div className="flex flex-col items-center w-full">
             <span className="font-bold text-xl mb-4">Estante {selectedShelf}</span>
-            <div className="bg-white p-4 flex flex-col gap-2 w-full">
+            <div className="bg-white p-4 flex flex-col gap-2 w-full" style={{ minWidth: '900px', minHeight: '600px' }}>
               <div className="flex flex-col gap-0.5">
                 {(editMode && isAdmin
                   ? rowNumbers.map(rowNum => {
@@ -210,6 +211,7 @@ const VirtualBookshelf = () => {
                           onConfigUpdate={handleConfigUpdate}
                           onError={handleError}
                           onBookSelect={setSelectedBook}
+                          maxBooks={MAX_BOOKS_PER_SHELF}
                         />
                       );
                     })
@@ -229,6 +231,7 @@ const VirtualBookshelf = () => {
                           onConfigUpdate={handleConfigUpdate}
                           onError={handleError}
                           onBookSelect={setSelectedBook}
+                          maxBooks={MAX_BOOKS_PER_SHELF}
                         />
                       ))
                 )}
