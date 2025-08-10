@@ -82,9 +82,48 @@ function allQuery(query, params = []) {
     });
 }
 
+// Função para fechar o banco de dados com segurança
+function closeDatabase() {
+    db.close((err) => {
+        if (err) {
+            console.error('🔴 [db] Erro ao fechar banco de dados:', err.message);
+        } else {
+            console.log('🟢 [db] Banco de dados fechado com sucesso.');
+        }
+    });
+}
+
+// Função utilitária para executar múltiplas queries em transação
+async function runInTransaction(queriesWithParams = []) {
+    return new Promise((resolve, reject) => {
+        db.serialize(() => {
+            db.run('BEGIN TRANSACTION');
+            let errors = [];
+            queriesWithParams.forEach(([query, params]) => {
+                db.run(query, params, function(err) {
+                    if (err) errors.push(err);
+                });
+            });
+            if (errors.length > 0) {
+                db.run('ROLLBACK');
+                return reject(errors[0]);
+            }
+            db.run('COMMIT', (err) => {
+                if (err) {
+                    db.run('ROLLBACK');
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+    });
+}
+
 module.exports = {
     db,
     executeQuery,
     getQuery,
-    allQuery
+    allQuery,
+    closeDatabase,
+    runInTransaction
 };

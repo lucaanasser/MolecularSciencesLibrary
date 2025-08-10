@@ -15,33 +15,56 @@ function getDb() {
 
 module.exports = {
     // Cria um novo empréstimo
-    createLoan: (book_id, student_id, due_date) => {
-        console.log(`🔵 [LoansModel] Criando empréstimo: book_id=${book_id}, student_id=${student_id}`);
+    createLoan: async (book_id, student_id, due_date) => {
+        console.log(`🔵 [LoansModel] Criando empréstimo (transação): book_id=${book_id}, student_id=${student_id}`);
         let dueDateSql = due_date;
         if (due_date && typeof due_date === 'string') {
-            // Remove o 'T' e o 'Z' do ISO, pega só a parte relevante
             dueDateSql = due_date.replace('T', ' ').replace(/\..*$/, '');
         }
-        return new Promise((resolve, reject) => {
-            const db = getDb();
-            db.run(
+        const { runInTransaction } = require('../database/db');
+        const queries = [
+            [
                 `INSERT INTO loans (book_id, student_id, due_date, renewals) VALUES (?, ?, ?, 0)`,
-                [book_id, student_id, dueDateSql],
-                function (err) {
-                    db.close();
-                    if (err) {
-                        console.error(`🔴 [LoansModel] Erro ao criar empréstimo: ${err.message}`);
-                        reject(err);
-                    }
-                    else {
-                        console.log(`🟢 [LoansModel] Empréstimo criado com id: ${this.lastID}`);
-                        resolve({ id: this.lastID });
-                    }
-                }
-            );
-        });
+                [book_id, student_id, dueDateSql]
+            ],
+            [
+                `UPDATE books SET is_reserved = 1 WHERE id = ?`,
+                [book_id]
+            ]
+        ];
+        try {
+            await runInTransaction(queries);
+            console.log(`� [LoansModel] Empréstimo criado e livro atualizado em transação.`);
+            return { success: true };
+        } catch (err) {
+            console.error(`🔴 [LoansModel] Erro na transação de empréstimo: ${err.message}`);
+            throw err;
+        }
     },
 
+    // Devolve um empréstimo e atualiza status do livro em transação
+    returnBookWithUpdate: async (loan_id, book_id) => {
+        console.log(`� [LoansModel] Devolvendo empréstimo (transação): loan_id=${loan_id}, book_id=${book_id}`);
+        const { runInTransaction } = require('../database/db');
+        const queries = [
+            [
+                `UPDATE loans SET returned_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL`,
+                [loan_id]
+            ],
+            [
+                `UPDATE books SET is_reserved = 0 WHERE id = ?`,
+                [book_id]
+            ]
+        ];
+        try {
+            await runInTransaction(queries);
+            console.log(`🟢 [LoansModel] Devolução registrada e livro atualizado em transação.`);
+            return { success: true };
+        } catch (err) {
+            console.error(`🔴 [LoansModel] Erro na transação de devolução: ${err.message}`);
+            throw err;
+        }
+    },
     // Busca todos os empréstimos com detalhes do usuário e do livro
     getLoansWithDetails: () => {
         console.log("🔵 [LoansModel] Buscando todos os empréstimos com detalhes");

@@ -91,57 +91,24 @@ class VirtualBookShelfModel {
      * Atualiza configuração completa das prateleiras
      */
     async updateShelvesConfig(shelvesConfig) {
-        console.log("🔵 [VirtualBookShelfModel] Atualizando configuração completa das prateleiras");
+        console.log("🔵 [VirtualBookShelfModel] Atualizando configuração completa das prateleiras (transação)");
+        const { runInTransaction } = require('../database/db');
+        const queries = shelvesConfig.map(shelf => [
+            `UPDATE virtual_bookshelf SET book_code_start = ?, book_code_end = ?, is_last_shelf = ? WHERE shelf_number = ? AND shelf_row = ?`,
+            [
+                shelf.book_code_start || null,
+                shelf.book_code_end || null,
+                shelf.is_last_shelf || false,
+                shelf.shelf_number,
+                shelf.shelf_row
+            ]
+        ]);
         try {
-            // Usar transação para garantir consistência
-            const db = require('../database/db').getDatabase();
-            
-            await new Promise((resolve, reject) => {
-                db.serialize(() => {
-                    db.run("BEGIN TRANSACTION");
-                    
-                    const updateStmt = db.prepare(`
-                        UPDATE virtual_bookshelf 
-                        SET book_code_start = ?, book_code_end = ?, is_last_shelf = ? 
-                        WHERE shelf_number = ? AND shelf_row = ?
-                    `);
-                    
-                    let errors = [];
-                    
-                    shelvesConfig.forEach((shelf, index) => {
-                        updateStmt.run([
-                            shelf.book_code_start || null,
-                            shelf.book_code_end || null,
-                            shelf.is_last_shelf || false,
-                            shelf.shelf_number,
-                            shelf.shelf_row
-                        ], (err) => {
-                            if (err) errors.push(err);
-                        });
-                    });
-                    
-                    updateStmt.finalize((err) => {
-                        if (err || errors.length > 0) {
-                            db.run("ROLLBACK");
-                            reject(err || errors[0]);
-                        } else {
-                            db.run("COMMIT", (err) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve();
-                                }
-                            });
-                        }
-                    });
-                });
-            });
-            
-            console.log("🟢 [VirtualBookShelfModel] Configuração completa atualizada com sucesso");
-            return true;
-        } catch (error) {
-            console.error("🔴 [VirtualBookShelfModel] Erro ao atualizar configuração:", error.message);
-            throw error;
+            await runInTransaction(queries);
+            console.log("🟢 [VirtualBookShelfModel] Prateleiras atualizadas em transação.");
+        } catch (err) {
+            console.error("🔴 [VirtualBookShelfModel] Erro na transação de prateleiras:", err.message);
+            throw err;
         }
     }
 
