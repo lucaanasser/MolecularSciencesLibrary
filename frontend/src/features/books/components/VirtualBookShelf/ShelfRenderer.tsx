@@ -133,8 +133,8 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                           onClick={() => onBookSelect(book)}
                           title={book.title}
                           style={{
-                            width: 24,
-                            minWidth: 24,
+                            width: 16,
+                            minWidth: 12,
                             minHeight: 70,
                             maxWidth: 24,
                           }}
