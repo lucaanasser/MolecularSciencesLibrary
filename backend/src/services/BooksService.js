@@ -33,9 +33,9 @@ const subareaCodes = {
     "Química": { 
         "Química Geral": 1, 
         "Fisico-Química": 2, 
-        "Química Inorgância": 3,
+        "Química Inorgânica": 3,
         "Química Orgânica": 4,
-        "Química Analítica": 5, 
+        "Química Experimental": 5, 
     },
     "Biologia": { 
         "Bioquímica": 1, 

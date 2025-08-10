@@ -1,5 +1,5 @@
 import useBookSearchPage from "../hooks/useBookSearch";
-import { Search } from "lucide-react";
+import { Search, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +37,7 @@ const BookSearch: React.FC = () => {
     setSearch,
     books,
     isLoading,
+    resetFilters,
   } = useBookSearchPage();
 
   // State para detalhes do livro selecionado
@@ -69,7 +70,7 @@ const BookSearch: React.FC = () => {
   return (
     <div className="w-full">
       <div className="mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
           <div className="col-span-2">
             <div className="relative">
               <Input
@@ -148,6 +149,23 @@ const BookSearch: React.FC = () => {
                   ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex items-center justify-start md:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={() => resetFilters()}
+              disabled={
+                !search &&
+                !category &&
+                !subcategory &&
+                filterAvailable === "all"
+              }
+            >
+              <XCircle size={16} /> Limpar
+            </Button>
           </div>
         </div>
 
@@ -247,6 +265,7 @@ const BookSearch: React.FC = () => {
             onClose={() => setSelectedBook(null)}
             showAvailabilityText={true}
             showVirtualShelfButton={true}
+            subareaCodes={subareaCodes}
           />
         )}
       </div>

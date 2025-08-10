@@ -41,6 +41,15 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     return true;
   });
 
+  // Função para limpar todos os filtros e busca
+  function resetFilters() {
+    console.log("🟢 [useBookSearchPage] Resetando filtros e busca");
+    setCategory("");
+    setSubcategory("");
+    setFilterAvailable("all");
+    setSearch("");
+  }
+
   return {
     category,
     setCategory,
@@ -54,5 +63,6 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     setSearch,
     books: filteredByAvailability,
     isLoading,
+    resetFilters,
   };
 }

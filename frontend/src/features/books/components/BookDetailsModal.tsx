@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { SubareaCode } from "../types/book";
 
 interface BookDetailsModalProps {
   book: any;
   onClose: () => void;
   showAvailabilityText?: boolean;
   showVirtualShelfButton?: boolean;
+  subareaCodes?: SubareaCode; // novo
 }
 
 /**
@@ -23,6 +25,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
   onClose,
   showAvailabilityText = true,
   showVirtualShelfButton = true,
+  subareaCodes,
 }) => {
   const navigate = useNavigate();
   // ...existing code...
@@ -31,7 +34,18 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
 
   console.log("🔵 [BookDetailsModal] Renderizando modal para livro:", book?.title);
 
-  // ...existing code...
+  // Resolver nome da subárea a partir do número
+  const resolvedSubarea = (() => {
+    try {
+      if (!book?.subarea || !book?.area || !subareaCodes) return book?.subarea;
+      const areaMap = subareaCodes[book.area];
+      if (!areaMap) return book.subarea;
+      const entry = Object.entries(areaMap).find(([, value]) => Number(value) === Number(book.subarea));
+      return entry ? entry[0] : book.subarea;
+    } catch (e) {
+      return book?.subarea;
+    }
+  })();
 
   // ...existing code...
 
@@ -43,7 +57,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
           <p>Autor: {book.authors}</p>
           <p>Código: {book.code}</p>
           <p>Área: {book.area}</p>
-          <p>Subárea: {book.subarea}</p>
+          <p>Subárea: {resolvedSubarea}</p>
           
           {showAvailabilityText && (
             <>

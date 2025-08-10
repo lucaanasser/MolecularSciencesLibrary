@@ -7,6 +7,7 @@ import BookDetailsModal from "../BookDetailsModal";
 import ShelfRenderer from "./ShelfRenderer";
 import { useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import useBookOptions from "../../hooks/useBookOptions"; // novo
 
 // Defina as estantes e prateleiras
 const NUM_SHELVES = 4; // estantes
@@ -27,6 +28,7 @@ const VirtualBookshelf = () => {
 
   // Hooks e estado
   const { books, isLoading, error, refreshBooks } = useOrderedBooks();
+  const { subareaCodes } = useBookOptions(); // obter mapeamentos
   const [selectedShelf, setSelectedShelf] = useState("1");
   const [selectedBook, setSelectedBook] = useState<any>(null);
   const [shelvesConfig, setShelvesConfig] = useState<VirtualShelf[]>([]);
@@ -246,6 +248,7 @@ const VirtualBookshelf = () => {
           onClose={() => setSelectedBook(null)}
           showAvailabilityText={true}
           showVirtualShelfButton={false}
+          subareaCodes={subareaCodes}
         />
       )}
     </div>

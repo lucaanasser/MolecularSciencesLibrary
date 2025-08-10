@@ -36,6 +36,16 @@ class BooksModel {
         if (conditions.length > 0) {
             query += ` WHERE ` + conditions.join(' AND ');
         }
+        // Ordenação customizada das áreas antes de qualquer outro critério:
+        // Biologia -> Química -> Física -> Matemática -> Computação -> Variados -> demais
+        query += ` ORDER BY CASE area 
+            WHEN 'Biologia' THEN 1
+            WHEN 'Química' THEN 2
+            WHEN 'Física' THEN 3
+            WHEN 'Matemática' THEN 4
+            WHEN 'Computação' THEN 5
+            WHEN 'Variados' THEN 6
+            ELSE 999 END, subarea ASC, code ASC`;
         try {
             const books = await allQuery(query, params);
             console.log(`🟢 [BooksModel] Livros encontrados: ${books.length}`);
