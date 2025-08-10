@@ -90,20 +90,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
     return `${prefix}-${paddedMajor}.${paddedMinor}`;
   };
 
-  // Gera espessuras aleatórias para cada livro, mas ajusta para caber todos na prateleira
-  const shelfBooksRaw = getBooksForShelf(shelf, shelvesConfig, books).slice(0, maxBooks);
-  const shelfWidthPx = 800; // largura total da prateleira em px (ajuste conforme necessário)
-  const minWidth = 16; // px
-  const maxWidth = 32; // px
-  // Gera larguras aleatórias
-  const randomWidths = shelfBooksRaw.map(() => Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth);
-  const totalRandomWidth = randomWidths.reduce((a, b) => a + b, 0);
-  // Se exceder shelfWidthPx, escala proporcionalmente
-  const scale = totalRandomWidth > shelfWidthPx ? shelfWidthPx / totalRandomWidth : 1;
-  const shelfBooks = shelfBooksRaw.map((book, idx) => ({
-    ...book,
-    spineWidth: Math.round(randomWidths[idx] * scale)
-  }));
+  const shelfBooks = getBooksForShelf(shelf, shelvesConfig, books).slice(0, maxBooks);
 
   // Estado para controlar destaque passageiro
   const [highlightedBook, setHighlightedBook] = useState<string | null>(null);
@@ -146,10 +133,10 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                           onClick={() => onBookSelect(book)}
                           title={book.title}
                           style={{
-                            width: book.spineWidth,
-                            minWidth: book.spineWidth,
+                            width: 16,
+                            minWidth: 12,
                             minHeight: 70,
-                            maxWidth: book.spineWidth,
+                            maxWidth: 24,
                           }}
                         ></div>
                       </TooltipTrigger>
