@@ -67,9 +67,6 @@ const BookSearch: React.FC = () => {
     });
   }, [books]);
 
-  // Determina se algum filtro foi aplicado para exibir o botão Limpar
-  const filtersApplied = !!(search || category || subcategory || filterAvailable !== "all");
-
   return (
     <div className="w-full">
       <div className="mx-auto">
@@ -107,21 +104,15 @@ const BookSearch: React.FC = () => {
           </div>
 
           <div>
-            <Select value={category === "" ? "all" : category} onValueChange={value => {
+            <Select value={category || undefined} onValueChange={value => {
               console.log("🟢 [BookSearchPanel] Área selecionada:", value);
-              if (value === "all") {
-                setCategory("");
-                setSubcategory("");
-              } else {
-                setCategory(value);
-                setSubcategory("");
-              }
+              setCategory(value);
+              setSubcategory("");
             }}>
               <SelectTrigger className="rounded-2xl">
                 <SelectValue placeholder="Área" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
                 {categoryOptions
                   .filter(cat => cat !== "" && cat !== undefined && cat !== null)
                   .map(cat => (
@@ -161,16 +152,20 @@ const BookSearch: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-start md:justify-end">
-            {filtersApplied && (
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                onClick={() => resetFilters()}
-              >
-                <XCircle size={16} /> Limpar
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={() => resetFilters()}
+              disabled={
+                !search &&
+                !category &&
+                !subcategory &&
+                filterAvailable === "all"
+              }
+            >
+              <XCircle size={16} /> Limpar
+            </Button>
           </div>
         </div>
 
@@ -184,60 +179,9 @@ const BookSearch: React.FC = () => {
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="relative group bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 overflow-visible"
+                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200"
                 >
-                  {/* Aba lateral de status */}
-                  {(() => {
-                    let color = "bg-cm-green";
-                    let text = "Disponível";
-                    if (book.overdue) {
-                      color = "bg-cm-red";
-                      text = "Atrasado";
-                    } else if (book.is_reserved) {
-                      color = "bg-purple-700";
-                      text = "Reservado";
-                    } else if (book.exemplaresDisponiveis === 0) {
-                      color = "bg-yellow-400";
-                      text = "Emprestado";
-                    }
-                    return (
-                      <div
-                        className={`book-status-tab absolute top-0 left-0 h-full flex items-center ${color} select-none z-10`}
-                        style={{
-                          width: '12px', // um pouco mais larga para poder "entrar" sob o card
-                          borderTopLeftRadius: '1rem',
-                          borderBottomLeftRadius: '1rem',
-                          borderTopRightRadius: 0,
-                          borderBottomRightRadius: 0,
-                          boxShadow: '2px 0 6px -2px rgba(0,0,0,0.18)',
-                          transition: 'width 280ms cubic-bezier(.4,0,.2,1), transform 280ms cubic-bezier(.4,0,.2,1)',
-                          transform: 'translateX(6px)', // começa um pouco "embaixo" do card
-                          willChange: 'width, transform'
-                        }}
-                      >
-                        <div
-                          className="flex-1 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-200"
-                          style={{
-                            writingMode: 'vertical-rl',
-                            transform: 'rotate(180deg)',
-                            fontSize: '0.65rem',
-                            fontWeight: 600,
-                            letterSpacing: '1px',
-                            padding: '0.75rem 0',
-                            lineHeight: 1.1,
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {text}
-                        </div>
-                        <style>{`
-                          /* Efeito gaveta: revela mais verde e desliza para esquerda */
-                          .group:hover > div.book-status-tab { width:30px; transform: translateX(-12px); }
-                        `}</style>
-                      </div>
-                    );
-                  })()}
-                  <div className="flex justify-between items-start pl-4">
+                  <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
                       <p className="text-gray-600">{book.authors}</p>
@@ -250,13 +194,45 @@ const BookSearch: React.FC = () => {
                         </span>
                       </div>
                     </div>
+                    {/* Status: bolinha colorida com texto ao hover */}
+                    {(() => {
+                      // Prioridade: atrasado > reservado > emprestado > disponível
+                      let color = "bg-cm-green";
+                      let text = "Disponível";
+                      let textColor = "text-white";
+                      if (book.overdue) {
+                        color = "bg-cm-red";
+                        text = "Atrasado";
+                        textColor = "text-white";
+                      } else if (book.is_reserved) {
+                        color = "bg-purple-700";
+                        text = "Reservado";
+                        textColor = "text-white";
+                      } else if (book.exemplaresDisponiveis === 0) {
+                        color = "bg-yellow-400";
+                        text = "Emprestado";
+                        textColor = "text-white";
+                      }
+                      return (
+                        <span
+                          className={`group inline-flex items-center cursor-default select-none`}
+                        >
+                          <span
+                            className={`transition-all duration-200 w-4 h-4 rounded-full ${color} group-hover:w-auto group-hover:px-3 group-hover:py-1 group-hover:rounded-full group-hover:shadow-sm flex items-center justify-center ${textColor} text-xs font-semibold overflow-hidden`}
+                            style={{ minWidth: '1rem' }}
+                          >
+                            <span className="opacity-0 group-hover:opacity-100 ml-2 whitespace-nowrap transition-opacity duration-200">{text}</span>
+                          </span>
+                        </span>
+                      );
+                    })()}
                   </div>
-                  <div className="mt-2 text-xs text-gray-500 pl-4">
+                  <div className="mt-2 text-xs text-gray-500">
                     {book.totalExemplares > 1 && (
                       <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
                     )}
                   </div>
-                  <div className="mt-4 flex justify-end gap-2 pl-4">
+                  <div className="mt-4 flex justify-end gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -267,6 +243,7 @@ const BookSearch: React.FC = () => {
                     >
                       Detalhes
                     </Button>
+                    {/* Botão de nudge para livros atrasados */}
                     {book.overdue && (
                       <NudgeButton book={book} />
                     )}
