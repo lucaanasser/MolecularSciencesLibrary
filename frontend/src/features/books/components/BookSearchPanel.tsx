@@ -187,18 +187,15 @@ const BookSearch: React.FC = () => {
                     if (book.overdue) {
                       color = "bg-cm-red";
                       text = "Atrasado";
-                      textColor = "text-white";
                     } else if (book.is_reserved) {
                       color = "bg-purple-700";
                       text = "Reservado";
-                      textColor = "text-white";
                     } else if (book.exemplaresDisponiveis === 0) {
                       color = "bg-yellow-400";
                       text = "Emprestado";
-                      textColor = "text-white";
                     }
                     return (
-                      <div className={`absolute right-0 top-0 h-full w-1 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:translate-x-0 translate-x-0 overflow-hidden z-10 origin-right`}>
+                      <div className={`absolute left-0 top-0 h-full w-1 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:translate-x-0 translate-x-0 overflow-hidden z-10 origin-right`}>
                         {/* Texto na vertical que aparece no hover */}
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-full flex items-center justify-center">
                           <span className={`${textColor} text-xs font-semibold transform -rotate-90 whitespace-nowrap`}>
