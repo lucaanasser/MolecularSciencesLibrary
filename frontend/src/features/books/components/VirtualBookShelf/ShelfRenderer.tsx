@@ -130,7 +130,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          className={`book-spine ${getBookColor(book)} cursor-pointer mb-6${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "pulse-highlight" : ""}`}
+                          className={`book-spine ${getBookColor(book)} cursor-pointer mb-1${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "pulse-highlight" : ""}`}
                           onClick={() => onBookSelect(book)}
                           title={book.title}
                           style={{
