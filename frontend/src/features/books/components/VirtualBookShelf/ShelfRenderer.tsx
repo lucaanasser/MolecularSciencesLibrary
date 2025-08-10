@@ -147,7 +147,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
         ) : (
           <>
             {/* Livros */}
-            <div className="flex flex-wrap gap-1 items-end" style={{zIndex:2, flex: 1}}>
+            <div className="flex items-end w-full" style={{zIndex:2, flex: 1}}>
               {shelfBooks.length > 0 ? (
                 shelfBooks.map((book) => (
                   <TooltipProvider key={book.id} delayDuration={100}>
@@ -157,7 +157,13 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                           className={`book-spine ${getBookColor(book)} cursor-pointer mb-6${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "pulse-highlight" : ""}`}
                           onClick={() => onBookSelect(book)}
                           title={book.title}
-                          style={{ minWidth: 16, minHeight: 70 }}
+                          style={{
+                            width: `calc(100% / ${shelfBooks.length})`,
+                            minWidth: 16,
+                            minHeight: 70,
+                            maxWidth: 40,
+                            transition: 'width 0.2s',
+                          }}
                         ></div>
                       </TooltipTrigger>
                       <TooltipContent side="top" className="z-50">
