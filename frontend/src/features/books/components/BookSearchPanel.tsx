@@ -195,7 +195,7 @@ const BookSearch: React.FC = () => {
                       text = "Emprestado";
                     }
                     return (
-                      <div className={`absolute left-0 top-0 h-full w-2 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-24 group-hover:-translate-x-20 translate-x-0 overflow-visible z-10 origin-left`}>
+                      <div className={`absolute left-0 top-0 h-full w-4 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:-translate-x-4 translate-x-0 overflow-visible z-10 origin-left`}>
                         {/* Texto na vertical que aparece no hover */}
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-full flex items-center justify-center">
                           <span className={`${textColor} text-xs font-semibold transform -rotate-90 whitespace-nowrap`}>
