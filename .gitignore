@@ -47,8 +47,7 @@ frontend/nginx.dev.conf
 frontend/bun.lockb
 # Docker Compose dev
 docker-compose.dev.yml
-# Scripts dev
-scripts/
+
 # Certificados dev
 ssl-dev/
 # Outros arquivos temporários/dev
