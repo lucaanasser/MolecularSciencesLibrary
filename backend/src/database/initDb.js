@@ -70,43 +70,6 @@ db.serialize(() => {
             process.exit(1);
         }
         console.log('🟢 [initDb] Tabela books criada com sucesso');
-
-        // Livro de teste
-        const testBook = {
-            id: 9781234567890, 
-            area: 'Variados',
-            subarea: 1,
-            authors: 'Teste',
-            edition: 1,
-            language: 2, 
-            code: 'VAR-01.01-v1',
-            title: 'Teste de Livro',
-            subtitle: 'Teste de Subtitulo',
-            volume: 1 
-        };
-        db.run(`
-            INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            testBook.id,
-            testBook.area,
-            testBook.subarea,
-            testBook.authors,
-            testBook.edition,
-            testBook.language,
-            testBook.code,
-            testBook.title,
-            testBook.subtitle,
-            testBook.volume 
-        ], function(err) {
-            if (err) {
-                console.error('🟡 [initDb] Erro ao inserir livro de teste:', err.message);
-            } else {
-                console.log('🟢 [initDb] Livro de teste inserido com sucesso');
-            }
-        });
-        // Chama a função para inserir livros aleatórios
-        insertRandomBooks(40);
     });
 
     // BORROWED_BOOKS TABLE
@@ -293,74 +256,6 @@ db.serialize(() => {
             code += `-v${parseInt(volume, 10)}`;
         }
         return code;
-    }
-
-    // Função para inserir vários livros aleatórios com códigos únicos e corretos
-    function insertRandomBooks(qtd = 100) {
-        const areas = [
-            { area: 'Física', subareas: [1, 2, 3] },
-            { area: 'Química', subareas: [1, 2] },
-            { area: 'Biologia', subareas: [1, 2, 3, 4] },
-            { area: 'Matemática', subareas: [1, 2] },
-            { area: 'Computação', subareas: [1, 2, 3] },
-            { area: 'Variados', subareas: [1] }
-        ];
-        const titulos = [
-            'Introdução à', 'Fundamentos de', 'Teoria de', 'Princípios de', 'Manual de', 'Guia Prático de', 'Compêndio de'
-        ];
-        const temas = [
-            'Mecânica', 'Química Orgânica', 'Genética', 'Álgebra Linear', 'Programação', 'Estatística', 'Física Moderna', 'Redes', 'Cálculo', 'Bioquímica'
-        ];
-        const autores = [
-            'João Silva', 'Maria Souza', 'Carlos Pereira', 'Ana Lima', 'Fernanda Costa', 'Ricardo Alves', 'Patrícia Rocha', 'Lucas Martins', 'Juliana Dias', 'Bruno Teixeira'
-        ];
-        const idiomas = [1, 2, 3]; // pt, en, es
-        let baseId = 9781000000000;
-        let exemplarCount = 0;
-
-        // Map para controlar o sequencial por área/subárea/volume
-        const seqMap = {};
-
-        for (let i = 0; i < qtd; i++) {
-            const areaObj = areas[Math.floor(Math.random() * areas.length)];
-            const area = areaObj.area;
-            const subarea = areaObj.subareas[Math.floor(Math.random() * areaObj.subareas.length)];
-            const key = `${area}_${subarea}`;
-            if (!seqMap[key]) seqMap[key] = {};
-            // Decide se terá volume
-            let volume = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : null;
-            let volumeKey = volume || 0;
-            if (!seqMap[key][volumeKey]) seqMap[key][volumeKey] = 1;
-            const seq = seqMap[key][volumeKey];
-
-            const titulo = titulos[Math.floor(Math.random() * titulos.length)] + ' ' + temas[Math.floor(Math.random() * temas.length)];
-            const autor = autores[Math.floor(Math.random() * autores.length)];
-            const edition = Math.floor(Math.random() * 5) + 1;
-            const language = idiomas[Math.floor(Math.random() * idiomas.length)];
-            const code = generateBookCode(area, subarea, seq, volume);
-            const title = titulo;
-            const subtitle = Math.random() > 0.5 ? `Volume especial ${edition}` : null;
-
-            // Decide quantos exemplares para este livro (1 a 3)
-            const exemplares = Math.random() < 0.3 ? Math.floor(Math.random() * 3) + 2 : 1;
-            for (let ex = 1; ex <= exemplares; ex++) {
-                const id = baseId + exemplarCount;
-                db.run(
-                    `INSERT OR IGNORE INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [id, area, subarea, autor, edition, language, code, title, subtitle, volume],
-                    function(err) {
-                        if (err) {
-                            console.error('🟡 [initDb] Erro ao inserir exemplar aleatório:', err.message);
-                        }
-                    }
-                );
-                exemplarCount++;
-            }
-            // Incrementa o sequencial para próxima chamada
-            seqMap[key][volumeKey]++;
-        }
-        console.log(`🟢 [initDb] Livros aleatórios (com exemplares) inseridos: ${exemplarCount}`);
     }
 
     // Criação dos usuários especiais
