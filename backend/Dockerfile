@@ -1,4 +1,5 @@
 FROM node:24-slim
+FROM node:24-slim
 
 RUN apt-get update && \
     apt-get install -y sqlite3 ca-certificates && \
@@ -12,7 +13,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+
 COPY . .
+
+# Garante permissão de execução para scripts
+RUN chmod +x /app/scripts/*.sh
 
 USER node
 
