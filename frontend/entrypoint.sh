@@ -5,7 +5,7 @@ CERT_DIR="/etc/letsencrypt"
 CRT="$CERT_DIR/certificate.crt"
 KEY="$CERT_DIR/private.key"
 
-LE_CERT_DIR="$CERT_DIR/live/bibliotecamoleculares.com-0001"
+LE_CERT_DIR="$CERT_DIR/live/bibliotecamoleculares.com"
 LE_CRT="$LE_CERT_DIR/fullchain.pem"
 LE_KEY="$LE_CERT_DIR/privkey.pem"
 
