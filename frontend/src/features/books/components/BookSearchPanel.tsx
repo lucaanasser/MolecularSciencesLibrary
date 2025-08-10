@@ -179,9 +179,35 @@ const BookSearch: React.FC = () => {
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200"
+                  className="relative group bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 overflow-hidden"
                 >
-                  <div className="flex justify-between items-start">
+                  {(() => {
+                    // Determinar status e cor (prioridade: atrasado > reservado > emprestado > disponível)
+                    let statusText = "Disponível";
+                    let bgColor = "bg-cm-green";
+                    if (book.overdue) {
+                      statusText = "Atrasado";
+                      bgColor = "bg-cm-red";
+                    } else if (book.is_reserved) {
+                      statusText = "Reservado";
+                      bgColor = "bg-purple-700";
+                    } else if (book.exemplaresDisponiveis === 0) {
+                      statusText = "Emprestado";
+                      bgColor = "bg-yellow-400";
+                    }
+                    return (
+                      <div
+                        className={`absolute left-0 top-0 h-full flex items-center justify-center ${bgColor} text-white font-semibold text-[10px] tracking-widest transition-all duration-300 w-2 group-hover:w-16`}
+                      >
+                        <span
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 origin-center -rotate-90 select-none"
+                        >
+                          {statusText.toUpperCase()}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                  <div className="flex justify-between items-start ml-3">
                     <div>
                       <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
                       <p className="text-gray-600">{book.authors}</p>
@@ -194,45 +220,13 @@ const BookSearch: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    {/* Status: bolinha colorida com texto ao hover */}
-                    {(() => {
-                      // Prioridade: atrasado > reservado > emprestado > disponível
-                      let color = "bg-cm-green";
-                      let text = "Disponível";
-                      let textColor = "text-white";
-                      if (book.overdue) {
-                        color = "bg-cm-red";
-                        text = "Atrasado";
-                        textColor = "text-white";
-                      } else if (book.is_reserved) {
-                        color = "bg-purple-700";
-                        text = "Reservado";
-                        textColor = "text-white";
-                      } else if (book.exemplaresDisponiveis === 0) {
-                        color = "bg-yellow-400";
-                        text = "Emprestado";
-                        textColor = "text-white";
-                      }
-                      return (
-                        <span
-                          className={`group inline-flex items-center cursor-default select-none`}
-                        >
-                          <span
-                            className={`transition-all duration-200 w-4 h-4 rounded-full ${color} group-hover:w-auto group-hover:px-3 group-hover:py-1 group-hover:rounded-full group-hover:shadow-sm flex items-center justify-center ${textColor} text-xs font-semibold overflow-hidden`}
-                            style={{ minWidth: '1rem' }}
-                          >
-                            <span className="opacity-0 group-hover:opacity-100 ml-2 whitespace-nowrap transition-opacity duration-200">{text}</span>
-                          </span>
-                        </span>
-                      );
-                    })()}
                   </div>
-                  <div className="mt-2 text-xs text-gray-500">
+                  <div className="mt-2 text-xs text-gray-500 ml-3">
                     {book.totalExemplares > 1 && (
                       <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
                     )}
                   </div>
-                  <div className="mt-4 flex justify-end gap-2">
+                  <div className="mt-4 flex justify-end gap-2 ml-3">
                     <Button
                       variant="outline"
                       size="sm"
@@ -243,7 +237,6 @@ const BookSearch: React.FC = () => {
                     >
                       Detalhes
                     </Button>
-                    {/* Botão de nudge para livros atrasados */}
                     {book.overdue && (
                       <NudgeButton book={book} />
                     )}
