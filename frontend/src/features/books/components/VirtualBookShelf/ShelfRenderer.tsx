@@ -136,7 +136,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                           style={{
                             width: 16,
                             minWidth: 12,
-                            minHeight: 50,
+                            height: 50,
                             maxWidth: 24,
                           }}
                         ></div>
