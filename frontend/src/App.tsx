@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SearchPage from "./pages/SearchPage";
@@ -11,7 +12,6 @@ import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import ProAlunoPage from "./pages/ProAlunoPage"; 
-import TestePage from "./pages/teste";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "@/components/ProtectedRoute"; 
 import DonationPage from "./pages/DonationPage";
@@ -27,6 +27,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/buscar" element={<SearchPage />} />
