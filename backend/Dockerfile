@@ -16,9 +16,8 @@ RUN npm install
 COPY . .
 
 # Garante permissão de execução para scripts (ignora erro se não houver arquivos)
-RUN ["sh", "-c", "if ls /app/scripts/*.sh 1> /dev/null 2>&1; then chmod +x /app/scripts/*.sh; fi"]
 
-USER node
+RUN ["sh", "-c", "if ls /app/scripts/*.sh 1> /dev/null 2>&1; then chmod +x /app/scripts/*.sh; fi"]
 
 EXPOSE 3001 3443
 
