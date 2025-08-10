@@ -13,5 +13,15 @@ if [ ! -f "$CRT" ] || [ ! -f "$KEY" ]; then
     -subj "/C=BR/ST=SP/L=SP/O=BibliotecaCM/CN=localhost"
 fi
 
+# Se os certificados reais do Certbot existirem, cria symlinks para eles
+LE_CERT_DIR="$CERT_DIR/live/bibliotecamoleculares.com-0001"
+LE_CRT="$LE_CERT_DIR/fullchain.pem"
+LE_KEY="$LE_CERT_DIR/privkey.pem"
+if [ -f "$LE_CRT" ] && [ -f "$LE_KEY" ]; then
+  echo "Certificados Let's Encrypt encontrados. Usando certificados reais."
+  ln -sf "$LE_CRT" "$CRT"
+  ln -sf "$LE_KEY" "$KEY"
+fi
+
 # Inicia o Nginx
 nginx -g "daemon off;"
