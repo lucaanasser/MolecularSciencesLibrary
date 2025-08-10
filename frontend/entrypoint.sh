@@ -32,5 +32,5 @@ else
 fi
 
 # Inicia o Nginx
-echo "🚀 Iniciando Nginx..."
+echo "Iniciando Nginx..."
 exec nginx -g "daemon off;"
