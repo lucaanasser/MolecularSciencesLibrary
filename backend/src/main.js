@@ -78,9 +78,15 @@ const httpServer = http.createServer(app);
 // Criar servidor HTTPS (apenas se os certificados existirem)
 let httpsServer = null;
 try {
-  // Caminho absoluto para os certificados dentro do container Docker
-  const sslKeyPath = '/app/ssl/private.key';
-  const sslCertPath = '/app/ssl/certificate.crt';
+  // Tenta primeiro os caminhos diretos do Let's Encrypt
+  let sslKeyPath = '/etc/letsencrypt/live/bibliotecamoleculares.com-0001/privkey.pem';
+  let sslCertPath = '/etc/letsencrypt/live/bibliotecamoleculares.com-0001/fullchain.pem';
+  
+  // Se não encontrar, tenta os caminhos locais
+  if (!fs.existsSync(sslKeyPath) || !fs.existsSync(sslCertPath)) {
+    sslKeyPath = '/app/ssl/private.key';
+    sslCertPath = '/app/ssl/certificate.crt';
+  }
   
   if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
     const httpsOptions = {
