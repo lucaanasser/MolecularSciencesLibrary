@@ -108,7 +108,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
   }, [highlightCode]);
 
   return (
-    <div className="mb-6 px-2">
+    <div className="mb-3 px-2">
       <div className="relative w-full h-[100px] flex items-end pt-8">
         {isAdmin && editMode && editing ? (
           <div className="flex w-full items-center justify-between bg-white border rounded px-4 py-2 shadow z-10">
