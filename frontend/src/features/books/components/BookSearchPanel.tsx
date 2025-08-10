@@ -179,8 +179,39 @@ const BookSearch: React.FC = () => {
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200"
+                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 relative overflow-hidden group"
                 >
+                  {/* Aba lateral de status */}
+                  {(() => {
+                    // Prioridade: atrasado > reservado > emprestado > disponível
+                    let color = "bg-cm-green";
+                    let text = "Disponível";
+                    let textColor = "text-white";
+                    if (book.overdue) {
+                      color = "bg-cm-red";
+                      text = "Atrasado";
+                      textColor = "text-white";
+                    } else if (book.is_reserved) {
+                      color = "bg-purple-700";
+                      text = "Reservado";
+                      textColor = "text-white";
+                    } else if (book.exemplaresDisponiveis === 0) {
+                      color = "bg-yellow-400";
+                      text = "Emprestado";
+                      textColor = "text-white";
+                    }
+                    return (
+                      <div className={`absolute right-0 top-0 h-full w-1 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 overflow-hidden z-10`}>
+                        {/* Texto na vertical que aparece no hover */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-full flex items-center justify-center">
+                          <span className={`${textColor} text-xs font-semibold transform -rotate-90 whitespace-nowrap`}>
+                            {text}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
@@ -194,38 +225,6 @@ const BookSearch: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    {/* Status: bolinha colorida com texto ao hover */}
-                    {(() => {
-                      // Prioridade: atrasado > reservado > emprestado > disponível
-                      let color = "bg-cm-green";
-                      let text = "Disponível";
-                      let textColor = "text-white";
-                      if (book.overdue) {
-                        color = "bg-cm-red";
-                        text = "Atrasado";
-                        textColor = "text-white";
-                      } else if (book.is_reserved) {
-                        color = "bg-purple-700";
-                        text = "Reservado";
-                        textColor = "text-white";
-                      } else if (book.exemplaresDisponiveis === 0) {
-                        color = "bg-yellow-400";
-                        text = "Emprestado";
-                        textColor = "text-white";
-                      }
-                      return (
-                        <span
-                          className={`group inline-flex items-center cursor-default select-none`}
-                        >
-                          <span
-                            className={`transition-all duration-200 w-4 h-4 rounded-full ${color} group-hover:w-auto group-hover:px-3 group-hover:py-1 group-hover:rounded-full group-hover:shadow-sm flex items-center justify-center ${textColor} text-xs font-semibold overflow-hidden`}
-                            style={{ minWidth: '1rem' }}
-                          >
-                            <span className="opacity-0 group-hover:opacity-100 ml-2 whitespace-nowrap transition-opacity duration-200">{text}</span>
-                          </span>
-                        </span>
-                      );
-                    })()}
                   </div>
                   <div className="mt-2 text-xs text-gray-500">
                     {book.totalExemplares > 1 && (
