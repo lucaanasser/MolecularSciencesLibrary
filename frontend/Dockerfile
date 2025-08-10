@@ -1,6 +1,6 @@
 # Dockerfile do frontend
 
-FROM node:20 AS build
+FROM node:22 AS build
 
 WORKDIR /app
 COPY package*.json ./
@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 RUN cp public/sitemap.xml dist/sitemap.xml
 
-FROM nginx:alpine
+FROM nginx:1.27-alpine
 
 # Copia os arquivos de build
 COPY --from=build /app/dist /usr/share/nginx/html
