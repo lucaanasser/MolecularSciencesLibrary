@@ -207,7 +207,7 @@ const BookSearch: React.FC = () => {
                   })()}
 
                   {/* Card do livro */}
-                  <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-500 hover:shadow-xl transition-shadow duration-200 min-h-64 flex flex-col justify-between">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow duration-200 min-h-64 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-semibold text-lg text-black line-clamp-2 tracking-wider">{book.title}</h4>
