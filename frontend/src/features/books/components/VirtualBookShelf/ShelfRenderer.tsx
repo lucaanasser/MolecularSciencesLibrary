@@ -109,12 +109,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
 
   return (
     <div className="mb-12 px-2">
-                          <p className={book.available ? "text-green-600" : "text-red-600"}>
-                            {book.available ? "Disponível" : "Emprestado"}
-                          </p>
-                          {book.area && book.subarea && (window as any).subareaCodes && (
-                            <p className="text-gray-500">{getResolvedSubarea(book.area, book.subarea, (window as any).subareaCodes)}</p>
-                          )}
+      <div className="relative w-full h-[100px] flex items-end pt-8">
         {isAdmin && editMode && editing ? (
           <div className="flex w-full items-center justify-between bg-white border rounded px-4 py-2 shadow z-10">
             <VirtualBookshelfAdminEditor
