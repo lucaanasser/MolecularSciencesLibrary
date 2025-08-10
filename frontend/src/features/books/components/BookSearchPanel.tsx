@@ -177,11 +177,8 @@ const BookSearch: React.FC = () => {
           ) : groupedBooks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
               {groupedBooks.map(book => (
-                <div
-                  key={book.code}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 relative overflow-hidden group"
-                >
-                  {/* Aba lateral de status */}
+                <div key={book.code} className="relative group">
+                  {/* Aba lateral de status na esquerda */}
                   {(() => {
                     // Prioridade: atrasado > reservado > emprestado > disponível
                     let color = "bg-cm-green";
@@ -201,7 +198,7 @@ const BookSearch: React.FC = () => {
                       textColor = "text-white";
                     }
                     return (
-                      <div className={`absolute right-0 top-0 h-full w-1 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 overflow-hidden z-10`}>
+                      <div className={`absolute left-0 top-0 h-full w-1 ${color} rounded-r-lg transition-all duration-300 ease-in-out group-hover:w-8 overflow-hidden z-10`}>
                         {/* Texto na vertical que aparece no hover */}
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-full flex items-center justify-center">
                           <span className={`${textColor} text-xs font-semibold transform -rotate-90 whitespace-nowrap`}>
@@ -212,40 +209,43 @@ const BookSearch: React.FC = () => {
                     );
                   })()}
 
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
-                      <p className="text-gray-600">{book.authors}</p>
-                      <div className="flex space-x-4 mt-2">
-                        <span className="text-sm text-gray-500">
-                          {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
-                          {book.subarea && subareaCodes && subareaCodes[book.area] && subareaCodes[book.area][book.subarea]
-                            ? ` / ${subareaCodes[book.area][book.subarea]}`
-                            : (book.subarea ? ` / ${book.subarea}` : "")}
-                        </span>
+                  {/* Card do livro */}
+                  <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 ml-1">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
+                        <p className="text-gray-600">{book.authors}</p>
+                        <div className="flex space-x-4 mt-2">
+                          <span className="text-sm text-gray-500">
+                            {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
+                            {book.subarea && subareaCodes && subareaCodes[book.area] && subareaCodes[book.area][book.subarea]
+                              ? ` / ${subareaCodes[book.area][book.subarea]}`
+                              : (book.subarea ? ` / ${book.subarea}` : "")}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    {book.totalExemplares > 1 && (
-                      <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
-                    )}
-                  </div>
-                  <div className="mt-4 flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
-                      onClick={() => {
-                        setSelectedBook(book);
-                      }}
-                    >
-                      Detalhes
-                    </Button>
-                    {/* Botão de nudge para livros atrasados */}
-                    {book.overdue && (
-                      <NudgeButton book={book} />
-                    )}
+                    <div className="mt-2 text-xs text-gray-500">
+                      {book.totalExemplares > 1 && (
+                        <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
+                      )}
+                    </div>
+                    <div className="mt-4 flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
+                        onClick={() => {
+                          setSelectedBook(book);
+                        }}
+                      >
+                        Detalhes
+                      </Button>
+                      {/* Botão de nudge para livros atrasados */}
+                      {book.overdue && (
+                        <NudgeButton book={book} />
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
