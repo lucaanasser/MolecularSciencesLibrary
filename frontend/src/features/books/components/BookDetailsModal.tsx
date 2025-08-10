@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getResolvedSubarea } from "@/utils/bookUtils";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SubareaCode } from "../types/book";
@@ -41,23 +42,8 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
 
   console.log("🔵 [BookDetailsModal] Renderizando modal para livro:", book?.title);
 
-  // Resolver número e nome da subárea juntos (ex: '1 - Bioquímica')
-  const resolvedSubarea = (() => {
-    try {
-      if (!book?.subarea || !book?.area || !subareaCodes) return book?.subarea;
-      const areaMap = subareaCodes[book.area];
-      if (!areaMap) return book.subarea;
-      // Procurar o número da subárea pela chave (nome)
-      const entry = Object.entries(areaMap).find(([key, value]) => Number(value) === Number(book.subarea));
-      if (entry) {
-        // entry[0] = nome, entry[1] = número
-        return `${entry[1]} - ${entry[0]}`;
-      }
-      return book.subarea;
-    } catch (e) {
-      return book?.subarea;
-    }
-  })();
+  // Usar função utilitária para resolver subárea
+  const resolvedSubarea = getResolvedSubarea(book?.area, book?.subarea, subareaCodes);
 
   // Determinar status e cores (mesma lógica do BookSearchPanel)
   const statusInfo = (() => {

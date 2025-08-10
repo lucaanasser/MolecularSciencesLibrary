@@ -212,6 +212,7 @@ const VirtualBookshelf = () => {
                           onError={handleError}
                           onBookSelect={setSelectedBook}
                           maxBooks={MAX_BOOKS_PER_SHELF}
+                          subareaCodes={subareaCodes}
                         />
                       );
                     })
@@ -232,6 +233,7 @@ const VirtualBookshelf = () => {
                           onError={handleError}
                           onBookSelect={setSelectedBook}
                           maxBooks={MAX_BOOKS_PER_SHELF}
+                          subareaCodes={subareaCodes}
                         />
                       ))
                 )}

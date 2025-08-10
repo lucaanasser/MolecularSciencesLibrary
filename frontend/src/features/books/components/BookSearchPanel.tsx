@@ -1,3 +1,4 @@
+import { getResolvedSubarea } from "@/utils/bookUtils";
 import useBookSearchPage from "../hooks/useBookSearch";
 import { Search, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -215,9 +216,7 @@ const BookSearch: React.FC = () => {
                         <div className="flex space-x-4 mt-2">
                           <span className="text-sm text-gray-500">
                             {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
-                            {book.subarea && subareaCodes && subareaCodes[book.area] && subareaCodes[book.area][book.subarea]
-                              ? ` / ${subareaCodes[book.area][book.subarea]}`
-                              : (book.subarea ? ` / ${book.subarea}` : "")}
+                            {book.subarea ? ` / ${getResolvedSubarea(book.area, book.subarea, subareaCodes)}` : ""}
                           </span>
                         </div>
                       </div>
