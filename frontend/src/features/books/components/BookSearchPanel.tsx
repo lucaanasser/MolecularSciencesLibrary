@@ -202,21 +202,19 @@ const BookSearch: React.FC = () => {
                     }
                     return (
                       <div
-                        className={`absolute top-0 left-0 h-full flex items-center ${color} select-none`}
+                        className={`book-status-tab absolute top-0 left-0 h-full flex items-center ${color} select-none z-10`}
                         style={{
-                          // largura mínima (mostra só um detalhe arredondado)
                           width: '10px',
                           borderTopLeftRadius: '1rem',
                           borderBottomLeftRadius: '1rem',
-                          // lado direito (encostado no card) fica reto
-                          borderTopRightRadius: '0',
-                          borderBottomRightRadius: '0',
-                          boxShadow: '2px 0 6px -2px rgba(0,0,0,0.18)', // sombra sutil para separar
-                          transition: 'width 220ms ease, box-shadow 220ms ease'
+                          borderTopRightRadius: 0,
+                          borderBottomRightRadius: 0,
+                          boxShadow: '2px 0 6px -2px rgba(0,0,0,0.18)',
+                          transition: 'width 220ms ease, left 220ms ease'
                         }}
                       >
                         <div
-                          className="flex-1 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          className="flex-1 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-200"
                           style={{
                             writingMode: 'vertical-rl',
                             transform: 'rotate(180deg)',
@@ -231,7 +229,7 @@ const BookSearch: React.FC = () => {
                           {text}
                         </div>
                         <style>{`
-                          .group:hover > div.absolute.top-0.left-0 { width: 46px; }
+                          .group:hover > div.book-status-tab { width:46px; left:-36px; }
                         `}</style>
                       </div>
                     );
@@ -249,7 +247,6 @@ const BookSearch: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    {/* Espaço reservado removendo o antigo badge */}
                   </div>
                   <div className="mt-2 text-xs text-gray-500 pl-4">
                     {book.totalExemplares > 1 && (
