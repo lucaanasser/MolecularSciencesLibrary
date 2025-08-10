@@ -195,7 +195,7 @@ const BookSearch: React.FC = () => {
                       text = "Emprestado";
                     }
                     return (
-                      <div className={`absolute left-0 top-0 h-full w-1 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:translate-x-0 translate-x-0 overflow-hidden z-10 origin-right`}>
+                      <div className={`absolute left-0 top-0 h-full w-1 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:translate-x-0 translate-x-0 overflow-hidden z-10 origin-left`}>
                         {/* Texto na vertical que aparece no hover */}
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-full flex items-center justify-center">
                           <span className={`${textColor} text-xs font-semibold transform -rotate-90 whitespace-nowrap`}>
@@ -207,7 +207,7 @@ const BookSearch: React.FC = () => {
                   })()}
 
                   {/* Card do livro */}
-                  <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 mr-1">
+                  <div className="bg-white rounded-r-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 mr-1">
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
@@ -223,9 +223,7 @@ const BookSearch: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-2 text-xs text-gray-500">
-                      {book.totalExemplares > 1 && (
-                        <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
-                      )}
+                      <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplar(es) disponível(is)</span>
                     </div>
                     <div className="mt-4 flex justify-end gap-2">
                       <Button
