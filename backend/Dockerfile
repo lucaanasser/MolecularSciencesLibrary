@@ -1,5 +1,4 @@
 FROM node:24-slim
-FROM node:24-slim
 
 RUN apt-get update && \
     apt-get install -y sqlite3 ca-certificates && \
@@ -16,8 +15,8 @@ RUN npm install
 
 COPY . .
 
-# Garante permissão de execução para scripts
-RUN chmod +x /app/scripts/*.sh
+# Garante permissão de execução para scripts (ignora erro se não houver arquivos)
+RUN ["sh", "-c", "if ls /app/scripts/*.sh 1> /dev/null 2>&1; then chmod +x /app/scripts/*.sh; fi"]
 
 USER node
 
