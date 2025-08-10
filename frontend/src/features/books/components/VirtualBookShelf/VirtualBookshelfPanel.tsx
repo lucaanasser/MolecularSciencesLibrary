@@ -165,101 +165,103 @@ const VirtualBookshelf = () => {
       </div>
 
       {/* Exibe prateleira apenas em telas médias/grandes */}
-      <div className="hidden sm:flex w-full justify-center items-center relative">
-        {/* Seta esquerda */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
-          <Button
-            variant="ghost"
-            onClick={() => handleShelfChange("prev")}
-            disabled={selectedShelf === "1"}
-            className="rounded-full p-2"
-            aria-label="Estante anterior"
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </Button>
-        </div>
-
-        {/* Conteúdo da estante */}
-        <div className="flex flex-col items-center w-full max-w-2xl">
-          <span className="font-bold text-xl mb-4">Estante {selectedShelf}</span>
-          <div className="bg-white p-4 flex flex-col gap-2 w-full">
-            <div className="flex flex-col gap-0.5">
-              {(editMode && isAdmin
-                ? rowNumbers.map(rowNum => {
-                    const shelf = shelvesConfig.find(
-                      (s: VirtualShelf) => s.shelf_number.toString() === selectedShelf && s.shelf_row === rowNum
-                    ) || {
-                      id: rowNum,
-                      shelf_number: Number(selectedShelf),
-                      shelf_row: rowNum,
-                      book_code_start: null,
-                      book_code_end: null,
-                      is_last_shelf: false,
-                    } as VirtualShelf;
-                    return (
-                      <ShelfRenderer
-                        key={`${selectedShelf}-${rowNum}`}
-                        shelf={shelf}
-                        books={books}
-                        shelvesConfig={shelvesConfig}
-                        isAdmin={isAdmin}
-                        editMode={editMode}
-                        loading={isLoading}
-                        highlightCode={highlightCode}
-                        onConfigUpdate={handleConfigUpdate}
-                        onError={handleError}
-                        onBookSelect={setSelectedBook}
-                      />
-                    );
-                  })
-                : shelvesConfig
-                    .filter((s: VirtualShelf) => s.shelf_number.toString() === selectedShelf)
-                    .sort((a, b) => a.shelf_row - b.shelf_row)
-                    .map((shelf: VirtualShelf) => (
-                      <ShelfRenderer
-                        key={`${shelf.shelf_number}-${shelf.shelf_row}`}
-                        shelf={shelf}
-                        books={books}
-                        shelvesConfig={shelvesConfig}
-                        isAdmin={isAdmin}
-                        editMode={editMode}
-                        loading={isLoading}
-                        highlightCode={highlightCode}
-                        onConfigUpdate={handleConfigUpdate}
-                        onError={handleError}
-                        onBookSelect={setSelectedBook}
-                      />
-                    ))
-              )}
-            </div>
-            {/* Botão para adicionar prateleira individual (admin) */}
-            {isAdmin && editMode && (() => {
-              const prateleirasNaEstante = shelvesConfig.filter(s => s.shelf_number.toString() === selectedShelf).length;
-              if (prateleirasNaEstante < NUM_ROWS) {
-                return (
-                  <div className="flex justify-center mt-2">
-                    <Button onClick={handleAddShelfRow} variant="outline" className="text-xs py-1 px-2">
-                      + Adicionar prateleira à estante {selectedShelf}
-                    </Button>
-                  </div>
-                );
-              }
-              return null;
-            })()}
+      <div className="hidden sm:flex w-full justify-center items-center">
+        <div className="relative w-full max-w-2xl flex items-center">
+          {/* Seta esquerda */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20">
+            <Button
+              variant="ghost"
+              onClick={() => handleShelfChange("prev")}
+              disabled={selectedShelf === "1"}
+              className="rounded-full p-2"
+              aria-label="Estante anterior"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </Button>
           </div>
-        </div>
 
-        {/* Seta direita */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
-          <Button
-            variant="ghost"
-            onClick={() => handleShelfChange("next")}
-            disabled={selectedShelf === NUM_SHELVES.toString()}
-            className="rounded-full p-2"
-            aria-label="Próxima estante"
-          >
-            <ChevronRight className="h-8 w-8" />
-          </Button>
+          {/* Conteúdo da estante */}
+          <div className="flex flex-col items-center w-full">
+            <span className="font-bold text-xl mb-4">Estante {selectedShelf}</span>
+            <div className="bg-white p-4 flex flex-col gap-2 w-full">
+              <div className="flex flex-col gap-0.5">
+                {(editMode && isAdmin
+                  ? rowNumbers.map(rowNum => {
+                      const shelf = shelvesConfig.find(
+                        (s: VirtualShelf) => s.shelf_number.toString() === selectedShelf && s.shelf_row === rowNum
+                      ) || {
+                        id: rowNum,
+                        shelf_number: Number(selectedShelf),
+                        shelf_row: rowNum,
+                        book_code_start: null,
+                        book_code_end: null,
+                        is_last_shelf: false,
+                      } as VirtualShelf;
+                      return (
+                        <ShelfRenderer
+                          key={`${selectedShelf}-${rowNum}`}
+                          shelf={shelf}
+                          books={books}
+                          shelvesConfig={shelvesConfig}
+                          isAdmin={isAdmin}
+                          editMode={editMode}
+                          loading={isLoading}
+                          highlightCode={highlightCode}
+                          onConfigUpdate={handleConfigUpdate}
+                          onError={handleError}
+                          onBookSelect={setSelectedBook}
+                        />
+                      );
+                    })
+                  : shelvesConfig
+                      .filter((s: VirtualShelf) => s.shelf_number.toString() === selectedShelf)
+                      .sort((a, b) => a.shelf_row - b.shelf_row)
+                      .map((shelf: VirtualShelf) => (
+                        <ShelfRenderer
+                          key={`${shelf.shelf_number}-${shelf.shelf_row}`}
+                          shelf={shelf}
+                          books={books}
+                          shelvesConfig={shelvesConfig}
+                          isAdmin={isAdmin}
+                          editMode={editMode}
+                          loading={isLoading}
+                          highlightCode={highlightCode}
+                          onConfigUpdate={handleConfigUpdate}
+                          onError={handleError}
+                          onBookSelect={setSelectedBook}
+                        />
+                      ))
+                )}
+              </div>
+              {/* Botão para adicionar prateleira individual (admin) */}
+              {isAdmin && editMode && (() => {
+                const prateleirasNaEstante = shelvesConfig.filter(s => s.shelf_number.toString() === selectedShelf).length;
+                if (prateleirasNaEstante < NUM_ROWS) {
+                  return (
+                    <div className="flex justify-center mt-2">
+                      <Button onClick={handleAddShelfRow} variant="outline" className="text-xs py-1 px-2">
+                        + Adicionar prateleira à estante {selectedShelf}
+                      </Button>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          </div>
+
+          {/* Seta direita */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
+            <Button
+              variant="ghost"
+              onClick={() => handleShelfChange("next")}
+              disabled={selectedShelf === NUM_SHELVES.toString()}
+              className="rounded-full p-2"
+              aria-label="Próxima estante"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </Button>
+          </div>
         </div>
       </div>
 
