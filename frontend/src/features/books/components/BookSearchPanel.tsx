@@ -210,7 +210,8 @@ const BookSearch: React.FC = () => {
                           borderTopRightRadius: 0,
                           borderBottomRightRadius: 0,
                           boxShadow: '2px 0 6px -2px rgba(0,0,0,0.18)',
-                          transition: 'width 220ms ease, left 220ms ease'
+                          transition: 'width 220ms ease, transform 220ms ease',
+                          transform: 'translateX(0)'
                         }}
                       >
                         <div
@@ -229,7 +230,8 @@ const BookSearch: React.FC = () => {
                           {text}
                         </div>
                         <style>{`
-                          .group:hover > div.book-status-tab { width:24px; left:-14px; }
+                          /* Drawer style hover: increase width and slide out without shifting content */
+                          .group:hover > div.book-status-tab { width:24px; transform: translateX(-14px); }
                         `}</style>
                       </div>
                     );
