@@ -19,4 +19,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 443
 
-CMD ["nginx", "-g", "daemon off;"]
+# Adiciona o entrypoint customizado
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]
