@@ -229,7 +229,7 @@ const BookSearch: React.FC = () => {
                           {text}
                         </div>
                         <style>{`
-                          .group:hover > div.book-status-tab { width:46px; left:-36px; }
+                          .group:hover > div.book-status-tab { width:24px; left:-14px; }
                         `}</style>
                       </div>
                     );
