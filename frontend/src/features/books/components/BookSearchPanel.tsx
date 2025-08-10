@@ -181,75 +181,85 @@ const BookSearch: React.FC = () => {
             <div className="text-center py-8">Carregando livros...</div>
           ) : groupedBooks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
-              {groupedBooks.map(book => (
-                <div
-                  key={book.code}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
-                      <p className="text-gray-600">{book.authors}</p>
-                      <div className="flex space-x-4 mt-2">
-                        <span className="text-sm text-gray-500">
-                          {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
-                          {book.subarea && subareaCodes && subareaCodes[book.area] && subareaCodes[book.area][book.subarea]
-                            ? ` / ${subareaCodes[book.area][book.subarea]}`
-                            : (book.subarea ? ` / ${book.subarea}` : "")}
+              {groupedBooks.map(book => {
+                // Define cor e texto do status
+                let bg = "bg-cm-green";
+                let label = "Disponível";
+                if (book.overdue) {
+                  bg = "bg-cm-red";
+                  label = "Atrasado";
+                } else if (book.is_reserved) {
+                  bg = "bg-purple-700";
+                  label = "Reservado";
+                } else if (book.exemplaresDisponiveis === 0) {
+                  bg = "bg-yellow-400";
+                  label = "Emprestado";
+                }
+                return (
+                  <div
+                    key={book.code}
+                    className="relative group bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200"
+                  >
+                    {/* Aba lateral de status */}
+                    <div
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 select-none pointer-events-none`} // pointer-events-none para não atrapalhar clique no card
+                    >
+                      <div
+                        className={`status-tab ${bg} text-white font-semibold text-[10px] tracking-wide flex items-center justify-center rounded-l-full shadow-[0_0_6px_rgba(0,0,0,0.15)] transition-all duration-300 h-28 w-8 -translate-x-2 group-hover:-translate-x-full`}
+                        style={{
+                          writingMode: 'vertical-rl',
+                          textOrientation: 'upright',
+                          letterSpacing: '0.15em'
+                        }}
+                      >
+                        {/* Espaço interno para o texto aparecer suave */}
+                        <span className="opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                          {label}
                         </span>
                       </div>
+                      {/* Sombra/separação sutil entre aba e o card */}
+                      <div className="absolute right-0 top-0 h-full w-2 translate-x-1 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-full h-full rounded-full bg-gradient-to-r from-black/10 to-transparent" />
+                      </div>
                     </div>
-                    {(() => {
-                      let color = "bg-cm-green";
-                      let text = "Disponível";
-                      let textColor = "text-white";
-                      if (book.overdue) {
-                        color = "bg-cm-red";
-                        text = "Atrasado";
-                        textColor = "text-white";
-                      } else if (book.is_reserved) {
-                        color = "bg-purple-700";
-                        text = "Reservado";
-                        textColor = "text-white";
-                      } else if (book.exemplaresDisponiveis === 0) {
-                        color = "bg-yellow-400";
-                        text = "Emprestado";
-                        textColor = "text-white";
-                      }
-                      return (
-                        <span className="group inline-flex items-center cursor-default select-none">
-                          <span
-                            className={`transition-all duration-200 w-4 h-4 rounded-full ${color} group-hover:w-auto group-hover:px-3 group-hover:py-1 group-hover:rounded-full group-hover:shadow-sm flex items-center justify-center ${textColor} text-xs font-semibold overflow-hidden`}
-                            style={{ minWidth: '1rem' }}
-                          >
-                            <span className="opacity-0 group-hover:opacity-100 ml-2 whitespace-nowrap transition-opacity duration-200">{text}</span>
+
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-lg text-cm-purple">{book.title}</h4>
+                        <p className="text-gray-600">{book.authors}</p>
+                        <div className="flex space-x-4 mt-2">
+                          <span className="text-sm text-gray-500">
+                            {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
+                            {book.subarea && subareaCodes && subareaCodes[book.area] && subareaCodes[book.area][book.subarea]
+                              ? ` / ${subareaCodes[book.area][book.subarea]}`
+                              : (book.subarea ? ` / ${book.subarea}` : "")}
                           </span>
-                        </span>
-                      );
-                    })()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      {book.totalExemplares > 1 && (
+                        <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
+                      )}
+                    </div>
+                    <div className="mt-4 flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
+                        onClick={() => {
+                          setSelectedBook(book);
+                        }}
+                      >
+                        Detalhes
+                      </Button>
+                      {book.overdue && (
+                        <NudgeButton book={book} />
+                      )}
+                    </div>
                   </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    {book.totalExemplares > 1 && (
-                      <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
-                    )}
-                  </div>
-                  <div className="mt-4 flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
-                      onClick={() => {
-                        setSelectedBook(book);
-                      }}
-                    >
-                      Detalhes
-                    </Button>
-                    {book.overdue && (
-                      <NudgeButton book={book} />
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-8">

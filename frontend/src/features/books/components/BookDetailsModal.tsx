@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SubareaCode } from "../types/book";
 
+const LANGUAGE_MAP: Record<string | number, string> = {
+  1: "Português",
+  2: "Inglês",
+  3: "Espanhol",
+  4: "Outros Idiomas"
+};
+
 interface BookDetailsModalProps {
   book: any;
   onClose: () => void;
@@ -28,7 +35,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
   subareaCodes,
 }) => {
   const navigate = useNavigate();
-  // ...existing code...
+
 
   if (!book) return null;
 
@@ -47,7 +54,22 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
     }
   })();
 
-  // ...existing code...
+  // Determinar status e cores (mesma lógica do BookSearchPanel)
+  const statusInfo = (() => {
+    let label = "Disponível";
+    let classes = "bg-cm-green text-white";
+    if (book.overdue) {
+      label = "Atrasado";
+      classes = "bg-cm-red text-white";
+    } else if (book.is_reserved) {
+      label = "Reservado";
+      classes = "bg-purple-700 text-white";
+    } else if ((book.exemplaresDisponiveis !== undefined && book.exemplaresDisponiveis === 0) || (!book.exemplaresDisponiveis && !book.available)) {
+      label = "Emprestado";
+      classes = "bg-yellow-400 text-white";
+    }
+    return { label, classes };
+  })();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -55,21 +77,19 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
         <h3 className="text-2xl font-bebas mb-2">{book.title}</h3>
         <div className="mb-4 text-gray-600">
           <p>Autor: {book.authors}</p>
-          <p>Código: {book.code}</p>
-          <p>Área: {book.area}</p>
-          <p>Subárea: {resolvedSubarea}</p>
+            <p>Código: {book.code}</p>
+            <p>Área: {book.area}</p>
+            <p>Subárea: {resolvedSubarea}</p>
+            <p>Idioma: {LANGUAGE_MAP[Number(book.language)] || LANGUAGE_MAP[book.language] || book.language || '—'}</p>
           
           {showAvailabilityText && (
-            <>
-              <p className="font-semibold">
-                {book.exemplaresDisponiveis !== undefined && book.totalExemplares !== undefined
-                  ? `${book.exemplaresDisponiveis > 0 ? "Disponível" : "Emprestado"}`
-                  : book.available ? "Disponível" : "Emprestado"}
-              </p>
+            <div className="mt-3">
+              {/* Badge de status com cores padronizadas */}
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusInfo.classes}`}>{statusInfo.label}</span>
               {book.totalExemplares > 1 && (
                 <p className="mt-2 text-sm">{`${book.exemplaresDisponiveis}/${book.totalExemplares} exemplares disponíveis`}</p>
               )}
-            </>
+            </div>
           )}
         </div>
         
