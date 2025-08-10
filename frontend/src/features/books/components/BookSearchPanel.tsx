@@ -204,22 +204,23 @@ const BookSearch: React.FC = () => {
                       <div
                         className={`book-status-tab absolute top-0 left-0 h-full flex items-center ${color} select-none z-10`}
                         style={{
-                          width: '10px',
+                          width: '12px', // um pouco mais larga para poder "entrar" sob o card
                           borderTopLeftRadius: '1rem',
                           borderBottomLeftRadius: '1rem',
                           borderTopRightRadius: 0,
                           borderBottomRightRadius: 0,
                           boxShadow: '2px 0 6px -2px rgba(0,0,0,0.18)',
-                          transition: 'width 220ms ease, transform 220ms ease',
-                          transform: 'translateX(0)'
+                          transition: 'width 280ms cubic-bezier(.4,0,.2,1), transform 280ms cubic-bezier(.4,0,.2,1)',
+                          transform: 'translateX(6px)', // começa um pouco "embaixo" do card
+                          willChange: 'width, transform'
                         }}
                       >
                         <div
-                          className="flex-1 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-200"
+                          className="flex-1 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-200"
                           style={{
                             writingMode: 'vertical-rl',
                             transform: 'rotate(180deg)',
-                            fontSize: '0.75rem',
+                            fontSize: '0.65rem',
                             fontWeight: 600,
                             letterSpacing: '1px',
                             padding: '0.75rem 0',
@@ -230,8 +231,8 @@ const BookSearch: React.FC = () => {
                           {text}
                         </div>
                         <style>{`
-                          /* Drawer style hover: increase width and slide out without shifting content */
-                          .group:hover > div.book-status-tab { width:24px; transform: translateX(-14px); }
+                          /* Efeito gaveta: revela mais verde e desliza para esquerda */
+                          .group:hover > div.book-status-tab { width:30px; transform: translateX(-12px); }
                         `}</style>
                       </div>
                     );
