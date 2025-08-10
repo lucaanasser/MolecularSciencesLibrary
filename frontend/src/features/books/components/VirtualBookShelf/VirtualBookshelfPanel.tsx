@@ -165,28 +165,24 @@ const VirtualBookshelf = () => {
       </div>
 
       {/* Exibe prateleira apenas em telas médias/grandes */}
-      <div className="hidden sm:block w-full">
-        <div className="flex flex-col items-center">
-          {/* Navegação entre estantes */}
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="outline"
-              onClick={() => handleShelfChange("prev")}
-              disabled={selectedShelf === "1"}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <span className="font-bold text-xl">Estante {selectedShelf}</span>
-            <Button
-              variant="outline"
-              onClick={() => handleShelfChange("next")}
-              disabled={selectedShelf === NUM_SHELVES.toString()}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
+      <div className="hidden sm:flex w-full justify-center items-center relative">
+        {/* Seta esquerda */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+          <Button
+            variant="ghost"
+            onClick={() => handleShelfChange("prev")}
+            disabled={selectedShelf === "1"}
+            className="rounded-full p-2"
+            aria-label="Estante anterior"
+          >
+            <ChevronLeft className="h-8 w-8" />
+          </Button>
+        </div>
 
-          <div className="bg-white p-4 flex flex-col gap-2 w-full max-w-2xl">
+        {/* Conteúdo da estante */}
+        <div className="flex flex-col items-center w-full max-w-2xl">
+          <span className="font-bold text-xl mb-4">Estante {selectedShelf}</span>
+          <div className="bg-white p-4 flex flex-col gap-2 w-full">
             <div className="flex flex-col gap-0.5">
               {(editMode && isAdmin
                 ? rowNumbers.map(rowNum => {
@@ -251,6 +247,19 @@ const VirtualBookshelf = () => {
               return null;
             })()}
           </div>
+        </div>
+
+        {/* Seta direita */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+          <Button
+            variant="ghost"
+            onClick={() => handleShelfChange("next")}
+            disabled={selectedShelf === NUM_SHELVES.toString()}
+            className="rounded-full p-2"
+            aria-label="Próxima estante"
+          >
+            <ChevronRight className="h-8 w-8" />
+          </Button>
         </div>
       </div>
 
