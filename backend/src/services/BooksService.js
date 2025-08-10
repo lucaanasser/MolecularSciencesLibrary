@@ -23,7 +23,7 @@ const areaCodes = {
 const subareaCodes = {
     "Física": { 
         "Física Geral": 1, 
-        "Mecânica Clássica": 2, 
+        "Mecânica": 2, 
         "Termodinâmica": 3,
         "Eletromagnetismo": 4,
         "Física Moderna": 5,

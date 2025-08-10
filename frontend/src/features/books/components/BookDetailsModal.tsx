@@ -41,14 +41,19 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
 
   console.log("🔵 [BookDetailsModal] Renderizando modal para livro:", book?.title);
 
-  // Resolver nome da subárea a partir do número
+  // Resolver número e nome da subárea juntos (ex: '1 - Bioquímica')
   const resolvedSubarea = (() => {
     try {
       if (!book?.subarea || !book?.area || !subareaCodes) return book?.subarea;
       const areaMap = subareaCodes[book.area];
       if (!areaMap) return book.subarea;
+      // Procurar o nome da subárea pelo valor
       const entry = Object.entries(areaMap).find(([, value]) => Number(value) === Number(book.subarea));
-      return entry ? entry[0] : book.subarea;
+      if (entry) {
+        // entry[0] = nome, entry[1] = número
+        return `${entry[1]} - ${entry[0]}`;
+      }
+      return book.subarea;
     } catch (e) {
       return book?.subarea;
     }
@@ -104,12 +109,14 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
               Ver na Estante
             </button>
           )}
-          <button
-            onClick={onClose}
-            className="bg-gray-200 px-4 py-2 rounded-xl hover:bg-gray-300"
-          >
-            Fechar
-          </button>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={onClose}
+              className="bg-gray-200 px-4 py-2 rounded-xl hover:bg-gray-300"
+            >
+              Fechar
+            </button>
+          </div>
         </div>
       </div>
     </div>
