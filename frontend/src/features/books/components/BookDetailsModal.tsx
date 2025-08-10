@@ -47,8 +47,8 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
       if (!book?.subarea || !book?.area || !subareaCodes) return book?.subarea;
       const areaMap = subareaCodes[book.area];
       if (!areaMap) return book.subarea;
-      // Procurar o nome da subárea pelo valor
-      const entry = Object.entries(areaMap).find(([, value]) => Number(value) === Number(book.subarea));
+      // Procurar o número da subárea pela chave (nome)
+      const entry = Object.entries(areaMap).find(([key, value]) => Number(value) === Number(book.subarea));
       if (entry) {
         // entry[0] = nome, entry[1] = número
         return `${entry[1]} - ${entry[0]}`;
