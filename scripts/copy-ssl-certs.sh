@@ -3,7 +3,7 @@
 # Script para copiar certificados Let's Encrypt reais para a pasta ssl
 # Isso resolve o problema de links simbólicos no Docker
 
-LETSENCRYPT_DIR="/etc/letsencrypt/live/bibliotecamoleculares.com-0001"
+LETSENCRYPT_DIR="/etc/letsencrypt/live/bibliotecamoleculares.com"
 SSL_DIR="./ssl"
 
 echo "🔵 Copiando certificados Let's Encrypt..."
