@@ -179,7 +179,7 @@ const BookSearch: React.FC = () => {
               {groupedBooks.map(book => (
                 <div
                   key={book.code}
-                  className="relative group bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200"
+                  className="relative group bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200 overflow-visible"
                 >
                   {(() => {
                     let statusText = "Disponível";
@@ -196,12 +196,9 @@ const BookSearch: React.FC = () => {
                     }
                     return (
                       <div
-                        className={`absolute top-2 bottom-2 left-0 flex items-center justify-center ${bgColor} text-white font-semibold text-[10px] tracking-widest transition-all duration-300 w-2 group-hover:w-10 transform group-hover:-translate-x-8 rounded-r`}
-                        style={{ boxShadow: '0 0 4px rgba(0,0,0,0.15)' }}
+                        className={`absolute top-2 bottom-2 left-0 -ml-2 group-hover:-ml-4 w-4 group-hover:w-14 ${bgColor} text-white font-semibold text-[10px] tracking-widest transition-all duration-300 rounded-r flex items-center justify-center shadow-md`}
                       >
-                        <span
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 origin-center -rotate-90 whitespace-nowrap select-none"
-                        >
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 origin-center -rotate-90 whitespace-nowrap select-none">
                           {statusText.toUpperCase()}
                         </span>
                       </div>
