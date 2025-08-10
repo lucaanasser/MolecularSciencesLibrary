@@ -53,37 +53,12 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
     }
   };
 
-  // Determina quais livros pertencem a esta prateleira baseado em códigos START
-  const getBooksForShelf = (shelf: VirtualShelf, allShelves: VirtualShelf[], books: any[]) => {
-    // Se não tem código inicial definido, não mostra livros
-    if (!shelf.book_code_start) return [];
-    
-    // Encontra próxima prateleira na mesma estante para determinar fim
-    const shelvesInBookcase = allShelves
-      .filter(s => s.shelf_number === shelf.shelf_number && s.book_code_start)
-      .sort((a, b) => a.shelf_row - b.shelf_row);
-    
-    const currentIndex = shelvesInBookcase.findIndex(s => 
-      s.shelf_row === shelf.shelf_row
-    );
-    
-    const nextShelf = currentIndex < shelvesInBookcase.length - 1 
-      ? shelvesInBookcase[currentIndex + 1] 
-      : null;
-    
+  // Sempre determina os livros da prateleira usando book_code_start e book_code_end definidos manualmente
+  const getBooksForShelf = (shelf: VirtualShelf, _allShelves: VirtualShelf[], books: any[]) => {
+    if (!shelf.book_code_start || !shelf.book_code_end) return [];
     const startCode = shelf.book_code_start;
-    // Se há próxima prateleira, usa seu código inicial como limite
-    // Se é última prateleira, usa seu código final definido manualmente
-    const endCode = nextShelf 
-      ? getPreviousCode(nextShelf.book_code_start!)
-      : (shelf.book_code_end || shelf.calculated_book_code_end);
-    
-    if (!endCode) return [];
-    
-    // Filtra livros que pertencem a esta prateleira
-    return books.filter(book => {
-      return book.code >= startCode && book.code <= endCode;
-    });
+    const endCode = shelf.book_code_end;
+    return books.filter(book => book.code >= startCode && book.code <= endCode);
   };
 
   // Função auxiliar para calcular código anterior (similar ao backend)
