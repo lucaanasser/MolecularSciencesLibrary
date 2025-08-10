@@ -42,7 +42,7 @@ services:
     environment:
       - GDRIVE_FOLDER_ID=1eCEzS0-vCnmKxin4MUpqDj-QWA28klit
       - TZ=America/Sao_Paulo
-    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y wget curl tzdata && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && wget -O /usr/local/bin/gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64 && chmod +x /usr/local/bin/gdrive && while true; do /app/scripts/backup_db_to_gdrive.sh; sleep 86400; done"]
+    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y wget curl tzdata rclone jq && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && while true; do /app/scripts/backup_db_to_gdrive.sh; sleep 86400; done"]
     depends_on:
       - backend
   frontend:
