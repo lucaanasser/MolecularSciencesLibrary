@@ -11,7 +11,7 @@ const sqlite3 = require('sqlite3');
 const path = require('path');
 const bcrypt = require('bcrypt');
 
-const dbPath = process.env.DATABASE_URL?.replace('sqlite://','') || path.join(__dirname, '..', '..', 'database', 'library.db');
+const dbPath = process.env.DATABASE_URL?.replace('sqlite://','') || '/root/MolecularSciencesLibrary/database/library.db';
 const db = new sqlite3.Database(dbPath);
 
 const USER_DATA = {
