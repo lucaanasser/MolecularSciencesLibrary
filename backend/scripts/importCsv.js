@@ -1,7 +1,7 @@
 // Importa módulos necessários para manipulação de arquivos, caminhos e leitura de CSV
 const fs = require('fs');
 const csv = require('csv-parser');
-const booksModel = require('../models/BooksModel');
+const booksModel = require('../src/models/BooksModel');
 
 // Recebe o caminho do arquivo CSV via argumento de linha de comando
 const csvFilePath = process.argv[2]; 

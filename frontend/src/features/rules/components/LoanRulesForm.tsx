@@ -103,6 +103,54 @@ export default function LoanRulesForm({ onSuccess }: LoanRulesFormProps) {
           required
         />
       </div>
+      <div>
+        <label className="block font-medium">Janela de extensão (dias)</label>
+        <input
+          type="number"
+          name="extension_window_days"
+          value={form.extension_window_days}
+          onChange={handleChange}
+          min={1}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block font-medium">Multiplicador do bloco de extensão</label>
+        <input
+          type="number"
+          name="extension_block_multiplier"
+          value={form.extension_block_multiplier}
+          onChange={handleChange}
+          min={1}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block font-medium">Dias mínimos após nudge (fase estendida)</label>
+        <input
+          type="number"
+          name="shortened_due_days_after_nudge"
+          value={form.shortened_due_days_after_nudge}
+          onChange={handleChange}
+          min={1}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block font-medium">Cooldown de cutucada (horas)</label>
+        <input
+          type="number"
+          name="nudge_cooldown_hours"
+          value={form.nudge_cooldown_hours}
+          onChange={handleChange}
+          min={1}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
       <Button type="submit" className="bg-cm-blue text-white px-4 py-2 rounded">
         Salvar Regras
       </Button>

@@ -1,5 +1,6 @@
 const notificationsService = require('../services/NotificationsService');
 const emailService = require('../services/EmailService');
+const LoansService = require('../services/LoansService');
 
 /**
  * Controller responsável pelas notificações.
@@ -20,12 +21,21 @@ class NotificationsController {
     // Cria uma notificação (pode ser usada para "cutucar" também)
     async createNotification(req, res) {
         try {
-            const { user_id, type, message, metadata, sendEmail, subject } = req.body;
+            const { user_id, type, message, metadata, sendEmail, subject, loan_id } = req.body;
             if (!user_id || !type || !message) {
                 return res.status(400).json({ error: 'user_id, type e message são obrigatórios.' });
             }
             // Cria a notificação interna
-            const id = await notificationsService.notifyUser({ user_id, type, message, metadata });
+            const id = await notificationsService.notifyUser({ user_id, type, message, metadata, loan_id });
+
+            // Se for um nudge e tiver loan_id, aplica o impacto de redução se necessário
+            if (type === 'nudge' && loan_id) {
+                try {
+                    await LoansService.applyNudgeImpactIfNeeded(loan_id);
+                } catch (e) {
+                    console.warn('🟡 [NotificationsController] Falha ao aplicar impacto de nudge:', e.message);
+                }
+            }
 
             // Se deve enviar email, usa o EmailService
             if (sendEmail) {

@@ -254,6 +254,48 @@ class LoansService {
             message: `Nova data de devolução será ${due_date}`
         };
     }
+
+    // Preview da extensão do empréstimo
+    async previewExtendLoan(loan_id, user_id) {
+        const rules = await RulesService.getRules();
+        const loans = await LoansModel.getLoansByUser(user_id);
+        const loan = loans.find(l => Number(l.loan_id) === Number(loan_id) && !l.returned_at);
+        if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
+        if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
+        if (loan.extended_phase === 1) throw new Error('Empréstimo já está estendido.');
+        const dueDate = loan.due_date ? new Date(loan.due_date) : null;
+        if (!dueDate) throw new Error('Data de devolução não definida.');
+        const now = new Date();
+        const windowDays = rules.extension_window_days || 3;
+        const windowStart = new Date(dueDate); windowStart.setDate(dueDate.getDate() - windowDays);
+        if (now < windowStart) throw new Error('Janela de extensão ainda não aberta.');
+        if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
+        // TODO: checar nudges na janela (dependerá de notifications com loan_id)
+        const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
+        const newDue = new Date(dueDate); newDue.setDate(newDue.getDate() + addedDays);
+        return { new_due_date: newDue.toISOString(), added_days: addedDays };
+    }
+
+    // Estende um empréstimo
+    async extendLoan(loan_id, user_id) {
+        const preview = await this.previewExtendLoan(loan_id, user_id); // validações dentro
+        const rules = await RulesService.getRules();
+        const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
+        await LoansModel.extendLoanBlock(loan_id, addedDays);
+        const updated = await LoansModel.getLoanById(loan_id);
+        return { message: 'Empréstimo estendido com sucesso.', due_date: updated?.due_date || preview.new_due_date };
+    }
+
+    async applyNudgeImpactIfNeeded(loan_id) {
+        const rules = await RulesService.getRules();
+        const loan = await LoansModel.getLoanById(loan_id);
+        if (!loan || loan.returned_at) return { changed: false };
+        if (loan.extended_phase !== 1) return { changed: false };
+        const shortenedTarget = rules.shortened_due_days_after_nudge || 5;
+        const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, shortenedTarget);
+        if (changed) return { changed: true, new_due_date: (await LoansModel.getLoanById(loan_id)).due_date };
+        return { changed: false };
+    }
 }
 
 module.exports = new LoansService();

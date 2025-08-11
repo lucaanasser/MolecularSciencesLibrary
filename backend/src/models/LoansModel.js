@@ -344,4 +344,55 @@ module.exports = {
             );
         });
     },
+
+    // Busca um empréstimo pelo ID
+    getLoanById: (loan_id) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.get(`SELECT * FROM loans WHERE id = ?`, [loan_id], (err, row) => {
+                db.close();
+                if (err) reject(err); else resolve(row);
+            });
+        });
+    },
+    // Estende o prazo de um empréstimo
+    extendLoanBlock: (loan_id, added_days) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(`UPDATE loans SET extended_phase = 1, extended_started_at = CURRENT_TIMESTAMP, due_date = datetime(due_date, '+'|| ? ||' days') WHERE id = ? AND returned_at IS NULL AND extended_phase = 0`,
+                [added_days, loan_id], function (err) {
+                    db.close();
+                    if (err) reject(err); else if (this.changes === 0) reject(new Error('Não foi possível estender (já estendido ou devolvido).')); else resolve();
+                });
+        });
+    },
+    // Encurta o prazo de um empréstimo se for maior que o limite especificado
+    shortenDueDateIfLongerThan: (loan_id, days) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.get(`SELECT due_date FROM loans WHERE id = ? AND returned_at IS NULL`, [loan_id], (err, row) => {
+                if (err) { db.close(); return reject(err); }
+                if (!row || !row.due_date) { db.close(); return resolve(false); }
+                const current = new Date(row.due_date);
+                const now = new Date();
+                const diffDays = Math.ceil((current - now)/(1000*60*60*24));
+                if (diffDays > days) {
+                    db.run(`UPDATE loans SET due_date = datetime('now','+'|| ? ||' days') WHERE id = ?`, [days, loan_id], function (uErr) {
+                        db.close();
+                        if (uErr) reject(uErr); else resolve(true);
+                    });
+                } else { db.close(); resolve(false); }
+            });
+        });
+    },
+    // Registra o último nudge enviado para um empréstimo
+    setLastNudged: (loan_id) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(`UPDATE loans SET last_nudged_at = CURRENT_TIMESTAMP WHERE id = ?`, [loan_id], function (err) {
+                db.close();
+                if (err) reject(err); else resolve();
+            });
+        });
+    },
 };

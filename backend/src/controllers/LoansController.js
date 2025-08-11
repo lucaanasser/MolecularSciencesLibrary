@@ -136,6 +136,30 @@ const LoansController = {
             res.status(500).json({ error: err.message });
         }
     },
+
+    // Preview da extensão
+    previewExtendLoan: async (req, res) => {
+        try {
+            const { id } = req.params; // loan id
+            const { user_id } = req.body;
+            const data = await LoansService.previewExtendLoan(Number(id), Number(user_id));
+            res.json(data);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
+
+    // Extensão de empréstimo
+    extendLoan: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { user_id } = req.body;
+            const data = await LoansService.extendLoan(Number(id), Number(user_id));
+            res.json(data);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
 };
 
 module.exports = LoansController;

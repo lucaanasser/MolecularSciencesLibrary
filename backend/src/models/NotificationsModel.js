@@ -9,13 +9,13 @@ const { executeQuery, getQuery, allQuery } = require('../database/db');
  * 🔴 Erro
  */
 class NotificationsModel {
-    async createNotification({ user_id, type, message, metadata, status = 'unread' }) {
+    async createNotification({ user_id, type, message, metadata, status = 'unread', loan_id = null }) {
         console.log("🔵 [NotificationsModel] Criando notificação:", { user_id, type, message });
         const query = `
-            INSERT INTO notifications (user_id, type, message, metadata, status, created_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO notifications (user_id, type, message, metadata, loan_id, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        const params = [user_id, type, message, metadata ? JSON.stringify(metadata) : null, status];
+        const params = [user_id, type, message, metadata ? JSON.stringify(metadata) : null, loan_id, status];
         try {
             const id = await executeQuery(query, params);
             console.log("🟢 [NotificationsModel] Notificação criada:", id);

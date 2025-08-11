@@ -14,4 +14,6 @@ export interface Loan {
   user_name?: string;
   user_email?: string;
   is_reserved?: number; // 1 = reservado para reserva didática, 0 = não reservado
+  extended_phase?: number; // 1 se já estendido
+  last_nudged_at?: string | null;
 }

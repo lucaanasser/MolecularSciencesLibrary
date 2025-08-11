@@ -24,6 +24,19 @@ const RulesService = {
             console.error('🔴 [RulesService] Erro ao atualizar regras:', err.message);
             throw err;
         }
+    },
+
+    propagateNewFields: async (data) => {
+        console.log('🔵 [RulesService] Propagando novos campos de regras:', data);
+        try {
+            await RulesModel.propagateNewFields(data);
+            const updated = await RulesModel.getRules();
+            console.log('🟢 [RulesService] Novos campos de regras propagados:', updated);
+            return updated;
+        } catch (err) {
+            console.error('🔴 [RulesService] Erro ao propagar novos campos de regras:', err.message);
+            throw err;
+        }
     }
 };
 

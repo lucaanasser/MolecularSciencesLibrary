@@ -205,6 +205,15 @@ class BooksService {
                 } else if (loan) {
                     status = "emprestado";
                 }
+                // Novos flags (por enquanto sem regras completas pois dependem de extended_phase na tabela loans)
+                let due_in_window = false;
+                let extended_phase = false;
+                if (loan && loan.due_date) {
+                    // Placeholder: iremos refinar depois usando rules.extension_window_days
+                    const dueDate = new Date(loan.due_date);
+                    const diffDays = Math.ceil((dueDate - now)/(1000*60*60*24));
+                    if (diffDays >= 0 && diffDays <= 3) due_in_window = true; // será parametrizado
+                }
                 return {
                     ...book,
                     available: !loan,
@@ -212,6 +221,8 @@ class BooksService {
                     status,
                     student_id: loan ? loan.student_id : null,
                     loan_id: loan ? loan.loan_id : null,
+                    due_in_window,
+                    extended_phase
                 };
             });
             console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);

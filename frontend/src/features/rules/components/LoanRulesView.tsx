@@ -15,6 +15,10 @@ export default function LoanRulesView() {
       <div><b>Intervalo de lembrete de atraso:</b> {rules.overdue_reminder_days} dias</div>
       <div><b>Máximo de renovações por empréstimo:</b> {rules.max_renewals}</div>
       <div><b>Dias de cada renovação:</b> {rules.renewal_days}</div>
+      <div><b>Janela de extensão:</b> {rules.extension_window_days} dias</div>
+      <div><b>Multiplicador de extensão:</b> {rules.extension_block_multiplier}x</div>
+      <div><b>Dias mínimos após nudge (estendido):</b> {rules.shortened_due_days_after_nudge}</div>
+      <div><b>Cooldown de cutucada:</b> {rules.nudge_cooldown_hours}h</div>
     </div>
   );
 }

@@ -82,6 +82,9 @@ db.serialize(() => {
             returned_at TIMESTAMP,
             renewals INTEGER NOT NULL DEFAULT 0, 
             due_date TIMESTAMP, 
+            extended_phase INTEGER NOT NULL DEFAULT 0, -- 0 normal, 1 estendido
+            extended_started_at TIMESTAMP, -- quando entrou na fase estendida
+            last_nudged_at TIMESTAMP, -- último nudge que impactou
             FOREIGN KEY(book_id) REFERENCES books(id)
         )
     `, (err) => {
@@ -100,6 +103,7 @@ db.serialize(() => {
             type TEXT NOT NULL, -- 'overdue', 'nudge', etc
             message TEXT NOT NULL,
             metadata TEXT,
+            loan_id INTEGER, -- vínculo direto com empréstimo para nudges
             status TEXT DEFAULT 'unread',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(user_id) REFERENCES users(id)
@@ -120,7 +124,11 @@ db.serialize(() => {
             overdue_reminder_days INTEGER NOT NULL DEFAULT 3,
             max_books_per_user INTEGER NOT NULL DEFAULT 5,
             max_renewals INTEGER NOT NULL DEFAULT 2,
-            renewal_days INTEGER NOT NULL DEFAULT 7 
+            renewal_days INTEGER NOT NULL DEFAULT 7,
+            extension_window_days INTEGER NOT NULL DEFAULT 3, -- janela (dias) antes do vencimento para liberar extensão
+            extension_block_multiplier INTEGER NOT NULL DEFAULT 3, -- multiplicador (renewal_days * multiplier)
+            shortened_due_days_after_nudge INTEGER NOT NULL DEFAULT 5, -- prazo mínimo após nudge em fase estendida
+            nudge_cooldown_hours INTEGER NOT NULL DEFAULT 24 -- intervalo entre nudges permitidos
         )
     `, (err) => {
         if (err) {
@@ -132,7 +140,7 @@ db.serialize(() => {
         db.get('SELECT * FROM rules WHERE id = 1', (err, row) => {
             if (!row) {
                 db.run(
-                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days) VALUES (1, 7, 3, 5, 2, 7)`
+                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days, extension_window_days, extension_block_multiplier, shortened_due_days_after_nudge, nudge_cooldown_hours) VALUES (1, 7, 3, 5, 2, 7, 3, 3, 5, 24)`
                 );
             }
         });

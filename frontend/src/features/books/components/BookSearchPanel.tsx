@@ -237,8 +237,8 @@ const BookSearch: React.FC = () => {
                       >
                         Detalhes
                       </Button>
-                      {/* Botão de nudge para livros atrasados */}
-                      {book.overdue && (
+                      {/* Botão de nudge para livros atrasados ou na janela final ou estendidos */}
+                      {(book.overdue || book.due_in_window || book.extended_phase) && (
                         <NudgeButton book={book} />
                       )}
                     </div>

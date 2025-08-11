@@ -16,18 +16,42 @@ const RulesController = {
     updateRules: async (req, res) => {
         console.log('🔵 [RulesController] Recebida requisição para atualizar regras:', req.body);
         try {
-            const { max_days, max_books_per_user, overdue_reminder_days, max_renewals, renewal_days } = req.body;
-            if (
-                typeof max_days !== 'number' ||
-                typeof max_books_per_user !== 'number' ||
-                typeof overdue_reminder_days !== 'number' ||
-                typeof max_renewals !== 'number' ||
-                typeof renewal_days !== 'number'
-            ) {
+            const { 
+                max_days, 
+                max_books_per_user, 
+                overdue_reminder_days, 
+                max_renewals, 
+                renewal_days,
+                extension_window_days,
+                extension_block_multiplier,
+                shortened_due_days_after_nudge,
+                nudge_cooldown_hours
+            } = req.body;
+            if ([
+                max_days,
+                max_books_per_user,
+                overdue_reminder_days,
+                max_renewals,
+                renewal_days,
+                extension_window_days,
+                extension_block_multiplier,
+                shortened_due_days_after_nudge,
+                nudge_cooldown_hours
+            ].some(v => typeof v !== 'number')) {
                 console.warn('🟡 [RulesController] Dados inválidos recebidos:', req.body);
                 return res.status(400).json({ error: 'Dados inválidos' });
             }
-            const updated = await RulesService.updateRules({ max_days, max_books_per_user, overdue_reminder_days, max_renewals, renewal_days });
+            const updated = await RulesService.updateRules({ 
+                max_days, 
+                max_books_per_user, 
+                overdue_reminder_days, 
+                max_renewals, 
+                renewal_days,
+                extension_window_days,
+                extension_block_multiplier,
+                shortened_due_days_after_nudge,
+                nudge_cooldown_hours
+            });
             console.log('🟢 [RulesController] Regras atualizadas com sucesso');
             res.json(updated);
         } catch (err) {

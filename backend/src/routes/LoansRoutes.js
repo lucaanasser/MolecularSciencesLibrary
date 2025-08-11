@@ -59,4 +59,15 @@ router.get('/user/:userId/active', (req, res) => {
     LoansController.listActiveLoansByUser(req, res);
 });
 
+// Extensão - preview
+router.post('/:id/preview-extend', (req, res) => {
+    console.log('🔵 [LoansRoutes] POST /:id/preview-extend - Preview extensão');
+    LoansController.previewExtendLoan(req, res);
+});
+// Extensão - aplicar
+router.put('/:id/extend', (req, res) => {
+    console.log('🔵 [LoansRoutes] PUT /:id/extend - Estender empréstimo');
+    LoansController.extendLoan(req, res);
+});
+
 module.exports = router;

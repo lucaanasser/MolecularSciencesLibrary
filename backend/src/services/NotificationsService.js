@@ -1,4 +1,5 @@
 const notificationsModel = require('../models/NotificationsModel');
+const LoansModel = require('../models/LoansModel');
 
 /**
  * Service responsável pela lógica de notificações internas do sistema.
@@ -8,12 +9,13 @@ class NotificationsService {
     /**
      * Cria uma notificação interna no sistema
      */
-    async createNotification({ user_id, type, message, metadata }) {
+    async createNotification({ user_id, type, message, metadata, loan_id }) {
         const notificationId = await notificationsModel.createNotification({
             user_id,
             type,
             message,
             metadata,
+            loan_id,
             status: 'unread'
         });
 
@@ -152,20 +154,23 @@ class NotificationsService {
     /**
      * Cria notificação de "cutucada" quando alguém quer um livro que está emprestado
      */
-    async createNudgeNotification({ borrower_id, requester_id, book_id, book_title }) {
+    async createNudgeNotification({ borrower_id, requester_id, book_id, book_title, loan_id }) {
         const message = `Alguém está interessado no livro "${book_title || book_id}" que você pegou emprestado. Que tal devolver logo para ajudar um colega? 😄`;
-        const metadata = { 
-            requester_id, 
-            book_id, 
-            nudge_type: 'book_request' 
-        };
+        const metadata = { requester_id, book_id, nudge_type: 'book_request' };
 
-        return await this.createNotification({
+        const id = await this.createNotification({
             user_id: borrower_id,
             type: 'nudge',
             message,
-            metadata
+            metadata,
+            loan_id
         });
+
+        if (loan_id) {
+            await LoansModel.setLastNudged(loan_id).catch(()=>{});
+        }
+
+        return id;
     }
 
     /**
