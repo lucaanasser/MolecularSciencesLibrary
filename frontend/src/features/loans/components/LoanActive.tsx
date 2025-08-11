@@ -116,8 +116,9 @@ export default function LoanActive({ userId }: LoanActiveProps) {
     <div className="space-y-4">
       {activeLoans.map(item => {
         const overdue = isOverdue(item); const { statusText, statusColor } = getLoanStatusProps(item);
-        const showRenew = !overdue && (item.extended_phase !== 1) && rules && (item.renewals ?? 0) < rules.max_renewals;
-        const showExtend = !overdue && inExtensionWindow(item) && item.extended_phase !== 1 && item.extension_pending !== 1;
+        const reachedMaxRenewals = rules ? (item.renewals ?? 0) >= rules.max_renewals : false;
+        const showRenew = !overdue && (item.extended_phase !== 1) && !reachedMaxRenewals; // sempre até última renovação
+        const showExtend = !overdue && (item.extended_phase !== 1) && reachedMaxRenewals && item.extension_pending !== 1; // após última renovação
         return (
           <LoanItem key={item.loan_id} loan={item} statusText={statusText} statusColor={statusColor} onRenew={showRenew ? () => handlePreviewRenew(item) : undefined} renewLoading={renewLoading === item.loan_id} showRenew={showRenew}>
             <div className="flex flex-col gap-1 items-end w-full">
