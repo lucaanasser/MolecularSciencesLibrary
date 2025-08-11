@@ -19,7 +19,7 @@ const USER_DATA = {
   NUSP: 11,
   email: 'lucanasser@protonmail.com',
   password: '1',
-  role: 'admin'
+  role: 'aluno'
 };
 
 function getUser(callback) {
