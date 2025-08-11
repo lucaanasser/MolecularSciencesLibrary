@@ -16,4 +16,5 @@ export interface User {
   photoUrl?: string;
   token?: string;
   profile_image?: string; // Caminho da imagem de perfil
+  class?: string | number; // Número da turma
 }

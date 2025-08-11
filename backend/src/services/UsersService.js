@@ -13,7 +13,7 @@ class UsersService {
      * Cria um novo usuário após verificar se já existe por email.
      * Retorna os dados do usuário criado (sem senha).
      */
-    async createUser({ name, email, phone, role, NUSP, profile_image }) {
+    async createUser({ name, email, phone, role, NUSP, profile_image, class: userClass }) {
         console.log("🔵 [createUser] Verificando existência do usuário por email:", email);
         const existing = await usersModel.getUserByEmail(email);
         if (existing) {
@@ -22,7 +22,7 @@ class UsersService {
         }
         // Cria usuário SEM senha
         const password_hash = null;
-        const userId = await usersModel.createUser({ name, email, phone, password_hash, role, NUSP, profile_image });
+        const userId = await usersModel.createUser({ name, email, phone, password_hash, role, NUSP, profile_image, class: userClass });
         console.log("🟢 [createUser] Usuário criado com id:", userId);
 
         // Envia email de boas-vindas com link para cadastrar senha
@@ -30,7 +30,7 @@ class UsersService {
             console.error("🔴 [createUser] Falha ao enviar email de boas-vindas:", err.message);
         });
 
-        return { id: userId, name, email, phone, role, NUSP, profile_image };
+        return { id: userId, name, email, phone, role, NUSP, profile_image, class: userClass };
     }
 
     /**

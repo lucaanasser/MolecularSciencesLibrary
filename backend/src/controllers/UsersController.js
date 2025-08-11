@@ -12,7 +12,7 @@ class UsersController {
     async createUser(req, res) {
         try {
             console.log("🔵 [createUser] Dados recebidos:", req.body);
-            const { name, email, phone, role, NUSP, profile_image } = req.body;
+            const { name, email, phone, role, NUSP, profile_image, class: userClass } = req.body;
             if (!name || !email || !phone || !role || !NUSP) {
                 console.warn("🟡 [createUser] Campos obrigatórios faltando.");
                 return res.status(400).json({ error: 'Todos os campos são obrigatórios, incluindo telefone.' });
@@ -21,7 +21,7 @@ class UsersController {
             if (!/^\+?\d{10,15}$/.test(phone)) {
                 return res.status(400).json({ error: 'Telefone inválido. Informe DDD e número.' });
             }
-            const user = await usersService.createUser({ name, email, phone, role, NUSP, profile_image });
+            const user = await usersService.createUser({ name, email, phone, role, NUSP, profile_image, class: userClass });
             console.log("🟢 [createUser] Usuário criado com sucesso:", user);
             res.status(201).json(user);
         } catch (error) {

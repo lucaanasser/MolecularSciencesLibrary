@@ -263,17 +263,14 @@ class LoansService {
         if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
         if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
         if (loan.extended_phase === 1) throw new Error('Empréstimo já está estendido.');
-        const dueDate = loan.due_date ? new Date(loan.due_date) : null;
-        if (!dueDate) throw new Error('Data de devolução não definida.');
+        if (!loan.due_date) throw new Error('Data de devolução não definida.');
+        const dueDate = new Date(loan.due_date);
         const now = new Date();
-        const windowDays = rules.extension_window_days || 3;
-        const windowStart = new Date(dueDate); windowStart.setDate(dueDate.getDate() - windowDays);
-        if (now < windowStart) throw new Error('Janela de extensão ainda não aberta.');
         if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
-        // TODO: checar nudges na janela (dependerá de notifications com loan_id)
+        // Agora permitimos solicitar preview imediatamente após última renovação.
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         const newDue = new Date(dueDate); newDue.setDate(newDue.getDate() + addedDays);
-        return { new_due_date: newDue.toISOString(), added_days: addedDays };
+        return { new_due_date: newDue.toISOString(), added_days: addedDays, pending_period_days: rules.extension_window_days };
     }
 
     // Solicita extensão (marca pendência)
@@ -288,13 +285,10 @@ class LoansService {
         if (!loan.due_date) throw new Error('Data de devolução não definida.');
         const dueDate = new Date(loan.due_date);
         const now = new Date();
-        const windowDays = rules.extension_window_days || 3;
-        const windowStart = new Date(dueDate); windowStart.setDate(dueDate.getDate() - windowDays);
-        if (now < windowStart) throw new Error('Janela de extensão ainda não aberta.');
         if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
-        // Marca pendência
+        // Removed windowStart restriction: pendência começa imediatamente e ficará aguardando windowDays.
         await LoansModel.requestExtension(loan_id);
-        return { message: 'Extensão pendente. Se ninguém cutucar dentro da janela, será aplicada automaticamente.' };
+        return { message: `Extensão pendente. Será aplicada automaticamente após ${rules.extension_window_days} dia(s) sem cutucas.` };
     }
 
     // Executa auto-aplicação de extensões pendentes

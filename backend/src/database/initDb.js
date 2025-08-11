@@ -39,6 +39,7 @@ db.serialize(() => {
             password_hash TEXT, -- Agora permite NULL
             role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
             profile_image TEXT, -- Caminho da imagem de perfil
+            class TEXT, -- Número da turma
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `, (err) => {

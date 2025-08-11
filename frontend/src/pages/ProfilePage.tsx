@@ -106,7 +106,10 @@ const ProfilePage = () => {
                       </div>
                     )}
                     <h2 className="text-2xl font-bebas">{user.name}</h2>
-                    <p className="text-gray-500 mb-4">#{user.NUSP}</p>
+                    <p className="text-gray-500 mb-1">#{user.NUSP}</p>
+                    {user.class && (
+                      <p className="text-gray-500 mb-4">Turma: {user.class}</p>
+                    )}
 
                     <div className="w-full mt-4 space-y-2">
                       <div className="flex justify-between text-sm">
