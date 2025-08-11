@@ -12,11 +12,11 @@ export function useAddUser() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function addUser(user: { name: string; email: string; NUSP: number; phone: string }) {
+  async function addUser(user: { name: string; email: string; NUSP: number; phone: string; class?: string }) {
     setLoading(true);
     setError(null);
     try {
-      console.log("🔵 [useAddUser] Adicionando usuário:", user.name, user.NUSP, user.email, user.phone);
+      console.log("🔵 [useAddUser] Adicionando usuário:", user.name, user.NUSP, user.email, user.phone, user.class);
       const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

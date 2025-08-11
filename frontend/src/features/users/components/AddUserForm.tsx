@@ -22,17 +22,19 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
   const [NUSP, setNUSP] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [userClass, setUserClass] = useState("");
   const { addUser, loading, error } = useAddUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      console.log("🔵 [AddUserForm] Adicionando usuário:", name, NUSP, email);
-      await addUser({ name, email, NUSP: Number(NUSP), phone });
+      console.log("🔵 [AddUserForm] Adicionando usuário:", name, NUSP, email, userClass);
+      await addUser({ name, email, NUSP: Number(NUSP), phone, class: userClass || undefined });
       setName("");
       setNUSP("");
       setEmail("");
       setPhone("");
+      setUserClass("");
       onSuccess && onSuccess();
       console.log("🟢 [AddUserForm] Usuário adicionado com sucesso");
     } catch (err: any) {
@@ -58,6 +60,10 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
       <div>
         <Label htmlFor="phone">Telefone</Label>
         <Input id="phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} required pattern="\+?\d{10,15}" placeholder="Ex: 11999999999" />
+      </div>
+      <div>
+        <Label htmlFor="class">Turma (número)</Label>
+        <Input id="class" value={userClass} onChange={e => setUserClass(e.target.value)} placeholder="Ex: 33" />
       </div>
       {error && <div className="text-red-600">{error}</div>}
       <Button type="submit" disabled={loading}>
