@@ -3,19 +3,37 @@
  * Migração para colunas do fluxo de extensão/nudge.
  * Idempotente: só adiciona colunas que faltam.
  */
-const sqlite3 = require('sqlite3');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const dbUrl = process.env.DATABASE_URL || 'sqlite://./database/library.db';
-const dbPath = dbUrl.replace('sqlite://', '');
+// Detecta melhor caminho possível para o banco existente
+const explicitEnv = process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('sqlite://')
+  ? process.env.DATABASE_URL.replace('sqlite://', '')
+  : null;
+
+const candidates = [
+  explicitEnv,
+  // DB na raiz do repositório (../.. a partir de backend/scripts)
+  path.resolve(__dirname, '../../database/library.db'),
+  // DB dentro de backend/
+  path.resolve(__dirname, '../database/library.db'),
+  // DB relativo ao CWD (caso execute de outro lugar)
+  path.resolve(process.cwd(), 'database/library.db')
+].filter(Boolean);
+
+let dbPath = candidates.find(p => fs.existsSync(p));
+if (!dbPath) {
+  // Usa primeiro candidato não nulo (preferindo raiz) mesmo que não exista ainda
+  dbPath = candidates[0];
+}
 
 if (!fs.existsSync(path.dirname(dbPath))) {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 }
 
-console.log('🔵 [migration] Iniciando migração em', dbPath);
+console.log('🔵 [migration] Usando banco em', dbPath);
+const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('🔴 [migration] Erro ao abrir DB:', err.message);
@@ -28,6 +46,15 @@ function getTableInfo(table) {
     db.all(`PRAGMA table_info(${table})`, (err, rows) => {
       if (err) return reject(err);
       resolve(rows);
+    });
+  });
+}
+
+function tableExists(table) {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, [table], (err, row) => {
+      if (err) return reject(err);
+      resolve(!!row);
     });
   });
 }
@@ -56,6 +83,14 @@ function addColumnIfMissing(table, columnName, columnDef) {
 
 async function run() {
   try {
+    const loansExists = await tableExists('loans');
+    const rulesExists = await tableExists('rules');
+    if (!loansExists || !rulesExists) {
+      console.log('🟡 [migration] Tabelas base ausentes (loans ou rules). Rode primeiro: node src/database/initDb.js (no diretório backend) ou npm start que já executa initDb.');
+      console.log('🛑 [migration] Abortando migração sem alterar nada.');
+      return;
+    }
+
     // LOANS
     await addColumnIfMissing('loans', 'extended_phase', 'INTEGER NOT NULL DEFAULT 0');
     await addColumnIfMissing('loans', 'extended_started_at', 'TIMESTAMP');
@@ -81,18 +116,17 @@ async function run() {
             resolve();
           });
         } else {
-          // Atualiza nulos
-            const update = `UPDATE rules SET 
+          const update = `UPDATE rules SET 
               extension_window_days = COALESCE(extension_window_days, 3),
               extension_block_multiplier = COALESCE(extension_block_multiplier, 3),
               shortened_due_days_after_nudge = COALESCE(shortened_due_days_after_nudge, 5),
               nudge_cooldown_hours = COALESCE(nudge_cooldown_hours, 24)
             WHERE id = 1`;
-            db.run(update, (err3) => {
-              if (err3) return reject(err3);
-              console.log('🟢 [migration] Linha rules atualizada (defaults assegurados)');
-              resolve();
-            });
+          db.run(update, (err3) => {
+            if (err3) return reject(err3);
+            console.log('🟢 [migration] Linha rules atualizada (defaults assegurados)');
+            resolve();
+          });
         }
       });
     });
