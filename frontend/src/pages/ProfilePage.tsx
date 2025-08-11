@@ -106,12 +106,10 @@ const ProfilePage = () => {
                       </div>
                     )}
                     <h2 className="text-2xl font-bebas">{user.name}</h2>
-                    <p className="text-gray-500 mb-1">#{user.NUSP}</p>
-                    {user.class && (
-                      <p className="text-gray-500 mb-4">Turma: {user.class}</p>
-                    )}
+                    {user.class && <p className="text-gray-600 mb-1">Turma: {user.class}</p>}
+                    {user.NUSP !== undefined && <p className="text-gray-500 mb-4">NUSP: {user.NUSP}</p>}
 
-                    <div className="w-full mt-4 space-y-2">
+                    <div className="w-full mt-2 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-500">Email:</span>
                         <span>{user.email}</span>
