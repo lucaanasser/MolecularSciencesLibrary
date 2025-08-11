@@ -16,4 +16,6 @@ export interface Loan {
   is_reserved?: number; // 1 = reservado para reserva didática, 0 = não reservado
   extended_phase?: number; // 1 se já estendido
   last_nudged_at?: string | null;
+  extension_pending?: number;
+  extension_requested_at?: string;
 }

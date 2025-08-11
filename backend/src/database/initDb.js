@@ -85,6 +85,8 @@ db.serialize(() => {
             extended_phase INTEGER NOT NULL DEFAULT 0, -- 0 normal, 1 estendido
             extended_started_at TIMESTAMP, -- quando entrou na fase estendida
             last_nudged_at TIMESTAMP, -- último nudge que impactou
+            extension_pending INTEGER NOT NULL DEFAULT 0, -- 1 se usuário solicitou extensão e está aguardando janela de nudge
+            extension_requested_at TIMESTAMP, -- quando clicou em extender (início da pendência)
             FOREIGN KEY(book_id) REFERENCES books(id)
         )
     `, (err) => {

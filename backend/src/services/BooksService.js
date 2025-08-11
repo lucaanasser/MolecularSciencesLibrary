@@ -8,6 +8,7 @@
 const booksModel = require('../models/BooksModel');
 const bwipjs = require('bwip-js');
 const { PDFDocument, rgb } = require('pdf-lib');
+const RulesService = require('./RulesService');
 
 // Mapeamento de códigos de área (ex: Física -> FIS)
 const areaCodes = {
@@ -184,12 +185,11 @@ class BooksService {
             console.log(`🔵 [BooksService] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
             const books = await booksModel.getBooks(category, subcategory, searchTerm);
             const borrowed = await booksModel.getBorrowedBooks();
+            const rules = await RulesService.getRules();
+            const windowDays = rules?.extension_window_days ?? 3;
             const now = new Date();
-            // Mapeia empréstimos ativos por book_id
             const borrowedMap = {};
-            borrowed.forEach(b => {
-                borrowedMap[b.book_id] = b;
-            });
+            borrowed.forEach(b => { borrowedMap[b.book_id] = b; });
             const result = books.map(book => {
                 const loan = borrowedMap[book.id];
                 let overdue = false;
@@ -198,21 +198,13 @@ class BooksService {
                     overdue = dueDate < now;
                 }
                 let status = "disponível";
-                if (book.is_reserved === 1) {
-                    status = "reserva didática";
-                } else if (loan && overdue) {
-                    status = "atrasado";
-                } else if (loan) {
-                    status = "emprestado";
-                }
-                // Novos flags (por enquanto sem regras completas pois dependem de extended_phase na tabela loans)
+                if (book.is_reserved === 1) status = "reserva didática"; else if (loan && overdue) status = "atrasado"; else if (loan) status = "emprestado";
                 let due_in_window = false;
-                let extended_phase = false;
-                if (loan && loan.due_date) {
-                    // Placeholder: iremos refinar depois usando rules.extension_window_days
+                let extended_phase = (loan?.extended_phase === 1);
+                if (loan && loan.due_date && !overdue) {
                     const dueDate = new Date(loan.due_date);
                     const diffDays = Math.ceil((dueDate - now)/(1000*60*60*24));
-                    if (diffDays >= 0 && diffDays <= 3) due_in_window = true; // será parametrizado
+                    if (diffDays >= 0 && diffDays <= windowDays && !extended_phase) due_in_window = true;
                 }
                 return {
                     ...book,
@@ -222,7 +214,8 @@ class BooksService {
                     student_id: loan ? loan.student_id : null,
                     loan_id: loan ? loan.loan_id : null,
                     due_in_window,
-                    extended_phase
+                    extended_phase,
+                    due_date: loan?.due_date || null
                 };
             });
             console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);

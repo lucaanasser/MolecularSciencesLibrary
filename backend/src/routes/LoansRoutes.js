@@ -70,4 +70,10 @@ router.put('/:id/extend', (req, res) => {
     LoansController.extendLoan(req, res);
 });
 
+// Solicitar extensão
+router.post('/:id/request-extension', LoansController.requestExtension);
+
+// Processar pendências de extensão
+router.post('/process-pending/extensions', LoansController.processPending);
+
 module.exports = router;

@@ -7,7 +7,8 @@
     "start": "node src/database/initDb.js && node src/main.js",
     "build": "echo 'skip build'",
     "dev": "nodemon src/main.js",
-    "init-db": "node initDb.js"
+    "init-db": "node initDb.js",
+    "migrate:extension": "node scripts/migrate_extension_flow.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",

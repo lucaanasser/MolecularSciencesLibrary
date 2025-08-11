@@ -29,6 +29,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
   const [extendError, setExtendError] = useState<string>("");
   const [extendSuccess, setExtendSuccess] = useState<string>("");
   const [pendingExtend, setPendingExtend] = useState<{ loan: Loan, new_due_date: string } | null>(null);
+  const [pendingMessage, setPendingMessage] = useState<string>("");
 
   // Detecção de redução de prazo
   const previousDueDatesRef = useRef<Record<number, string>>({});
@@ -49,8 +50,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
 
   // Helpers
   function isOverdue(loan: Loan) { if (!loan.due_date) return false; return new Date() > new Date(loan.due_date); }
-  function inExtensionWindow(loan: Loan) {
-    if (!rules) return false; if (loan.extended_phase === 1) return false; if ((loan.renewals ?? 0) !== rules.max_renewals) return false; if (!loan.due_date) return false; const due = new Date(loan.due_date); const now = new Date(); const diffDays = Math.ceil((due.getTime()-now.getTime())/(1000*60*60*24)); return diffDays >= 0 && diffDays <= rules.extension_window_days; }
+  function inExtensionWindow(loan: Loan) { if (!rules) return false; if (loan.extended_phase === 1) return false; if ((loan.renewals ?? 0) !== rules.max_renewals) return false; if (!loan.due_date) return false; const due = new Date(loan.due_date); const now = new Date(); const diffDays = Math.ceil((due.getTime()-now.getTime())/(1000*60*60*24)); return diffDays >= 0 && diffDays <= rules.extension_window_days; }
 
   // Preview renovação existente
   async function handlePreviewRenew(loan: Loan) {
@@ -77,25 +77,34 @@ export default function LoanActive({ userId }: LoanActiveProps) {
 
   // Preview extensão
   async function handlePreviewExtend(loan: Loan) {
-    setExtendError(""); setExtendSuccess(""); setExtendLoading(loan.loan_id);
+    setExtendError("" ); setExtendSuccess(""); setExtendLoading(loan.loan_id);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/loans/${loan.loan_id}/preview-extend`, { method: "POST", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), }, body: JSON.stringify({ user_id: loan.student_id }), });
+      // Se já pendente não faz nada
+      if (loan.extension_pending === 1) { setExtendError('Já pendente'); return; }
+      // Preview só para mostrar nova data potencial
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/loans/${loan.loan_id}/preview-extend`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ user_id: loan.student_id }) });
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      if (!res.ok) { setDialogTitle("Extensão indisponível"); setDialogDescription(data.error || "Não é possível estender."); setDialogOpen(true); throw new Error(data.error || "Erro ao estender empréstimo"); }
-      setDialogTitle("Confirmação de extensão"); setDialogDescription(`Você está estendendo o livro '${loan.book_title}' até: ${data.new_due_date ? formatDate(data.new_due_date) : "(desconhecida)"}. Confirmar?`); setDialogOpen(true); setPendingExtend({ loan, new_due_date: data.new_due_date });
-    } catch (err: any) { setExtendError(err.message || "Erro ao estender"); } finally { setExtendLoading(null); }
+      setDialogTitle('Solicitar extensão');
+      setDialogDescription(`Ao confirmar, ficará pendente por até ${rules?.extension_window_days ?? 3} dias. Se ninguém cutucar, nova data será: ${data.new_due_date ? formatDate(data.new_due_date) : '(desconhecida)'}. Confirmar?`);
+      setDialogOpen(true);
+      setPendingExtend({ loan, new_due_date: data.new_due_date });
+    } catch (err: any) { setExtendError(err.message || 'Erro ao preparar extensão'); } finally { setExtendLoading(null); }
   }
 
   async function handleConfirmExtend() {
     if (!pendingExtend) return; setExtendError(""); setExtendSuccess(""); setExtendLoading(pendingExtend.loan.loan_id);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/loans/${pendingExtend.loan.loan_id}/extend`, { method: "PUT", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), }, body: JSON.stringify({ user_id: pendingExtend.loan.student_id }), });
-      const data = await res.json();
-      if (!res.ok) { setDialogTitle("Extensão indisponível"); setDialogDescription(data.error || "Não é possível estender."); setDialogOpen(true); throw new Error(data.error || "Erro ao estender"); }
-      setDialogTitle("Extensão realizada"); setDialogDescription(`Você estendeu o livro '${pendingExtend.loan.book_title}'. Nova data: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}`); setDialogOpen(true); setExtendSuccess("Empréstimo estendido com sucesso!"); refetch && refetch();
-    } catch (err: any) { setExtendError(err.message || "Erro ao estender"); } finally { setExtendLoading(null); setPendingExtend(null); }
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/loans/${pendingExtend.loan.loan_id}/request-extension`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ user_id: pendingExtend.loan.student_id }) });
+      if (!res.ok) throw new Error(await res.text());
+      setDialogTitle('Extensão pendente');
+      setDialogDescription(`Extensão ficará pendente até alguém cutucar ou completar a janela. Ela será aplicada automaticamente se não houver cutucas.`);
+      setExtendSuccess('Extensão pendente registrada');
+      setPendingMessage('Extensão pendente');
+      refetch && refetch();
+    } catch (err: any) { setExtendError(err.message || 'Erro ao solicitar extensão'); } finally { setExtendLoading(null); setPendingExtend(null); }
   }
 
   const activeLoans = (loans || []).filter(l => !l.returned_at);
@@ -108,7 +117,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       {activeLoans.map(item => {
         const overdue = isOverdue(item); const { statusText, statusColor } = getLoanStatusProps(item);
         const showRenew = !overdue && (item.extended_phase !== 1) && rules && (item.renewals ?? 0) < rules.max_renewals;
-        const showExtend = !overdue && inExtensionWindow(item) && item.extended_phase !== 1;
+        const showExtend = !overdue && inExtensionWindow(item) && item.extended_phase !== 1 && item.extension_pending !== 1;
         return (
           <LoanItem key={item.loan_id} loan={item} statusText={statusText} statusColor={statusColor} onRenew={showRenew ? () => handlePreviewRenew(item) : undefined} renewLoading={renewLoading === item.loan_id} showRenew={showRenew}>
             <div className="flex flex-col gap-1 items-end w-full">
@@ -121,6 +130,9 @@ export default function LoanActive({ userId }: LoanActiveProps) {
               {renewLoading === item.loan_id && renewSuccess && <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>}
               {extendLoading === item.loan_id && extendError && <div className="text-red-600 text-xs mt-1">{extendError}</div>}
               {extendLoading === item.loan_id && extendSuccess && <div className="text-green-600 text-xs mt-1">{extendSuccess}</div>}
+              {item.extension_pending === 1 && (
+                <div className="text-xs text-cm-orange mt-1">Extensão pendente (aguardando janela)</div>
+              )}
             </div>
           </LoanItem>
         );
@@ -138,7 +150,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
               <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => { setPendingRenew(null); setDialogOpen(false); }}>Cancelar</button>
             </div>
           )}
-          {pendingExtend && dialogTitle.startsWith("Confirmação de extensão") && (
+          {pendingExtend && dialogTitle.startsWith("Solicitar extensão") && (
             <div className="flex gap-2 mt-4">
               <button className="bg-cm-orange text-white px-3 py-1 rounded" onClick={handleConfirmExtend} disabled={extendLoading === pendingExtend.loan.loan_id}>Confirmar extensão</button>
               <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => { setPendingExtend(null); setDialogOpen(false); }}>Cancelar</button>

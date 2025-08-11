@@ -160,6 +160,28 @@ const LoansController = {
             res.status(400).json({ error: err.message });
         }
     },
+
+    // Solicita extensão de um empréstimo
+    requestExtension: async (req, res) => {
+        try {
+            const { id } = req.params; // loan id
+            const { user_id } = req.body;
+            const result = await LoansService.requestExtensionLoan(id, user_id);
+            res.json(result);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
+
+    // Processa extensões pendentes
+    processPending: async (req, res) => {
+        try {
+            const applied = await LoansService.processPendingExtensions();
+            res.json({ applied });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
 };
 
 module.exports = LoansController;

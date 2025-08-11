@@ -71,7 +71,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -100,7 +100,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
                  LEFT JOIN books b ON l.book_id = b.id
@@ -224,7 +224,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -324,7 +324,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -366,23 +366,46 @@ module.exports = {
                 });
         });
     },
-    // Encurta o prazo de um empréstimo se for maior que o limite especificado
-    shortenDueDateIfLongerThan: (loan_id, days) => {
+    // Marca empréstimo como pendente de extensão
+    requestExtension: (loan_id) => {
         return new Promise((resolve, reject) => {
             const db = getDb();
-            db.get(`SELECT due_date FROM loans WHERE id = ? AND returned_at IS NULL`, [loan_id], (err, row) => {
-                if (err) { db.close(); return reject(err); }
-                if (!row || !row.due_date) { db.close(); return resolve(false); }
-                const current = new Date(row.due_date);
-                const now = new Date();
-                const diffDays = Math.ceil((current - now)/(1000*60*60*24));
-                if (diffDays > days) {
-                    db.run(`UPDATE loans SET due_date = datetime('now','+'|| ? ||' days') WHERE id = ?`, [days, loan_id], function (uErr) {
-                        db.close();
-                        if (uErr) reject(uErr); else resolve(true);
-                    });
-                } else { db.close(); resolve(false); }
+            db.run(`UPDATE loans SET extension_pending = 1, extension_requested_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL AND extended_phase = 0 AND extension_pending = 0`, [loan_id], function(err){
+                db.close();
+                if (err) reject(err); else if (this.changes === 0) reject(new Error('Não foi possível marcar pendência (já pendente, estendido ou devolvido).')); else resolve();
             });
+        });
+    },
+    // Cancela pendência
+    cancelExtensionPending: (loan_id) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(`UPDATE loans SET extension_pending = 0 WHERE id = ? AND returned_at IS NULL`, [loan_id], function(err){
+                db.close();
+                if (err) reject(err); else resolve();
+            });
+        });
+    },
+    // Aplica extensões pendentes elegíveis
+    applyEligiblePendingExtensions: (windowDays, addedDays) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            // Aplica onde: pendente, não estendido, não devolvido, (now - requested_at) >= windowDays, e nenhum nudge depois do request
+            db.run(`UPDATE loans
+                    SET extended_phase = 1,
+                        extended_started_at = CURRENT_TIMESTAMP,
+                        due_date = datetime(due_date, '+'|| ? ||' days'),
+                        extension_pending = 0
+                    WHERE extension_pending = 1
+                      AND extended_phase = 0
+                      AND returned_at IS NULL
+                      AND extension_requested_at IS NOT NULL
+                      AND datetime(extension_requested_at, '+'|| ? ||' days') <= CURRENT_TIMESTAMP
+                      AND (last_nudged_at IS NULL OR last_nudged_at < extension_requested_at)`,
+                [addedDays, windowDays], function(err){
+                    db.close();
+                    if (err) reject(err); else resolve(this.changes);
+                });
         });
     },
     // Registra o último nudge enviado para um empréstimo
