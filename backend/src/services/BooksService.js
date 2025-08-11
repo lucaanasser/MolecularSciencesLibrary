@@ -200,7 +200,8 @@ class BooksService {
                 let status = "disponível";
                 if (book.is_reserved === 1) status = "reserva didática"; else if (loan && overdue) status = "atrasado"; else if (loan) status = "emprestado";
                 let due_in_window = false;
-                let extended_phase = (loan?.extended_phase === 1);
+                const extended_phase = loan?.extended_phase === 1;
+                const extension_pending = loan?.extension_pending === 1;
                 if (loan && loan.due_date && !overdue) {
                     const dueDate = new Date(loan.due_date);
                     const diffDays = Math.ceil((dueDate - now)/(1000*60*60*24));
@@ -215,6 +216,7 @@ class BooksService {
                     loan_id: loan ? loan.loan_id : null,
                     due_in_window,
                     extended_phase,
+                    extension_pending,
                     due_date: loan?.due_date || null
                 };
             });

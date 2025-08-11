@@ -181,7 +181,7 @@ const BookSearch: React.FC = () => {
                 <div key={book.code} className="relative group">
                   {/* Aba lateral de status na esquerda */}
                   {(() => {
-                    // Prioridade: atrasado > reservado > emprestado > disponível
+                    // Prioridade: atrasado > reservado > estendido > janela final > emprestado > disponível
                     let color = "bg-cm-green";
                     let text = "Disponível";
                     let textColor = "text-white";
@@ -191,9 +191,21 @@ const BookSearch: React.FC = () => {
                     } else if (book.is_reserved) {
                       color = "bg-purple-700";
                       text = "Reservado";
+                    } else if (book.extended_phase) {
+                      color = "bg-cm-orange";
+                      text = "Estendido";
+                    } else if (book.extension_pending) {
+                      color = "bg-cm-orange/70";
+                      text = "Extensão pendente";
+                      textColor = "text-black";
+                    } else if (book.due_in_window && book.exemplaresDisponiveis === 0) {
+                      color = "bg-yellow-500";
+                      text = "Últimos dias";
+                      textColor = "text-black";
                     } else if (book.exemplaresDisponiveis === 0) {
                       color = "bg-yellow-400";
                       text = "Emprestado";
+                      textColor = "text-black";
                     }
                     return (
                       <div className={`absolute left-0 top-0 h-full w-4 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:-translate-x-4 translate-x-0 overflow-visible z-10 origin-left`}>
