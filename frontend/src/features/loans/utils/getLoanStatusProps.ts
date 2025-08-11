@@ -18,5 +18,6 @@ export function getLoanStatusProps(loan: Loan): { statusText: string; statusColo
   if (loan.returned_at) {
     return { statusText: "Devolvido", statusColor: "bg-cm-green/10 text-cm-green" };
   }
-  return { statusText: "Em andamento", statusColor: "bg-cm-yellow/10 text-cm-orange" };
+  // Em andamento normal
+  return { statusText: "Em andamento", statusColor: "bg-yellow-200 text-yellow-800" };
 }
