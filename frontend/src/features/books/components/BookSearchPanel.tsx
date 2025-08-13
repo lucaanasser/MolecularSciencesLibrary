@@ -32,8 +32,8 @@ const BookSearch: React.FC = () => {
     setSubcategory,
     areaCodes,
     subareaCodes,
-    filterAvailable,
-    setFilterAvailable,
+    filterStatus,
+    setFilterStatus,
     search,
     setSearch,
     books,
@@ -47,6 +47,9 @@ const BookSearch: React.FC = () => {
   // Gera opções de categoria e subcategoria
   const categoryOptions = Object.keys(areaCodes);
   const subcategoryOptions = category ? Object.keys(subareaCodes[category] || {}) : [];
+
+  // Detecta se algo foi modificado em relação aos padrões (Todos/sem busca)
+  const isPristine = !search && !category && !subcategory && filterStatus === "all";
 
   // Agrupa livros por código E idioma para exibir apenas um card por grupo
   const groupedBooks = useMemo(() => {
@@ -89,31 +92,40 @@ const BookSearch: React.FC = () => {
           </div>
           
           <div>
-            <Select value={filterAvailable === "all" ? undefined : filterAvailable} onValueChange={v => {
-              console.log("🟢 [BookSearchPanel] Filtro de disponibilidade alterado:", v);
-              setFilterAvailable(v as any);
+            <Select value={filterStatus} onValueChange={v => {
+              console.log("🟢 [BookSearchPanel] Filtro de status alterado:", v);
+              setFilterStatus(v as any);
             }}>
               <SelectTrigger className="rounded-2xl">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="available">Disponíveis</SelectItem>
-                <SelectItem value="borrowed">Emprestados</SelectItem>
+                <SelectItem value="reserved">Reservado</SelectItem>
+                <SelectItem value="overdue">Atrasado</SelectItem>
+                <SelectItem value="borrowed">Emprestado</SelectItem>
+                <SelectItem value="extended">Estendido</SelectItem>
+                <SelectItem value="available">Disponível</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Select value={category || undefined} onValueChange={value => {
+            <Select value={category || "__ALL__"} onValueChange={value => {
               console.log("🟢 [BookSearchPanel] Área selecionada:", value);
-              setCategory(value);
-              setSubcategory("");
+              if (value === "__ALL__") {
+                setCategory("");
+                setSubcategory("");
+              } else {
+                setCategory(value);
+                setSubcategory("");
+              }
             }}>
               <SelectTrigger className="rounded-2xl">
                 <SelectValue placeholder="Área" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__ALL__">Todos</SelectItem>
                 {categoryOptions
                   .filter(cat => cat !== "" && cat !== undefined && cat !== null)
                   .map(cat => (
@@ -127,10 +139,10 @@ const BookSearch: React.FC = () => {
 
           <div>
             <Select
-              value={subcategory || undefined}
+              value={subcategory || "__ALL__"}
               onValueChange={value => {
                 console.log("🟢 [BookSearchPanel] Subcategoria selecionada:", value);
-                setSubcategory(value);
+                if (value === "__ALL__") setSubcategory(""); else setSubcategory(value);
               }}
               disabled={!category}
             >
@@ -138,6 +150,7 @@ const BookSearch: React.FC = () => {
                 <SelectValue placeholder="Subárea" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__ALL__">Todos</SelectItem>
                 {subcategoryOptions
                   .filter(sub => sub !== "" && sub !== undefined && sub !== null)
                   .map(sub => (
@@ -153,20 +166,16 @@ const BookSearch: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-start md:justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-              onClick={() => resetFilters()}
-              disabled={
-                !search &&
-                !category &&
-                !subcategory &&
-                filterAvailable === "all"
-              }
-            >
-              <XCircle size={16} /> Limpar
-            </Button>
+            {!isPristine && (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={() => resetFilters()}
+              >
+                <XCircle size={16} /> Limpar
+              </Button>
+            )}
           </div>
         </div>
 

@@ -21,8 +21,9 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     subareaCodes,
   } = useAreaSelection(onError);
 
-  // Estado para filtro de disponibilidade
-  const [filterAvailable, setFilterAvailable] = useState<"all" | "available" | "borrowed">("all");
+  // Estado para filtro de status
+  type StatusFilter = "all" | "available" | "borrowed" | "reserved" | "overdue" | "extended";
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
 
   // Hook de busca de livros
   const {
@@ -33,12 +34,24 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     setSearch,
   } = useBookSearch(category, subcategory, true, onError);
 
-  // Filtra por disponibilidade
-  const filteredByAvailability = filteredBooks.filter(book => {
-    if (filterAvailable === "all") return true;
-    if (filterAvailable === "available") return book.available;
-    if (filterAvailable === "borrowed") return !book.available;
-    return true;
+  // Filtra por status desejado
+  const filteredByStatus = filteredBooks.filter(book => {
+    switch (filterStatus) {
+      case "all":
+        return true;
+      case "available":
+        return !!book.available;
+      case "borrowed":
+        return !book.available;
+      case "reserved":
+        return !!(book as any).is_reserved; // API usa 1/0
+      case "overdue":
+        return !!(book as any).overdue;
+      case "extended":
+        return !!(book as any).extended_phase; // API usa 1/0
+      default:
+        return true;
+    }
   });
 
   // Função para limpar todos os filtros e busca
@@ -46,7 +59,7 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     console.log("🟢 [useBookSearchPage] Resetando filtros e busca");
     setCategory("");
     setSubcategory("");
-    setFilterAvailable("all");
+    setFilterStatus("all");
     setSearch("");
   }
 
@@ -57,11 +70,11 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     setSubcategory,
     areaCodes,
     subareaCodes,
-    filterAvailable,
-    setFilterAvailable,
+    filterStatus,
+    setFilterStatus,
     search,
     setSearch,
-    books: filteredByAvailability,
+    books: filteredByStatus,
     isLoading,
     resetFilters,
   };
