@@ -26,12 +26,13 @@ class NotificationsService {
     /**
      * Cria uma notificação interna no sistema (método usado pelo controller)
      */
-    async notifyUser({ user_id, type, message, metadata }) {
+    async notifyUser({ user_id, type, message, metadata, loan_id }) {
         return await this.createNotification({
             user_id,
             type,
             message,
-            metadata
+            metadata,
+            loan_id
         });
     }
 
@@ -167,6 +168,16 @@ class NotificationsService {
         });
 
         if (loan_id) {
+            try {
+                // Se há pendência de extensão, aplica extensão curta de 5 dias a partir de agora
+                const loan = await require('../models/LoansModel').getLoanById(loan_id).catch(()=>null);
+                if (loan && loan.returned_at == null && loan.extended_phase === 0 && loan.extension_pending === 1) {
+                    await LoansModel.extendLoanShortFromNow(loan_id, 5);
+                }
+            } catch (e) {
+                console.warn('🟡 [NotificationsService] Falha ao aplicar extensão curta após nudge:', e.message);
+            }
+            // Em qualquer caso, registra momento do nudge
             await LoansModel.setLastNudged(loan_id).catch(()=>{});
         }
 

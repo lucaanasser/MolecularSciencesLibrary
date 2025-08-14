@@ -8,4 +8,5 @@ export interface LoanRules {
   extension_block_multiplier: number;
   shortened_due_days_after_nudge: number;
   nudge_cooldown_hours: number;
+  pending_nudge_extension_days: number;
 }

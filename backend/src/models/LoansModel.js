@@ -418,4 +418,40 @@ module.exports = {
             });
         });
     },
+    // NOVO: aplica extensão curta (a partir de agora) — usada quando há nudge durante pendência
+    extendLoanShortFromNow: (loan_id, daysFromNow) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(`UPDATE loans
+                    SET extended_phase = 1,
+                        extended_started_at = CURRENT_TIMESTAMP,
+                        due_date = datetime('now', '+'|| ? ||' days'),
+                        extension_pending = 0
+                    WHERE id = ?
+                      AND returned_at IS NULL
+                      AND extended_phase = 0`,
+                [daysFromNow, loan_id], function (err) {
+                    db.close();
+                    if (err) return reject(err);
+                    if (this.changes === 0) return reject(new Error('Não foi possível aplicar extensão curta.'));
+                    resolve();
+                });
+        });
+    },
+    // NOVO: encurta o prazo de um empréstimo estendido para N dias a partir de agora (se estiver maior)
+    shortenDueDateIfLongerThan: (loan_id, targetDaysFromNow) => {
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(`UPDATE loans
+                    SET due_date = datetime('now', '+'|| ? ||' days')
+                    WHERE id = ?
+                      AND returned_at IS NULL
+                      AND (due_date IS NULL OR due_date > datetime('now', '+'|| ? ||' days'))`,
+                [targetDaysFromNow, loan_id, targetDaysFromNow], function (err) {
+                    db.close();
+                    if (err) return reject(err);
+                    resolve(this.changes > 0);
+                });
+        });
+    },
 };

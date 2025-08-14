@@ -10,7 +10,7 @@
  * Padrão de logs:
  * 🔵 Início de operação
  * 🟢 Sucesso
- * 🟡 Fluxo alternativo / nada a fazer
+ * 🟡 Fluxo alternativo 
  * 🔴 Erro
  */
 
@@ -24,6 +24,18 @@ const RulesService = require('../src/services/RulesService');
 async function main() {
   console.log('🔵 [checkOverdues] Iniciando verificação de empréstimos em atraso...');
   try {
+    // NOVO: processa extensões pendentes antes de qualquer outra coisa
+    try {
+      const applied = await LoansService.processPendingExtensions();
+      if (applied > 0) {
+        console.log(`🟢 [checkOverdues] Extensões pendentes aplicadas automaticamente: ${applied}`);
+      } else {
+        console.log('🟡 [checkOverdues] Nenhuma extensão pendente elegível para aplicar no momento.');
+      }
+    } catch (e) {
+      console.error('🔴 [checkOverdues] Falha ao processar extensões pendentes:', e.message);
+    }
+
     // Testa conexão SMTP apenas uma vez (log informativo, não bloqueante)
     EmailService.testConnection().catch(()=>{});
 

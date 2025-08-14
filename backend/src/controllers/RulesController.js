@@ -25,7 +25,8 @@ const RulesController = {
                 extension_window_days,
                 extension_block_multiplier,
                 shortened_due_days_after_nudge,
-                nudge_cooldown_hours
+                nudge_cooldown_hours,
+                pending_nudge_extension_days
             } = req.body;
             if ([
                 max_days,
@@ -36,7 +37,8 @@ const RulesController = {
                 extension_window_days,
                 extension_block_multiplier,
                 shortened_due_days_after_nudge,
-                nudge_cooldown_hours
+                nudge_cooldown_hours,
+                pending_nudge_extension_days
             ].some(v => typeof v !== 'number')) {
                 console.warn('🟡 [RulesController] Dados inválidos recebidos:', req.body);
                 return res.status(400).json({ error: 'Dados inválidos' });
@@ -50,7 +52,8 @@ const RulesController = {
                 extension_window_days,
                 extension_block_multiplier,
                 shortened_due_days_after_nudge,
-                nudge_cooldown_hours
+                nudge_cooldown_hours,
+                pending_nudge_extension_days
             });
             console.log('🟢 [RulesController] Regras atualizadas com sucesso');
             res.json(updated);

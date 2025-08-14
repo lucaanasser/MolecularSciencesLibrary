@@ -321,11 +321,19 @@ class LoansService {
         const rules = await RulesService.getRules();
         const loan = await LoansModel.getLoanById(loan_id);
         if (!loan || loan.returned_at) return { changed: false };
-        // Se houver pendência, nudge cancela pendência
-        if (loan.extension_pending === 1) {
-            await LoansModel.cancelExtensionPending(loan_id);
-            return { changed: true, cancelled_pending: true };
+        // NOVO: se houver pendência de extensão, aplica extensão curta a partir de agora (configurável)
+        if (loan.extension_pending === 1 && loan.extended_phase === 0) {
+            try {
+                const shortDays = rules.pending_nudge_extension_days || 5;
+                await LoansModel.extendLoanShortFromNow(loan_id, shortDays);
+                await LoansModel.setLastNudged(loan_id).catch(()=>{});
+                const updated = await LoansModel.getLoanById(loan_id);
+                return { changed: true, short_extended: true, new_due_date: updated?.due_date };
+            } catch (e) {
+                console.warn('[LoansService] Falha ao aplicar extensão curta após nudge:', e.message);
+            }
         }
+        // Se não há pendência, mantém lógica antiga: em fase estendida, reduzir para N dias se maior
         if (loan.extended_phase !== 1) return { changed: false };
         const shortenedTarget = rules.shortened_due_days_after_nudge || 5;
         const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, shortenedTarget);

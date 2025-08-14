@@ -19,6 +19,7 @@ export default function LoanRulesView() {
       <div><b>Multiplicador de extensão:</b> {rules.extension_block_multiplier}x</div>
       <div><b>Dias mínimos após nudge (estendido):</b> {rules.shortened_due_days_after_nudge}</div>
       <div><b>Cooldown de cutucada:</b> {rules.nudge_cooldown_hours}h</div>
+      <div><b>Dias de extensão curta após nudge (pendência):</b> {rules.pending_nudge_extension_days} dias</div>
     </div>
   );
 }

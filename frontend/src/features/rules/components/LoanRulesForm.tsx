@@ -151,6 +151,18 @@ export default function LoanRulesForm({ onSuccess }: LoanRulesFormProps) {
           required
         />
       </div>
+      <div>
+        <label className="block font-medium">Dias de extensão curta após nudge (pendência)</label>
+        <input
+          type="number"
+          name="pending_nudge_extension_days"
+          value={form.pending_nudge_extension_days}
+          onChange={handleChange}
+          min={1}
+          className="border rounded px-2 py-1 w-full"
+          required
+        />
+      </div>
       <Button type="submit" className="bg-cm-blue text-white px-4 py-2 rounded">
         Salvar Regras
       </Button>

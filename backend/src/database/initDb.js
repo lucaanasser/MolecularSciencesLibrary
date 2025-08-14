@@ -131,19 +131,20 @@ db.serialize(() => {
             extension_window_days INTEGER NOT NULL DEFAULT 3, -- janela (dias) antes do vencimento para liberar extensão
             extension_block_multiplier INTEGER NOT NULL DEFAULT 3, -- multiplicador (renewal_days * multiplier)
             shortened_due_days_after_nudge INTEGER NOT NULL DEFAULT 5, -- prazo mínimo após nudge em fase estendida
-            nudge_cooldown_hours INTEGER NOT NULL DEFAULT 24 -- intervalo entre nudges permitidos
+            nudge_cooldown_hours INTEGER NOT NULL DEFAULT 24, -- intervalo entre nudges permitidos
+            pending_nudge_extension_days INTEGER NOT NULL DEFAULT 5 -- NOVO
         )
     `, (err) => {
         if (err) {
             console.error('🔴 [initDb] Erro ao criar tabela rules:', err.message);
             process.exit(1);
         }
-        console.log('🟢 [initDb] Tabela rules criada com sucesso');
+        console.log('🟢 [initDb] Tabela rules criado com sucesso');
         // Insere registro padrão se não existir
         db.get('SELECT * FROM rules WHERE id = 1', (err, row) => {
             if (!row) {
                 db.run(
-                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days, extension_window_days, extension_block_multiplier, shortened_due_days_after_nudge, nudge_cooldown_hours) VALUES (1, 7, 3, 5, 2, 7, 3, 3, 5, 24)`
+                    `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days, extension_window_days, extension_block_multiplier, shortened_due_days_after_nudge, nudge_cooldown_hours, pending_nudge_extension_days) VALUES (1, 7, 3, 5, 2, 7, 3, 3, 5, 24, 5)`
                 );
             }
         });

@@ -103,13 +103,14 @@ async function run() {
     await addColumnIfMissing('rules', 'extension_block_multiplier', 'INTEGER NOT NULL DEFAULT 3');
     await addColumnIfMissing('rules', 'shortened_due_days_after_nudge', 'INTEGER NOT NULL DEFAULT 5');
     await addColumnIfMissing('rules', 'nudge_cooldown_hours', 'INTEGER NOT NULL DEFAULT 24');
+    await addColumnIfMissing('rules', 'pending_nudge_extension_days', 'INTEGER NOT NULL DEFAULT 5');
 
     // Garantir linha id=1 em rules com defaults preenchidos
     await new Promise((resolve, reject) => {
       db.get('SELECT id FROM rules WHERE id = 1', (err, row) => {
         if (err) return reject(err);
         if (!row) {
-          const insert = `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days, extension_window_days, extension_block_multiplier, shortened_due_days_after_nudge, nudge_cooldown_hours) VALUES (1, 7, 3, 5, 2, 7, 3, 3, 5, 24)`;
+          const insert = `INSERT INTO rules (id, max_days, overdue_reminder_days, max_books_per_user, max_renewals, renewal_days, extension_window_days, extension_block_multiplier, shortened_due_days_after_nudge, nudge_cooldown_hours, pending_nudge_extension_days) VALUES (1, 7, 3, 5, 2, 7, 3, 3, 5, 24, 5)`;
           db.run(insert, (err2) => {
             if (err2) return reject(err2);
             console.log('🟢 [migration] Linha padrão inserida em rules');
@@ -120,7 +121,8 @@ async function run() {
               extension_window_days = COALESCE(extension_window_days, 3),
               extension_block_multiplier = COALESCE(extension_block_multiplier, 3),
               shortened_due_days_after_nudge = COALESCE(shortened_due_days_after_nudge, 5),
-              nudge_cooldown_hours = COALESCE(nudge_cooldown_hours, 24)
+              nudge_cooldown_hours = COALESCE(nudge_cooldown_hours, 24),
+              pending_nudge_extension_days = COALESCE(pending_nudge_extension_days, 5)
             WHERE id = 1`;
           db.run(update, (err3) => {
             if (err3) return reject(err3);
