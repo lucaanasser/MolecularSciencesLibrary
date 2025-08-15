@@ -9,7 +9,8 @@
     "dev": "nodemon src/main.js",
     "init-db": "node initDb.js",
     "migrate:extension": "node scripts/migrate_extension_flow.js",
-    "migrate:add-user-class": "node scripts/migrate_add_user_class.js"
+    "migrate:add-user-class": "node scripts/migrate_add_user_class.js",
+    "migrate:add-user-created-at": "node scripts/migrate_add_user_created_at.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",

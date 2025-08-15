@@ -25,12 +25,16 @@ class UsersService {
         const userId = await usersModel.createUser({ name, email, phone, password_hash, role, NUSP, profile_image, class: userClass });
         console.log("🟢 [createUser] Usuário criado com id:", userId);
 
+        // Busca o usuário recém-criado para incluir created_at e demais campos padrão
+        const created = await usersModel.getUserById(userId);
+        const { password_hash: _ignored, ...userData } = created || {};
+
         // Envia email de boas-vindas com link para cadastrar senha
         EmailService.sendWelcomeEmail({ user_id: userId, sendResetLink: true }).catch(err => {
             console.error("🔴 [createUser] Falha ao enviar email de boas-vindas:", err.message);
         });
 
-        return { id: userId, name, email, phone, role, NUSP, profile_image, class: userClass };
+        return userData;
     }
 
     /**

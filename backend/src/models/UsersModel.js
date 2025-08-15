@@ -21,7 +21,7 @@ class UsersModel {
     async getUserByEmail(email) {
         console.log("🟢 [getUserByEmail] email:", email);
         return await getQuery(
-            `SELECT * FROM users WHERE email = ?`,
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash FROM users WHERE email = ?`,
             [email]
         );
     }
@@ -32,7 +32,7 @@ class UsersModel {
     async getUserById(id) {
         console.log("🟢 [getUserById] id:", id);
         return await getQuery(
-            `SELECT * FROM users WHERE id = ?`,
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash FROM users WHERE id = ?`,
             [id]
         );
     }
@@ -64,7 +64,7 @@ class UsersModel {
     async getUserByNUSP(NUSP) {
         console.log("🟢 [getUserByNUSP] NUSP:", NUSP);
         return await getQuery(
-            `SELECT * FROM users WHERE NUSP = ?`,
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash FROM users WHERE NUSP = ?`,
             [NUSP]
         );
     }
