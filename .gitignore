@@ -77,3 +77,12 @@ frontend/node_modules/
 # Linux trash
 .Trash-*
 
+###########################
+# Banco de dados (SQLite)
+###########################
+# Ignorar arquivos do SQLite e backups gerados
+/database/*.db
+/database/*.db-wal
+/database/*.db-shm
+/database/backups/
+

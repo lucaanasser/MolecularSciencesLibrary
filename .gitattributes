@@ -1,0 +1,7 @@
+# Keep local (ours) version of SQLite DB files during merges/pulls
+# This lets you `git pull` without overwriting your local database.
+database/*.db merge=ours
+database/*.db-wal merge=ours
+database/*.db-shm merge=ours
+# Also keep local backups
+database/backups/** merge=ours
