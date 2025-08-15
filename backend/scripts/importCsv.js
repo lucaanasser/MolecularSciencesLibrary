@@ -1,6 +1,14 @@
 // Importa módulos necessários para manipulação de arquivos, caminhos e leitura de CSV
 const fs = require('fs');
 const csv = require('csv-parser');
+const path = require('path');
+
+// Configura o caminho correto do banco (pasta raiz /database/library.db)
+const dbAbsolutePath = path.resolve(__dirname, '../../database/library.db');
+process.env.DATABASE_URL = `sqlite://${dbAbsolutePath}`;
+console.log(`[importCsv] DATABASE_URL definido para: ${process.env.DATABASE_URL}`);
+
+// Agora que o env foi definido, carregue o model (que usa db.js)
 const booksModel = require('../src/models/BooksModel');
 
 // Recebe o caminho do arquivo CSV via argumento de linha de comando
