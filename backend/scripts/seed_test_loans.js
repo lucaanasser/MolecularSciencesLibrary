@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
  * Script para criar cenários de teste usando livros reais já existentes no banco.
- * Cria (ou reutiliza) usuário especificado e gera 3 empréstimos:
+ * Cria (ou reutiliza) usuário especificado e gera 4 empréstimos:
  * 1. Empréstimo atrasado
- * 2. Empréstimo na janela final para extensão (renovações no máximo e faltando 3 dias)
- * 3. Empréstimo já estendido (fase estendida ativa)
+ * 2. Empréstimo faltando 1 hora para ficar atrasado (renovações no máximo, elegível para extensão)
+ * 3. Empréstimo com extensão pendente faltando 1 hora para completar a janela
+ * 4. Empréstimo já estendido (fase estendida ativa)
  */
 
 const sqlite3 = require('sqlite3');
@@ -38,9 +39,9 @@ function getUser(callback) {
 }
 
 function getRandomBooks(callback) {
-  db.all(`SELECT id FROM books ORDER BY RANDOM() LIMIT 3`, [], (err, rows) => {
+  db.all(`SELECT id FROM books ORDER BY RANDOM() LIMIT 4`, [], (err, rows) => {
     if (err) return callback(err);
-    if (!rows || rows.length < 3) return callback(new Error('Menos de 3 livros disponíveis no banco para gerar cenários.'));
+    if (!rows || rows.length < 4) return callback(new Error('Menos de 4 livros disponíveis no banco para gerar cenários.'));
     callback(null, rows.map(r => r.id));
   });
 }
@@ -54,33 +55,55 @@ function getRules(callback) {
 }
 
 function seedLoans(userId, bookIds, rules, callback) {
-  const [bookOverdue, bookWindow, bookExtended] = bookIds;
+  const [bookOverdue, book1hBeforeOverdue, bookPending1h, bookExtended] = bookIds;
   const { max_renewals, renewal_days, extension_window_days, extension_block_multiplier } = rules;
   const blockDays = renewal_days * extension_block_multiplier;
 
   db.serialize(() => {
     // Limpa empréstimos anteriores desses livros
-    db.run(`DELETE FROM loans WHERE book_id IN (?,?,?)`, bookIds, (delErr) => {
+    db.run(`DELETE FROM loans WHERE book_id IN (?,?,?,?)`, bookIds, (delErr) => {
       if (delErr) return callback(delErr);
 
-      // 1. Atrasado: due_date 5 dias atrás, borrowed_at 20 dias atrás
-      db.run(`INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase) VALUES (?,?, datetime('now','-20 days'), ?, datetime('now','-5 days'), 0)`,
-        [bookOverdue, userId, Math.max(1, max_renewals - 1)], (e1) => {
+      // 1) Atrasado: due_date 5 dias atrás, borrowed_at 20 dias atrás, renovações abaixo do máximo
+      db.run(
+        `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase)
+         VALUES (?,?, datetime('now','-20 days'), ?, datetime('now','-5 days'), 0)`,
+        [bookOverdue, userId, Math.max(0, (max_renewals || 0) - 1)],
+        (e1) => {
           if (e1) return callback(e1);
 
-          // 2. Janela extensão: due_date em +3 dias, renovado no máximo
-          db.run(`INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase) VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+3 days'), 0)`,
-            [bookWindow, userId, max_renewals], (e2) => {
+          // 2) Faltando 1 hora para atraso: due_date em +1 hora, renovações no máximo, não estendido
+          db.run(
+            `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase)
+             VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+1 hours'), 0)`,
+            [book1hBeforeOverdue, userId, max_renewals || 0],
+            (e2) => {
               if (e2) return callback(e2);
 
-              // 3. Estendido: extended_phase=1, due_date futuro (bloco + 10 dias para ter sobra)
-              db.run(`INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase, extended_started_at) VALUES (?,?, datetime('now','-30 days'), ?, datetime('now', '+'|| ? ||' days'), 1, datetime('now'))`,
-                [bookExtended, userId, max_renewals, blockDays + 10], (e3) => {
+              // 3) Extensão PENDENTE faltando 1h para completar a janela: pending=1, requested_at = now - windowDays + 1h
+              db.run(
+                `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase, extension_pending, extension_requested_at)
+                 VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+2 days'), 0, 1, datetime('now', '-'|| ? ||' days', '+1 hours'))`,
+                [bookPending1h, userId, max_renewals || 0, extension_window_days || 3],
+                (e3) => {
                   if (e3) return callback(e3);
-                  callback(null, { bookOverdue, bookWindow, bookExtended });
-                });
-            });
-        });
+
+                  // 4) Já estendido: extended_phase=1, due_date futuro (bloco + 10 dias para sobrar)
+                  db.run(
+                    `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase, extended_started_at)
+                     VALUES (?,?, datetime('now','-30 days'), ?, datetime('now', '+'|| ? ||' days'), 1, datetime('now'))`,
+                    [bookExtended, userId, max_renewals || 0, blockDays + 10],
+                    (e4) => {
+                      if (e4) return callback(e4);
+                      callback(null, { bookOverdue, book1hBeforeOverdue, bookPending1h, bookExtended });
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
     });
   });
 }
