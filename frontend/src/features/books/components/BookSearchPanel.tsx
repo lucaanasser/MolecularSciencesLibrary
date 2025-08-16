@@ -32,8 +32,8 @@ const BookSearch: React.FC = () => {
     setSubcategory,
     areaCodes,
     subareaCodes,
-    filterStatus,
-    setFilterStatus,
+    status,
+    setStatus,
     search,
     setSearch,
     books,
@@ -49,7 +49,8 @@ const BookSearch: React.FC = () => {
   const subcategoryOptions = category ? Object.keys(subareaCodes[category] || {}) : [];
 
   // Detecta se algo foi modificado em relação aos padrões (Todos/sem busca)
-  const isPristine = !search && !category && !subcategory && filterStatus === "all";
+  // ...existing code...
+  const isPristine = !search && !category && !subcategory && status === "";
 
   // Agrupa livros por código E idioma para exibir apenas um card por grupo
   const groupedBooks = useMemo(() => {
@@ -92,9 +93,9 @@ const BookSearch: React.FC = () => {
           </div>
           
           <div>
-            <Select value={filterStatus} onValueChange={v => {
+            <Select value={status} onValueChange={v => {
               console.log("🟢 [BookSearchPanel] Filtro de status alterado:", v);
-              setFilterStatus(v as any);
+              setStatus(v);
             }}>
               <SelectTrigger className="rounded-2xl">
                 <SelectValue placeholder="Status" />
