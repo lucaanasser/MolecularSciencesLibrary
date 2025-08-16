@@ -186,7 +186,7 @@ class BooksService {
             // Extrai filtros principais
             const category = filters.category || null;
             const subcategory = filters.subcategory || null;
-            const searchTerm = filters.q || null;
+            const searchTerm = filters.q || filters.search || null;
             const onlyReserved = filters.reserved === 'true' ? true : (filters.reserved === 'false' ? false : null);
             // Busca livros do banco
             const books = await booksModel.getBooks(category, subcategory, searchTerm, onlyReserved);
@@ -229,7 +229,7 @@ class BooksService {
                     due_date: loan?.due_date || null
                 };
             });
-            // Filtra por status se solicitado
+            // Filtra por status se solicitado, mas sempre mantém o filtro textual
             if (filters.status) {
                 result = result.filter(book => book.status === filters.status);
             }

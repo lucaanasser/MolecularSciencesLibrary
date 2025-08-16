@@ -15,6 +15,7 @@ import ProAlunoPage from "./pages/ProAlunoPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "@/components/ProtectedRoute"; 
 import DonationPage from "./pages/DonationPage";
+import FAQ from "./pages/FAQ";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -60,6 +61,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route path="/faq" element={<FAQ />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

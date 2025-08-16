@@ -26,7 +26,7 @@ class BooksModel {
             params.push(parseInt(subcategory, 10));
         }
         if (searchTerm) {
-            conditions.push(`(title LIKE ? OR authors LIKE ? OR subtitle LIKE ?)`);
+            conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE)`);
             params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
         }
         if (onlyReserved !== null) {

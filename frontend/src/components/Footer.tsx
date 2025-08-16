@@ -50,6 +50,11 @@ const Footer: React.FC = () => {
                     </Link>
                   </li>
                   <li>
+                    <Link to="/faq" className={linkBaseClass}>
+                      FAQ
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/entrar" className={linkBaseClass}>
                       Login
                     </Link>
@@ -84,6 +89,11 @@ const Footer: React.FC = () => {
               <li>
                 <Link to="/estante-virtual" className={linkBaseClass}>
                   Estante Virtual
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className={linkBaseClass}>
+                  FAQ
                 </Link>
               </li>
               <li>

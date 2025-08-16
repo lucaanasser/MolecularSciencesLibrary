@@ -135,6 +135,9 @@ const Navigation: React.FC = () => {
             <Link to="/estante-virtual" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               Estante Virtual
             </Link>
+            <Link to="/faq" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
+              FAQ
+            </Link>
             {/*
             <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
               Ajude a Biblioteca
@@ -255,6 +258,16 @@ const Navigation: React.FC = () => {
                 }}
               >
                 Ajude a Biblioteca
+              </Link>
+              <Link
+                to="/faq"
+                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (FAQ)");
+                }}
+              >
+                FAQ
               </Link>
               {user ? (
                 <>
