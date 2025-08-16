@@ -171,7 +171,7 @@ class NotificationsService {
             try {
                 // Se há pendência de extensão, aplica extensão curta de 5 dias a partir de agora
                 const loan = await require('../models/LoansModel').getLoanById(loan_id).catch(()=>null);
-                if (loan && loan.returned_at == null && loan.extended_phase === 0) {
+                if (loan && loan.returned_at == null && loan.is_extended === 0) {
                     await LoansModel.extendLoanShortFromNow(loan_id, 5);
                 }
             } catch (e) {

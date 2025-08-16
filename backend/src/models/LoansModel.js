@@ -71,7 +71,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_requested_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -100,7 +100,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
                  LEFT JOIN books b ON l.book_id = b.id
@@ -224,7 +224,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -324,7 +324,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -359,7 +359,7 @@ module.exports = {
     extendLoanBlock: (loan_id, added_days) => {
         return new Promise((resolve, reject) => {
             const db = getDb();
-            db.run(`UPDATE loans SET extended_phase = 1, extended_started_at = CURRENT_TIMESTAMP, due_date = datetime(due_date, '+'|| ? ||' days') WHERE id = ? AND returned_at IS NULL AND extended_phase = 0`,
+            db.run(`UPDATE loans SET is_extended = 1, due_date = datetime(due_date, '+'|| ? ||' days') WHERE id = ? AND returned_at IS NULL AND is_extended = 0`,
                 [added_days, loan_id], function (err) {
                     db.close();
                     if (err) reject(err); else if (this.changes === 0) reject(new Error('Não foi possível estender (já estendido ou devolvido).')); else resolve();
@@ -382,13 +382,11 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.run(`UPDATE loans
-                    SET extended_phase = 1,
-                        extended_started_at = CURRENT_TIMESTAMP,
-                        due_date = datetime('now', '+'|| ? ||' days'),
-                        -- extension_pending removido
+                    SET is_extended = 1,
+                        due_date = datetime('now', '+'|| ? ||' days')
                     WHERE id = ?
                       AND returned_at IS NULL
-                      AND extended_phase = 0`,
+                      AND is_extended = 0`,
                 [daysFromNow, loan_id], function (err) {
                     db.close();
                     if (err) return reject(err);

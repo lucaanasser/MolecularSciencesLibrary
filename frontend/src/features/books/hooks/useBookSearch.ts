@@ -32,11 +32,13 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     overdue: "atrasado",
     borrowed: "emprestado",
     all: "",
-    extended: "" // não suportado diretamente
+    extended: "" // especial
   };
+  // Se status for 'extended', adiciona filtro extended: 'true'
   const mappedFilters = {
     ...filters,
-    status: statusMap[filters.status] ?? filters.status
+    status: statusMap[filters.status] ?? filters.status,
+    ...(filters.status === 'extended' ? { extended: 'true' } : {})
   };
   // Busca de livros baseada nos filtros aplicados
   const { books, isLoading } = useBookList(mappedFilters, true, onError);

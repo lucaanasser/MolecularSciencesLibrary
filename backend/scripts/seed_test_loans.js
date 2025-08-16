@@ -66,7 +66,7 @@ function seedLoans(userId, bookIds, rules, callback) {
 
       // 1) Atrasado: due_date 5 dias atrás, borrowed_at 20 dias atrás, renovações abaixo do máximo
       db.run(
-        `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase)
+        `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
          VALUES (?,?, datetime('now','-20 days'), ?, datetime('now','-5 days'), 0)`,
         [bookOverdue, userId, Math.max(0, (max_renewals || 0) - 1)],
         (e1) => {
@@ -74,7 +74,7 @@ function seedLoans(userId, bookIds, rules, callback) {
 
           // 2) Faltando 1 hora para atraso: due_date em +1 hora, renovações no máximo, não estendido
           db.run(
-            `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase)
+            `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
              VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+1 hours'), 0)`,
             [book1hBeforeOverdue, userId, max_renewals || 0],
             (e2) => {
@@ -82,16 +82,16 @@ function seedLoans(userId, bookIds, rules, callback) {
 
               // 3) Extensão PENDENTE faltando 1h para completar a janela: pending=1, requested_at = now - windowDays + 1h
               db.run(
-                `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase, extension_pending, extension_requested_at)
-                 VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+2 days'), 0, 1, datetime('now', '-'|| ? ||' days', '+1 hours'))`,
+                `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
+                 VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+2 days'), 0)`,
                 [bookPending1h, userId, max_renewals || 0, extension_window_days || 3],
                 (e3) => {
                   if (e3) return callback(e3);
 
                   // 4) Já estendido: extended_phase=1, due_date futuro (bloco + 10 dias para sobrar)
                   db.run(
-                    `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, extended_phase, extended_started_at)
-                     VALUES (?,?, datetime('now','-30 days'), ?, datetime('now', '+'|| ? ||' days'), 1, datetime('now'))`,
+                    `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
+                     VALUES (?,?, datetime('now','-30 days'), ?, datetime('now', '+'|| ? ||' days'), 1)`,
                     [bookExtended, userId, max_renewals || 0, blockDays + 10],
                     (e4) => {
                       if (e4) return callback(e4);

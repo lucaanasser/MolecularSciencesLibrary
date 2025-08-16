@@ -39,7 +39,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
   useEffect(() => {
     (loans || []).forEach(l => {
       const prev = previousDueDatesRef.current[l.loan_id];
-      if (prev && l.due_date && new Date(l.due_date) < new Date(prev) && l.extended_phase === 1) {
+      if (prev && l.due_date && new Date(l.due_date) < new Date(prev) && l.is_extended === 1) {
         setDialogTitle("Prazo reduzido");
         setDialogDescription(`Seu prazo do livro '${l.book_title}' foi reduzido após uma cutucada. Nova data: ${formatDate(l.due_date)}`);
         setDialogOpen(true);
@@ -50,7 +50,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
 
   // Helpers
   function isOverdue(loan: Loan) { if (!loan.due_date) return false; return new Date() > new Date(loan.due_date); }
-  function inExtensionWindow(loan: Loan) { if (!rules) return false; if (loan.extended_phase === 1) return false; if ((loan.renewals ?? 0) !== rules.max_renewals) return false; if (!loan.due_date) return false; const due = new Date(loan.due_date); const now = new Date(); const diffDays = Math.ceil((due.getTime()-now.getTime())/(1000*60*60*24)); return diffDays >= 0 && diffDays <= rules.extension_window_days; }
+  function inExtensionWindow(loan: Loan) { if (!rules) return false; if (loan.is_extended === 1) return false; if ((loan.renewals ?? 0) !== rules.max_renewals) return false; if (!loan.due_date) return false; const due = new Date(loan.due_date); const now = new Date(); const diffDays = Math.ceil((due.getTime()-now.getTime())/(1000*60*60*24)); return diffDays >= 0 && diffDays <= rules.extension_window_days; }
 
   // Preview renovação existente
   async function handlePreviewRenew(loan: Loan) {
@@ -115,8 +115,8 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       {activeLoans.map(item => {
         const overdue = isOverdue(item); const { statusText, statusColor } = getLoanStatusProps(item);
         const reachedMaxRenewals = rules ? (item.renewals ?? 0) >= rules.max_renewals : false;
-        const showRenew = !overdue && (item.extended_phase !== 1) && !reachedMaxRenewals; // sempre até última renovação
-        const showExtend = !overdue && (item.extended_phase !== 1) && reachedMaxRenewals; // após última renovação
+        const showRenew = !overdue && (item.is_extended !== 1) && !reachedMaxRenewals; // sempre até última renovação
+        const showExtend = !overdue && (item.is_extended !== 1) && reachedMaxRenewals; // após última renovação
         return (
           <LoanItem key={item.loan_id} loan={item} statusText={statusText} statusColor={statusColor} onRenew={showRenew ? () => handlePreviewRenew(item) : undefined} renewLoading={renewLoading === item.loan_id} showRenew={showRenew}>
             <div className="flex flex-col gap-1 items-end w-full">
@@ -129,7 +129,6 @@ export default function LoanActive({ userId }: LoanActiveProps) {
               {renewLoading === item.loan_id && renewSuccess && <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>}
               {extendLoading === item.loan_id && extendError && <div className="text-red-600 text-xs mt-1">{extendError}</div>}
               {extendLoading === item.loan_id && extendSuccess && <div className="text-green-600 text-xs mt-1">{extendSuccess}</div>}
-              {/* Extensão pendente removida */}
             </div>
           </LoanItem>
         );

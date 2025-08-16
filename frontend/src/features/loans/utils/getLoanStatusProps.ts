@@ -9,7 +9,7 @@ export function getLoanStatusProps(loan: Loan): { statusText: string; statusColo
   if (loan.due_date && new Date(loan.due_date) < new Date() && !loan.returned_at) {
     return { statusText: "Atrasado", statusColor: "bg-cm-red/10 text-cm-red" };
   }
-  if (loan.extended_phase === 1 && !loan.returned_at) {
+  if (loan.is_extended === 1 && !loan.returned_at) {
     return { statusText: "Estendido", statusColor: "bg-cm-orange/10 text-cm-orange" };
   }
   if (loan.is_reserved === 1) {

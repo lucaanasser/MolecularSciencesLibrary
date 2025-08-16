@@ -230,7 +230,7 @@ class LoansService {
         const loan = loans.find(l => Number(l.loan_id) === Number(loan_id) && !l.returned_at);
         if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
         if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
-        if (loan.extended_phase === 1) throw new Error('Empréstimo já está estendido.');
+        if (loan.is_extended === 1) throw new Error('Empréstimo já está estendido.');
         if (!loan.due_date) throw new Error('Data de devolução não definida.');
         const dueDate = new Date(loan.due_date);
         const now = new Date();
@@ -240,7 +240,6 @@ class LoansService {
         const newDue = new Date(now); newDue.setDate(now.getDate() + addedDays);
         return { new_due_date: newDue.toISOString(), added_days: addedDays };
     }
-    // ...existing code...
     async previewExtendLoan(loan_id, user_id) {
         const rules = await RulesService.getRules();
         const loans = await LoansModel.getLoansByUser(user_id);
@@ -252,7 +251,6 @@ class LoansService {
         const dueDate = new Date(loan.due_date);
         const now = new Date();
         if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
-        // Agora permitimos solicitar preview imediatamente após última renovação.
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         const newDue = new Date(dueDate); newDue.setDate(newDue.getDate() + addedDays);
         return { new_due_date: newDue.toISOString(), added_days: addedDays, pending_period_days: rules.extension_window_days };
@@ -265,19 +263,17 @@ class LoansService {
         const loan = loans.find(l => Number(l.loan_id) === Number(loan_id) && !l.returned_at);
         if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
         if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
-        if (loan.extended_phase === 1) throw new Error('Empréstimo já estendido.');
+        if (loan.is_extended === 1) throw new Error('Empréstimo já estendido.');
         if (!loan.due_date) throw new Error('Data de devolução não definida.');
         const dueDate = new Date(loan.due_date);
         const now = new Date();
         if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
-        // Aplica extensão imediatamente
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         await LoansModel.extendLoanBlock(loan_id, addedDays);
         const updated = await LoansModel.getLoanById(loan_id);
         return { message: 'Empréstimo estendido com sucesso.', due_date: updated?.due_date };
     }
 
-    // Removido: não há mais pendências de extensão
     async processPendingExtensions() {
         return 0;
     }
@@ -287,7 +283,7 @@ class LoansService {
         const loan = await LoansModel.getLoanById(loan_id);
         const rules = await RulesService.getRules();
         if (!loan || loan.returned_at) throw new Error('Empréstimo não encontrado ou devolvido.');
-        if (loan.extended_phase === 1) throw new Error('Empréstimo já estendido.');
+        if (loan.is_extended === 1) throw new Error('Empréstimo já estendido.');
         if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só após máximo de renovações.');
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         await LoansModel.extendLoanBlock(loan_id, addedDays);
@@ -299,10 +295,7 @@ class LoansService {
         const rules = await RulesService.getRules();
         const loan = await LoansModel.getLoanById(loan_id);
         if (!loan || loan.returned_at) return { changed: false };
-        // NOVO: se houver pendência de extensão, aplica extensão curta a partir de agora (configurável)
-        // ...existing code...
-        // Se não há pendência, mantém lógica antiga: em fase estendida, reduzir para N dias se maior
-        if (loan.extended_phase !== 1) return { changed: false };
+        if (loan.is_extended !== 1) return { changed: false };
         const shortenedTarget = rules.shortened_due_days_after_nudge || 5;
         const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, shortenedTarget);
         if (changed) return { changed: true, new_due_date: (await LoansModel.getLoanById(loan_id)).due_date };

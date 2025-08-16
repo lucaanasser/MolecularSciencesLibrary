@@ -201,7 +201,7 @@ const BookSearch: React.FC = () => {
                     } else if (book.is_reserved) {
                       color = "bg-purple-700";
                       text = "Reservado";
-                    } else if (book.extended_phase) {
+                    } else if (book.is_extended) {
                       color = "bg-cm-orange";
                       text = "Estendido";
                     } else if (book.due_in_window && book.exemplaresDisponiveis === 0) {
@@ -256,7 +256,7 @@ const BookSearch: React.FC = () => {
                         Detalhes
                       </Button>
                       {/* Botão de nudge para livros atrasados ou na janela final ou estendidos */}
-                      {(book.overdue || book.due_in_window || book.extended_phase) && (
+                      {(book.overdue || book.due_in_window || book.is_extended) && (
                         <NudgeButton book={book} />
                       )}
                     </div>

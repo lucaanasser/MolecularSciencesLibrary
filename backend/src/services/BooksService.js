@@ -209,12 +209,12 @@ class BooksService {
                 else if (loan && overdue) status = "atrasado";
                 else if (loan) status = "emprestado";
                 let due_in_window = false;
-                const extended_phase = loan?.extended_phase === 1;
+                const is_extended = loan?.is_extended === 1;
                 // extension_pending removido
                 if (loan && loan.due_date && !overdue) {
                     const dueDate = new Date(loan.due_date);
                     const diffDays = Math.ceil((dueDate - now)/(1000*60*60*24));
-                    if (diffDays >= 0 && diffDays <= windowDays && !extended_phase) due_in_window = true;
+                    if (diffDays >= 0 && diffDays <= windowDays && !is_extended) due_in_window = true;
                 }
                 return {
                     ...book,
@@ -224,11 +224,15 @@ class BooksService {
                     student_id: loan ? loan.student_id : null,
                     loan_id: loan ? loan.loan_id : null,
                     due_in_window,
-                    extended_phase,
+                    is_extended,
                     // extension_pending removido
                     due_date: loan?.due_date || null
                 };
             });
+            // Filtro para livros estendidos
+            if (filters.extended === true || filters.extended === 'true') {
+                result = result.filter(book => book.is_extended === true);
+            }
             // Filtra por status se solicitado, mas sempre mantém o filtro textual
             if (filters.status) {
                 result = result.filter(book => book.status === filters.status);

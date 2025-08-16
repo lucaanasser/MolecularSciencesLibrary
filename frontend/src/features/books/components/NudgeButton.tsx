@@ -36,7 +36,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
 
   const contextLabel = () => {
     if (book.overdue) return "(atrasado)";
-    if (book.extended_phase) return "(estendido)";
+    if (book.is_extended) return "(estendido)";
     if (book.due_in_window) return "(últimos dias)";
     return "";
   };
@@ -86,7 +86,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
   return (
     <div className="flex flex-col items-end">
       <button
-        className={`group flex items-center justify-center transition-all duration-200 bg-white font-semibold rounded-full focus:outline-none shadow-sm px-0 w-8 h-8 overflow-hidden hover:bg-cm-purple hover:text-white hover:px-4 hover:w-auto border ${book.extended_phase ? 'border-cm-orange' : 'border-cm-purple'} disabled:opacity-60 disabled:cursor-not-allowed`}
+        className={`group flex items-center justify-center transition-all duration-200 bg-white font-semibold rounded-full focus:outline-none shadow-sm px-0 w-8 h-8 overflow-hidden hover:bg-cm-purple hover:text-white hover:px-4 hover:w-auto border ${book.is_extended ? 'border-cm-orange' : 'border-cm-purple'} disabled:opacity-60 disabled:cursor-not-allowed`}
         style={{ minWidth: '2rem', minHeight: '2rem' }}
         disabled={disabled}
         onClick={handleNudge}
