@@ -1,5 +1,7 @@
 
 import React, { useState } from "react";
+import Navigation from "../components/Navigation";
+import Footer from "../components/Footer";
 
 const faqs = [
   {
@@ -64,33 +66,42 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">Perguntas Frequentes</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {faqs.map((faq, idx) => (
-          <div
-            key={idx}
-            className="bg-white rounded-lg shadow border border-gray-200"
-          >
-            <button
-              className="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none"
-              onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-              aria-expanded={openIndex === idx}
-            >
-              <span className="font-medium text-lg text-gray-900">{faq.question}</span>
-              <span className="text-2xl text-gray-400">{openIndex === idx ? "−" : "+"}</span>
-            </button>
-            {openIndex === idx && (
-              <div className="px-6 pb-5 text-gray-700 animate-fade-in">
-                {faq.answer}
+    <>
+      <Navigation />
+      <div className="min-h-[80vh] bg-gradient-to-br from-cm-purple/10 via-cm-bg/10 to-cm-purple/5 py-10 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-extrabold mb-8 text-center text-cm-purple drop-shadow">Perguntas Frequentes</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className={`rounded-xl shadow-lg border-2 border-cm-purple/30 bg-white/80 hover:bg-cm-purple/10 transition-all duration-300 ${openIndex === idx ? 'ring-2 ring-cm-purple/60' : ''}`}
+              >
+                <button
+                  className="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none"
+                  onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                  aria-expanded={openIndex === idx}
+                >
+                  <span className="font-semibold text-lg text-cm-purple flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-cm-purple/60 animate-pulse" />
+                    {faq.question}
+                  </span>
+                  <span className={`text-2xl font-bold ${openIndex === idx ? 'text-cm-purple' : 'text-gray-400'}`}>{openIndex === idx ? "−" : "+"}</span>
+                </button>
+                {openIndex === idx && (
+                  <div className="px-6 pb-5 text-gray-700 animate-fade-in">
+                    {faq.answer}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
+          <div className="mt-10 text-center text-cm-purple text-base font-medium">
+            Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="underline hover:text-cm-bg">Fale conosco</a>!
+          </div>
+        </div>
       </div>
-      <div className="mt-10 text-center text-gray-500 text-sm">
-        Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="underline text-cm-purple">Fale conosco</a>!
-      </div>
-    </div>
+      <Footer />
+    </>
   );
 }
