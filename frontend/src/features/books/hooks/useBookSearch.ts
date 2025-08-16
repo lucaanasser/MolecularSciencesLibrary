@@ -1,81 +1,109 @@
-import { useState } from "react";
-import useAreaSelection from "./useAreaSelection";
+import { useEffect, useState } from "react";
+import useBookOptions from "./useBookOptions";
 import useBookSearch from "./useBookList";
 
 /**
- * Hook de busca de livros com filtros de área, subárea e disponibilidade.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
+ * Hook de busca de livros com filtros (estado único).
+ * Filtros: { category, subcategory, filterStatus, search }
  */
 export default function useBookSearchPage(onError?: (e: Error) => void) {
-  // Gerencia seleção de área e subárea
-  const {
-    category,
-    setCategory,
-    subcategory,
-    setSubcategory,
-    areaCodes,
-    subareaCodes,
-  } = useAreaSelection(onError);
+  // Mapeamentos de áreas/subáreas
+  const { areaCodes, subareaCodes } = useBookOptions(onError);
 
-  // Estado para filtro de status
+  // Estado único de filtros
   type StatusFilter = "all" | "available" | "borrowed" | "reserved" | "overdue" | "extended";
-  const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
+  type Filters = {
+    category: string;
+    subcategory: string;
+    filterStatus: StatusFilter;
+    search: string;
+  };
 
-  // Hook de busca de livros
+  const [filters, setFilters] = useState<Filters>({
+    category: "",
+    subcategory: "",
+    filterStatus: "all",
+    search: "",
+  });
+
+  // Busca de livros baseada nos filtros aplicados
   const {
     books,
     filteredBooks,
     isLoading,
-    search,
-    setSearch,
-  } = useBookSearch(category, subcategory, true, onError);
+    search: internalSearch,
+    setSearch: setInternalSearch,
+  } = useBookSearch(filters.category, filters.subcategory, true, onError);
 
-  // Filtra por status desejado
-  const filteredByStatus = filteredBooks.filter(book => {
-    switch (filterStatus) {
+  // Sincroniza o termo de busca único com o hook de dados
+  useEffect(() => {
+    if (internalSearch !== filters.search) {
+      setInternalSearch(filters.search);
+    }
+  }, [filters.search, internalSearch, setInternalSearch]);
+
+  // Filtra por status desejado (no cliente)
+  const filteredByStatus = filteredBooks.filter((book) => {
+    const isReserved = !!(book as any).is_reserved;
+    const isAvailable = !!book.available && !isReserved; // disponível para empréstimo
+    switch (filters.filterStatus) {
       case "all":
         return true;
       case "available":
-        return !!book.available;
+        return isAvailable;
       case "borrowed":
         return !book.available;
       case "reserved":
-        return !!(book as any).is_reserved; // API usa 1/0
+        return isReserved;
       case "overdue":
         return !!(book as any).overdue;
       case "extended":
-        return !!(book as any).extended_phase; // API usa 1/0
+        return !!(book as any).extended_phase;
       default:
         return true;
     }
   });
 
-  // Função para limpar todos os filtros e busca
+  // Ações helper compatíveis com a UI atual
+  const setCategory = (category: string) => {
+    setFilters((prev) => ({ ...prev, category, subcategory: "" }));
+  };
+  const setSubcategory = (subcategory: string) => {
+    setFilters((prev) => ({ ...prev, subcategory }));
+  };
+  const setFilterStatus = (status: StatusFilter) => {
+    setFilters((prev) => ({ ...prev, filterStatus: status }));
+  };
+  const setSearch = (search: string) => {
+    setFilters((prev) => ({ ...prev, search }));
+  };
+
+  // Reset atômico dos filtros
   function resetFilters() {
-    console.log("🟢 [useBookSearchPage] Resetando filtros e busca");
-    setCategory("");
-    setSubcategory("");
-    setFilterStatus("all");
-    setSearch("");
+    setFilters({ category: "", subcategory: "", filterStatus: "all", search: "" });
   }
 
   return {
-    category,
+    // Filtros (mantém API esperada por BookSearchPanel)
+    category: filters.category,
     setCategory,
-    subcategory,
+    subcategory: filters.subcategory,
     setSubcategory,
     areaCodes,
     subareaCodes,
-    filterStatus,
+    filterStatus: filters.filterStatus,
     setFilterStatus,
-    search,
+    search: filters.search,
     setSearch,
+
+    // Dados
     books: filteredByStatus,
     isLoading,
+
+    // Utilitários
     resetFilters,
+
+    // Opcional: expor setFilters se quiser usar de forma atômica
+    // setFilters,
   };
 }
