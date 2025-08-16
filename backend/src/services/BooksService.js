@@ -180,17 +180,24 @@ class BooksService {
         }
     }
 
-    async getBooks(category, subcategory, searchTerm) {
+    async getBooks(filters) {
         try {
-            console.log(`🔵 [BooksService] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
-            const books = await booksModel.getBooks(category, subcategory, searchTerm);
+            console.log(`[BooksService] Buscando livros:`, filters);
+            // Extrai filtros principais
+            const category = filters.category || null;
+            const subcategory = filters.subcategory || null;
+            const searchTerm = filters.q || null;
+            const onlyReserved = filters.reserved === 'true' ? true : (filters.reserved === 'false' ? false : null);
+            // Busca livros do banco
+            const books = await booksModel.getBooks(category, subcategory, searchTerm, onlyReserved);
             const borrowed = await booksModel.getBorrowedBooks();
             const rules = await RulesService.getRules();
             const windowDays = rules?.extension_window_days ?? 3;
             const now = new Date();
             const borrowedMap = {};
             borrowed.forEach(b => { borrowedMap[b.book_id] = b; });
-            const result = books.map(book => {
+            // Calcula status e outros campos
+            let result = books.map(book => {
                 const loan = borrowedMap[book.id];
                 let overdue = false;
                 if (loan && loan.due_date) {
@@ -198,7 +205,9 @@ class BooksService {
                     overdue = dueDate < now;
                 }
                 let status = "disponível";
-                if (book.is_reserved === 1) status = "reserva didática"; else if (loan && overdue) status = "atrasado"; else if (loan) status = "emprestado";
+                if (book.is_reserved === 1) status = "reserva didática";
+                else if (loan && overdue) status = "atrasado";
+                else if (loan) status = "emprestado";
                 let due_in_window = false;
                 const extended_phase = loan?.extended_phase === 1;
                 const extension_pending = loan?.extension_pending === 1;
@@ -220,10 +229,14 @@ class BooksService {
                     due_date: loan?.due_date || null
                 };
             });
-            console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);
+            // Filtra por status se solicitado
+            if (filters.status) {
+                result = result.filter(book => book.status === filters.status);
+            }
+            console.log(`[BooksService] Livros encontrados: ${result.length}`);
             return result;
         } catch (error) {
-            console.error("🔴 [BooksService] Erro ao buscar livros:", error.message);
+            console.error("[BooksService] Erro ao buscar livros:", error.message);
             throw error;
         }
     }

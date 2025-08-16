@@ -31,13 +31,14 @@ router.post('/', async (req, res) => {
 // Busca livros, com filtros opcionais de categoria e subcategoria
 router.get('/', async (req, res) => {
     try {
-        console.log("🔵 [BooksRoutes] GET / - Buscar livros");
-        const { category, subcategory, q } = req.query;
-        const books = await booksController.getBooks(category, subcategory, q);
-        console.log(`🟢 [BooksRoutes] Livros encontrados: ${books.length}`);
+        console.log("[BooksRoutes] GET / - Buscar livros");
+        // Recebe todos os filtros da query
+        const filters = { ...req.query };
+        const books = await booksController.getBooks(filters);
+        console.log(`[BooksRoutes] Livros encontrados: ${books.length}`);
         res.status(200).json(books);
     } catch (error) {
-        console.error("🔴 [BooksRoutes] Erro ao buscar livros:", error.message);
+        console.error("[BooksRoutes] Erro ao buscar livros:", error.message);
         res.status(500).json({ message: 'Error retrieving books: ' + error.message });
     }
 });

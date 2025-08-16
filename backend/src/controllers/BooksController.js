@@ -20,23 +20,22 @@ class BooksController {
      * @returns {Promise<Object>} Resultado da operação
      */
     async addBook(bookData) {
+    /**
+     * Busca livros por filtros dinâmicos, incluindo status
+     * @param {Object} filters - Filtros recebidos da query
+     * @returns {Promise<Array>} Lista de livros encontrados
+     */
+    getBooks = async (filters) => {
         try {
-            console.log("🔵 [BooksController] Iniciando adição de livro:", bookData.title || bookData.code);
-            const result = await booksService.addBook(bookData);
-            console.log("🟢 [BooksController] Livro adicionado com sucesso:", result);
-            return result;
+            console.log(`[BooksController] Buscando livros por filtros:`, filters);
+            const books = await booksService.getBooks(filters);
+            console.log(`[BooksController] Livros encontrados: ${books.length}`);
+            return books;
         } catch (error) {
-            console.error("🔴 [BooksController] Erro ao adicionar livro:", error.message);
+            console.error(`[BooksController] Erro ao buscar livros:`, error.message);
             throw error;
         }
     }
-
-    /**
-     * Busca um livro pelo ID, delegando ao serviço
-     * @param {number} id - ID do livro
-     * @returns {Promise<Object>} Livro encontrado
-     */
-    async getBookById(id) {
         try {
             console.log(`🔵 [BooksController] Buscando livro por id: ${id}`);
             const book = await booksService.getBookById(id);
