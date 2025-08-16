@@ -25,8 +25,21 @@ export default function useBookSearchPage(onError?: (e: Error) => void) {
     search: "",
   });
 
+  // Mapeamento de status do frontend para backend
+  const statusMap: Record<string, string> = {
+    available: "disponível",
+    reserved: "reserva didática",
+    overdue: "atrasado",
+    borrowed: "emprestado",
+    all: "",
+    extended: "" // não suportado diretamente
+  };
+  const mappedFilters = {
+    ...filters,
+    status: statusMap[filters.status] ?? filters.status
+  };
   // Busca de livros baseada nos filtros aplicados
-  const { books, isLoading } = useBookList(filters, true, onError);
+  const { books, isLoading } = useBookList(mappedFilters, true, onError);
 
   // Helpers para UI
   const setCategory = (category: string) => {
