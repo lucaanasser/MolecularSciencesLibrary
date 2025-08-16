@@ -70,7 +70,7 @@ export default function FAQ() {
       <Navigation />
       <div className="min-h-[80vh] bg-gradient-to-br from-cm-purple/10 via-cm-bg/10 to-cm-purple/5 py-10 px-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-extrabold mb-8 text-center text-cm-purple drop-shadow">Perguntas Frequentes</h1>
+          <h1 className="text-4xl font-extrabold mb-8 text-left text-black drop-shadow">Perguntas Frequentes</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {faqs.map((faq, idx) => (
               <div

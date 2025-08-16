@@ -204,10 +204,6 @@ const BookSearch: React.FC = () => {
                     } else if (book.extended_phase) {
                       color = "bg-cm-orange";
                       text = "Estendido";
-                    } else if (book.extension_pending) {
-                      color = "bg-cm-orange/70";
-                      text = "Extensão pendente";
-                      textColor = "text-black";
                     } else if (book.due_in_window && book.exemplaresDisponiveis === 0) {
                       color = "bg-yellow-500";
                       text = "Últimos dias";

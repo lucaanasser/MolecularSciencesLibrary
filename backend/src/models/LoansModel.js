@@ -71,7 +71,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_pending, l.extension_requested_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.extended_phase, l.extended_started_at, l.last_nudged_at, l.extension_requested_at,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -366,48 +366,7 @@ module.exports = {
                 });
         });
     },
-    // Marca empréstimo como pendente de extensão
-    requestExtension: (loan_id) => {
-        return new Promise((resolve, reject) => {
-            const db = getDb();
-            db.run(`UPDATE loans SET extension_pending = 1, extension_requested_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL AND extended_phase = 0 AND extension_pending = 0`, [loan_id], function(err){
-                db.close();
-                if (err) reject(err); else if (this.changes === 0) reject(new Error('Não foi possível marcar pendência (já pendente, estendido ou devolvido).')); else resolve();
-            });
-        });
-    },
-    // Cancela pendência
-    cancelExtensionPending: (loan_id) => {
-        return new Promise((resolve, reject) => {
-            const db = getDb();
-            db.run(`UPDATE loans SET extension_pending = 0 WHERE id = ? AND returned_at IS NULL`, [loan_id], function(err){
-                db.close();
-                if (err) reject(err); else resolve();
-            });
-        });
-    },
-    // Aplica extensões pendentes elegíveis
-    applyEligiblePendingExtensions: (windowDays, addedDays) => {
-        return new Promise((resolve, reject) => {
-            const db = getDb();
-            // Aplica onde: pendente, não estendido, não devolvido, (now - requested_at) >= windowDays, e nenhum nudge depois do request
-            db.run(`UPDATE loans
-                    SET extended_phase = 1,
-                        extended_started_at = CURRENT_TIMESTAMP,
-                        due_date = datetime(due_date, '+'|| ? ||' days'),
-                        extension_pending = 0
-                    WHERE extension_pending = 1
-                      AND extended_phase = 0
-                      AND returned_at IS NULL
-                      AND extension_requested_at IS NOT NULL
-                      AND datetime(extension_requested_at, '+'|| ? ||' days') <= CURRENT_TIMESTAMP
-                      AND (last_nudged_at IS NULL OR last_nudged_at < extension_requested_at)`,
-                [addedDays, windowDays], function(err){
-                    db.close();
-                    if (err) reject(err); else resolve(this.changes);
-                });
-        });
-    },
+    // ...existing code...
     // Registra o último nudge enviado para um empréstimo
     setLastNudged: (loan_id) => {
         return new Promise((resolve, reject) => {
@@ -426,7 +385,7 @@ module.exports = {
                     SET extended_phase = 1,
                         extended_started_at = CURRENT_TIMESTAMP,
                         due_date = datetime('now', '+'|| ? ||' days'),
-                        extension_pending = 0
+                        -- extension_pending removido
                     WHERE id = ?
                       AND returned_at IS NULL
                       AND extended_phase = 0`,

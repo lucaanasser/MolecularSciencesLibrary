@@ -161,7 +161,7 @@ const LoansController = {
         }
     },
 
-    // Solicita extensão de um empréstimo
+    // Solicita extensão de um empréstimo (agora é imediata)
     requestExtension: async (req, res) => {
         try {
             const { id } = req.params; // loan id

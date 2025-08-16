@@ -77,17 +77,15 @@ export default function LoanActive({ userId }: LoanActiveProps) {
 
   // Preview extensão
   async function handlePreviewExtend(loan: Loan) {
-    setExtendError("" ); setExtendSuccess(""); setExtendLoading(loan.loan_id);
+    setExtendError(""); setExtendSuccess(""); setExtendLoading(loan.loan_id);
     try {
-      // Se já pendente não faz nada
-      if (loan.extension_pending === 1) { setExtendError('Já pendente'); return; }
       // Preview só para mostrar nova data potencial
       const token = localStorage.getItem('token');
       const res = await fetch(`/api/loans/${loan.loan_id}/preview-extend`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ user_id: loan.student_id }) });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setDialogTitle('Solicitar extensão');
-      setDialogDescription(`Ao confirmar, ficará pendente por até ${rules?.extension_window_days ?? 3} dias. Se ninguém cutucar, nova data será: ${data.new_due_date ? formatDate(data.new_due_date) : '(desconhecida)'}. Confirmar?`);
+      setDialogDescription(`Ao confirmar, o prazo será estendido imediatamente para: ${data.new_due_date ? formatDate(data.new_due_date) : '(desconhecida)'}. Confirmar?`);
       setDialogOpen(true);
       setPendingExtend({ loan, new_due_date: data.new_due_date });
     } catch (err: any) { setExtendError(err.message || 'Erro ao preparar extensão'); } finally { setExtendLoading(null); }
@@ -99,10 +97,10 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       const token = localStorage.getItem('token');
       const res = await fetch(`/api/loans/${pendingExtend.loan.loan_id}/request-extension`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ user_id: pendingExtend.loan.student_id }) });
       if (!res.ok) throw new Error(await res.text());
-      setDialogTitle('Extensão pendente');
-      setDialogDescription(`Extensão ficará pendente até alguém cutucar ou completar a janela. Ela será aplicada automaticamente se não houver cutucas.`);
-      setExtendSuccess('Extensão pendente registrada');
-      setPendingMessage('Extensão pendente');
+      setDialogTitle('Extensão aplicada');
+      setDialogDescription(`O prazo do empréstimo foi estendido imediatamente.`);
+      setExtendSuccess('Extensão registrada com sucesso');
+      setPendingMessage('Extensão aplicada');
       refetch && refetch();
     } catch (err: any) { setExtendError(err.message || 'Erro ao solicitar extensão'); } finally { setExtendLoading(null); setPendingExtend(null); }
   }
@@ -118,7 +116,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
         const overdue = isOverdue(item); const { statusText, statusColor } = getLoanStatusProps(item);
         const reachedMaxRenewals = rules ? (item.renewals ?? 0) >= rules.max_renewals : false;
         const showRenew = !overdue && (item.extended_phase !== 1) && !reachedMaxRenewals; // sempre até última renovação
-        const showExtend = !overdue && (item.extended_phase !== 1) && reachedMaxRenewals && item.extension_pending !== 1; // após última renovação
+        const showExtend = !overdue && (item.extended_phase !== 1) && reachedMaxRenewals; // após última renovação
         return (
           <LoanItem key={item.loan_id} loan={item} statusText={statusText} statusColor={statusColor} onRenew={showRenew ? () => handlePreviewRenew(item) : undefined} renewLoading={renewLoading === item.loan_id} showRenew={showRenew}>
             <div className="flex flex-col gap-1 items-end w-full">
@@ -131,9 +129,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
               {renewLoading === item.loan_id && renewSuccess && <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>}
               {extendLoading === item.loan_id && extendError && <div className="text-red-600 text-xs mt-1">{extendError}</div>}
               {extendLoading === item.loan_id && extendSuccess && <div className="text-green-600 text-xs mt-1">{extendSuccess}</div>}
-              {item.extension_pending === 1 && (
-                <div className="text-xs text-cm-orange mt-1">Extensão pendente (aguardando janela)</div>
-              )}
+              {/* Extensão pendente removida */}
             </div>
           </LoanItem>
         );
