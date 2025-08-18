@@ -63,7 +63,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
       </div>
       <div>
         <Label htmlFor="class">Turma (número)</Label>
-        <Input id="class" value={userClass} onChange={e => setUserClass(e.target.value)} placeholder="Ex: 33" />
+        <Input id="class" value={userClass} onChange={e => setUserClass(e.target.value)} required placeholder="Ex: 33" />
       </div>
       {error && <div className="text-red-600">{error}</div>}
       <Button type="submit" disabled={loading}>
