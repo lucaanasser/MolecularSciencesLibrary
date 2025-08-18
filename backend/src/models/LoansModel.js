@@ -224,7 +224,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l

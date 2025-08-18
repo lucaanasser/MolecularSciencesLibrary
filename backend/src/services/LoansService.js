@@ -217,6 +217,14 @@ class LoansService {
         const updatedLoans = await LoansModel.getLoansByUser(user_id);
         const updatedLoan = updatedLoans.find(l => l.loan_id === loan_id && !l.returned_at);
         console.log('[DEBUG] Empréstimo após renovação:', updatedLoan);
+        // Envia email de confirmação de renovação
+        if (updatedLoan) {
+            await EmailService.sendRenewalConfirmationEmail({
+                user_id,
+                book_title: updatedLoan.book_title,
+                due_date: updatedLoan.due_date
+            });
+        }
         return {
             message: 'Empréstimo renovado com sucesso.',
             due_date: updatedLoan ? updatedLoan.due_date : null
@@ -288,6 +296,14 @@ class LoansService {
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         await LoansModel.extendLoanBlock(loan_id, addedDays);
         const updated = await LoansModel.getLoanById(loan_id);
+        // Envia email de confirmação de extensão
+        if (updated) {
+            await EmailService.sendExtensionConfirmationEmail({
+                user_id,
+                book_title: updated.book_title,
+                due_date: updated.due_date
+            });
+        }
         return { message: 'Empréstimo estendido com sucesso.', due_date: updated?.due_date };
     }
 
@@ -298,7 +314,16 @@ class LoansService {
         if (loan.is_extended !== 1) return { changed: false };
         const shortenedTarget = rules.shortened_due_days_after_nudge || 5;
         const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, shortenedTarget);
-        if (changed) return { changed: true, new_due_date: (await LoansModel.getLoanById(loan_id)).due_date };
+        if (changed) {
+            const updatedLoan = await LoansModel.getLoanById(loan_id);
+            // Envia email de nudge de extensão
+            await EmailService.sendExtensionNudgeEmail({
+                user_id: updatedLoan.student_id,
+                book_title: updatedLoan.book_title,
+                new_due_date: updatedLoan.due_date
+            });
+            return { changed: true, new_due_date: updatedLoan.due_date };
+        }
         return { changed: false };
     }
 }

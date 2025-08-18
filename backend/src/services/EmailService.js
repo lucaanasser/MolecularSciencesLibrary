@@ -9,6 +9,7 @@ const fs = require('fs');
  * Centraliza toda a lógica de templates e envio de emails do sistema.
  */
 class EmailService {
+
     constructor() {
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
@@ -118,7 +119,7 @@ class EmailService {
             <p>Oh não, parece que você esqueceu de devolver algum(ns) livro(s)...</p>
             <ul>${booksList}</ul>
             <div style="text-align: center;">
-            <img src="https://bibliotecamoleculares.com/images/email-images/nudge.png" alt="Carlos Magno surpreso" style="height: 350px; margin-bottom: 10px;" />
+            <img src="https://bibliotecamoleculares.com/images/email-images/overdue.png" alt="Carlos Magno esquecido" style="height: 350px; margin-bottom: 10px;" />
             </div>
             <p>Lembre-se que outros colegas podem estar precisando desses materiais para os estudos. A devolução em dia ajuda toda a comunidade acadêmica!</p>
             <div style="margin-top: 30px; text-align: center;">
@@ -309,21 +310,19 @@ class EmailService {
             console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
             return false;
         }
-        const subject = 'Redefinição de senha - Biblioteca Ciências Moleculares';
+        const subject = 'Redefinição de senha';
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/redefinir-senha?token=${resetToken}`;
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
-            <p>Recebemos uma solicitação para redefinir sua senha. Para criar uma nova senha, clique no link abaixo:</p>
+            <p>Recebemos uma solicitação para redefinir sua senha.</p>
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/password.png" alt="Carlos Magno esquecido" style="height: 350px; margin-bottom: 10px;" />
+            </div>
+            <p>Para criar uma nova senha, clique no link abaixo:</p>
             <div style="text-align: center; margin: 20px 0;">
                 <a href="${resetUrl}" style="background: #b657b3; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 18px;">Redefinir minha senha</a>
             </div>
             <p>Se você não solicitou, ignore este email.</p>
-            <div style="margin-top: 30px; text-align: center;">
-                <span style="font-size: 48px;"></span>
-                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-                    Equipe Biblioteca Ciências Moleculares
-                </div>
-            </div>
         `;
         const textContent = `Olá, ${user.name || 'colega'}!\n\nRecebemos uma solicitação para redefinir sua senha. Para criar uma nova senha, acesse: ${resetUrl}\n\nSe você não solicitou, ignore este email.\n\nEquipe Biblioteca Ciências Moleculares`;
 
@@ -346,18 +345,15 @@ class EmailService {
             console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
             return false;
         }
-        const subject = 'Confirmação de devolução de livro - Biblioteca CM';
+        const subject = 'Confirmação de devolução de livro';
         const dateStr = returnedAt ? new Date(returnedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Confirmamos a devolução do livro <b>"${book_title}"</b> em ${dateStr}.</p>
-            <p>Muito obrigado por colaborar com a nossa biblioteca! Esperamos te ver em breve para novos empréstimos.</p>
-            <div style="margin-top: 30px; text-align: center;">
-                <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
-                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-                    Equipe Biblioteca Ciências Moleculares
-                </div>
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/return.png" alt="Carlos Magno relaxado" style="height: 350px; margin-bottom: 10px;" />
             </div>
+            <p>Muito obrigado por colaborar com a nossa biblioteca! Esperamos te ver em breve para novos empréstimos.</p>
         `;
         const textContent = `Olá, ${user.name || 'colega'}!\n\nConfirmamos a devolução do livro "${book_title}" em ${dateStr}.\n\nMuito obrigado por colaborar com a nossa biblioteca! Esperamos te ver em breve para novos empréstimos.\n\nEquipe Biblioteca Ciências Moleculares`;
         const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
@@ -379,18 +375,29 @@ class EmailService {
             console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
             return false;
         }
-        const subject = 'Confirmação de novo empréstimo - Biblioteca CM';
+        const subject = 'Confirmação de empréstimo de livro';
+        // Buscar a data de devolução real do banco de dados
+        let dueDateStr = '';
+        try {
+            // loansModel pode ser importado no topo do arquivo se não estiver
+            const loansModel = require('../models/LoansModel');
+            const activeLoan = await loansModel.getActiveLoanForUserAndBook(user_id, book_title);
+            if (activeLoan && activeLoan.due_date) {
+                dueDateStr = new Date(activeLoan.due_date).toLocaleDateString('pt-BR');
+            }
+        } catch (err) {
+            console.error('Erro ao buscar data de devolução:', err.message);
+        }
         const dateStr = borrowedAt ? new Date(borrowedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Confirmamos o registro do empréstimo do livro <b>"${book_title}"</b> em ${dateStr}.</p>
-            <p>Fique atento ao prazo de devolução e aproveite a leitura!</p>
-            <div style="margin-top: 30px; text-align: center;">
-                <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 10px;" />
-                <div style="color: #b657b3; font-weight: bold; margin-top: 10px; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-                    Equipe Biblioteca Ciências Moleculares
-                </div>
+            ${dueDateStr ? `<p><b>Data limite para devolução:</b> ${dueDateStr}</p>` : ''}
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/loan.png" alt="Carlos Magno lendo" style="height: 350px; margin-bottom: 10px;" />
             </div>
+            <p>Fique atento ao prazo de devolução e aproveite a leitura!</p>
+            <p>Você pode renovar o empréstimo diretamente pelo nosso site, na "Área do Usuário".</p>
         `;
         const textContent = `Olá, ${user.name || 'colega'}!\n\nConfirmamos o registro do empréstimo do livro "${book_title}" em ${dateStr}.\n\nFique atento ao prazo de devolução e aproveite a leitura!\n\nEquipe Biblioteca Ciências Moleculares`;
         const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
@@ -402,6 +409,145 @@ class EmailService {
             type: 'loan_confirmation'
         });
     }
+
+    /*
+     * Envia email de lembrete de devolução próxima
+     */
+    async sendDueSoonEmail({ user_id, book_title, due_date, days_left }) {
+        const user = await usersModel.getUserById(user_id);
+        if (!user || !user.email) {
+            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
+            return false;
+        }
+        const subject = days_left === 1
+            ? 'Atenção: Último dia para devolver o livro!'
+            : `Lembrete: Faltam ${days_left} dias para devolver o livro!`;
+        const dueDateStr = new Date(due_date).toLocaleDateString('pt-BR');
+        const htmlContent = `
+            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
+            <p>O prazo para devolução do livro <b>"${book_title}"</b> está se aproximando.</p>
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/reminder.png" alt="Carlos Magno " style="height: 200px; margin-bottom: 10px;" />
+            </div>
+            <p><b>Data limite para devolução:</b> ${dueDateStr}</p>
+            <p>${days_left === 1 ? 'Hoje é o último dia para devolver o livro! Não deixe para depois.' : `Faltam apenas ${days_left} dias para o prazo final.`}</p>
+            <p>Se precisar renovar ou estender, acesse a "Área do Usuário" no site.</p>
+            <p> <b> Bons estudos! </b> </p>
+        `;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nO prazo para devolução do livro "${book_title}" está se aproximando.\nData limite: ${dueDateStr}\n${days_left === 1 ? 'Hoje é o último dia para devolver o livro!' : `Faltam apenas ${days_left} dias para o prazo final.`}\nSe precisar renovar ou estender, acesse a "Área do Usuário" no site.`;
+        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
+        return await this.sendMail({
+            to: user.email,
+            subject,
+            text: textContent,
+            html,
+            type: 'due_soon'
+        });
+    }
+
+     /**
+     * Envia email de confirmação de renovação de empréstimo
+     */
+    async sendRenewalConfirmationEmail({ user_id, book_title, due_date }) {
+        const user = await usersModel.getUserById(user_id);
+        if (!user || !user.email) {
+            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
+            return false;
+        }
+        const subject = 'Renovação de empréstimo confirmada!';
+        const dueDateStr = new Date(due_date).toLocaleDateString('pt-BR');
+        const htmlContent = `
+            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
+            <p>Sua renovação do livro <b>"${book_title}"</b> foi confirmada com sucesso.</p>
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/renewal.png" alt="Carlos Magno" style="height: 200px; margin-bottom: 10px;" />
+            </div>
+            <p><b>Nova data limite para devolução:</b> ${dueDateStr}</p>
+            <p>Fique atento ao prazo e aproveite a leitura!</p>
+            <p>Você pode acompanhar seus empréstimos e renovar novamente (até 3 vezes) pela "Área do Usuário" no site.</p>
+            <p><b>Bons estudos!</b></p>
+        `;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nSua renovação do livro "${book_title}" foi confirmada.\nNova data limite para devolução: ${dueDateStr}\nFique atento ao prazo e aproveite a leitura!\nVocê pode acompanhar seus empréstimos e renovar novamente (até 3 vezes) pela "Área do Usuário" no site.\nBons estudos!`;
+        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
+        return await this.sendMail({
+            to: user.email,
+            subject,
+            text: textContent,
+            html,
+            type: 'renewal_confirmation'
+        });
+    }
+
+    /**
+     * Envia email de confirmação de extensão de empréstimo
+     */
+    async sendExtensionConfirmationEmail({ user_id, book_title, due_date }) {
+        const user = await usersModel.getUserById(user_id);
+        if (!user || !user.email) {
+            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
+            return false;
+        }
+        const subject = 'Extensão de empréstimo confirmada!';
+        const dueDateStr = new Date(due_date).toLocaleDateString('pt-BR');
+        const htmlContent = `
+            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
+            <p>Sua extensão do livro <b>"${book_title}"</b> foi confirmada com sucesso.</p>
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/renewal.png" alt="Carlos Magno" style="height: 200px; margin-bottom: 10px;" />
+            </div>
+            <p><b>Nova data limite para devolução:</b> ${dueDateStr}</p>
+            <p>Durante esse período, você está sujeito a ser cutucado por outro aluno que deseja o livro. Caso isso aconteça, o prazo será reduzido para 5 dias e você será notificado por email.</p>
+            <p>Fique atento ao prazo e aproveite a leitura!</p>
+            <p>Você pode acompanhar seus empréstimos pela "Área do Usuário" no site.</p>
+            <p><b>Bons estudos!</b></p>
+        `;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nSua extensão do livro "${book_title}" foi confirmada.\nNova data limite para devolução: ${dueDateStr}\nAtenção: Ao estender o empréstimo, o prazo foi reduzido para 5 dias para que outros alunos possam acessar o livro.\nDurante esse período, você está sujeito a ser cutucado por outro aluno que deseja o livro. Caso isso aconteça, o prazo será reduzido para 5 dias e você será notificado por email.\nFique atento ao prazo e aproveite a leitura!\nVocê pode acompanhar seus empréstimos pela Área do Usuário no site.\nBons estudos!`;
+        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
+        return await this.sendMail({
+            to: user.email,
+            subject,
+            text: textContent,
+            html,
+            type: 'extension_confirmation'
+        });
+    }
+
+
+    /**
+     * Envia email de nudge para extensão (prazo reduzido)
+     */
+    async sendExtensionNudgeEmail({ user_id, book_title, new_due_date }) {
+        const user = await usersModel.getUserById(user_id);
+        if (!user || !user.email) {
+            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
+            return false;
+        }
+        const subject = 'Você foi cutucado: o seu prazo de extensão foi reduzido';
+        const dueDateStr = new Date(new_due_date).toLocaleDateString('pt-BR');
+        const htmlContent = `
+            <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
+            <p>Outro aluno solicitou o livro <b>"${book_title}"</b> que está com você.</p>
+            <div style="text-align: center;">
+                <img src="https://bibliotecamoleculares.com/images/email-images/nudge.png" alt="Carlos Magno cutucado" style="height: 200px; margin-bottom: 10px;" />
+            </div>
+            <p>Por isso, o prazo de devolução foi reduzido para <b>5 dias</b> a partir de hoje.</p>
+            <p><b>Nova data limite para devolução:</b> ${dueDateStr}</p>
+            <p>Por favor, organize-se para devolver o livro até essa data e ajudar outros colegas a terem acesso ao material.</p>
+            <p>Você pode acompanhar seus empréstimos pela "Área do Usuário" no site.</p>
+            <p><b>Bons estudos!</b></p>
+        `;
+        const textContent = `Olá, ${user.name || 'colega'}!\n\nOutro aluno solicitou o livro "${book_title}" que está com você.\nPor isso, o prazo de devolução foi reduzido para 5 dias a partir de hoje.\nNova data limite para devolução: ${dueDateStr}\nPor favor, organize-se para devolver o livro até essa data e ajudar outros colegas a terem acesso ao material.\nVocê pode acompanhar seus empréstimos pela Área do Usuário no site.\nBons estudos!`;
+        const html = this.generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
+        return await this.sendMail({
+            to: user.email,
+            subject,
+            text: textContent,
+            html,
+            type: 'extension_nudge'
+        });
+    }
+    
+   
 
 
     /**

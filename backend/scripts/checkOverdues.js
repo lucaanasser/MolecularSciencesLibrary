@@ -42,62 +42,55 @@ async function main() {
     const rules = await RulesService.getRules().catch(() => ({ overdue_reminder_days: 3 }));
     const reminderDays = rules.overdue_reminder_days || 3;
 
-    // Lista empréstimos ativos e marca quais estão atrasados
+    // Lista todos os empréstimos ativos
     const activeLoans = await LoansService.listActiveLoansWithOverdue();
-    const overdueLoans = activeLoans.filter(l => l.is_overdue);
-
-    if (overdueLoans.length === 0) {
-      console.log('🟡 [checkOverdues] Nenhum empréstimo em atraso no momento.');
-      return process.exit(0);
-    }
-
-    console.log(`🔵 [checkOverdues] Empréstimos em atraso encontrados: ${overdueLoans.length}`);
-
-    // Agrupa empréstimos por usuário
-    const loansByUser = new Map();
-    for (const loan of overdueLoans) {
-      if (!loansByUser.has(loan.student_id)) loansByUser.set(loan.student_id, []);
-      loansByUser.get(loan.student_id).push(loan);
-    }
-
+    const now = new Date();
+    let totalDueSoonEmails = 0;
+    let totalOverdueEmails = 0;
     let totalNotifications = 0;
-    let totalEmails = 0;
 
-    // Para cada usuário, decide se envia email (novo atraso ou lembrete devido)
-    for (const [userId, loans] of loansByUser.entries()) {
-      let shouldEmail = false;
-
-      for (const loan of loans) {
-        // Primeiro aviso (se ainda não existe)
+    // Verifica cada empréstimo ativo
+    for (const loan of activeLoans) {
+      if (loan.returned_at) continue;
+      const dueDate = new Date(loan.due_date);
+      const daysLeft = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+      // Se estiver atrasado, mantém lógica de atraso
+      if (loan.is_overdue) {
+        // Notificações de atraso existentes
         const created = await NotificationsService.createOverdueNotificationIfNotExists(loan);
-        if (created) {
-          totalNotifications++; shouldEmail = true; continue; // já garante email
-        }
-        // Lembrete periódico
+        if (created) totalNotifications++;
         const reminder = await NotificationsService.createOverdueReminderIfDue(loan, reminderDays);
-        if (reminder) { totalNotifications++; shouldEmail = true; }
-      }
-
-      if (shouldEmail) {
+        if (reminder) totalNotifications++;
         try {
           await EmailService.sendOverdueEmail({
-            user_id: userId,
-            books: loans.map(l => ({
-              book_id: l.book_id,
-              book_title: l.book_title,
-              due_date: l.due_date
-            }))
+            user_id: loan.student_id,
+            books: [{
+              book_id: loan.book_id,
+              book_title: loan.book_title,
+              due_date: loan.due_date
+            }]
           });
-          totalEmails++;
+          totalOverdueEmails++;
         } catch (err) {
-          console.error(`🔴 [checkOverdues] Falha ao enviar email de atraso para user ${userId}:`, err.message);
+          console.error(`🔴 [checkOverdues] Falha ao enviar email de atraso para user ${loan.student_id}:`, err.message);
         }
-      } else {
-        console.log(`🟡 [checkOverdues] Sem novo aviso/lembrete para user ${userId} (email não enviado).`);
+      } else if (daysLeft === 3 || daysLeft === 1) {
+        // Envia email de devolução próxima
+        try {
+          await EmailService.sendDueSoonEmail({
+            user_id: loan.student_id,
+            book_title: loan.book_title,
+            due_date: loan.due_date,
+            days_left: daysLeft
+          });
+          totalDueSoonEmails++;
+        } catch (err) {
+          console.error(`� [checkOverdues] Falha ao enviar email de devolução próxima para user ${loan.student_id}:`, err.message);
+        }
       }
     }
 
-    console.log(`🟢 [checkOverdues] Concluído. Notificações criadas: ${totalNotifications}. Emails enviados: ${totalEmails}.`);
+    console.log(`🟢 [checkOverdues] Concluído. Emails de devolução próxima enviados: ${totalDueSoonEmails}. Emails de atraso enviados: ${totalOverdueEmails}. Notificações criadas: ${totalNotifications}.`);
     process.exit(0);
   } catch (error) {
     console.error('🔴 [checkOverdues] Erro inesperado:', error.message);
