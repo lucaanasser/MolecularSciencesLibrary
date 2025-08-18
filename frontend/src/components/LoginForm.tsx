@@ -19,6 +19,7 @@ const LoginForm: React.FC = () => {
   console.log("🔵 [LoginForm] Renderizando formulário de login");
   const [matricula, setMatricula] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const { toast } = useToast();
@@ -127,12 +128,20 @@ const LoginForm: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <Label htmlFor="password">Senha</Label>
+                <button
+                  type="button"
+                  className="text-xs text-cm-purple hover:underline focus:outline-none ml-2"
+                  onClick={() => setShowPassword((v) => !v)}
+                  tabIndex={0}
+                >
+                  {showPassword ? "Ocultar" : "Mostrar"}
+                </button>
               </div>
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="rounded-xl"

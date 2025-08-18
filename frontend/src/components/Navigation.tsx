@@ -256,16 +256,6 @@ const Navigation: React.FC = () => {
                 Estante Virtual
               </Link>
               <Link
-                to="/ajude"
-                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (Ajude)");
-                }}
-              >
-                Ajude a Biblioteca
-              </Link>
-              <Link
                 to="/faq"
                 className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
                 onClick={() => {
@@ -300,7 +290,7 @@ const Navigation: React.FC = () => {
                     {user.role === "admin"
                       ? "Painel Admin"
                       : user.role === "proaluno"
-                      ? "Painel PróAluno"
+                      ? "Portal Pró Aluno"
                       : "Perfil"}
                   </button>
                   <button

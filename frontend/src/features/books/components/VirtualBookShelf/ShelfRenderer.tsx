@@ -95,15 +95,24 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
 
   const shelfBooks = getBooksForShelf(shelf, shelvesConfig, books).slice(0, maxBooks);
 
-  // Estado para controlar destaque passageiro
+  // Estado para controlar destaque fixo ao clicar
   const [highlightedBook, setHighlightedBook] = useState<string | null>(null);
 
-  // Ativa animação de pulso quando highlightCode muda
+  // Remove destaque ao clicar fora
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      // Se o clique não foi em um book-spine
+      if (!(e.target as HTMLElement).classList.contains('book-spine')) {
+        setHighlightedBook(null);
+      }
+    };
+    window.addEventListener('mousedown', handleClick);
+    return () => window.removeEventListener('mousedown', handleClick);
+  }, []);
+
   useEffect(() => {
     if (highlightCode) {
       setHighlightedBook(highlightCode);
-      const timeout = setTimeout(() => setHighlightedBook(null), 1800); // 1.8s
-      return () => clearTimeout(timeout);
     }
   }, [highlightCode]);
 
@@ -130,14 +139,16 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          className={`book-spine ${getBookColor(book)} cursor-pointer mb-1${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "pulse-highlight" : ""}`}
-                          onClick={() => onBookSelect(book)}
+                          className={`book-spine ${getBookColor(book)} cursor-pointer mb-1${isAdmin && editMode ? " relative z-0" : ""} ${highlightedBook === book.code ? "-translate-y-2" : ""}`}
+                          onClick={() => setHighlightedBook(book.code)}
+                          onMouseEnter={() => setHighlightedBook(null)}
                           title={book.title}
                           style={{
                             width: 16,
                             minWidth: 12,
                             height: 70,
                             maxWidth: 24,
+                            transition: 'transform 0.2s',
                           }}
                         ></div>
                       </TooltipTrigger>

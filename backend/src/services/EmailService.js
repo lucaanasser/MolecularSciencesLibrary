@@ -272,7 +272,7 @@ class EmailService {
                 <li>E muito mais!</li>
             </ul>
             <hr>
-            <p><strong>Para acessar sua conta, é necessário criar uma senha de acesso:</strong></p>
+            <p>Para acessar sua conta, é necessário criar uma senha de acesso. <strong>Atenção: Não use senhas sensíveis, pois estamos em uma versão teste e não garantimos a segurança dos dados.</strong></p>
             <p><a href="${resetUrl}" style="color: #b657b3; font-weight: bold;">Clique aqui para cadastrar sua senha</a></p>
             <p style="font-size: 13px; color: #555;">Este link expira em 24 horas. Caso tenha expirado use a função de: esqueci minha senha</p>
             <p>Se tiver alguma dúvida, não hesite em nos contactar.</p>
@@ -318,7 +318,7 @@ class EmailService {
             <div style="text-align: center;">
                 <img src="https://bibliotecamoleculares.com/images/email-images/password.png" alt="Carlos Magno esquecido" style="height: 350px; margin-bottom: 10px;" />
             </div>
-            <p>Para criar uma nova senha, clique no link abaixo:</p>
+            <p>Para criar uma nova senha, clique no link abaixo. <strong>Atenção: Não use senhas sensíveis, pois estamos em uma versão teste e não garantimos a segurança dos dados.</strong></p>
             <div style="text-align: center; margin: 20px 0;">
                 <a href="${resetUrl}" style="background: #b657b3; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 18px;">Redefinir minha senha</a>
             </div>
