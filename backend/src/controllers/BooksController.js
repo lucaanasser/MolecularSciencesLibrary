@@ -15,6 +15,26 @@ class BooksController {
     }
 
     /**
+     * Busca um livro pelo ID, delegando ao serviço
+     * @param {number} id - ID do livro
+     * @returns {Promise<Object>} Livro encontrado ou null
+     */
+    async getBookById(id) {
+        try {
+            console.log(`🔵 [BooksController] Buscando livro por id: ${id}`);
+            const book = await booksService.getBookById(id);
+            if (book) {
+                console.log("🟢 [BooksController] Livro encontrado:", book);
+            } else {
+                console.warn("🟡 [BooksController] Livro não encontrado para id:", id);
+            }
+            return book;
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao buscar livro:", error.message);
+            throw error;
+        }
+    }
+    /**
      * Adiciona um novo livro ou exemplar, delegando ao serviço
      * @param {Object} bookData - Dados do livro a ser adicionado
      * @returns {Promise<Object>} Resultado da operação
