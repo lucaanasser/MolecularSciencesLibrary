@@ -56,7 +56,7 @@ class EmailService {
             : `<span style="color: rgb(100, 17, 97);">Este é um email personalizado. Por favor, responda a esta mensagem se necessário.</span>`;
 
         return `
-            <div style="font-family: 'Roboto', Helvetica, Arial, sans-serif; background: #fffdf8; padding: 30px; max-width: 640px; margin: auto; overflow: hidden; border-radius: 12px; box-sizing: border-box;">
+            <div style="font-family: 'Roboto', Helvetica, Arial, sans-serif; background: #fffdf8; padding: 30px;">
             <style>
             @media only screen and (max-width: 600px) {
                 .email-container {
@@ -68,13 +68,13 @@ class EmailService {
                 }
             }
             </style>
-            <table class="email-container" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; border: 1px solid #6C4AB6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+            <table class="email-container" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; border: 1px solid #6C4AB6; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <tr>
             <td class="email-content-cell" style="padding: 30px;">
             <h2 style="color:#b657b3; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; font-size: 28px; margin-bottom: 20px; letter-spacing:-0.1em; text-transform: uppercase;">
             ${subject}
             </h2>
-            <div style="color: #333; font-size: 16px; line-height: 1.6; font-family: 'Segoe UI', 'Roboto', Arial, Helvetica, sans-serif; word-break: break-word;">
+            <div style="color: #333; font-size: 16px; line-height: 1.6; font-family: 'Segoe UI', 'Roboto', Arial, Helvetica, sans-serif;">
             ${content}
             </div>
             </td>
@@ -82,7 +82,7 @@ class EmailService {
             <tr>
             <td style="padding: 0 30px 30px 30px; background: #b657b3; border-radius: 0 0 8px 8px;">
             <div style="color: #fff; font-size: 14px; text-align: center; line-height: 1.5; font-family: 'Segoe UI', 'Roboto', Arial, Helvetica, sans-serif;">
-            <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 5px; max-width: 100%;" /><br>
+            <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 5px;" /><br>
             <b> Biblioteca Ciências Moleculares </b> <br>
             <a href="mailto:bibliotecamoleculares@gmail.com" style="color: #fff; text-decoration: none;">
             bibliotecamoleculares@gmail.com

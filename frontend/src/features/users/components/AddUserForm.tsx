@@ -27,9 +27,13 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name || !NUSP || !email || !phone || !userClass) {
+      alert("Preencha todos os campos obrigatórios, incluindo turma.");
+      return;
+    }
     try {
       console.log("🔵 [AddUserForm] Adicionando usuário:", name, NUSP, email, userClass);
-      await addUser({ name, email, NUSP: Number(NUSP), phone, class: userClass || undefined });
+      await addUser({ name, email, NUSP: Number(NUSP), phone, class: userClass });
       setName("");
       setNUSP("");
       setEmail("");
