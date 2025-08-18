@@ -29,7 +29,7 @@ const subareaCodes = {
         "Eletromagnetismo": 4,
         "Física Moderna": 5,
         "Física Matemática": 6, 
-        "Astronomia e Astrofísica": 7,
+        "Astrofísica": 7,
     },
     "Química": { 
         "Química Geral": 1, 
@@ -48,14 +48,22 @@ const subareaCodes = {
         "Botânica": 7,
     },
     "Matemática": { 
-        "Álgebra": 1,
-        "Cálculo": 2,
-        "Geometria": 3 
+        "Cálculo": 1,
+        "Geometria Analítica": 2,
+        "Álgebra Linear": 3,
+        "Análise": 4,
+        "Álgebra Abstrata": 5,
+        "Topologia e Geometria": 6,
+        "Lógica e Fundamentos": 7
     },
     "Computação": { 
-        "Algoritmos": 1,
-        "Estruturas de Dados": 2, 
-        "Teoria da Computação": 3 
+        "Fundamentos de Computação": 1,
+        "Algorítmos e Estruturas de Dados": 2,
+        "Análise Numérica": 3,
+        "Probabilidade e Estatística": 4, 
+        "Teoria da Computação": 5,
+        "Programação": 6,
+        "Sistemas e Redes": 7
     },
     "Variados": { 
         "Divulgação Científica": 1,
@@ -81,11 +89,12 @@ async function generateUniqueEAN13() {
     let ean;
     let exists = true;
     while (exists) {
-        const prefix = 978; // Número
-        const middle = Number(Date.now().toString().slice(-8)); // Número
-        const random = Math.floor(Math.random() * 10);
-        const base12 = Number(`${prefix}${middle.toString().padStart(8, '0')}${random}`);
-        const check = ean13Checksum(base12.toString().padStart(12, '0'));
+        // Gera 12 dígitos aleatórios
+        let base12 = '';
+        for (let i = 0; i < 12; i++) {
+            base12 += Math.floor(Math.random() * 10).toString();
+        }
+        const check = ean13Checksum(base12);
         ean = Number(`${base12}${check}`);
         exists = await booksModel.getBookById(ean);
     }
