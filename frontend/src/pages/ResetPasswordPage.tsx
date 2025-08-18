@@ -95,9 +95,9 @@ export default function ResetPasswordPage() {
                     aria-label={showNewPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showNewPassword ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10a9.96 9.96 0 012.122-6.125M15 12a3 3 0 11-6 0 3 3 0 016 0zm6.878-2.122A9.96 9.96 0 0122 9c0 5.523-4.477 10-10 10a10.05 10.05 0 01-1.875-.175" /></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm2.828-2.828A9.96 9.96 0 0122 12c0 5.523-4.477 10-10 10S2 17.523 2 12a9.96 9.96 0 012.828-2.828" /></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-7 0-11-7-11-7a20.13 20.13 0 0 1 5.06-6.06"/><path d="M1 1l22 22"/><circle cx="12" cy="12" r="3"/></svg>
                     )}
                   </button>
                 </div>
@@ -123,9 +123,9 @@ export default function ResetPasswordPage() {
                     aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showConfirmPassword ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10a9.96 9.96 0 012.122-6.125M15 12a3 3 0 11-6 0 3 3 0 016 0zm6.878-2.122A9.96 9.96 0 0122 9c0 5.523-4.477 10-10 10a10.05 10.05 0 01-1.875-.175" /></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm2.828-2.828A9.96 9.96 0 0122 12c0 5.523-4.477 10-10 10S2 17.523 2 12a9.96 9.96 0 012.828-2.828" /></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-7 0-11-7-11-7a20.13 20.13 0 0 1 5.06-6.06"/><path d="M1 1l22 22"/><circle cx="12" cy="12" r="3"/></svg>
                     )}
                   </button>
                 </div>
