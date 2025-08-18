@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BookOpen, Search, User, TrendingUp, Users, Clock, BookMarked } from "lucide-react";
+import { BookOpen, Search, User, TrendingUp, Users, Clock, BookMarked, Lightbulb } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
@@ -44,25 +44,25 @@ function StatsGrid({ stats }: { stats: StatsType }) {
       <div className="text-center">
         <div className="flex justify-center mb-6">
           <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <TrendingUp className="h-8 w-8 text-cm-bg" />
+            <Users className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
         <div className="text-4xl font-bold text-cm-bg mb-2">{stats.users == null ? '-' : users}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">usuários ativos</div>
+        <div className="text-xl text-cm-bg/90 mb-4">Usuários ativos</div>
         <div className="text-cm-bg/80 text-md">
-          facilitando o acesso aos recursos da biblioteca
+          Conectando leitores e promovendo o acesso ao conhecimento.
         </div>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
           <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <Users className="h-8 w-8 text-cm-bg" />
+            <Lightbulb className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
         <div className="text-4xl font-bold text-cm-bg mb-2">{stats.subareas == null ? '-' : subareas}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">áreas do conhecimento</div>
+        <div className="text-xl text-cm-bg/90 mb-4">Áreas do conhecimento</div>
         <div className="text-cm-bg/80 text-md">
-          promovendo a interdisciplinaridade e o aprendizado contínuo
+          Navegue pelas disciplinas e descubra conteúdos de diversas especialidades.
         </div>
       </div>
       <div className="text-center">
@@ -72,9 +72,9 @@ function StatsGrid({ stats }: { stats: StatsType }) {
           </div>
         </div>
         <div className="text-4xl font-bold text-cm-bg mb-2">{stats.books == null ? '-' : books}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">exemplares disponíveis</div>
+        <div className="text-xl text-cm-bg/90 mb-4">Exemplares disponíveis</div>
         <div className="text-cm-bg/80 text-md">
-          oferecendo uma vasta coleção de livros e recursos digitais
+          Encontre facilmente o livro que procura no nosso acervo organizado.
         </div>
       </div>
     </div>
@@ -203,29 +203,29 @@ const Index = () => {
 
       {/* About Section */}
       <div className="py-24 bg-cm-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
               <h2 className="text-4xl mb-6">
-                Ciências Moleculares para todos
+                Biblioteca: um espaço que cresce com você
               </h2>
               <p className="text-gray-600 mb-6 text-lg">
-                O Curso de Ciências Moleculares oferece interdisciplinaridade e inovação em uma comunidade de 
-                estudantes motivada a descobrir conexões entre os muitos saberes da ciência. 
+                A biblioteca é um lugar de encontros e descobertas. 
+                Aqui, cada livro, cada conversa e cada pesquisa ajudam a abrir caminhos para novas ideias e novas possibilidades.
               </p>
               <p className="text-gray-600 mb-8 text-lg">
-                Nossa biblioteca é um ponto de encontro do saber, onde alunos e professores podem 
-                explorar diferentes áreas do conhecimento.
+                Mas para que esse espaço continue vivo e acessível a todos, precisamos de cuidado coletivo. 
+                Apoiar a biblioteca é investir no futuro do conhecimento e na oportunidade de aprender juntos.
               </p>
-              <Button asChild className="bg-cm-orange hover:bg-cm-orange/90 rounded-2xl px-8 py-4 text-lg">
-                <Link to="/buscar">Explorar Acervo</Link>
+              <Button asChild className="bg-cm-purple hover:bg-cm-purple/90 rounded-2xl px-8 py-4 text-lg">
+                <Link to="/buscar">Ajude a biblioteca</Link>
               </Button>
             </div>
-            <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden">
+            <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-white">
               <img 
                 src="/images/prateleira.png" 
                 alt="Ciências Moleculares" 
-                className="object-cover w-full h-full"
+                className="object-contain w-full h-auto max-h-[28rem] md:max-h-[36rem]"
               />
             </div>
           </div>
@@ -241,7 +241,6 @@ const Index = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
             <h2 className="text-5xl text-cm-bg mb-4">A biblioteca em números</h2>
-            <p className="text-xl text-cm-bg/90">Resultados que transformam o aprendizado</p>
           </div>
           {loadingStats ? (
             <div className="text-center text-cm-bg text-xl">Carregando...</div>
@@ -261,11 +260,11 @@ const Index = () => {
             {/* Card 1 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
-                <BookOpen className="h-10 w-10 text-cm-bg" />
+                <Search className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Consulte o Acervo da Biblioteca</h3>
+              <h3 className="text-2xl mb-2">Encontre livros no acervo</h3>
               <p className="text-gray-600 mb-4 text-base">
-                Encontre rapidamente livros com a busca avançada, que permite filtrar por autor, título, área e mais.
+                Busque rapidamente por autor, título, tema ou área e descubra tudo o que a biblioteca oferece.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
@@ -276,11 +275,11 @@ const Index = () => {
             {/* Card 2 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
-                <Search className="h-10 w-10 text-cm-bg" />
+                <User className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Gerencie seus empréstimos</h3>
+              <h3 className="text-2xl mb-2">Acompanhe seus empréstimos</h3>
               <p className="text-gray-600 mb-4 text-base">
-                Acesse a "Área do Usuário" para verificar prazos de empréstimo e renovar livros com autonomia e praticidade.
+                Acesse sua área pessoal para renovar livros e consultar prazos de forma simples e rápida.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
@@ -291,11 +290,11 @@ const Index = () => {
             {/* Card 3 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green/90 border-8 border-cm-bg">
-                <User className="h-10 w-10 text-cm-bg" />
+                <BookOpen className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Explore a Estante Virtual</h3>
+              <h3 className="text-2xl mb-2">Explore a estante virtual</h3>
               <p className="text-gray-600 mb-4 text-base">
-                Navegue virtualmente por todo o acervo da biblioteca de uma forma visual.
+                Navegue pelo acervo de maneira visual e interativa, como se estivesse dentro da biblioteca.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>

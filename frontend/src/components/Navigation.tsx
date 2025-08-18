@@ -28,6 +28,9 @@ const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Exibe "Portal Pró-Aluno" sempre que o usuário for proaluno, independente da rota
+  const showProAlunoHeader = user?.role?.toLowerCase() === "proaluno";
+
 
   useEffect(() => {
     if (location.pathname === "/") {
@@ -38,7 +41,7 @@ const Navigation: React.FC = () => {
       window.addEventListener('scroll', handleScroll);
       return () => window.removeEventListener('scroll', handleScroll);
     } else {
-      setIsScrolled(false); // sempre roxo nas outras páginas
+      setIsScrolled(false); 
     }
   }, [location.pathname]);
 
@@ -138,6 +141,9 @@ const Navigation: React.FC = () => {
             <Link to="/faq" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               FAQ
             </Link>
+            {showProAlunoHeader && (
+              <Link to="/proaluno" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>Portal Pró-Aluno</Link>
+            )}
             {/*
             <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
               Ajude a Biblioteca
@@ -269,6 +275,18 @@ const Navigation: React.FC = () => {
               >
                 FAQ
               </Link>
+              {showProAlunoHeader && (
+                <Link
+                  to="/proaluno"
+                  className={`block px-3 py-2 rounded-md font-bold text-white ${hoverBg}`}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    console.log("🟢 [Navigation] Menu mobile fechado (Pró-Aluno)");
+                  }}
+                >
+                  Portal Pró-Aluno
+                </Link>
+              )}
               {user ? (
                 <>
                   <button
@@ -322,7 +340,7 @@ const Navigation: React.FC = () => {
               <hr className="w-[90%] mx-auto border-t border-white/30 mb-2 rounded" />
               <div className="w-[90%] flex justify-center items-center gap-3 mx-auto pb-4">
                 <img
-                  src="/images/LogoBrancoBiblioteca.png"
+                  src="/images/logobiblioteca.png"
                   alt="Logo da Biblioteca"
                   className="h-16 cursor-pointer"
                   style={{ maxWidth: '160px', width: 'auto' }}
