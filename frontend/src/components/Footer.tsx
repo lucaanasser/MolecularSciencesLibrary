@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
               className="h-20 mb-4"
             />
             <p className={textBaseClass}>
-              Site desenvolvido com muito amor e carinho por Luca Nasser e Helena Reis, Turma 33. 
+              Site desenvolvido com muito amor e carinho por Luca Marinho e Helena Reis, Turma 33. 
             </p>
             {/* Mobile: Links e Contato lado a lado */}
             <div className="grid grid-cols-[1fr_1fr] md:grid-cols-[0.5fr_1fr] gap-4 mt-6 md:hidden">

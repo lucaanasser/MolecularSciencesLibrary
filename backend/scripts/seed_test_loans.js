@@ -12,7 +12,7 @@ const sqlite3 = require('sqlite3');
 const path = require('path');
 const bcrypt = require('bcrypt');
 
-const dbPath = process.env.DATABASE_URL?.replace('sqlite://','') || '/root/MolecularSciencesLibrary/database/library.db';
+const dbPath = process.env.DATABASE_URL?.replace('sqlite://','') || path.resolve(__dirname, '../../database/library.db');
 const db = new sqlite3.Database(dbPath);
 
 const USER_DATA = {
@@ -47,21 +47,20 @@ function getRandomBooks(callback) {
 }
 
 function getRules(callback) {
-  db.get(`SELECT max_renewals, renewal_days, extension_window_days, extension_block_multiplier FROM rules WHERE id = 1`, [], (err, row) => {
-    if (err) return callback(err);
-    if (!row) return callback(new Error('Regras não encontradas.'));
-    callback(null, row);
-  });
+db.get(`SELECT max_renewals, renewal_days FROM rules WHERE id = 1`, [], (err, row) => {
+  if (err) return callback(err);
+  if (!row) return callback(new Error('Regras não encontradas.'));
+  callback(null, row);
+});
 }
 
 function seedLoans(userId, bookIds, rules, callback) {
-  const [bookOverdue, book1hBeforeOverdue, bookPending1h, bookExtended] = bookIds;
-  const { max_renewals, renewal_days, extension_window_days, extension_block_multiplier } = rules;
-  const blockDays = renewal_days * extension_block_multiplier;
+  const [bookOverdue, bookLastRenewal, bookExtended, bookUnused] = bookIds;
+  const { max_renewals, renewal_days } = rules;
 
   db.serialize(() => {
     // Limpa empréstimos anteriores desses livros
-    db.run(`DELETE FROM loans WHERE book_id IN (?,?,?,?)`, bookIds, (delErr) => {
+    db.run(`DELETE FROM loans WHERE book_id IN (?,?,?)`, [bookOverdue, bookLastRenewal, bookExtended], (delErr) => {
       if (delErr) return callback(delErr);
 
       // 1) Atrasado: due_date 5 dias atrás, borrowed_at 20 dias atrás, renovações abaixo do máximo
@@ -72,32 +71,22 @@ function seedLoans(userId, bookIds, rules, callback) {
         (e1) => {
           if (e1) return callback(e1);
 
-          // 2) Faltando 1 hora para atraso: due_date em +1 hora, renovações no máximo, não estendido
+          // 2) Última renovação: due_date em +1 hora, renovações no máximo, não estendido
           db.run(
             `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
              VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+1 hours'), 0)`,
-            [book1hBeforeOverdue, userId, max_renewals || 0],
+            [bookLastRenewal, userId, max_renewals || 0],
             (e2) => {
               if (e2) return callback(e2);
 
-              // 3) Extensão PENDENTE faltando 1h para completar a janela: pending=1, requested_at = now - windowDays + 1h
+              // 3) Já estendido: is_extended=1, due_date futuro (renovação + 10 dias)
               db.run(
                 `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
-                 VALUES (?,?, datetime('now','-30 days'), ?, datetime('now','+2 days'), 0)`,
-                [bookPending1h, userId, max_renewals || 0, extension_window_days || 3],
+                 VALUES (?,?, datetime('now','-30 days'), ?, datetime('now', '+'|| ? ||' days'), 1)`,
+                [bookExtended, userId, max_renewals || 0, renewal_days + 10],
                 (e3) => {
                   if (e3) return callback(e3);
-
-                  // 4) Já estendido: extended_phase=1, due_date futuro (bloco + 10 dias para sobrar)
-                  db.run(
-                    `INSERT INTO loans (book_id, student_id, borrowed_at, renewals, due_date, is_extended)
-                     VALUES (?,?, datetime('now','-30 days'), ?, datetime('now', '+'|| ? ||' days'), 1)`,
-                    [bookExtended, userId, max_renewals || 0, blockDays + 10],
-                    (e4) => {
-                      if (e4) return callback(e4);
-                      callback(null, { bookOverdue, book1hBeforeOverdue, bookPending1h, bookExtended });
-                    }
-                  );
+                  callback(null, { bookOverdue, bookLastRenewal, bookExtended });
                 }
               );
             }

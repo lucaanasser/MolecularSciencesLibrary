@@ -2,7 +2,6 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BookSearch from "@/features/books/components/BookSearchPanel";
 
-// Log de início de renderização da página de busca
 console.log("🔵 [SearchPage] Renderizando página de busca de livros");
 
 const SearchPage = () => {
