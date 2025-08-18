@@ -29,7 +29,7 @@ const subareaCodes = {
         "Eletromagnetismo": 4,
         "Física Moderna": 5,
         "Física Matemática": 6, 
-        "Astrofísica": 7,
+        "Astronomia e Astrofísica": 7,
     },
     "Química": { 
         "Química Geral": 1, 

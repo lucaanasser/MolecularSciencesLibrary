@@ -143,7 +143,9 @@ const Index = () => {
         // Conta subáreas únicas
         const subareasSet = new Set();
         books.forEach(b => {
-          if (b.subarea !== undefined && b.subarea !== null) subareasSet.add(b.subarea);
+          if (b.area && b.subarea !== undefined && b.subarea !== null) {
+            subareasSet.add(`${b.area}-${b.subarea}`);
+          }
         });
         setStats({
           users: users.length,
