@@ -95,9 +95,9 @@ export default function ResetPasswordPage() {
                     aria-label={showNewPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showNewPassword ? (
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C3.5 7 8.5 4 12 4s8.5 3 11 8c-2.5 5-7.5 8-11 8s-8.5-3-11-8z"/><circle cx="12" cy="12" r="3"/><path d="M4 4L2 2"/><path d="M20 4l2-2"/><path d="M4 20l-2 2"/><path d="M20 20l2 2"/></svg>
                     ) : (
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-7 0-11-7-11-7a20.13 20.13 0 0 1 5.06-6.06"/><path d="M1 1l22 22"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C3.5 7 8.5 4 12 4s8.5 3 11 8c-2.5 5-7.5 8-11 8s-8.5-3-11-8z"/><circle cx="12" cy="12" r="3"/><path d="M4 4L2 2"/><path d="M20 4l2-2"/><path d="M4 20l-2 2"/><path d="M20 20l2 2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
                     )}
                   </button>
                 </div>
@@ -123,9 +123,9 @@ export default function ResetPasswordPage() {
                     aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showConfirmPassword ? (
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C3.5 7 8.5 4 12 4s8.5 3 11 8c-2.5 5-7.5 8-11 8s-8.5-3-11-8z"/><circle cx="12" cy="12" r="3"/><path d="M4 4L2 2"/><path d="M20 4l2-2"/><path d="M4 20l-2 2"/><path d="M20 20l2 2"/></svg>
                     ) : (
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-7 0-11-7-11-7a20.13 20.13 0 0 1 5.06-6.06"/><path d="M1 1l22 22"/><circle cx="12" cy="12" r="3"/></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C3.5 7 8.5 4 12 4s8.5 3 11 8c-2.5 5-7.5 8-11 8s-8.5-3-11-8z"/><circle cx="12" cy="12" r="3"/><path d="M4 4L2 2"/><path d="M20 4l2-2"/><path d="M4 20l-2 2"/><path d="M20 20l2 2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
                     )}
                   </button>
                 </div>
