@@ -214,9 +214,9 @@ class BooksService {
                     overdue = dueDate < now;
                 }
                 let status = "disponível";
-                if (book.is_reserved === 1) status = "reserva didática";
-                else if (loan && overdue) status = "atrasado";
+                if (loan && overdue) status = "atrasado";
                 else if (loan) status = "emprestado";
+                else if (book.is_reserved === 1) status = "reserva didática";
                 let due_in_window = false;
                 const is_extended = loan?.is_extended === 1;
                 if (loan && loan.due_date && !overdue) {
