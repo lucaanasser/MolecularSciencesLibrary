@@ -26,10 +26,6 @@ module.exports = {
             [
                 `INSERT INTO loans (book_id, student_id, due_date, renewals) VALUES (?, ?, ?, 0)`,
                 [book_id, student_id, dueDateSql]
-            ],
-            [
-                `UPDATE books SET is_reserved = 1 WHERE id = ?`,
-                [book_id]
             ]
         ];
         try {

@@ -176,7 +176,7 @@ class BooksService {
                 title,
                 subtitle,
                 volume: volume && volume !== "null" ? parseInt(volume, 10) : null,
-                is_reserved: bookData.is_reserved || 0
+                is_reserved: 0 
             };
 
             const result = await booksModel.insertBook(bookToInsert);
@@ -267,6 +267,13 @@ class BooksService {
     async borrowBook(bookId, studentId) {
         try {
             console.log(`🔵 [BooksService] Emprestando livro bookId=${bookId} para studentId=${studentId}`);
+            // Busca o livro para verificar se é reserva didática
+            const book = await booksModel.getBookById(bookId);
+            if (book && book.is_reserved === 1) {
+                const msg = `Livro ${bookId} está marcado como reserva didática e não pode ser emprestado.`;
+                console.warn(`🟡 [BooksService] ${msg}`);
+                throw new Error(msg);
+            }
             const result = await booksModel.borrowBook(bookId, studentId);
             console.log(`🟢 [BooksService] Livro emprestado com sucesso: bookId=${bookId}, studentId=${studentId}`);
             return result;
