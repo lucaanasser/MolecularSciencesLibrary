@@ -50,7 +50,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
       case "QUI": return "bg-cm-yellow";
       case "MAT": return "bg-cm-red";
       case "FIS": return "bg-cm-orange";
-      case "COMP": return "bg-cm-blue";
+      case "CMP": return "bg-cm-blue";
       case "VAR": return "bg-cm-purple";
       default: return "bg-gray-200";
     }
@@ -162,7 +162,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
         ) : (
           <>
             {/* Livros */}
-            <div className="flex items-end w-full" style={{zIndex:2, flex: 1}}>
+            <div className="flex items-end justify-center w-full" style={{zIndex:2, flex: 1}}>
               {shelfBooks.length > 0 ? (
                 shelfBooks.map((book) => (
                   <TooltipProvider key={book.id} delayDuration={100}>
