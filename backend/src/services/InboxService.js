@@ -1,6 +1,5 @@
 const fs = require('fs');
 const imaps = require('imap-simple');
-const { simpleParser } = require('mailparser');
 
 const config = {
   imap: {
@@ -34,13 +33,20 @@ async function fetchInbox(limit = 20) {
       const subject = all && all.body.subject ? all.body.subject[0] : '';
       const from = all && all.body.from ? all.body.from[0] : '';
       const date = all && all.body.date ? all.body.date[0] : '';
-      // Parse body
+      // Parse body (best-effort without external parser)
       let body = '';
       try {
         const raw = item.parts.find((part) => part.which === 'TEXT');
         if (raw && raw.body) {
-          const parsed = await simpleParser(raw.body);
-          body = parsed.text || '';
+          if (typeof raw.body === 'string') {
+            body = raw.body;
+          } else if (Buffer.isBuffer(raw.body)) {
+            body = raw.body.toString('utf8');
+          } else if (raw.body.data) { // some imap libs return { data: string }
+            body = typeof raw.body.data === 'string' ? raw.body.data : String(raw.body.data);
+          } else {
+            body = String(raw.body);
+          }
         }
       } catch (e) {}
       return { id, subject, from, date, body };
