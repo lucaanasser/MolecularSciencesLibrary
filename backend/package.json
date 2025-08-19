@@ -23,7 +23,7 @@
     "pdf-lib": "^1.17.1",
     "sqlite3": "^5.1.7",
     "imap-simple": "^5.1.0",
-    "mailparser": "^3.9.0"
+    "mailparser": "^3.8.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
