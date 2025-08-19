@@ -113,11 +113,12 @@ class BooksService {
             return selectedBook.code;
         }
 
-        // NOVO VOLUME: substitui o volume no código base por v{volume}
+        // NOVO VOLUME: substitui o volume no código base por v.{volume}
         if (addType === "volume" && selectedBook && selectedBook.code) {
             let baseCode = selectedBook.code;
-            baseCode = baseCode.replace(/[\s\-]?v\d+$/i, "");
-            const newCode = `${baseCode}-v${parseInt(volume, 10)}`;
+            // remove sufixo de volume em formatos "-v1", " v1" ou " v.1"
+            baseCode = baseCode.replace(/[\s-]?v\.?\d+$/i, "");
+            const newCode = `${baseCode} v.${parseInt(volume, 10)}`;
             console.log("🟡 [BooksService] Novo volume, código gerado:", newCode);
             return newCode;
         }
@@ -134,7 +135,7 @@ class BooksService {
         }
         const baseCode = `${areaCode}-${subareaCode}.${seq}`;
         if (volume && parseInt(volume, 10) !== 0 && volume !== "null") {
-            const code = `${baseCode}-v${parseInt(volume, 10)}`;
+            const code = `${baseCode} v.${parseInt(volume, 10)}`;
             console.log("🟢 [BooksService] Código de livro com volume gerado:", code);
             return code;
         } else {

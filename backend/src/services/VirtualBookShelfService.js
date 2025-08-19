@@ -101,8 +101,8 @@ class VirtualBookShelfService {
 
     /**
      * Calcula o código anterior a um dado código
-     * Ex: "BIO-03.05-v1" -> "BIO-03.04-v1"
-     * Ex: "BIO-03.01-v1" -> "BIO-02.99-v1"
+     * Ex: "BIO-03.05 v.1" -> "BIO-03.04 v.1"
+     * Ex: "BIO-03.01 v.1" -> "BIO-02.99 v.1"
      */
     getPreviousCode(code) {
         try {
@@ -113,19 +113,19 @@ class VirtualBookShelfService {
             if (parsed.sequential > 1) {
                 // Decrementa o sequencial
                 const previousSeq = (parsed.sequential - 1).toString().padStart(2, '0');
-                const volumePart = parsed.volume > 0 ? `-v${parsed.volume}` : '';
+                const volumePart = parsed.volume > 0 ? ` v.${parsed.volume}` : '';
                 return `${parsed.area}-${parsed.subarea.toString().padStart(2, '0')}.${previousSeq}${volumePart}`;
             } else if (parsed.subarea > 1) {
                 // Se sequencial é 1, vai para subárea anterior com sequencial 99
                 const previousSubarea = (parsed.subarea - 1).toString().padStart(2, '0');
-                const volumePart = parsed.volume > 0 ? `-v${parsed.volume}` : '';
+                const volumePart = parsed.volume > 0 ? ` v.${parsed.volume}` : '';
                 return `${parsed.area}-${previousSubarea}.99${volumePart}`;
             } else {
                 // Se também é subárea 1, vai para área anterior
                 const areaIndex = VirtualBookShelfService.AREA_ORDER.indexOf(parsed.area);
                 if (areaIndex > 0) {
                     const previousArea = VirtualBookShelfService.AREA_ORDER[areaIndex - 1];
-                    const volumePart = parsed.volume > 0 ? `-v${parsed.volume}` : '';
+                    const volumePart = parsed.volume > 0 ? ` v.${parsed.volume}` : '';
                     return `${previousArea}-99.99${volumePart}`;
                 }
             }
@@ -241,7 +241,7 @@ class VirtualBookShelfService {
     }
 
     /**
-     * Compara dois códigos de livros no formato BIO-03.02-v1
+     * Compara dois códigos de livros no formato BIO-03.02 v.1
      * Retorna -1 se a < b, 1 se a > b, 0 se iguais
      */
     compareBookCodes(codeA, codeB) {
@@ -272,7 +272,8 @@ class VirtualBookShelfService {
 
     /**
      * Converte um código de livro em suas partes componentes
-     * Ex: "BIO-03.02-v1" -> {area: "BIO", subarea: 3, sequential: 2, volume: 1}
+     * Aceita formatos como "BIO-03.02 v.1" e o formato antigo "BIO-03.02-v1"
+     * Ex: "BIO-03.02 v.1" -> {area: "BIO", subarea: 3, sequential: 2, volume: 1}
      */
     parseBookCode(code) {
         try {
@@ -280,33 +281,54 @@ class VirtualBookShelfService {
                 return { area: '', subarea: 0, sequential: 0, volume: 0 };
             }
 
-            // Dividir por volume: "BIO-03.02-v1" -> ["BIO-03.02", "v1"]
-            const parts = code.split('-v');
-            const mainPart = parts[0]; // "BIO-03.02"
-            const volumePart = parts[1]; // "1" (ou undefined)
+            const normalized = String(code).trim().replace(/\s+/g, ' ');
 
-            // Extrair área e subárea.sequencial: "BIO-03.02" -> ["BIO", "03.02"]
-            const mainParts = mainPart.split('-');
-            if (mainParts.length < 2) {
-                return { area: mainPart, subarea: 0, sequential: 0, volume: 0 };
+            // Extrair área, subárea e sequencial
+            // Ex.: BIO-03.02 v.1 | BIO-03.02-v1
+            const mainMatch = normalized.match(/^([A-Za-z]{3})-(\d{2})\.(\d{2})/);
+            if (!mainMatch) {
+                // fallback simples: tentar dividir por '-' e '.' como antes
+                const parts = normalized.split('-v');
+                const mainPart = parts[0] || normalized;
+                const mainParts = mainPart.split('-');
+                if (mainParts.length < 2) {
+                    return { area: mainPart, subarea: 0, sequential: 0, volume: 0 };
+                }
+                const area = mainParts[0];
+                const subareaSeq = mainParts[1];
+                const subareaSeqParts = subareaSeq.split('.');
+                const subarea = parseInt(subareaSeqParts[0], 10) || 0;
+                const sequential = parseInt(subareaSeqParts[1], 10) || 0;
+                // Extrair volume pelo padrão com espaço/hífen e com/sem ponto após 'v'
+                const volFallback = normalized.match(/(?:^|[\s-])v\.?([0-9]+)\s*$/i);
+                const volume = volFallback ? parseInt(volFallback[1], 10) || 0 : 0;
+                return { area, subarea, sequential, volume };
             }
 
-            const area = mainParts[0]; // "BIO"
-            const subareaSeq = mainParts[1]; // "03.02"
+            const area = mainMatch[1].toUpperCase();
+            const subarea = parseInt(mainMatch[2], 10) || 0;
+            const sequential = parseInt(mainMatch[3], 10) || 0;
 
-            // Dividir subárea e sequencial: "03.02" -> ["03", "02"]
-            const subareaSeqParts = subareaSeq.split('.');
-            const subarea = parseInt(subareaSeqParts[0], 10) || 0; // 3
-            const sequential = parseInt(subareaSeqParts[1], 10) || 0; // 2
-
-            // Extrair volume
-            const volume = volumePart ? parseInt(volumePart, 10) || 0 : 0; // 1
+            // Extrair volume: aceita " v.1", "-v1", " v1", "-v.1"
+            const volMatch = normalized.match(/(?:^|[\s-])v\.?([0-9]+)\s*$/i);
+            const volume = volMatch ? parseInt(volMatch[1], 10) || 0 : 0;
 
             return { area, subarea, sequential, volume };
         } catch (error) {
             console.warn(`🟡 [VirtualBookShelfService] Erro ao parsear código ${code}:`, error.message);
             return { area: '', subarea: 0, sequential: 0, volume: 0 };
         }
+    }
+
+    /**
+     * Retorna uma representação canônica (para comparação) independente do formato de exibição
+     * Ex.: BIO-03.02 v.1 | BIO-03.02-v1 -> BIO-03.02-v1
+     */
+    formatComparableCode(code) {
+        const { area, subarea, sequential, volume } = this.parseBookCode(code);
+        if (!area) return '';
+        const vol = volume > 0 ? `-v${volume}` : '';
+        return `${area}-${subarea.toString().padStart(2, '0')}.${sequential.toString().padStart(2, '0')}${vol}`;
     }
 
     /**
@@ -356,7 +378,7 @@ class VirtualBookShelfService {
 
     /**
      * Verifica se um código está dentro do range especificado
-     * Usa comparação correta considerando a estrutura BIO-03.02-v1
+     * Usa comparação correta considerando a estrutura BIO-03.02 v.1
      */
     isCodeInRange(bookCode, startCode, endCode) {
         const compareWithStart = this.compareBookCodes(bookCode, startCode);
@@ -373,7 +395,8 @@ class VirtualBookShelfService {
         console.log(`🔵 [VirtualBookShelfService] Validando código de livro: ${bookCode}`);
         try {
             const books = await BooksModel.getAll();
-            const book = books.find(b => b.code === bookCode);
+            const target = this.formatComparableCode(bookCode);
+            const book = books.find(b => this.formatComparableCode(b.code) === target);
             
             const isValid = !!book;
             console.log(`🟢 [VirtualBookShelfService] Código ${bookCode} é ${isValid ? 'válido' : 'inválido'}`);

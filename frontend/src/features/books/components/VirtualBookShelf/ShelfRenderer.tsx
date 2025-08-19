@@ -56,12 +56,42 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
     }
   };
 
+  // Parsing e comparação de códigos (compatível com "BIO-03.02 v.1" e "BIO-03.02-v1")
+  const parseBookCode = (code: string) => {
+    if (!code) return { area: '', sub: 0, seq: 0, vol: 0 };
+    const normalized = String(code).trim().replace(/\s+/g, ' ');
+    const mainMatch = normalized.match(/^([A-Za-z]{3})-(\d{2})\.(\d{2})/);
+    if (!mainMatch) return { area: normalized, sub: 0, seq: 0, vol: 0 };
+    const area = mainMatch[1].toUpperCase();
+    const sub = parseInt(mainMatch[2], 10) || 0;
+    const seq = parseInt(mainMatch[3], 10) || 0;
+    const volMatch = normalized.match(/(?:^|[\s-])v\.?([0-9]+)\s*$/i);
+    const vol = volMatch ? parseInt(volMatch[1], 10) || 0 : 0;
+    return { area, sub, seq, vol };
+  };
+
+  const compareBookCodes = (a: string, b: string) => {
+    const A = parseBookCode(a);
+    const B = parseBookCode(b);
+    const areaOrder = ['BIO','QUI','FIS','MAT','CMP','VAR'];
+    const ia = areaOrder.indexOf(A.area);
+    const ib = areaOrder.indexOf(B.area);
+    if (ia !== ib) return ia - ib;
+    if (A.sub !== B.sub) return A.sub - B.sub;
+    if (A.seq !== B.seq) return A.seq - B.seq;
+    return A.vol - B.vol;
+  };
+
+  const isCodeInRange = (code: string, start: string, end: string) => {
+    return compareBookCodes(code, start) >= 0 && compareBookCodes(code, end) <= 0;
+  };
+
   // Sempre determina os livros da prateleira usando book_code_start e book_code_end definidos manualmente
   const getBooksForShelf = (shelf: VirtualShelf, _allShelves: VirtualShelf[], books: any[]) => {
     if (!shelf.book_code_start || !shelf.book_code_end) return [];
     const startCode = shelf.book_code_start;
     const endCode = shelf.book_code_end;
-    return books.filter(book => book.code >= startCode && book.code <= endCode);
+    return books.filter(book => isCodeInRange(book.code, startCode, endCode));
   };
 
   // Função auxiliar para calcular código anterior (similar ao backend)
