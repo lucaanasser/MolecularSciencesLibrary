@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface NudgeButtonProps {
   book: any;
@@ -17,13 +18,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
     setNudgeTimestamp(localStorage.getItem(`nudge_${book.id}`));
   }, [book.id]);
 
-  const currentUser = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("currentUser") || '{}');
-    } catch {
-      return null;
-    }
-  })();
+  const currentUser = useCurrentUser();
   const isOwner = currentUser && book.student_id && currentUser.id === book.student_id;
 
   const canNudge = () => {
@@ -38,8 +33,16 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
     setNudgeError("");
     setNudgeSuccess("");
     try {
-      if (!currentUser || !currentUser.id) throw new Error("Entre para cutucar");
-      if (isOwner) throw new Error("Você não pode cutucar a si mesmo");
+      if (!currentUser || !currentUser.id) {
+        setNudgeError("Entre para cutucar");
+        setNudgeLoading(false);
+        return;
+      }
+      if (isOwner) {
+        setNudgeError("Você não pode cutucar a si mesmo");
+        setNudgeLoading(false);
+        return;
+      }
       const token = localStorage.getItem("token");
       const requester_name = currentUser?.name || undefined;
       const res = await fetch("/api/notifications", {
@@ -74,7 +77,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
     }
   };
 
-  const disabled = !canNudge() || nudgeLoading;
+  const disabled = !canNudge() || nudgeLoading || !currentUser;
   return (
     <div className="flex flex-col items-end">
       <button

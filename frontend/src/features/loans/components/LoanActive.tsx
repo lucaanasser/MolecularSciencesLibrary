@@ -142,14 +142,18 @@ export default function LoanActive({ userId }: LoanActiveProps) {
           </DialogHeader>
           {pendingRenew && dialogTitle.startsWith("Confirmação de renovação") && (
             <div className="flex gap-2 mt-4">
-              <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={handleConfirmRenew} disabled={renewLoading === pendingRenew.loan.loan_id}>Confirmar renovação</button>
-              <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => { setPendingRenew(null); setDialogOpen(false); }}>Cancelar</button>
+              <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={handleConfirmRenew} disabled={renewLoading === pendingRenew.loan.loan_id}>
+                {renewLoading === pendingRenew.loan.loan_id ? "Confirmando..." : "Confirmar renovação"}
+              </button>
+              <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => { setPendingRenew(null); setDialogOpen(false); }} disabled={renewLoading === pendingRenew.loan.loan_id}>Cancelar</button>
             </div>
           )}
           {pendingExtend && dialogTitle.startsWith("Solicitar extensão") && (
             <div className="flex gap-2 mt-4">
-              <button className="bg-cm-orange text-white px-3 py-1 rounded" onClick={handleConfirmExtend} disabled={extendLoading === pendingExtend.loan.loan_id}>Confirmar extensão</button>
-              <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => { setPendingExtend(null); setDialogOpen(false); }}>Cancelar</button>
+              <button className="bg-cm-orange text-white px-3 py-1 rounded" onClick={handleConfirmExtend} disabled={extendLoading === pendingExtend.loan.loan_id}>
+                {extendLoading === pendingExtend.loan.loan_id ? "Confirmando..." : "Confirmar extensão"}
+              </button>
+              <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => { setPendingExtend(null); setDialogOpen(false); }} disabled={extendLoading === pendingExtend.loan.loan_id}>Cancelar</button>
             </div>
           )}
         </DialogContent>

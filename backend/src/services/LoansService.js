@@ -303,6 +303,14 @@ class LoansService {
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         await LoansModel.extendLoanBlock(loan_id, addedDays);
         const updated = await LoansModel.getLoanById(loan_id);
+        // Envia email de confirmação de extensão
+        if (updated) {
+            await EmailService.sendExtensionConfirmationEmail({
+                user_id,
+                book_title: updated.book_title,
+                due_date: updated.due_date
+            });
+        }
         return { message: 'Empréstimo estendido com sucesso.', due_date: updated?.due_date };
     }
 
