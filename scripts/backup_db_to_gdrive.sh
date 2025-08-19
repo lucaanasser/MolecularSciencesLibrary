@@ -36,8 +36,21 @@ cp "$DB_PATH" "$BACKUP_DIR/$BACKUP_FILE"
 # Envia para o Google Drive usando rclone (para a subpasta)
 rclone --config "$RCLONE_CONF" -vv copy "$BACKUP_DIR/$BACKUP_FILE" "$TARGET_DIR" --timeout=120s
 
-# Remove o arquivo de backup local
+
+# Remove o arquivo de backup local recém-criado
 rm -f "$BACKUP_DIR/$BACKUP_FILE"
+
+# Mantém apenas os 7 backups locais mais recentes
+echo "[backup] Mantendo apenas os 7 backups locais mais recentes..."
+LOCAL_BACKUPS=$(ls -1t "$BACKUP_DIR"/library_*.db 2>/dev/null)
+COUNT=0
+for file in $LOCAL_BACKUPS; do
+  COUNT=$((COUNT+1))
+  if [ $COUNT -gt 7 ]; then
+    echo "[backup] Removendo backup local antigo: $file"
+    rm -f "$file"
+  fi
+done
 
 echo "[backup] Backup enviado para '$BACKUP_FOLDER_NAME' com sucesso!"
 
