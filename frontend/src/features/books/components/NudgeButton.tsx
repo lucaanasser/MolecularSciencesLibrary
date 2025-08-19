@@ -19,7 +19,22 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
   }, [book.id]);
 
   const currentUser = useCurrentUser();
-  const isOwner = currentUser && book.student_id && currentUser.id === book.student_id;
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+  const tokenPayload = (() => {
+    try {
+      if (!token) return null;
+      const [, payload] = token.split(".");
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
+  })();
+
+  const requesterId = currentUser?.id ?? tokenPayload?.id;
+  const requesterName = currentUser?.name ?? tokenPayload?.name;
+
+  const isOwner = !!(book?.student_id && requesterId && Number(requesterId) === Number(book.student_id));
 
   const canNudge = () => {
     if (isOwner) return false;
@@ -33,23 +48,19 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
     setNudgeError("");
     setNudgeSuccess("");
     try {
-      if (!currentUser || !currentUser.id) {
+      if (!token) {
         setNudgeError("Entre para cutucar");
-        setNudgeLoading(false);
         return;
       }
       if (isOwner) {
         setNudgeError("Você não pode cutucar a si mesmo");
-        setNudgeLoading(false);
         return;
       }
-      const token = localStorage.getItem("token");
-      const requester_name = currentUser?.name || undefined;
       const res = await fetch("/api/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           user_id: book.student_id,
@@ -61,9 +72,9 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
             book_title: book.title,
             book_id: book.id,
             loan_id: book.loan_id,
-            requester_name
-          }
-        })
+            requester_name: requesterName,
+          },
+        }),
       });
       if (!res.ok) throw new Error("Erro ao cutucar usuário");
       const nowIso = new Date().toISOString();
@@ -77,7 +88,8 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
     }
   };
 
-  const disabled = !canNudge() || nudgeLoading || !currentUser;
+  const disabled = !canNudge() || nudgeLoading || (!currentUser && !token);
+
   return (
     <div className="flex flex-col items-end">
       <button
@@ -86,7 +98,7 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
         disabled={disabled}
         onClick={handleNudge}
         type="button"
-        title={!currentUser ? 'Entre para cutucar' : disabled ? 'Já cutucado, aguarde' : 'Cutucar'}
+        title={!currentUser && !token ? 'Entre para cutucar' : disabled ? 'Já cutucado, aguarde' : 'Cutucar'}
       >
         <span className="flex items-center justify-start pl-2 w-full h-full">
           <svg
