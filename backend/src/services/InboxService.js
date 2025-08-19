@@ -11,7 +11,7 @@ const config = {
     authTimeout: 10000,
     tlsOptions: {
       rejectUnauthorized: false,
-      checkServerIdentity: () => undefined // Bypass hostname verification for Gmail
+      checkServerIdentity: () => undefined 
     }
   },
 };

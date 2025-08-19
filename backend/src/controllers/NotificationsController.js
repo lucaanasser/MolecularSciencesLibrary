@@ -1,6 +1,7 @@
 const notificationsService = require('../services/NotificationsService');
 const emailService = require('../services/EmailService');
 const LoansService = require('../services/LoansService');
+const LoansModel = require('../models/LoansModel');
 
 /**
  * Controller responsável pelas notificações.
@@ -28,27 +29,42 @@ class NotificationsController {
             // Cria a notificação interna
             const id = await notificationsService.notifyUser({ user_id, type, message, metadata, loan_id });
 
-            // Se for um nudge e tiver loan_id, aplica o impacto de redução se necessário
+            // Se for um nudge e tiver loan_id, decide o tipo e aplica impacto quando necessário
+            let nudgeHandledByExtensionFlow = false;
             if (type === 'nudge' && loan_id) {
                 try {
-                    await LoansService.applyNudgeImpactIfNeeded(loan_id);
+                    const loan = await LoansModel.getLoanById(loan_id);
+                    if (loan && !loan.returned_at && loan.is_extended === 1) {
+                        // Reduz o prazo (se aplicável) e envia email específico de extensão
+                        const impact = await LoansService.applyNudgeImpactIfNeeded(loan_id).catch(() => null);
+                        const newDue = (impact && impact.new_due_date) ? impact.new_due_date : (loan && loan.due_date);
+                        if (sendEmail) {
+                            await emailService.sendExtensionNudgeEmail({
+                                user_id,
+                                book_title: metadata?.book_title || loan.book_title,
+                                new_due_date: newDue
+                            });
+                        }
+                        nudgeHandledByExtensionFlow = true;
+                    }
                 } catch (e) {
-                    console.warn('🟡 [NotificationsController] Falha ao aplicar impacto de nudge:', e.message);
+                    console.warn('🟡 [NotificationsController] Falha ao processar nudge de extensão:', e.message);
                 }
             }
 
-            // Se deve enviar email, usa o EmailService
+            // Envio de email
             if (sendEmail) {
                 try {
                     if (type === 'nudge') {
-                        // Para nudge, envia o email de cutucada específico
-                        // Espera-se que metadata tenha requester_name e book_title
-                        await emailService.sendNudgeEmail({
-                            user_id,
-                            requester_name: metadata?.requester_name,
-                            book_title: metadata?.book_title
-                        });
-                        console.log(`🟢 [NotificationsController] Email de nudge enviado para usuário ${user_id}`);
+                        if (!nudgeHandledByExtensionFlow) {
+                            // Caso não seja um empréstimo estendido, usa o email genérico de nudge
+                            await emailService.sendNudgeEmail({
+                                user_id,
+                                requester_name: metadata?.requester_name,
+                                book_title: metadata?.book_title
+                            });
+                            console.log(`🟢 [NotificationsController] Email de nudge (genérico) enviado para usuário ${user_id}`);
+                        }
                     } else {
                         await emailService.sendNotificationEmail({ user_id, type, message, subject });
                         console.log(`🟢 [NotificationsController] Email de notificação enviado para usuário ${user_id}`);

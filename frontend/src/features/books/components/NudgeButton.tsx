@@ -56,11 +56,12 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
         setNudgeError("Você não pode cutucar a si mesmo");
         return;
       }
+      const requester_name = currentUser?.name || undefined;
       const res = await fetch("/api/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           user_id: book.student_id,
@@ -72,8 +73,10 @@ const NudgeButton: React.FC<NudgeButtonProps> = ({ book }) => {
             book_title: book.title,
             book_id: book.id,
             loan_id: book.loan_id,
-            requester_name: requesterName,
-          },
+            requester_name,
+            // Explicitly tag nudge kind for backend routing
+            nudge_kind: book.is_extended ? 'extended' : (book.overdue ? 'overdue' : 'generic')
+          }
         }),
       });
       if (!res.ok) throw new Error("Erro ao cutucar usuário");
