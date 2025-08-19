@@ -27,14 +27,24 @@ fi
 # Cria pasta de backup local se não existir
 mkdir -p "$BACKUP_DIR"
 
-echo "[backup] Garantindo que a pasta '$BACKUP_FOLDER_NAME' existe no Google Drive..."
-rclone --config "$RCLONE_CONF" -vv mkdir "$TARGET_DIR" --timeout=60s || true
+
+# Só tenta criar a pasta no Drive se ela não existir
+if ! rclone --config "$RCLONE_CONF" lsf "$REMOTE:" | grep -Fxq "$BACKUP_FOLDER_NAME/"; then
+  echo "[backup] Criando pasta '$BACKUP_FOLDER_NAME' no Google Drive..."
+  rclone --config "$RCLONE_CONF" mkdir "$TARGET_DIR" --timeout=60s || true
+fi
 
 # Cria o backup local
 cp "$DB_PATH" "$BACKUP_DIR/$BACKUP_FILE"
 
-# Envia para o Google Drive usando rclone (para a subpasta)
-rclone --config "$RCLONE_CONF" -vv copy "$BACKUP_DIR/$BACKUP_FILE" "$TARGET_DIR" --timeout=120s
+
+# Só faz upload se o arquivo local não existe no Drive
+if ! rclone --config "$RCLONE_CONF" lsf "$TARGET_DIR" | grep -Fxq "$BACKUP_FILE"; then
+  echo "[backup] Enviando backup para o Google Drive..."
+  rclone --config "$RCLONE_CONF" copy "$BACKUP_DIR/$BACKUP_FILE" "$TARGET_DIR" --timeout=120s
+else
+  echo "[backup] Backup já existe no Google Drive, não será reenviado."
+fi
 
 
 # Remove o arquivo de backup local recém-criado
@@ -44,22 +54,24 @@ rm -f "$BACKUP_DIR/$BACKUP_FILE"
 echo "[backup] Mantendo apenas os 7 backups locais mais recentes..."
 LOCAL_BACKUPS=$(ls -1t "$BACKUP_DIR"/library_*.db 2>/dev/null)
 COUNT=0
-for file in $LOCAL_BACKUPS; do
-  COUNT=$((COUNT+1))
-  if [ $COUNT -gt 7 ]; then
-    echo "[backup] Removendo backup local antigo: $file"
-    rm -f "$file"
-  fi
-done
+
+LOCAL_BACKUPS=( $(ls -1t "$BACKUP_DIR"/library_*.db 2>/dev/null) )
+if [ ${#LOCAL_BACKUPS[@]} -gt 7 ]; then
+  for ((i=7; i<${#LOCAL_BACKUPS[@]}; i++)); do
+    echo "[backup] Removendo backup local antigo: ${LOCAL_BACKUPS[$i]}"
+    rm -f "${LOCAL_BACKUPS[$i]}"
+  done
+fi
 
 echo "[backup] Backup enviado para '$BACKUP_FOLDER_NAME' com sucesso!"
 
 BACKUPS_ON_DRIVE=$(rclone --config "$RCLONE_CONF" -vv lsf "$TARGET_DIR" --timeout=60s | grep '^library_' | sort -r)
 COUNT=0
-for file in $BACKUPS_ON_DRIVE; do
-  COUNT=$((COUNT+1))
-  if [ $COUNT -gt 7 ]; then
-    echo "[backup] Removendo backup antigo do Google Drive: $file"
-    rclone --config "$RCLONE_CONF" -vv deletefile "$TARGET_DIR/$file" --timeout=60s || true
-  fi
-done
+
+DRIVE_BACKUPS=( $(rclone --config "$RCLONE_CONF" lsf "$TARGET_DIR" --timeout=60s | grep '^library_' | sort -r) )
+if [ ${#DRIVE_BACKUPS[@]} -gt 7 ]; then
+  for ((i=7; i<${#DRIVE_BACKUPS[@]}; i++)); do
+    echo "[backup] Removendo backup antigo do Google Drive: ${DRIVE_BACKUPS[$i]}"
+    rclone --config "$RCLONE_CONF" deletefile "$TARGET_DIR/${DRIVE_BACKUPS[$i]}" --timeout=60s || true
+  done
+fi
