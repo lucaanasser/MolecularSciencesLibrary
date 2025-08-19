@@ -232,6 +232,30 @@ class LoansService {
     }
 
     // Preview da renovação
+    async previewRenewLoan(loan_id, user_id) {
+        // Busca o empréstimo
+        const loans = await LoansModel.getLoansByUser(user_id);
+        const loanIdNum = Number(loan_id);
+        const loan = loans.find(l => Number(l.loan_id) === loanIdNum && (l.returned_at === null || l.returned_at === 'null'));
+        if (!loan) {
+            throw new Error('Empréstimo não encontrado ou já devolvido.');
+        }
+        // Busca regras
+        const rules = await RulesService.getRules();
+        if ((loan.renewals ?? 0) >= rules.max_renewals) {
+            throw new Error('Limite de renovações atingido.');
+        }
+        // Calcula nova data de devolução
+        const now = new Date();
+        const newDueDate = new Date(now);
+        newDueDate.setDate(now.getDate() + (rules.renewal_days || 7));
+        return {
+            due_date: newDueDate.toISOString(),
+            message: 'Nova data de devolução após renovação.'
+        };
+    }
+
+    // Preview da renovação
     async previewExtendLoan(loan_id, user_id) {
         const rules = await RulesService.getRules();
         const loans = await LoansModel.getLoansByUser(user_id);
