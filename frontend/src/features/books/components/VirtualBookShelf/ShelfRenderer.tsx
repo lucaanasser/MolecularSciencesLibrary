@@ -148,7 +148,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
 
   return (
     <div className="mb-3 px-2">
-      <div className="relative w-full h-[100px] flex items-end pt-8">
+      <div className="relative w-[80%] h-[100px] flex items-end pt-8 mx-auto">
         {isAdmin && editMode && editing ? (
           <div className="flex w-full items-center justify-between bg-white border rounded px-4 py-2 shadow z-10">
             <VirtualBookshelfAdminEditor
@@ -162,7 +162,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
         ) : (
           <>
             {/* Livros */}
-            <div className="flex items-end justify-center w-full" style={{zIndex:2, flex: 1}}>
+            <div className="flex items-end w-full" style={{zIndex:2, flex: 1}}>
               {shelfBooks.length > 0 ? (
                 shelfBooks.map((book) => (
                   <TooltipProvider key={book.id} delayDuration={100}>
