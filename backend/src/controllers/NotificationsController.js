@@ -73,7 +73,8 @@ class NotificationsController {
                             system: 'Atualização do Sistema',
                             info: 'Informação da Biblioteca'
                         }[type] || `Notificação: ${type}`;
-                        await emailService.sendCustomEmail({ user_id, subject: subjectToUse, message, isAutomatic: true });
+                        // Emails personalizados não devem exibir aviso de automático
+                        await emailService.sendCustomEmail({ user_id, subject: subjectToUse, message, isAutomatic: false });
                         console.log(`🟢 [NotificationsController] Email de notificação enviado para usuário ${user_id}`);
                     }
                 } catch (emailError) {
