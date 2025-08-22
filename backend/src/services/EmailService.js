@@ -547,9 +547,6 @@ class EmailService {
         });
     }
     
-   
-
-
     /**
      * Testa a configuração de email
      */

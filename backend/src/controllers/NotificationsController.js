@@ -66,7 +66,14 @@ class NotificationsController {
                             console.log(`🟢 [NotificationsController] Email de nudge (genérico) enviado para usuário ${user_id}`);
                         }
                     } else {
-                        await emailService.sendNotificationEmail({ user_id, type, message, subject });
+                        const subjectToUse = subject || {
+                            general: 'Notificação da Biblioteca',
+                            reminder: 'Lembrete da Biblioteca',
+                            alert: 'Alerta da Biblioteca',
+                            system: 'Atualização do Sistema',
+                            info: 'Informação da Biblioteca'
+                        }[type] || `Notificação: ${type}`;
+                        await emailService.sendCustomEmail({ user_id, subject: subjectToUse, message, isAutomatic: true });
                         console.log(`🟢 [NotificationsController] Email de notificação enviado para usuário ${user_id}`);
                     }
                 } catch (emailError) {
