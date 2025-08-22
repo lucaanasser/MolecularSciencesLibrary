@@ -61,12 +61,14 @@ class UsersService {
             console.warn("🟡 [authenticateUser] Senha incorreta para usuário:", login);
             throw new Error('Senha incorreta');
         }
-        // Gera o token JWT
-        const token = jwt.sign(
-            { id: user.id, role: user.role, name: user.name, email: user.email, NUSP: user.NUSP },
-            SECRET,
-            { expiresIn: '7d' }
-        );
+        // Gera o token JWT com validade estendida para usuário proaluno
+        const payload = { id: user.id, role: user.role, name: user.name, email: user.email, NUSP: user.NUSP };
+        const isProAluno = user.role === 'proaluno';
+        const expiresIn = isProAluno ? '365d' : '7d';
+        if (isProAluno) {
+            console.log('🟢 [authenticateUser] Usuário proaluno detectado. Token com 365d.');
+        }
+        const token = jwt.sign(payload, SECRET, { expiresIn });
         const { password_hash, ...userData } = user;
         console.log("🟢 [authenticateUser] Usuário autenticado, token gerado.");
         return { ...userData, token };
