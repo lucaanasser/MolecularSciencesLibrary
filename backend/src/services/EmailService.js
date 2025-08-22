@@ -53,19 +53,19 @@ class EmailService {
     generateEmailTemplate({ subject, content, isAutomatic = true }) {
         const automaticNotice = isAutomatic
             ? `<span style="color:rgb(100, 17, 97);">Este é um email automático. Não responda a esta mensagem.</span>`
-            : `<span style="color: rgb(100, 17, 97);">Este é um email personalizado. Por favor, responda a esta mensagem se necessário.</span>`;
-
+            : `
+                <div style="padding:14px 18px; background:#6c4ab6; border:1px solid #54379a; border-radius:6px; color:#fff; text-align:left; font-size:14px; line-height:1.5; margin-top:10px;">
+                    <strong style="display:block; font-size:15px; margin-bottom:4px;">Mensagem personalizada</strong>
+                    Este email foi enviado manualmente por um administrador da Biblioteca Ciências Moleculares.<br>
+                    Você pode responder diretamente para continuar a conversa ou tirar dúvidas.
+                </div>
+            `;
         return `
             <div style="font-family: 'Roboto', Helvetica, Arial, sans-serif; background: #fffdf8; padding: 30px;">
             <style>
             @media only screen and (max-width: 600px) {
-                .email-container {
-                    width: 100% !important;
-                    padding: 5vw !important;
-                }
-                .email-content-cell {
-                    padding: 5vw !important;
-                }
+                .email-container { width: 100% !important; padding: 5vw !important; }
+                .email-content-cell { padding: 5vw !important; }
             }
             </style>
             <table class="email-container" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; border: 1px solid #6C4AB6; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
