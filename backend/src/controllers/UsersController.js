@@ -36,17 +36,29 @@ class UsersController {
      */
     async authenticateUser(req, res) {
         try {
-            // Não logar senha recebida
             console.log("🔵 [authenticateUser] Dados recebidos: email/NUSP recebido");
             const { email, NUSP, password } = req.body;
             if ((!email && !NUSP) || !password) {
                 console.warn("🟡 [authenticateUser] Email/NUSP ou senha não fornecidos.");
                 return res.status(400).json({ error: 'Email ou NUSP e senha são obrigatórios.' });
             }
-            const user = await usersService.authenticateUser(email || NUSP, password);
-            // Nunca logar objeto completo do usuário
-            console.log("🟢 [authenticateUser] Usuário autenticado: id:", user.id, "NUSP:", user.NUSP, "email:", user.email);
-            res.status(200).json(user);
+            const login = email || NUSP;
+            // Autentica (gera token) usando service
+            const authResult = await usersService.authenticateUser(login, password);
+            // Verificação de IP se role for proaluno
+            if (authResult.role === 'proaluno') {
+                // Obtém IP real considerando proxy
+                const rawIp = (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
+                const clientIp = rawIp.replace('::ffff:', '');
+                const allowedIp = process.env.KIOSK_ALLOWED_IP || '143.107.90.22';
+                console.log(`🔍 [authenticateUser] Verificando IP para proaluno: clientIp=${clientIp} allowedIp=${allowedIp}`);
+                if (clientIp !== allowedIp) {
+                    console.warn(`🟡 [authenticateUser] Login bloqueado para proaluno a partir de IP não autorizado: ${clientIp}`);
+                    return res.status(403).json({ error: 'IP não autorizado para este usuário.' });
+                }
+            }
+            console.log("🟢 [authenticateUser] Usuário autenticado: id:", authResult.id, "NUSP:", authResult.NUSP, "email:", authResult.email);
+            res.status(200).json(authResult);
         } catch (error) {
             console.error("🔴 [authenticateUser] Falha na autenticação:", error.message);
             res.status(401).json({ error: error.message });

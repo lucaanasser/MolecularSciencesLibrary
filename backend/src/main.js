@@ -26,6 +26,9 @@ require('dotenv').config();
 
 const app = express();
 
+// Trust proxy para capturar IP real quando atrás de proxies / nginx
+app.set('trust proxy', true);
+
 app.use(cors());
 app.use(express.json());
 
@@ -114,3 +117,5 @@ httpServer.listen(HTTP_PORT, () => {
   console.log(`🟢 [main] Backend HTTP rodando na porta ${HTTP_PORT}`);
   console.log(`🌐 [main] Acesse: http://localhost:${HTTP_PORT}`);
 });
+
+module.exports = app; // (se necessário para testes)
