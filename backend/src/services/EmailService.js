@@ -54,11 +54,7 @@ class EmailService {
         const automaticNotice = isAutomatic
             ? `<span style="color:rgb(100, 17, 97);">Este é um email automático. Não responda a esta mensagem.</span>`
             : `
-                <div style="padding:14px 18px; background:#6c4ab6; border:1px solid #54379a; border-radius:6px; color:#fff; text-align:left; font-size:14px; line-height:1.5; margin-top:10px;">
-                    <strong style="display:block; font-size:15px; margin-bottom:4px;">Mensagem personalizada</strong>
-                    Este email foi enviado manualmente por um administrador da Biblioteca Ciências Moleculares.<br>
-                    Você pode responder diretamente para continuar a conversa ou tirar dúvidas.
-                </div>
+               <span style="color:rgb(100, 17, 97);">Este não é um email automático. Em caso de dúvidas, pode responder a esta mensagem.</span>
             `;
         return `
             <div style="font-family: 'Roboto', Helvetica, Arial, sans-serif; background: #fffdf8; padding: 30px;">
