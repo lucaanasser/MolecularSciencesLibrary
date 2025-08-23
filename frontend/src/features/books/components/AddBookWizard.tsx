@@ -33,6 +33,9 @@ function AddBookWizard({ onCancel, onSuccess, onError }: AddBookFormProps) {
     subareaCodes
   } = useAreaSelection(onError);
 
+  // Estado de busca (antes era retornado pelo hook antigo)
+  const [search, setSearch] = useState("");
+
   const [selectedBook, setSelectedBook] = useState<any>(null);
   const [addType, setAddType] = useState<any>(null);
   const [language, setLanguage] = useState<number | null>(null);
@@ -47,10 +50,9 @@ function AddBookWizard({ onCancel, onSuccess, onError }: AddBookFormProps) {
   // Novo: controla se o campo volume está travado
   const [isVolumeLocked, setIsVolumeLocked] = useState(false);
 
-  // Custom hooks
-  const { filteredBooks, isLoading, search, setSearch } = useBookSearch(
-    category,
-    subcategory,
+  // Custom hooks (corrigido: hook atual recebe um objeto de filtros e retorna { books, isLoading })
+  const { books: filteredBooks, isLoading } = useBookSearch(
+    { category, subcategory, search },
     step === 2,
     onError
   );
