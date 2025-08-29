@@ -1,4 +1,4 @@
-# 📚 Molecular Sciences Library (Biblioteca Molecular)
+# 📚 Molecular Sciences Library (Biblioteca do curso de Ciências Moleculares da USP)
 
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
@@ -9,7 +9,7 @@
 
 ---
 
-The *Molecular Sciences Library* is a fully open-source initiative created **by students, for students** of the CM-USP community.
+The *Molecular Sciences Library* is a fully open-source initiative created **by students, for students** of the Ciências Moleculres USP community.
 
 It started from a simple pain: *books existed, but discovery was hard, circulation was messy, and collective memory was fragile*.
 
@@ -44,7 +44,7 @@ docker compose -f docker-compose.dev.yml up --build
 
 ## 📑 Table of Contents
 
-- [📚 Molecular Sciences Library (Biblioteca Molecular)](#-molecular-sciences-library-biblioteca-molecular)
+- [📚 Molecular Sciences Library (Biblioteca do curso de Ciências Moleculares da USP)](#-molecular-sciences-library-biblioteca-do-curso-de-ciências-moleculares-da-usp)
   - [🚀 Quick Start (for the impatient)](#-quick-start-for-the-impatient)
   - [📑 Table of Contents](#-table-of-contents)
   - [1. Vision \& Philosophy](#1-vision--philosophy)
@@ -59,6 +59,7 @@ docker compose -f docker-compose.dev.yml up --build
     - [Development](#development)
     - [Production](#production)
     - [Backend only](#backend-only)
+    - [Frontend only](#frontend-only)
   - [10. Core Workflows](#10-core-workflows)
   - [11. API Surface (Snapshot)](#11-api-surface-snapshot)
   - [12. Background Tasks](#12-background-tasks)
@@ -185,7 +186,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_USER=you@example.com
 SMTP_PASS=app_password
-KIOSK_ALLOWED_IP=143.107.90.22
+KIOSK_ALLOWED_IP=123.455.78.90
 ```
 
 ---
@@ -216,6 +217,13 @@ npm install
 npm start
 ```
 
+### Frontend only
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
 ---
 
 ## 10. Core Workflows
