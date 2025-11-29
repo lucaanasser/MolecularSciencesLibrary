@@ -3,26 +3,32 @@
 # Hook de renovação do certbot - executa após renovação bem-sucedida
 # Este script será executado automaticamente quando o certbot renovar os certificados
 
-echo "🔵 [$(date)] Certificados SSL renovados pelo certbot"
+echo "========================================" | tee -a /var/log/ssl-renewal.log
+echo "🔵 [$(date)] Certificados SSL renovados pelo certbot" | tee -a /var/log/ssl-renewal.log
 
-# Navegar para o diretório do projeto (ajustar se necessário)
-cd /root/MolecularSciencesLibrary
+# Navegar para o diretório do projeto
+PROJECT_DIR="/root/MolecularSciencesLibrary"
+cd "$PROJECT_DIR" || exit 1
 
 # Executar o script de cópia
-./scripts/copy-ssl-certs.sh
+bash "$PROJECT_DIR/scripts/copy-ssl-certs.sh" 2>&1 | tee -a /var/log/ssl-renewal.log
 
 # Log do resultado
 if [ $? -eq 0 ]; then
-    echo "✅ [$(date)] Certificados copiados com sucesso após renovação"
+    echo "✅ [$(date)] Certificados copiados com sucesso após renovação" | tee -a /var/log/ssl-renewal.log
     
-    # Reiniciar container do frontend para usar novos certificados
-    if command -v "docker compose" &> /dev/null; then
-        docker compose restart frontend
+    # Reiniciar container do frontend para carregar novos certificados
+    cd "$PROJECT_DIR"
+    if command -v docker &> /dev/null && docker compose version &> /dev/null 2>&1; then
+        echo "🔄 [$(date)] Reiniciando container do frontend..." | tee -a /var/log/ssl-renewal.log
+        docker compose restart frontend 2>&1 | tee -a /var/log/ssl-renewal.log
+        echo "✅ [$(date)] Container do frontend reiniciado" | tee -a /var/log/ssl-renewal.log
     else
-        docker-compose restart frontend
+        echo "⚠️  [$(date)] Docker Compose não encontrado, pulando reinício" | tee -a /var/log/ssl-renewal.log
     fi
-    
-    echo "🔄 [$(date)] Container do frontend reiniciado com novos certificados"
 else
-    echo "❌ [$(date)] Erro ao copiar certificados após renovação"
+    echo "❌ [$(date)] Erro ao copiar certificados após renovação" | tee -a /var/log/ssl-renewal.log
+    exit 1
 fi
+
+echo "========================================" | tee -a /var/log/ssl-renewal.log
