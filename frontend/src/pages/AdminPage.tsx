@@ -82,27 +82,27 @@ const ManageBooks = () => {
   console.log("🔵 [AdminPage/ManageBooks] Renderizando gerenciamento de livros");
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Gerenciamento de Livros</h2>
-      <p>Aqui você pode adicionar ou remover livros do acervo da biblioteca.</p>
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Gerenciamento de Livros</h2>
+      <p className="text-sm sm:text-base text-gray-600">Aqui você pode adicionar ou remover livros do acervo da biblioteca.</p>
       
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl my-4">
+        <div className="bg-red-50 border border-red-200 text-red-600 p-3 sm:p-4 rounded-xl my-4 text-sm sm:text-base">
           {error}
-          <Button variant="link" onClick={() => setError(null)} className="ml-2">
+          <Button variant="link" onClick={() => setError(null)} className="ml-2 text-xs sm:text-sm">
             Fechar
           </Button>
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <Card className="rounded-xl shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Adicionar Livro</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Livro</CardTitle>
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-110" 
+              className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-105 text-sm sm:text-base transition-transform" 
               onClick={() => {
                 console.log("🔵 [AdminPage/ManageBooks] Selecionado: Adicionar Livro");
                 setSelectedTab("add");
@@ -113,13 +113,13 @@ const ManageBooks = () => {
             </Button>
           </CardContent>
         </Card>
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Remover Livro</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Remover Livro</CardTitle>
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full bg-cm-red hover:bg-cm-red/90 hover:scale-110"
+              className="w-full bg-cm-red hover:bg-cm-red/90 hover:scale-105 text-sm sm:text-base transition-transform"
               onClick={() => {
                 console.log("🔵 [AdminPage/ManageBooks] Selecionado: Remover Livro");
                 setSelectedTab("remove");
@@ -130,13 +130,13 @@ const ManageBooks = () => {
             </Button>
           </CardContent>
         </Card>
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Todos os Livros</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Todos os Livros</CardTitle>
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full bg-cm-blue hover:bg-cm-blue/90 hover:scale-110"
+              className="w-full bg-cm-blue hover:bg-cm-blue/90 hover:scale-105 text-sm sm:text-base transition-transform"
               onClick={() => {
                 console.log("🔵 [AdminPage/ManageBooks] Selecionado: Ver Todos os Livros");
                 setSelectedTab("list");
@@ -262,14 +262,14 @@ const ManageUsers = () => {
   console.log("🔵 [AdminPage/ManageUsers] Renderizando gerenciamento de usuários");
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Gerenciamento de Usuários</h2>
-      <p>Cadastre, busque ou remova usuários do sistema.</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Gerenciamento de Usuários</h2>
+      <p className="text-sm sm:text-base text-gray-600">Cadastre, busque ou remova usuários do sistema.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Adicionar Usuário */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Adicionar Usuário</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Usuário</CardTitle>
           </CardHeader>
           <CardContent>
             {showAddForm ? (
@@ -287,7 +287,7 @@ const ManageUsers = () => {
                 />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => {
                     console.warn("🟡 [AdminPage/ManageUsers] Cancelar adicionar usuário");
                     setShowAddForm(false);
@@ -298,7 +298,7 @@ const ManageUsers = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-green hover:bg-cm-green/90"
+                className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageUsers] Selecionado: Adicionar Usuário");
                   setShowAddForm(true);
@@ -308,14 +308,14 @@ const ManageUsers = () => {
               </Button>
             )}
             {successMsg && (
-              <div className="mt-2 text-green-700">{successMsg}</div>
+              <div className="mt-2 text-green-700 text-sm sm:text-base">{successMsg}</div>
             )}
           </CardContent>
         </Card>
         {/* Lista de Usuários */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Lista de Usuários</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Lista de Usuários</CardTitle>
           </CardHeader>
           <CardContent>
             {showUserList ? (
@@ -323,7 +323,7 @@ const ManageUsers = () => {
                 <UserList onClose={() => setShowUserList(false)} />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => {
                     console.warn("🟡 [AdminPage/ManageUsers] Fechar lista de usuários");
                     setShowUserList(false);
@@ -334,7 +334,7 @@ const ManageUsers = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-blue hover:bg-cm-blue/90"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageUsers] Selecionado: Ver Todos Usuários");
                   setShowUserList(true);
@@ -346,9 +346,9 @@ const ManageUsers = () => {
           </CardContent>
         </Card>
         {/* Remover Usuário */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Remover Usuário</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Remover Usuário</CardTitle>
           </CardHeader>
           <CardContent>
             {showRemoveForm ? (
@@ -366,7 +366,7 @@ const ManageUsers = () => {
                 />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => {
                     console.warn("🟡 [AdminPage/ManageUsers] Cancelar remover usuário");
                     setShowRemoveForm(false);
@@ -377,7 +377,7 @@ const ManageUsers = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-red hover:bg-cm-red/90"
+                className="w-full bg-cm-red hover:bg-cm-red/90 text-sm sm:text-base"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageUsers] Selecionado: Remover Usuário");
                   setShowRemoveForm(true);
@@ -387,7 +387,7 @@ const ManageUsers = () => {
               </Button>
             )}
             {successMsg && (
-              <div className="mt-2 text-green-700">{successMsg}</div>
+              <div className="mt-2 text-green-700 text-sm sm:text-base">{successMsg}</div>
             )}
           </CardContent>
         </Card>
@@ -453,14 +453,14 @@ const ManageLoans = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Gerenciamento de Empréstimos</h2>
-      <p>Gerencie empréstimos e visualize todos os empréstimos ativos.</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Gerenciamento de Empréstimos</h2>
+      <p className="text-sm sm:text-base text-gray-600">Gerencie empréstimos e visualize todos os empréstimos ativos.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Empréstimo/Devolução */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Empréstimo/Devolução</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Empréstimo/Devolução</CardTitle>
           </CardHeader>
           <CardContent>
             {showLoanForm ? (
@@ -471,7 +471,7 @@ const ManageLoans = () => {
                 />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => {
                     console.warn("🟡 [AdminPage/ManageLoans] Cancelar registrar empréstimo");
                     setShowLoanForm(false);
@@ -482,7 +482,7 @@ const ManageLoans = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-green hover:bg-cm-green/90"
+                className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageLoans] Selecionado: Registrar Empréstimo");
                   setShowLoanForm(true);
@@ -495,9 +495,9 @@ const ManageLoans = () => {
         </Card>
 
         {/* Lista de Empréstimos Ativos */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Empréstimos Ativos</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Empréstimos Ativos</CardTitle>
           </CardHeader>
           <CardContent>
             {showLoansList ? (
@@ -505,7 +505,7 @@ const ManageLoans = () => {
                 <ActiveLoansList key={refreshKey} onClose={() => setShowLoansList(false)} />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => {
                     console.warn("🟡 [AdminPage/ManageLoans] Fechar lista de empréstimos");
                     setShowLoansList(false);
@@ -516,7 +516,7 @@ const ManageLoans = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-blue hover:bg-cm-blue/90"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageLoans] Selecionado: Ver Empréstimos Ativos");
                   setShowLoansList(true);
@@ -529,24 +529,25 @@ const ManageLoans = () => {
         </Card>
 
         {/* Uso Interno */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Uso Interno</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Uso Interno</CardTitle>
           </CardHeader>
           <CardContent>
             {showInternalUseForm ? (
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600">
+              <div className="space-y-3 sm:space-y-4">
+                <p className="text-xs sm:text-sm text-gray-600">
                   Registre livros usados internamente na biblioteca (sem empréstimo externo)
                 </p>
                 <div>
-                  <label className="text-sm font-medium">Código do Livro:</label>
+                  <label className="text-xs sm:text-sm font-medium">Código do Livro:</label>
                   <Input
                     type="text"
                     value={internalUseCode}
                     onChange={(e) => setInternalUseCode(e.target.value)}
                     placeholder="Ex: 123"
                     disabled={internalUseLoading}
+                    className="text-sm sm:text-base"
                     onKeyPress={(e) => {
                       if (e.key === "Enter") {
                         handleInternalUse();
@@ -555,14 +556,14 @@ const ManageLoans = () => {
                   />
                 </div>
                 {internalUseError && (
-                  <div className="text-red-600 text-sm">{internalUseError}</div>
+                  <div className="text-red-600 text-xs sm:text-sm">{internalUseError}</div>
                 )}
                 {internalUseSuccess && (
-                  <div className="text-green-600 text-sm">{internalUseSuccess}</div>
+                  <div className="text-green-600 text-xs sm:text-sm">{internalUseSuccess}</div>
                 )}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
-                    className="flex-1 bg-cm-purple hover:bg-cm-purple/90"
+                    className="flex-1 bg-cm-purple hover:bg-cm-purple/90 text-sm sm:text-base"
                     onClick={handleInternalUse}
                     disabled={internalUseLoading}
                   >
@@ -570,7 +571,7 @@ const ManageLoans = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 text-sm sm:text-base"
                     onClick={() => {
                       setShowInternalUseForm(false);
                       setInternalUseCode("");
@@ -584,7 +585,7 @@ const ManageLoans = () => {
               </div>
             ) : (
               <Button
-                className="w-full bg-cm-purple hover:bg-cm-purple/90"
+                className="w-full bg-cm-purple hover:bg-cm-purple/90 text-sm sm:text-base"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageLoans] Selecionado: Uso Interno");
                   setShowInternalUseForm(true);
@@ -611,14 +612,14 @@ const Notifications = () => {
   const { emails, loading: inboxLoading, error: inboxError, refetch } = useInbox();
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Notificações</h2>
-      <p>Envie notificações para usuários sobre devoluções e eventos.</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Notificações</h2>
+      <p className="text-sm sm:text-base text-gray-600">Envie notificações para usuários sobre devoluções e eventos.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Enviar Avisos */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Enviar Avisos</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Enviar Avisos</CardTitle>
           </CardHeader>
           <CardContent>
             {showSend ? (
@@ -626,7 +627,7 @@ const Notifications = () => {
                 <SendNotification />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowSend(false)}
                 >
                   Fechar
@@ -634,7 +635,7 @@ const Notifications = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-green hover:bg-cm-green/90"
+                className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base"
                 onClick={() => setShowSend(true)}
               >
                 Enviar Aviso
@@ -643,9 +644,9 @@ const Notifications = () => {
           </CardContent>
         </Card>
         {/* Histórico de Notificações */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Histórico de Notificações</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Histórico de Notificações</CardTitle>
           </CardHeader>
           <CardContent>
             {showHistory ? (
@@ -653,7 +654,7 @@ const Notifications = () => {
                 <NotificationList notifications={notifications} loading={loading} adminSearch />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowHistory(false)}
                 >
                   Fechar
@@ -661,7 +662,7 @@ const Notifications = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-blue hover:bg-cm-blue/90"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base"
                 onClick={() => setShowHistory(true)}
               >
                 Ver Histórico
@@ -670,9 +671,9 @@ const Notifications = () => {
           </CardContent>
         </Card>
         {/* Caixa de Entrada */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Caixa de Entrada</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Caixa de Entrada</CardTitle>
           </CardHeader>
           <CardContent>
             {showInbox ? (
@@ -685,7 +686,7 @@ const Notifications = () => {
                 />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowInbox(false)}
                 >
                   Fechar
@@ -693,7 +694,7 @@ const Notifications = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-orange hover:bg-cm-orange/90"
+                className="w-full bg-cm-orange hover:bg-cm-orange/90 text-sm sm:text-base"
                 onClick={() => setShowInbox(true)}
               >
                 Ver Inbox
@@ -711,32 +712,32 @@ const Reports = () => {
   // Log de início de renderização dos relatórios
   console.log("🔵 [AdminPage/Reports] Renderizando relatórios");
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Relatórios</h2>
-      <p>Visualize estatísticas e relatórios sobre o uso da biblioteca.</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <Card className="rounded-xl shadow-sm">
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Relatórios</h2>
+      <p className="text-sm sm:text-base text-gray-600">Visualize estatísticas e relatórios sobre o uso da biblioteca.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Empréstimos</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Empréstimos</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90">Visualizar</Button>
+            <Button className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base">Visualizar</Button>
           </CardContent>
         </Card>
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Usuários</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Usuários</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-orange hover:bg-cm-orange/90">Visualizar</Button>
+            <Button className="w-full bg-cm-orange hover:bg-cm-orange/90 text-sm sm:text-base">Visualizar</Button>
           </CardContent>
         </Card>
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Acervo</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Acervo</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-green hover:bg-cm-green/90">Visualizar</Button>
+            <Button className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base">Visualizar</Button>
           </CardContent>
         </Card>
       </div>
@@ -750,27 +751,27 @@ const Settings = () => {
   console.log("🔵 [AdminPage/Settings] Renderizando configurações");
   const [showRulesForm, setShowRulesForm] = useState(false);
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Configurações</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Configurações</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Painel de Reserva Didática substitui Configurações Gerais */}
         <BookReservePanel />
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Regras de Empréstimo</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Regras de Empréstimo</CardTitle>
           </CardHeader>
           <CardContent>
             {showRulesForm ? (
               <>
                 <LoanRulesForm onSuccess={() => setShowRulesForm(false)} />
-                <Button variant="outline" className="mt-4 w-full" onClick={() => setShowRulesForm(false)}>
+                <Button variant="outline" className="mt-4 w-full text-sm sm:text-base" onClick={() => setShowRulesForm(false)}>
                   Cancelar
                 </Button>
               </>
             ) : (
               <>
                 <LoanRulesView />
-                <Button className="w-full bg-cm-blue hover:bg-cm-blue/90 mt-4" onClick={() => setShowRulesForm(true)}>
+                <Button className="w-full bg-cm-blue hover:bg-cm-blue/90 mt-4 text-sm sm:text-base" onClick={() => setShowRulesForm(true)}>
                   Editar Regras
                 </Button>
               </>
@@ -789,14 +790,14 @@ const ManageDonators = () => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Gerenciamento de Doadores</h2>
-      <p>Cadastre, busque ou visualize doadores do sistema.</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <div className="p-3 sm:p-4 md:p-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Gerenciamento de Doadores</h2>
+      <p className="text-sm sm:text-base text-gray-600">Cadastre, busque ou visualize doadores do sistema.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Adicionar Doador */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Adicionar Doador</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Doador</CardTitle>
           </CardHeader>
           <CardContent>
             {showAddForm ? (
@@ -810,7 +811,7 @@ const ManageDonators = () => {
                 />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowAddForm(false)}
                 >
                   Cancelar
@@ -818,21 +819,21 @@ const ManageDonators = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-green hover:bg-cm-green/90"
+                className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base"
                 onClick={() => setShowAddForm(true)}
               >
                 Adicionar
               </Button>
             )}
             {successMsg && (
-              <div className="mt-2 text-green-700">{successMsg}</div>
+              <div className="mt-2 text-green-700 text-sm sm:text-base">{successMsg}</div>
             )}
           </CardContent>
         </Card>
         {/* Lista de Doadores */}
-        <Card className="rounded-xl shadow-sm">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Lista de Doadores</CardTitle>
+            <CardTitle className="text-base sm:text-lg md:text-xl">Lista de Doadores</CardTitle>
           </CardHeader>
           <CardContent>
             {showList ? (
@@ -840,7 +841,7 @@ const ManageDonators = () => {
                 <DonatorsList />
                 <Button
                   variant="outline"
-                  className="mt-4 w-full"
+                  className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowList(false)}
                 >
                   Fechar
@@ -848,7 +849,7 @@ const ManageDonators = () => {
               </>
             ) : (
               <Button
-                className="w-full bg-cm-blue hover:bg-cm-blue/90"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base"
                 onClick={() => setShowList(true)}
               >
                 Ver Todos
@@ -885,13 +886,13 @@ const AdminPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <div className="flex-grow bg-cm-bg py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bebas mb-8">Painel do Administrador</h1>
+      <div className="flex-grow bg-cm-bg py-4 sm:py-6 md:py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bebas mb-4 sm:mb-6 md:mb-8">Painel do Administrador</h1>
           
           <ErrorBoundary>
             <Tabs defaultValue="books" onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex gap-2 bg-white p-2 rounded-t-2xl shadow-sm relative border-b border-gray-200">
+              <TabsList className="flex flex-wrap gap-1 sm:gap-2 bg-white p-1.5 sm:p-2 rounded-t-2xl shadow-sm relative border-b border-gray-200">
                 {[
                   { value: "books", label: "Livros", color: "bg-cm-red text-white" },
                   { value: "users", label: "Usuários", color: "bg-cm-orange text-white" },
@@ -905,16 +906,17 @@ const AdminPage = () => {
                     key={tab.value}
                     value={tab.value}
                     className={`
-                      px-3 py-1 mx-1 rounded-t-2xl font-semibold transition-all duration-200 relative
+                      px-2 sm:px-3 py-1 sm:py-1.5 mx-0.5 sm:mx-1 rounded-t-xl sm:rounded-t-2xl font-semibold transition-all duration-200 relative text-xs sm:text-sm md:text-base
                       ${activeTab === tab.value 
                         ? "!bg-gray-200 !text-gray-900 shadow-lg scale-105 z-20 border-b-0"
                         : `${tab.color} z-10 border-b-2 border-gray-200`
                       }
-                      hover:scale-110 hover:shadow-xl
+                      hover:scale-105 sm:hover:scale-110 hover:shadow-xl
                     `}
-                    style={{ minWidth: "120px" }}
+                    style={{ minWidth: "70px" }}
                   >
-                    {tab.label}
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
