@@ -24,7 +24,7 @@ interface BooksListProps {
   onClose?: () => void;
 }
 
-export default function BooksList({ onClose }: BooksListProps = {}) {
+export default function BooksList({ onClose }: BooksListProps) {
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,10 @@ export default function BooksList({ onClose }: BooksListProps = {}) {
       const res = await fetch("/api/books/options");
       if (res.ok) {
         const data = await res.json();
-        setCategoryMappings(data);
+        setCategoryMappings({
+          areas: data?.areas || {},
+          subareas: data?.subareas || {}
+        });
       }
     } catch (err) {
       console.error("Erro ao buscar mapeamentos:", err);
@@ -152,7 +155,7 @@ export default function BooksList({ onClose }: BooksListProps = {}) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as áreas</SelectItem>
-              {Object.entries(categoryMappings.areas).map(([code, name]) => (
+              {Object.entries(categoryMappings.areas || {}).map(([code, name]) => (
                 <SelectItem key={code} value={code}>
                   {name}
                 </SelectItem>
@@ -169,7 +172,7 @@ export default function BooksList({ onClose }: BooksListProps = {}) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
-              {Object.entries(getAvailableSubareas()).map(([code, name]) => (
+              {Object.entries(getAvailableSubareas() || {}).map(([code, name]) => (
                 <SelectItem key={code} value={code}>
                   {name}
                 </SelectItem>
@@ -184,38 +187,26 @@ export default function BooksList({ onClose }: BooksListProps = {}) {
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10">
             <TableRow>
+              <TableHead className="text-sm">ID</TableHead>
               <TableHead className="text-sm">Código</TableHead>
               <TableHead className="text-sm">Título</TableHead>
-              <TableHead className="text-sm">Autor(es)</TableHead>
-              <TableHead className="text-sm">Área</TableHead>
-              <TableHead className="text-sm">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredBooks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={3} className="text-center py-8 text-gray-500">
                   Nenhum livro encontrado
                 </TableCell>
               </TableRow>
             ) : (
               filteredBooks.map((book) => (
                 <TableRow key={book.id}>
+                  <TableCell className="font-mono text-sm">{book.id}</TableCell>
                   <TableCell className="font-mono text-sm">{book.code}</TableCell>
                   <TableCell>
-                    <div className="max-w-[200px]">
-                      <div className="font-medium truncate text-sm">{book.title}</div>
-                    </div>
+                    <div className="font-medium text-sm">{book.title}</div>
                   </TableCell>
-                  <TableCell>
-                    <div className="max-w-[150px] text-xs text-gray-600 truncate">
-                      {book.authors}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {categoryMappings.areas[book.area] || book.area}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(book)}</TableCell>
                 </TableRow>
               ))
             )}

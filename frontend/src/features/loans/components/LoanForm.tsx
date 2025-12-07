@@ -10,7 +10,7 @@ import { useCreateLoan } from "../hooks/useCreateLoan";
  * 🔴 Erro
  */
 
-export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoLivro = "", senha: propSenha = "", isAdminMode = false, onSuccess }: { nusp?: string; codigoLivro?: string; senha?: string; isAdminMode?: boolean; onSuccess?: () => void } = {}) {
+export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoLivro = "", senha: propSenha = "", isAdminMode = false, onSuccess }: { nusp?: string; codigoLivro?: string; senha?: string; isAdminMode?: boolean; onSuccess?: () => void }) {
   const { createLoan, loading, error, loan } = useCreateLoan();
   const [formError, setFormError] = React.useState<string>("");
   const [successMsg, setSuccessMsg] = React.useState<string>("");

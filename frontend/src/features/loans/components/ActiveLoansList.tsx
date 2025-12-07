@@ -23,7 +23,7 @@ interface ActiveLoansListProps {
   onClose?: () => void;
 }
 
-export default function ActiveLoansList({ onClose }: ActiveLoansListProps = {}) {
+export default function ActiveLoansList({ onClose }: ActiveLoansListProps) {
   const [loans, setLoans] = useState<ActiveLoan[]>([]);
   const [filteredLoans, setFilteredLoans] = useState<ActiveLoan[]>([]);
   const [loading, setLoading] = useState(true);

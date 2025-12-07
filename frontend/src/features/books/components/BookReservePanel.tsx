@@ -8,6 +8,7 @@ const BookReservePanel: React.FC = () => {
   const [bookId, setBookId] = useState('');
   const [action, setAction] = useState<'add' | 'remove'>('add');
   const [success, setSuccess] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +18,39 @@ const BookReservePanel: React.FC = () => {
       await setBookReserved(bookId, action === 'add');
       setSuccess(`Livro ${action === 'add' ? 'adicionado à' : 'removido da'} reserva didática com sucesso!`);
       setBookId('');
+      // Fecha o modal após 2 segundos de sucesso
+      setTimeout(() => {
+        setShowModal(false);
+        setSuccess(null);
+      }, 2000);
     } catch (err: any) {
       setSuccess(null);
     }
   };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setSuccess(null);
+    setBookId('');
+  };
+
+  if (!showModal) {
+    return (
+      <Card className="rounded-xl shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl">Reserva Didática</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            className="w-full bg-cm-blue hover:bg-cm-blue/90 hover:scale-110" 
+            onClick={() => setShowModal(true)}
+          >
+            Fazer Reserva
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="rounded-xl shadow-sm">
@@ -28,6 +58,13 @@ const BookReservePanel: React.FC = () => {
         <CardTitle className="text-xl">Reserva Didática</CardTitle>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          className="mb-4 rounded-xl" 
+          onClick={handleClose}
+        >
+          Voltar
+        </Button>
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block font-bold mb-1">ID do Livro</label>
           <input
