@@ -47,14 +47,19 @@ class UsersController {
             const authResult = await usersService.authenticateUser(login, password);
             // Verificação de IP se role for proaluno
             if (authResult.role === 'proaluno') {
-                // Obtém IP real considerando proxy
-                const rawIp = (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
-                const clientIp = rawIp.replace('::ffff:', '');
-                const allowedIp = process.env.KIOSK_ALLOWED_IP || '143.107.90.22';
-                console.log(`🔍 [authenticateUser] Verificando IP para proaluno: clientIp=${clientIp} allowedIp=${allowedIp}`);
-                if (clientIp !== allowedIp) {
-                    console.warn(`🟡 [authenticateUser] Login bloqueado para proaluno a partir de IP não autorizado: ${clientIp}`);
-                    return res.status(403).json({ error: 'IP não autorizado para este usuário.' });
+                // Pula verificação de IP em desenvolvimento
+                if (process.env.NODE_ENV === 'development') {
+                    console.log('🟡 [authenticateUser] Modo dev: pulando verificação de IP para proaluno');
+                } else {
+                    // Obtém IP real considerando proxy
+                    const rawIp = (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
+                    const clientIp = rawIp.replace('::ffff:', '');
+                    const allowedIp = process.env.KIOSK_ALLOWED_IP || '143.107.90.22';
+                    console.log(`🔍 [authenticateUser] Verificando IP para proaluno: clientIp=${clientIp} allowedIp=${allowedIp}`);
+                    if (clientIp !== allowedIp) {
+                        console.warn(`🟡 [authenticateUser] Login bloqueado para proaluno a partir de IP não autorizado: ${clientIp}`);
+                        return res.status(403).json({ error: 'IP não autorizado para este usuário.' });
+                    }
                 }
             }
             console.log("🟢 [authenticateUser] Usuário autenticado: id:", authResult.id, "NUSP:", authResult.NUSP, "email:", authResult.email);

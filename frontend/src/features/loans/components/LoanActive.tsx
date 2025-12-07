@@ -106,17 +106,27 @@ export default function LoanActive({ userId }: LoanActiveProps) {
   }
 
   const activeLoans = (loans || []).filter(l => !l.returned_at);
+  
+  // Verifica se há algum empréstimo atrasado
+  const hasOverdueLoans = activeLoans.some(l => isOverdue(l));
+  
   if (loading) return <div className="text-center py-8">Carregando empréstimos ativos...</div>;
   if (error) return <div className="text-red-600 text-center py-8">{error}</div>;
   if (!activeLoans.length) return <div className="text-center py-8 text-gray-500">Nenhum empréstimo ativo.</div>;
 
   return (
     <div className="space-y-4">
+      {hasOverdueLoans && (
+        <div className="bg-red-500/10 rounded p-3 mb-4">
+          <p className="text-red-700 text-sm">Você possui livro(s) atrasado(s). Devolva-o(s) antes de renovar ou estender qualquer empréstimo.</p>
+        </div>
+      )}
       {activeLoans.map(item => {
         const overdue = isOverdue(item); const { statusText, statusColor } = getLoanStatusProps(item);
         const reachedMaxRenewals = rules ? (item.renewals ?? 0) >= rules.max_renewals : false;
-        const showRenew = !overdue && (item.is_extended !== 1) && !reachedMaxRenewals; // sempre até última renovação
-        const showExtend = !overdue && (item.is_extended !== 1) && reachedMaxRenewals; // após última renovação
+        // Bloqueia renovação/extensão se houver qualquer empréstimo atrasado
+        const showRenew = !hasOverdueLoans && !overdue && (item.is_extended !== 1) && !reachedMaxRenewals;
+        const showExtend = !hasOverdueLoans && !overdue && (item.is_extended !== 1) && reachedMaxRenewals;
         return (
           <LoanItem key={item.loan_id} loan={item} statusText={statusText} statusColor={statusColor} onRenew={showRenew ? () => handlePreviewRenew(item) : undefined} renewLoading={renewLoading === item.loan_id} showRenew={showRenew}>
             <div className="flex flex-col gap-1 items-end w-full">

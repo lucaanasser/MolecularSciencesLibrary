@@ -169,13 +169,17 @@ class NotificationsService {
 
         if (loan_id) {
             try {
-                // Se há pendência de extensão, aplica extensão curta de 5 dias a partir de agora
+                // Nudge só reduz prazo se o empréstimo estiver estendido (is_extended = 1)
                 const loan = await require('../models/LoansModel').getLoanById(loan_id).catch(()=>null);
-                if (loan && loan.returned_at == null && loan.is_extended === 0) {
-                    await LoansModel.extendLoanShortFromNow(loan_id, 5);
+                if (loan && loan.returned_at == null && loan.is_extended === 1) {
+                    // Reduz o prazo para 5 dias (apenas se o prazo atual for maior que 5 dias)
+                    const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, 5);
+                    if (changed) {
+                        console.log(`🟢 [NotificationsService] Prazo reduzido para 5 dias após nudge no empréstimo ${loan_id}`);
+                    }
                 }
             } catch (e) {
-                console.warn('🟡 [NotificationsService] Falha ao aplicar extensão curta após nudge:', e.message);
+                console.warn('🟡 [NotificationsService] Falha ao aplicar redução de prazo após nudge:', e.message);
             }
             // Em qualquer caso, registra momento do nudge
             await LoansModel.setLastNudged(loan_id).catch(()=>{});

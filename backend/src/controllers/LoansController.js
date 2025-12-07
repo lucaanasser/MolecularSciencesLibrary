@@ -27,6 +27,24 @@ const LoansController = {
         }
     },
 
+    // Cria um novo empréstimo como admin (sem senha)
+    borrowBookAsAdmin: async (req, res) => {
+        const { book_id, NUSP } = req.body;
+        console.log(`🔵 [LoansController] [ADMIN] Iniciando criação de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
+        if (!book_id || !NUSP) {
+            console.warn(`🟡 [LoansController] [ADMIN] Dados obrigatórios ausentes: book_id=${book_id}, NUSP=${NUSP}`);
+            return res.status(400).json({ error: 'book_id e NUSP são obrigatórios' });
+        }
+        try {
+            const loan = await LoansService.borrowBookAsAdmin(book_id, NUSP);
+            console.log(`🟢 [LoansController] [ADMIN] Empréstimo criado com sucesso:`, loan);
+            res.status(201).json(loan);
+        } catch (err) {
+            console.error(`🔴 [LoansController] [ADMIN] Erro ao criar empréstimo: ${err.message}`);
+            res.status(400).json({ error: err.message });
+        }
+    },
+
     // Lista todos os empréstimos com detalhes
     listLoans: async (req, res) => {
         console.log("🔵 [LoansController] Listando todos os empréstimos");
@@ -180,6 +198,26 @@ const LoansController = {
             res.json({ applied });
         } catch (err) {
             res.status(500).json({ error: err.message });
+        }
+    },
+
+    // Registra uso interno de livro (empréstimo fantasma)
+    registerInternalUse: async (req, res) => {
+        const { book_id, book_code } = req.body;
+        console.log(`🔵 [LoansController] Registrando uso interno: book_id=${book_id}, book_code=${book_code}`);
+        
+        if (!book_id && !book_code) {
+            console.warn("🟡 [LoansController] book_id ou book_code não fornecido para uso interno");
+            return res.status(400).json({ error: 'book_id ou book_code é obrigatório' });
+        }
+
+        try {
+            const result = await LoansService.registerInternalUse(book_id, book_code);
+            console.log("🟢 [LoansController] Uso interno registrado com sucesso");
+            res.status(201).json(result);
+        } catch (err) {
+            console.error(`🔴 [LoansController] Erro ao registrar uso interno: ${err.message}`);
+            res.status(400).json({ error: err.message });
         }
     },
 };

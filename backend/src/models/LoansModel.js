@@ -38,6 +38,34 @@ module.exports = {
         }
     },
 
+    // Cria um empréstimo de uso interno (já devolvido)
+    // Usa student_id = 0 para indicar uso interno (não pode ser NULL por constraint)
+    createInternalUseLoan: async (book_id, due_date) => {
+        console.log(`🔵 [LoansModel] Criando empréstimo de uso interno: book_id=${book_id}`);
+        let dueDateSql = due_date;
+        if (due_date && typeof due_date === 'string') {
+            dueDateSql = due_date.replace('T', ' ').replace(/\..*$/, '');
+        }
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            db.run(
+                `INSERT INTO loans (book_id, student_id, due_date, renewals, returned_at) 
+                 VALUES (?, 0, ?, 0, CURRENT_TIMESTAMP)`,
+                [book_id, dueDateSql],
+                function (err) {
+                    db.close();
+                    if (err) {
+                        console.error(`🔴 [LoansModel] Erro ao criar empréstimo de uso interno: ${err.message}`);
+                        reject(err);
+                    } else {
+                        console.log(`🟢 [LoansModel] Empréstimo de uso interno criado com ID: ${this.lastID}`);
+                        resolve({ success: true, loan_id: this.lastID });
+                    }
+                }
+            );
+        });
+    },
+
     // Devolve um empréstimo e atualiza status do livro em transação
     returnBookWithUpdate: async (loan_id, book_id) => {
         console.log(`� [LoansModel] Devolvendo empréstimo (transação): loan_id=${loan_id}, book_id=${book_id}`);
@@ -168,6 +196,40 @@ module.exports = {
         });
     },
 
+    // Busca o último empréstimo criado para um livro (sem JOIN)
+    getLastLoanByBookId: (book_id) => {
+        console.log(`🔵 [LoansModel] Buscando último empréstimo para book_id=${book_id} (tipo: ${typeof book_id})`);
+        return new Promise((resolve, reject) => {
+            const db = getDb();
+            // Primeiro busca TODOS os empréstimos para ver o que tem no banco
+            db.all(`SELECT id, book_id, student_id, borrowed_at, returned_at FROM loans ORDER BY borrowed_at DESC LIMIT 5`, [], (err1, allRows) => {
+                if (!err1 && allRows) {
+                    console.log(`🟡 [LoansModel] Últimos 5 empréstimos no banco:`, allRows.map(r => ({ id: r.id, book_id: r.book_id, book_id_type: typeof r.book_id })));
+                }
+                
+                // Agora busca o específico
+                db.get(
+                    `SELECT * FROM loans WHERE book_id = ? ORDER BY borrowed_at DESC LIMIT 1`,
+                    [book_id],
+                    (err, row) => {
+                        db.close();
+                        if (err) {
+                            console.error(`🔴 [LoansModel] Erro ao buscar último empréstimo: ${err.message}`);
+                            reject(err);
+                        } else {
+                            if (row) {
+                                console.log(`🟢 [LoansModel] Último empréstimo encontrado: loan_id=${row.id}, book_id=${row.book_id}, returned_at=${row.returned_at}`);
+                            } else {
+                                console.warn(`🔴 [LoansModel] Nenhum empréstimo encontrado para book_id=${book_id}`);
+                            }
+                            resolve(row);
+                        }
+                    }
+                );
+            });
+        });
+    },
+
     // Verifica se existe empréstimo ativo para um livro
     hasActiveLoan: (book_id) => {
         console.log(`🔵 [LoansModel] Verificando empréstimo ativo para book_id=${book_id}`);
@@ -221,7 +283,7 @@ module.exports = {
             const db = getDb();
             db.all(
                 `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
-                        u.name as user_name, u.email as user_email,
+                        u.name as user_name, u.email as user_email, u.NUSP as user_nusp,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
                  LEFT JOIN users u ON l.student_id = u.id
@@ -276,7 +338,7 @@ module.exports = {
         console.log(`🔵 [LoansModel] Renovando empréstimo: loan_id=${loan_id}, renewal_days=${renewal_days}`);
         return new Promise((resolve, reject) => {
             const db = getDb();
-            // Atualiza due_date para a data atual + renewal_days
+            // Atualiza due_date para a data atual + renewal_days (sempre a partir de agora)
             db.run(
                 `UPDATE loans SET renewals = renewals + 1, due_date = datetime('now', '+' || ? || ' days') WHERE id = ? AND returned_at IS NULL`,
                 [renewal_days, loan_id],
@@ -320,7 +382,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             const db = getDb();
             db.all(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
                         u.name as user_name, u.email as user_email,
                         b.title as book_title, b.authors as book_authors
                  FROM loans l
@@ -373,25 +435,7 @@ module.exports = {
             });
         });
     },
-    // NOVO: aplica extensão curta (a partir de agora) — usada quando há nudge durante pendência
-    extendLoanShortFromNow: (loan_id, daysFromNow) => {
-        return new Promise((resolve, reject) => {
-            const db = getDb();
-            db.run(`UPDATE loans
-                    SET is_extended = 1,
-                        due_date = datetime('now', '+'|| ? ||' days')
-                    WHERE id = ?
-                      AND returned_at IS NULL
-                      AND is_extended = 0`,
-                [daysFromNow, loan_id], function (err) {
-                    db.close();
-                    if (err) return reject(err);
-                    if (this.changes === 0) return reject(new Error('Não foi possível aplicar extensão curta.'));
-                    resolve();
-                });
-        });
-    },
-    // NOVO: encurta o prazo de um empréstimo estendido para N dias a partir de agora (se estiver maior)
+    // Encurta o prazo de um empréstimo estendido para 5 dias a partir de agora (apenas se prazo atual for maior que 5 dias)
     shortenDueDateIfLongerThan: (loan_id, targetDaysFromNow) => {
         return new Promise((resolve, reject) => {
             const db = getDb();
@@ -399,6 +443,7 @@ module.exports = {
                     SET due_date = datetime('now', '+'|| ? ||' days')
                     WHERE id = ?
                       AND returned_at IS NULL
+                      AND is_extended = 1
                       AND (due_date IS NULL OR due_date > datetime('now', '+'|| ? ||' days'))`,
                 [targetDaysFromNow, loan_id, targetDaysFromNow], function (err) {
                     db.close();

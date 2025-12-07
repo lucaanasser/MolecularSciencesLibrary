@@ -17,6 +17,12 @@ router.post('/', (req, res) => {
     LoansController.borrowBook(req, res);
 });
 
+// Criar empréstimo como admin (sem senha)
+router.post('/admin', (req, res) => {
+    console.log("🔵 [LoansRoutes] POST /admin - Criar novo empréstimo (admin)");
+    LoansController.borrowBookAsAdmin(req, res);
+});
+
 // Listar todos os empréstimos
 router.get('/', (req, res) => {
     console.log("🔵 [LoansRoutes] GET / - Listar todos os empréstimos");
@@ -39,6 +45,12 @@ router.post('/return', (req, res) => {
 router.get('/active', (req, res) => {
     console.log("🔵 [LoansRoutes] GET /active - Listar empréstimos ativos com status de atraso");
     LoansController.listActiveLoansWithOverdue(req, res);
+});
+
+// Registrar uso interno (empréstimo fantasma) - DEVE vir antes das rotas com :id
+router.post('/internal-use', (req, res) => {
+    console.log("🔵 [LoansRoutes] POST /internal-use - Registrar uso interno");
+    LoansController.registerInternalUse(req, res);
 });
 
 // Renovar empréstimo

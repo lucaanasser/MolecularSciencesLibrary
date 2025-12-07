@@ -10,7 +10,7 @@ import { useCreateLoan } from "../hooks/useCreateLoan";
  * 🔴 Erro
  */
 
-export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoLivro = "", senha: propSenha = "", onSuccess }: { nusp?: string; codigoLivro?: string; senha?: string; onSuccess?: () => void } = {}) {
+export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoLivro = "", senha: propSenha = "", isAdminMode = false, onSuccess }: { nusp?: string; codigoLivro?: string; senha?: string; isAdminMode?: boolean; onSuccess?: () => void } = {}) {
   const { createLoan, loading, error, loan } = useCreateLoan();
   const [formError, setFormError] = React.useState<string>("");
   const [successMsg, setSuccessMsg] = React.useState<string>("");
@@ -104,7 +104,12 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
           setFormError("NUSP não encontrado ou inválido.");
           return;
         }
-        setStep(2);
+        // Se for admin, pula a validação de senha
+        if (isAdminMode) {
+          setStep(3);
+        } else {
+          setStep(2);
+        }
       } else if (step === 2) {
         if (!senha) {
           setFormError("Informe a senha.");
@@ -126,7 +131,23 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
         }
         // Confirmação do empréstimo
         try {
-          const result = await createLoan({ NUSP: nusp, password: senha, book_id: Number(codigoLivro) });
+          let result;
+          if (isAdminMode) {
+            // Usa rota de admin (sem senha)
+            const res = await fetch("/api/loans/admin", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ NUSP: nusp, book_id: Number(codigoLivro) }),
+            });
+            if (!res.ok) {
+              const data = await res.json();
+              throw new Error(data.error || "Erro ao criar empréstimo");
+            }
+            result = await res.json();
+          } else {
+            // Usa rota normal (com senha)
+            result = await createLoan({ NUSP: nusp, password: senha, book_id: Number(codigoLivro) });
+          }
           setLoanDetails(result || loan);
           setShowPopup(true);
           setSuccessMsg("");
@@ -198,7 +219,7 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
                 />
               </div>
             )}
-            {step === 2 && (
+            {step === 2 && !isAdminMode && (
               <div>
                 <label className="font-medium ml-2">Senha:</label>
                 <input
@@ -232,7 +253,14 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
               type="button"
               className="bg-gray-200 text-gray-700 py-2 px-4 rounded-xl w-1/2"
               onClick={() => {
-                if (step > 1) setStep(step - 1);
+                if (step > 1) {
+                  // Se for admin e está no step 3, volta pro step 1 (pula o 2)
+                  if (isAdminMode && step === 3) {
+                    setStep(1);
+                  } else {
+                    setStep(step - 1);
+                  }
+                }
               }}
               disabled={step <= 1}
             >

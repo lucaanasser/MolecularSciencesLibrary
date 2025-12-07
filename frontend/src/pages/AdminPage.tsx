@@ -3,15 +3,17 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import AddBookForm from "@/features/books/components/AddBookWizard";
 import RemoveBookForm from "@/features/books/components/RemoveBookWizard";
+import BooksList from "@/features/books/components/BooksList";
 import AddUserForm from "@/features/users/components/AddUserForm";
 import UserList from "@/features/users/components/UserList";
 import RemoveUserForm from "@/features/users/components/RemoveUserForm";
 import LoanForm from "@/features/loans/components/LoanForm"; 
-import ReturnLoanForm from "@/features/loans/components/ReturnLoanForm"; 
+import ActiveLoansList from "@/features/loans/components/ActiveLoansList"; 
 import SendNotification from "@/features/notifications/components/Sendnotification";
 import NotificationList from "@/features/notifications/components/NotificationList";
 import AdminInboxTab from "@/features/notifications/components/AdminInboxTab";
@@ -72,7 +74,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
 // --- Gerenciamento de Livros ---
 const ManageBooks = () => {
-  const [selectedTab, setSelectedTab] = useState<"add" | "remove" | null>(null);
+  const [selectedTab, setSelectedTab] = useState<"add" | "remove" | "list" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -93,7 +95,7 @@ const ManageBooks = () => {
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Adicionar Livro</CardTitle>
@@ -125,6 +127,23 @@ const ManageBooks = () => {
               disabled={isLoading}
             >
               Remover
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">Todos os Livros</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full bg-cm-blue hover:bg-cm-blue/90 hover:scale-110"
+              onClick={() => {
+                console.log("🔵 [AdminPage/ManageBooks] Selecionado: Ver Todos os Livros");
+                setSelectedTab("list");
+              }}
+              disabled={isLoading}
+            >
+              Ver Todos
             </Button>
           </CardContent>
         </Card>
@@ -205,6 +224,29 @@ const ManageBooks = () => {
           </Card>
         </div>
       )}
+      
+      {selectedTab === "list" && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageBooks] Voltar da lista de livros");
+              setSelectedTab(null);
+            }}
+          >
+            Voltar
+          </Button>
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Todos os Livros</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BooksList onClose={() => setSelectedTab(null)} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
@@ -278,7 +320,7 @@ const ManageUsers = () => {
           <CardContent>
             {showUserList ? (
               <>
-                <UserList />
+                <UserList onClose={() => setShowUserList(false)} />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
@@ -357,27 +399,76 @@ const ManageUsers = () => {
 // --- Gerenciamento de Empréstimos ---
 const ManageLoans = () => {
   const [showLoanForm, setShowLoanForm] = useState(false);
-  const [showReturnForm, setShowReturnForm] = useState(false);
+  const [showLoansList, setShowLoansList] = useState(false);
+  const [showInternalUseForm, setShowInternalUseForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [internalUseCode, setInternalUseCode] = useState("");
+  const [internalUseLoading, setInternalUseLoading] = useState(false);
+  const [internalUseError, setInternalUseError] = useState("");
+  const [internalUseSuccess, setInternalUseSuccess] = useState("");
 
   // Log de início de renderização do gerenciamento de empréstimos
   console.log("🔵 [AdminPage/ManageLoans] Renderizando gerenciamento de empréstimos");
 
+  const handleLoanSuccess = () => {
+    setShowLoanForm(false);
+    setRefreshKey(prev => prev + 1); // Força recarregar a lista
+    console.log("🟢 [AdminPage/ManageLoans] Empréstimo registrado com sucesso");
+  };
+
+  const handleInternalUse = async () => {
+    if (!internalUseCode) {
+      setInternalUseError("Informe o código do livro");
+      return;
+    }
+
+    setInternalUseLoading(true);
+    setInternalUseError("");
+    setInternalUseSuccess("");
+
+    try {
+      const res = await fetch("/api/loans/internal-use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ book_code: internalUseCode })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erro ao registrar uso interno");
+      }
+
+      setInternalUseSuccess("Uso interno registrado com sucesso!");
+      setInternalUseCode("");
+      setTimeout(() => {
+        setInternalUseSuccess("");
+      }, 3000);
+      console.log("🟢 [AdminPage/ManageLoans] Uso interno registrado");
+    } catch (err: any) {
+      setInternalUseError(err.message);
+      console.error("🔴 [AdminPage/ManageLoans] Erro ao registrar uso interno:", err);
+    } finally {
+      setInternalUseLoading(false);
+    }
+  };
+
   return (
     <div className="p-4">
       <h2 className="text-2xl mb-4">Gerenciamento de Empréstimos</h2>
-      <p>Gerencie empréstimos, devoluções e multas dos usuários.</p>
+      <p>Gerencie empréstimos e visualize todos os empréstimos ativos.</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        {/* Empréstimo/Devolução */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Novos Empréstimos</CardTitle>
+            <CardTitle className="text-xl">Empréstimo/Devolução</CardTitle>
           </CardHeader>
           <CardContent>
             {showLoanForm ? (
               <>
-                <LoanForm onSuccess={() => {
-                  setShowLoanForm(false);
-                  console.log("🟢 [AdminPage/ManageLoans] Empréstimo registrado com sucesso");
-                }} />
+                <LoanForm 
+                  isAdminMode={true}
+                  onSuccess={handleLoanSuccess} 
+                />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
@@ -402,47 +493,106 @@ const ManageLoans = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Lista de Empréstimos Ativos */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Devoluções</CardTitle>
+            <CardTitle className="text-xl">Empréstimos Ativos</CardTitle>
           </CardHeader>
           <CardContent>
-            {showReturnForm ? (
+            {showLoansList ? (
               <>
-                <ReturnLoanForm onSuccess={() => {
-                  setShowReturnForm(false);
-                  console.log("🟢 [AdminPage/ManageLoans] Devolução processada com sucesso");
-                }} />
+                <ActiveLoansList key={refreshKey} onClose={() => setShowLoansList(false)} />
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
                   onClick={() => {
-                    console.warn("🟡 [AdminPage/ManageLoans] Cancelar devolução");
-                    setShowReturnForm(false);
+                    console.warn("🟡 [AdminPage/ManageLoans] Fechar lista de empréstimos");
+                    setShowLoansList(false);
                   }}
                 >
-                  Cancelar
+                  Fechar
                 </Button>
               </>
             ) : (
               <Button
-                className="w-full bg-cm-orange hover:bg-cm-orange/90"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90"
                 onClick={() => {
-                  console.log("🔵 [AdminPage/ManageLoans] Selecionado: Processar Devolução");
-                  setShowReturnForm(true);
+                  console.log("🔵 [AdminPage/ManageLoans] Selecionado: Ver Empréstimos Ativos");
+                  setShowLoansList(true);
                 }}
               >
-                Processar
+                Ver Todos
               </Button>
             )}
           </CardContent>
         </Card>
+
+        {/* Uso Interno */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Multas</CardTitle>
+            <CardTitle className="text-xl">Uso Interno</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button className="w-full bg-cm-red hover:bg-cm-red/90">Gerenciar</Button>
+            {showInternalUseForm ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Registre livros usados internamente na biblioteca (sem empréstimo externo)
+                </p>
+                <div>
+                  <label className="text-sm font-medium">Código do Livro:</label>
+                  <Input
+                    type="text"
+                    value={internalUseCode}
+                    onChange={(e) => setInternalUseCode(e.target.value)}
+                    placeholder="Ex: 123"
+                    disabled={internalUseLoading}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleInternalUse();
+                      }
+                    }}
+                  />
+                </div>
+                {internalUseError && (
+                  <div className="text-red-600 text-sm">{internalUseError}</div>
+                )}
+                {internalUseSuccess && (
+                  <div className="text-green-600 text-sm">{internalUseSuccess}</div>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-1 bg-cm-purple hover:bg-cm-purple/90"
+                    onClick={handleInternalUse}
+                    disabled={internalUseLoading}
+                  >
+                    {internalUseLoading ? "Registrando..." : "Registrar"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setShowInternalUseForm(false);
+                      setInternalUseCode("");
+                      setInternalUseError("");
+                      setInternalUseSuccess("");
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                className="w-full bg-cm-purple hover:bg-cm-purple/90"
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageLoans] Selecionado: Uso Interno");
+                  setShowInternalUseForm(true);
+                }}
+              >
+                Registrar Uso
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>

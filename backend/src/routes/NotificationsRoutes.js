@@ -13,6 +13,11 @@ router.post('/', authenticateToken, (req, res) => {
     notificationsController.createNotification(req, res);
 });
 
+// Rota específica para nudge (sem autenticação para facilitar uso)
+router.post('/nudge', (req, res) => {
+    notificationsController.createNotification(req, res);
+});
+
 // Marca notificação como lida
 router.patch('/:id/read', authenticateToken, (req, res) => {
     notificationsController.markAsRead(req, res);

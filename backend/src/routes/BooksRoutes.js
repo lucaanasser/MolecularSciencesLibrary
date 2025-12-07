@@ -51,6 +51,13 @@ router.get('/options', (req, res) => {
     res.json(mappings);
 });
 
+// Lista livros reservados didaticamente
+// IMPORTANTE: Esta rota deve vir ANTES de /:id para evitar que "reserved" seja interpretado como um ID
+router.get('/reserved', (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /reserved - Listar livros reservados didaticamente");
+    booksController.getReservedBooks(req, res);
+});
+
 // Busca um livro específico pelo ID
 router.get('/:id', async (req, res) => {
     try {
@@ -107,12 +114,6 @@ router.post('/return', (req, res) => {
 router.post('/reserve', (req, res) => {
     console.log("🔵 [BooksRoutes] POST /reserve - Definir/remover reserva didática");
     booksController.setReservedStatus(req, res);
-});
-
-// Lista livros reservados didaticamente
-router.get('/reserved', (req, res) => {
-    console.log("🔵 [BooksRoutes] GET /reserved - Listar livros reservados didaticamente");
-    booksController.getReservedBooks(req, res);
 });
 
 module.exports = router;

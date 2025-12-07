@@ -70,12 +70,79 @@ class LoansService {
         const loan = await LoansModel.createLoan(book_id, user.id, dueDateISO);
         console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`, loan);
 
-        // Envia email de confirmação de novo empréstimo
-        await EmailService.sendLoanConfirmationEmail({
-            user_id: user.id,
-            book_title: book.title,
-            borrowedAt: borrowedAt
-        });
+        // Envia email de confirmação de novo empréstimo (não bloqueia se falhar)
+        try {
+            await EmailService.sendLoanConfirmationEmail({
+                user_id: user.id,
+                book_title: book.title,
+                borrowedAt: borrowedAt
+            });
+        } catch (emailErr) {
+            console.error(`🟡 [LoansService] Erro ao enviar email de confirmação (empréstimo criado com sucesso):`, emailErr.message);
+        }
+
+        return loan;
+    }
+
+    // Cria um novo empréstimo como admin (sem validação de senha)
+    async borrowBookAsAdmin(book_id, NUSP) {
+        console.log(`🔵 [LoansService] [ADMIN] Iniciando empréstimo para NUSP: ${NUSP}, book_id: ${book_id}`);
+
+        // 1. Verifica se o usuário existe pelo NUSP
+        const user = await UsersModel.getUserByNUSP(NUSP);
+        if (!user) {
+            console.warn(`🟡 [LoansService] [ADMIN] Usuário NUSP ${NUSP} não encontrado`);
+            throw new Error('Usuário não encontrado');
+        }
+
+        // 2. Verifica se o usuário já atingiu o limite de empréstimos ativos
+        const userLoans = await LoansModel.getLoansByUser(user.id);
+        const activeLoans = userLoans.filter(l => !l.returned_at);
+        const rules = await RulesService.getRules();
+        const MAX_ACTIVE_LOANS = rules.max_books_per_user || 5;
+        if (activeLoans.length >= MAX_ACTIVE_LOANS) {
+            console.warn(`🟡 [LoansService] [ADMIN] Usuário ${NUSP} já atingiu o limite de ${MAX_ACTIVE_LOANS} empréstimos ativos.`);
+            throw new Error(`Limite de ${MAX_ACTIVE_LOANS} empréstimos ativos atingido.`);
+        }
+
+        // 3. Verifica se o livro existe
+        const book = await BooksModel.getBookById(book_id);
+        if (!book) {
+            console.warn(`🟡 [LoansService] [ADMIN] Livro id ${book_id} não encontrado`);
+            throw new Error('Livro não encontrado');
+        }
+        // Verifica se o livro está reservado didaticamente
+        if (book.is_reserved === 1) {
+            console.warn(`🟡 [LoansService] [ADMIN] Livro ${book_id} está reservado didaticamente e não pode ser emprestado.`);
+            throw new Error('Este livro está reservado didaticamente e não pode ser emprestado durante o semestre.');
+        }
+
+        // 4. Verifica se NÃO existe empréstimo ativo para este livro
+        const emprestimoAtivo = await LoansModel.hasActiveLoan(book_id);
+        if (emprestimoAtivo) {
+            console.warn(`🟡 [LoansService] [ADMIN] Livro ${book_id} já está emprestado`);
+            throw new Error('Este livro já está emprestado');
+        }
+
+        // 5. Cria o empréstimo
+        const maxDays = rules.max_days || 7;
+        const borrowedAt = new Date();
+        const dueDate = new Date(borrowedAt);
+        dueDate.setDate(borrowedAt.getDate() + maxDays);
+        const dueDateISO = dueDate.toISOString();
+        const loan = await LoansModel.createLoan(book_id, user.id, dueDateISO);
+        console.log(`🟢 [LoansService] [ADMIN] Empréstimo criado com sucesso:`, loan);
+
+        // Envia email de confirmação de novo empréstimo (não bloqueia se falhar)
+        try {
+            await EmailService.sendLoanConfirmationEmail({
+                user_id: user.id,
+                book_title: book.title,
+                borrowedAt: borrowedAt
+            });
+        } catch (emailErr) {
+            console.error(`🟡 [LoansService] [ADMIN] Erro ao enviar email de confirmação (empréstimo criado com sucesso):`, emailErr.message);
+        }
 
         return loan;
     }
@@ -156,13 +223,17 @@ class LoansService {
         const loan = allLoans.find(l => l.loan_id === loanRow.loan_id);
         // Marca como devolvido
         const result = await LoansModel.returnLoan(loanRow.loan_id);
-        // Envia email de confirmação de devolução
+        // Envia email de confirmação de devolução (não bloqueia se falhar)
         if (loan) {
-            await EmailService.sendReturnConfirmationEmail({
-                user_id: loan.student_id,
-                book_title: loan.book_title || book_id,
-                returnedAt: new Date()
-            });
+            try {
+                await EmailService.sendReturnConfirmationEmail({
+                    user_id: loan.student_id,
+                    book_title: loan.book_title || book_id,
+                    returnedAt: new Date()
+                });
+            } catch (emailErr) {
+                console.error(`🟡 [LoansService] Erro ao enviar email de devolução (devolução registrada com sucesso):`, emailErr.message);
+            }
         } else {
             console.warn(`[LoansService] Não foi possível encontrar detalhes do empréstimo para enviar email de devolução.`);
         }
@@ -204,6 +275,13 @@ class LoansService {
             console.error('[ERROR] Empréstimo não encontrado ou já devolvido. loan_id:', loan_id, 'user_id:', user_id);
             throw new Error('Empréstimo não encontrado ou já devolvido.');
         }
+        // Verifica se o usuário tem algum empréstimo atrasado
+        const now = new Date();
+        const hasOverdue = loans.some(l => !l.returned_at && l.due_date && new Date(l.due_date) < now);
+        if (hasOverdue) {
+            console.error('[ERROR] Usuário possui empréstimo(s) atrasado(s). Não pode renovar.');
+            throw new Error('Você possui livro(s) atrasado(s). Devolva-o(s) antes de renovar qualquer empréstimo.');
+        }
         // Busca regras
         const rules = await RulesService.getRules();
         console.log('[DEBUG] Valor de renewals:', loan.renewals, 'Max:', rules.max_renewals);
@@ -217,13 +295,17 @@ class LoansService {
         const updatedLoans = await LoansModel.getLoansByUser(user_id);
         const updatedLoan = updatedLoans.find(l => l.loan_id === loan_id && !l.returned_at);
         console.log('[DEBUG] Empréstimo após renovação:', updatedLoan);
-        // Envia email de confirmação de renovação
+        // Envia email de confirmação de renovação (não bloqueia se falhar)
         if (updatedLoan) {
-            await EmailService.sendRenewalConfirmationEmail({
-                user_id,
-                book_title: updatedLoan.book_title,
-                due_date: updatedLoan.due_date
-            });
+            try {
+                await EmailService.sendRenewalConfirmationEmail({
+                    user_id,
+                    book_title: updatedLoan.book_title,
+                    due_date: updatedLoan.due_date
+                });
+            } catch (emailErr) {
+                console.error(`🟡 [LoansService] Erro ao enviar email de renovação (renovação realizada com sucesso):`, emailErr.message);
+            }
         }
         return {
             message: 'Empréstimo renovado com sucesso.',
@@ -240,52 +322,47 @@ class LoansService {
         if (!loan) {
             throw new Error('Empréstimo não encontrado ou já devolvido.');
         }
+        // Verifica se o usuário tem algum empréstimo atrasado
+        const now = new Date();
+        const hasOverdue = loans.some(l => !l.returned_at && l.due_date && new Date(l.due_date) < now);
+        if (hasOverdue) {
+            throw new Error('Você possui livro(s) atrasado(s). Devolva-o(s) antes de renovar qualquer empréstimo.');
+        }
         // Busca regras
         const rules = await RulesService.getRules();
         if ((loan.renewals ?? 0) >= rules.max_renewals) {
             throw new Error('Limite de renovações atingido.');
         }
-        // Calcula nova data de devolução
-        const now = new Date();
+        // Calcula nova data de devolução (sempre a partir de hoje + renewal_days)
         const newDueDate = new Date(now);
         newDueDate.setDate(now.getDate() + (rules.renewal_days || 7));
         return {
             due_date: newDueDate.toISOString(),
-            message: 'Nova data de devolução após renovação.'
+            message: 'Nova data de devolução após renovação (calculada a partir de hoje).'
         };
     }
 
-    // Preview da renovação
+    // Preview da extensão
     async previewExtendLoan(loan_id, user_id) {
         const rules = await RulesService.getRules();
         const loans = await LoansModel.getLoansByUser(user_id);
         const loan = loans.find(l => Number(l.loan_id) === Number(loan_id) && !l.returned_at);
         if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
+        // Verifica se o usuário tem algum empréstimo atrasado
+        const now = new Date();
+        const hasOverdue = loans.some(l => !l.returned_at && l.due_date && new Date(l.due_date) < now);
+        if (hasOverdue) {
+            throw new Error('Você possui livro(s) atrasado(s). Devolva-o(s) antes de estender qualquer empréstimo.');
+        }
         if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
         if (loan.is_extended === 1) throw new Error('Empréstimo já está estendido.');
         if (!loan.due_date) throw new Error('Data de devolução não definida.');
         const dueDate = new Date(loan.due_date);
-        const now = new Date();
         if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
         // Extensão será aplicada imediatamente: nova data = hoje + bloco
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         const newDue = new Date(now); newDue.setDate(now.getDate() + addedDays);
         return { new_due_date: newDue.toISOString(), added_days: addedDays };
-    }
-    async previewExtendLoan(loan_id, user_id) {
-        const rules = await RulesService.getRules();
-        const loans = await LoansModel.getLoansByUser(user_id);
-        const loan = loans.find(l => Number(l.loan_id) === Number(loan_id) && !l.returned_at);
-        if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
-        if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
-        if (loan.extended_phase === 1) throw new Error('Empréstimo já está estendido.');
-        if (!loan.due_date) throw new Error('Data de devolução não definida.');
-        const dueDate = new Date(loan.due_date);
-        const now = new Date();
-        if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
-        const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
-        const newDue = new Date(dueDate); newDue.setDate(newDue.getDate() + addedDays);
-        return { new_due_date: newDue.toISOString(), added_days: addedDays, pending_period_days: rules.extension_window_days };
     }
 
     // Extensão imediata
@@ -294,22 +371,31 @@ class LoansService {
         const loans = await LoansModel.getLoansByUser(user_id);
         const loan = loans.find(l => Number(l.loan_id) === Number(loan_id) && !l.returned_at);
         if (!loan) throw new Error('Empréstimo não encontrado ou já devolvido.');
+        // Verifica se o usuário tem algum empréstimo atrasado
+        const now = new Date();
+        const hasOverdue = loans.some(l => !l.returned_at && l.due_date && new Date(l.due_date) < now);
+        if (hasOverdue) {
+            throw new Error('Você possui livro(s) atrasado(s). Devolva-o(s) antes de estender qualquer empréstimo.');
+        }
         if ((loan.renewals ?? 0) < rules.max_renewals) throw new Error('Extensão só disponível após atingir o limite de renovações.');
         if (loan.is_extended === 1) throw new Error('Empréstimo já estendido.');
         if (!loan.due_date) throw new Error('Data de devolução não definida.');
         const dueDate = new Date(loan.due_date);
-        const now = new Date();
         if (dueDate < now) throw new Error('Empréstimo atrasado, não pode estender.');
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         await LoansModel.extendLoanBlock(loan_id, addedDays);
         const updated = await LoansModel.getLoanById(loan_id);
-        // Envia email de confirmação de extensão
+        // Envia email de confirmação de extensão (não bloqueia se falhar)
         if (updated) {
-            await EmailService.sendExtensionConfirmationEmail({
-                user_id,
-                book_title: updated.book_title,
-                due_date: updated.due_date
-            });
+            try {
+                await EmailService.sendExtensionConfirmationEmail({
+                    user_id,
+                    book_title: updated.book_title,
+                    due_date: updated.due_date
+                });
+            } catch (emailErr) {
+                console.error(`🟡 [LoansService] Erro ao enviar email de extensão (extensão realizada com sucesso):`, emailErr.message);
+            }
         }
         return { message: 'Empréstimo estendido com sucesso.', due_date: updated?.due_date };
     }
@@ -328,13 +414,17 @@ class LoansService {
         const addedDays = (rules.renewal_days || 7) * (rules.extension_block_multiplier || 3);
         await LoansModel.extendLoanBlock(loan_id, addedDays);
         const updated = await LoansModel.getLoanById(loan_id);
-        // Envia email de confirmação de extensão
+        // Envia email de confirmação de extensão (não bloqueia se falhar)
         if (updated) {
-            await EmailService.sendExtensionConfirmationEmail({
-                user_id,
-                book_title: updated.book_title,
-                due_date: updated.due_date
-            });
+            try {
+                await EmailService.sendExtensionConfirmationEmail({
+                    user_id,
+                    book_title: updated.book_title,
+                    due_date: updated.due_date
+                });
+            } catch (emailErr) {
+                console.error(`🟡 [LoansService] Erro ao enviar email de extensão (extensão realizada com sucesso):`, emailErr.message);
+            }
         }
         return { message: 'Empréstimo estendido com sucesso.', due_date: updated?.due_date };
     }
@@ -343,20 +433,97 @@ class LoansService {
         const rules = await RulesService.getRules();
         const loan = await LoansModel.getLoanById(loan_id);
         if (!loan || loan.returned_at) return { changed: false };
+        // Nudge só se aplica a empréstimos estendidos
         if (loan.is_extended !== 1) return { changed: false };
+        // Reduz o prazo para 5 dias apenas se o prazo atual for maior que 5 dias
         const shortenedTarget = rules.shortened_due_days_after_nudge || 5;
         const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, shortenedTarget);
         if (changed) {
             const updatedLoan = await LoansModel.getLoanById(loan_id);
-            // Envia email de nudge de extensão
-            await EmailService.sendExtensionNudgeEmail({
-                user_id: updatedLoan.student_id,
-                book_title: updatedLoan.book_title,
-                new_due_date: updatedLoan.due_date
-            });
+            // Envia email de nudge de extensão (não bloqueia se falhar)
+            try {
+                await EmailService.sendExtensionNudgeEmail({
+                    user_id: updatedLoan.student_id,
+                    book_title: updatedLoan.book_title,
+                    new_due_date: updatedLoan.due_date
+                });
+            } catch (emailErr) {
+                console.error(`🟡 [LoansService] Erro ao enviar email de nudge (operação realizada com sucesso):`, emailErr.message);
+            }
             return { changed: true, new_due_date: updatedLoan.due_date };
         }
         return { changed: false };
+    }
+
+    // Registra uso interno de livro (empréstimo fantasma - já devolvido)
+    // Não verifica reserva didática pois é uso interno na biblioteca
+    async registerInternalUse(book_id, book_code) {
+        console.log(`🔵 [LoansService] [USO INTERNO] === INÍCIO DO REGISTRO ===`);
+        console.log(`🔵 [LoansService] [USO INTERNO] book_id recebido: ${book_id} (tipo: ${typeof book_id})`);
+        console.log(`🔵 [LoansService] [USO INTERNO] book_code recebido: ${book_code} (tipo: ${typeof book_code})`);
+
+        // 1. Busca o livro pelo código ou ID
+        let book;
+        if (book_code) {
+            // Primeiro tenta buscar como ID numérico direto
+            if (!isNaN(book_code)) {
+                console.log(`🟡 [LoansService] [USO INTERNO] Tentando buscar como ID: ${book_code}`);
+                book = await BooksModel.getBookById(Number(book_code));
+                if (book) {
+                    book_id = book.id;
+                    console.log(`🟢 [LoansService] [USO INTERNO] Livro encontrado por ID. ID: ${book_id}, Código: ${book.code}, Título: ${book.title}`);
+                }
+            }
+            
+            // Se não encontrou por ID, busca pelo código
+            if (!book) {
+                console.log(`🟡 [LoansService] [USO INTERNO] Buscando pelo código: "${book_code}"`);
+                const books = await BooksModel.getBooks(null, null, null, null);
+                book = books.find(b => String(b.code) === String(book_code));
+                
+                if (!book) {
+                    console.warn(`🔴 [LoansService] [USO INTERNO] Livro não encontrado`);
+                    console.warn(`🔴 [LoansService] [USO INTERNO] Valor buscado: "${book_code}"`);
+                    console.warn(`🟡 [LoansService] [USO INTERNO] Formato esperado de código: "BIO-01.01", "FIS-01.01", etc.`);
+                    throw new Error(`Livro não encontrado. Use o ID do livro ou código no formato "AREA-XX.XX"`);
+                }
+                book_id = book.id;
+                console.log(`🟢 [LoansService] [USO INTERNO] Livro encontrado por código. ID: ${book_id}, Título: ${book.title}`);
+            }
+        } else {
+            // Busca pelo ID
+            book = await BooksModel.getBookById(book_id);
+            if (!book) {
+                console.warn(`🟡 [LoansService] [USO INTERNO] Livro id ${book_id} não encontrado`);
+                throw new Error('Livro não encontrado');
+            }
+        }
+
+        // Log se o livro está em reserva didática (apenas informativo)
+        if (book.is_reserved === 1) {
+            console.log(`🟡 [LoansService] [USO INTERNO] Registrando uso de livro em reserva didática: ${book.title}`);
+        }
+
+        // 2. Cria um empréstimo de uso interno (já devolvido) em uma única operação
+        const rules = await RulesService.getRules();
+        const maxDays = rules.max_days || 7;
+        const borrowedAt = new Date();
+        const dueDate = new Date(borrowedAt);
+        dueDate.setDate(borrowedAt.getDate() + maxDays);
+        const dueDateISO = dueDate.toISOString();
+
+        // Cria o empréstimo já com returned_at preenchido
+        const result = await LoansModel.createInternalUseLoan(book_id, dueDateISO);
+        
+        console.log(`🟢 [LoansService] [USO INTERNO] Uso interno registrado com sucesso para livro ${book_id} - ${book.title}`);
+        
+        return { 
+            success: true, 
+            message: 'Uso interno registrado com sucesso',
+            book_id,
+            book_title: book.title,
+            was_reserved: book.is_reserved === 1
+        };
     }
 }
 

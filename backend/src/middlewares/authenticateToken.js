@@ -25,11 +25,16 @@ function authenticateToken(req, res, next) {
         console.log('🟢 [authenticateToken] Token válido, usuário autenticado:', user);
         // Restrição de IP para usuário proaluno
         if (user.role === 'proaluno') {
-            const allowedIp = process.env.KIOSK_ALLOWED_IP || '143.107.90.22';
-            const reqIp = (req.ip || '').replace('::ffff:', '');
-            if (reqIp !== allowedIp) {
-                console.warn(`🟡 [authenticateToken] Acesso negado para proaluno do IP ${reqIp} (permitido: ${allowedIp})`);
-                return res.status(403).json({ error: 'Acesso não permitido para proaluno' });
+            // Pula verificação de IP em desenvolvimento
+            if (process.env.NODE_ENV === 'development') {
+                console.log('🟡 [authenticateToken] Modo dev: pulando verificação de IP para proaluno');
+            } else {
+                const allowedIp = process.env.KIOSK_ALLOWED_IP || '143.107.90.22';
+                const reqIp = (req.ip || '').replace('::ffff:', '');
+                if (reqIp !== allowedIp) {
+                    console.warn(`🟡 [authenticateToken] Acesso negado para proaluno do IP ${reqIp} (permitido: ${allowedIp})`);
+                    return res.status(403).json({ error: 'Acesso não permitido para proaluno' });
+                }
             }
         }
         req.user = user;
