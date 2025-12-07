@@ -74,11 +74,12 @@ export default function BooksList({ onClose }: BooksListProps) {
   const applyFilters = () => {
     let filtered = [...books];
 
-    // Filtro de texto (busca por título, autor ou código)
+    // Filtro de texto (busca por ID, título, autor ou código)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (book) =>
+          book.id?.toString().includes(term) ||
           book.title?.toLowerCase().includes(term) ||
           book.authors?.toLowerCase().includes(term) ||
           book.code?.toLowerCase().includes(term)
@@ -137,7 +138,7 @@ export default function BooksList({ onClose }: BooksListProps) {
       {/* Filtros */}
       <div className="flex flex-col gap-2">
         <Input
-          placeholder="Buscar por título, autor ou código..."
+          placeholder="Buscar por ID, código, título ou autor..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full"
