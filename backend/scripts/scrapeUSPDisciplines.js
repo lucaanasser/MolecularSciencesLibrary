@@ -1,0 +1,707 @@
+#!/usr/bin/env node
+/**
+ * Script de Scraping de Disciplinas da USP (JupiterWeb)
+ * 
+ * Baseado no script Python do MatrUSP, adaptado para Node.js
+ * e salvando diretamente no banco SQLite da BibliotecaCM.
+ * 
+ * Uso:
+ *   node scrapeUSPDisciplines.js [opções]
+ * 
+ * Opções:
+ *   -u, --unidades <codigos>   Códigos de unidades específicas (separados por vírgula)
+ *   -s, --simultaneidade <n>   Número de requisições simultâneas (padrão: 20)
+ *   -t, --timeout <ms>         Timeout das requisições em ms (padrão: 60000)
+ *   -v, --verbose              Modo verboso
+ *   --dry-run                  Não salva no banco, apenas mostra o que seria salvo
+ *   --clear                    Limpa dados existentes antes de iniciar
+ * 
+ * Exemplo:
+ *   node scrapeUSPDisciplines.js -u 45,3 -v
+ *   node scrapeUSPDisciplines.js --clear -s 10
+ */
+
+const axios = require('axios');
+const cheerio = require('cheerio');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
+// Importar o service para salvar no banco
+const DisciplinesService = require('../src/services/DisciplinesService');
+
+// ===================== CONFIGURAÇÃO =====================
+
+const CONFIG = {
+    baseUrl: 'https://uspdigital.usp.br/jupiterweb',
+    userAgent: 'BibliotecaCM-Scraper/1.0 (+https://github.com/lucaanasser/MolecularSciencesLibrary)',
+    simultaneidade: 20,
+    timeout: 60000,
+    retryAttempts: 2,
+    retryDelay: 2000,
+};
+
+// Mapeamento de códigos de unidade para campus
+const CAMPUS_POR_UNIDADE = {
+    // São Paulo
+    86: "São Paulo", 27: "São Paulo", 39: "São Paulo", 7: "São Paulo",
+    22: "São Paulo", 3: "São Paulo", 16: "São Paulo", 9: "São Paulo",
+    2: "São Paulo", 12: "São Paulo", 48: "São Paulo", 8: "São Paulo",
+    5: "São Paulo", 10: "São Paulo", 67: "São Paulo", 23: "São Paulo",
+    6: "São Paulo", 66: "São Paulo", 14: "São Paulo", 26: "São Paulo",
+    93: "São Paulo", 41: "São Paulo", 92: "São Paulo", 42: "São Paulo",
+    4: "São Paulo", 37: "São Paulo", 43: "São Paulo", 44: "São Paulo",
+    45: "São Paulo", 83: "São Paulo", 47: "São Paulo", 46: "São Paulo",
+    87: "São Paulo", 21: "São Paulo", 31: "São Paulo", 85: "São Paulo",
+    71: "São Paulo", 32: "São Paulo", 38: "São Paulo", 33: "São Paulo",
+    // Ribeirão Preto
+    98: "Ribeirão Preto", 94: "Ribeirão Preto", 60: "Ribeirão Preto",
+    89: "Ribeirão Preto", 81: "Ribeirão Preto", 59: "Ribeirão Preto",
+    96: "Ribeirão Preto", 91: "Ribeirão Preto", 17: "Ribeirão Preto",
+    58: "Ribeirão Preto", 95: "Ribeirão Preto",
+    // Lorena
+    88: "Lorena",
+    // São Carlos
+    18: "São Carlos", 97: "São Carlos", 99: "São Carlos", 55: "São Carlos",
+    76: "São Carlos", 75: "São Carlos", 90: "São Carlos",
+    // Piracicaba
+    11: "Piracicaba", 64: "Piracicaba",
+    // Bauru
+    25: "Bauru", 61: "Bauru",
+    // Pirassununga
+    74: "Pirassununga",
+    // São Sebastião
+    30: "São Sebastião"
+};
+
+// Dicionário global de unidades (nome -> código)
+let codigosUnidades = {};
+
+// ===================== LOGGING =====================
+
+class Logger {
+    constructor(verbose = false) {
+        this.verbose = verbose;
+        this.startTime = Date.now();
+    }
+
+    info(msg) {
+        console.log(`🔵 ${msg}`);
+    }
+
+    success(msg) {
+        console.log(`🟢 ${msg}`);
+    }
+
+    warn(msg) {
+        console.log(`🟡 ${msg}`);
+    }
+
+    error(msg) {
+        console.error(`🔴 ${msg}`);
+    }
+
+    debug(msg) {
+        if (this.verbose) {
+            console.log(`   ${msg}`);
+        }
+    }
+
+    elapsed() {
+        return ((Date.now() - this.startTime) / 1000).toFixed(2);
+    }
+}
+
+let logger;
+
+// ===================== HTTP CLIENT =====================
+
+const httpClient = axios.create({
+    baseURL: CONFIG.baseUrl,
+    timeout: CONFIG.timeout,
+    headers: {
+        'User-Agent': CONFIG.userAgent,
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+    },
+    // Ignorar erros de certificado SSL (como no script original)
+    httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false })
+});
+
+async function fetchWithRetry(url, retries = CONFIG.retryAttempts) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const response = await httpClient.get(url);
+            return response.data;
+        } catch (error) {
+            if (attempt === retries) {
+                throw error;
+            }
+            logger.warn(`Tentativa ${attempt + 1} falhou para ${url}. Tentando novamente...`);
+            await sleep(CONFIG.retryDelay);
+        }
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ===================== SEMÁFORO PARA CONTROLE DE CONCORRÊNCIA =====================
+
+class Semaphore {
+    constructor(max) {
+        this.max = max;
+        this.current = 0;
+        this.queue = [];
+    }
+
+    async acquire() {
+        if (this.current < this.max) {
+            this.current++;
+            return;
+        }
+        await new Promise(resolve => this.queue.push(resolve));
+        this.current++;
+    }
+
+    release() {
+        this.current--;
+        if (this.queue.length > 0) {
+            const next = this.queue.shift();
+            next();
+        }
+    }
+
+    async run(fn) {
+        await this.acquire();
+        try {
+            return await fn();
+        } finally {
+            this.release();
+        }
+    }
+}
+
+// ===================== PARSING DE HTML =====================
+
+/**
+ * Obtém a lista de unidades de ensino
+ */
+async function obterUnidades() {
+    logger.info('Obtendo lista de unidades de ensino...');
+    
+    const html = await fetchWithRetry('/jupColegiadoLista?tipo=T');
+    const $ = cheerio.load(html);
+    
+    const unidades = {};
+    $('a[href*="jupColegiadoMenu"]').each((_, el) => {
+        const href = $(el).attr('href');
+        const nome = $(el).text().trim();
+        const match = href.match(/codcg=(\d+)/);
+        if (match && nome) {
+            unidades[nome] = match[1];
+        }
+    });
+    
+    codigosUnidades = unidades;
+    logger.success(`${Object.keys(unidades).length} unidades encontradas`);
+    return unidades;
+}
+
+/**
+ * Obtém a lista de disciplinas de uma unidade
+ */
+async function obterDisciplinasUnidade(codigoUnidade) {
+    logger.debug(`Obtendo disciplinas da unidade ${codigoUnidade}...`);
+    
+    const html = await fetchWithRetry(`/jupDisciplinaLista?letra=A-Z&tipo=T&codcg=${codigoUnidade}`);
+    const $ = cheerio.load(html);
+    
+    const disciplinas = [];
+    $('a[href*="obterTurma"]').each((_, el) => {
+        const href = $(el).attr('href');
+        const nome = $(el).text().trim();
+        const match = href.match(/sgldis=([A-Z0-9\s]{7})/);
+        if (match) {
+            disciplinas.push({
+                codigo: match[1].trim(),
+                nome: nome
+            });
+        }
+    });
+    
+    logger.debug(`  ${disciplinas.length} disciplinas na unidade ${codigoUnidade}`);
+    return disciplinas;
+}
+
+/**
+ * Verifica se é uma tabela folha (sem tabelas dentro)
+ */
+function ehTabelaFolha($, table) {
+    return $(table).find('table').length === 0;
+}
+
+/**
+ * Obtém strings limpas de um elemento
+ */
+function getStrippedStrings($, el) {
+    const strings = [];
+    $(el).contents().each((_, node) => {
+        if (node.type === 'text') {
+            const text = $(node).text().trim();
+            if (text) strings.push(text);
+        }
+    });
+    // Se não encontrou nada, tenta o texto completo
+    if (strings.length === 0) {
+        const text = $(el).text().trim();
+        if (text) {
+            // Divide por quebras de linha e filtra vazios
+            return text.split(/\n/).map(s => s.trim()).filter(s => s);
+        }
+    }
+    return strings;
+}
+
+/**
+ * Parseia informações da disciplina
+ */
+function parsearInfoDisciplina($, tabelasFolha) {
+    const info = {};
+    
+    const reNome = /Disciplina:\s+.{7}\s+-.+/;
+    const reCreditos = /Créditos\s+Aula/;
+    const reRequisitos = /Requisito/i;
+    const reBibliografia = /Bibliografia/i;
+    const rePrograma = /Programa$/i;
+    
+    tabelasFolha.each((_, folha) => {
+        const $folha = $(folha);
+        const texto = $folha.text();
+        const trs = $folha.find('tr');
+        
+        // Cabeçalho com nome da disciplina
+        if (reNome.test(texto)) {
+            const strings = [];
+            $folha.find('td, th, span, b, font').each((_, el) => {
+                const t = $(el).text().trim();
+                if (t && !strings.includes(t)) strings.push(t);
+            });
+            
+            // Tentar encontrar unidade, departamento e disciplina
+            for (const s of strings) {
+                const matchDisciplina = s.match(/Disciplina:\s*([A-Z0-9\s]{7})\s*-\s*(.+)/);
+                if (matchDisciplina) {
+                    info.codigo = matchDisciplina[1].trim();
+                    info.nome = matchDisciplina[2].trim();
+                } else if (!info.unidade && s.length > 5 && !s.includes('Disciplina')) {
+                    if (!info.unidade) {
+                        info.unidade = s;
+                    } else if (!info.departamento) {
+                        info.departamento = s;
+                    }
+                }
+            }
+        }
+        
+        // Objetivos
+        if (trs.length >= 2) {
+            const headerText = $(trs[0]).text().trim();
+            if (headerText === 'Objetivos') {
+                info.objetivos = $(trs[1]).text().trim();
+            }
+        }
+        
+        // Programa Resumido
+        if (trs.length >= 2) {
+            const headerText = $(trs[0]).text().trim();
+            if (headerText === 'Programa Resumido') {
+                info.programa_resumido = $(trs[1]).text().trim();
+            }
+        }
+        
+        // Programa (descrição completa)
+        if (trs.length >= 2) {
+            const headerText = $(trs[0]).text().trim();
+            if (rePrograma.test(headerText) && headerText !== 'Programa Resumido') {
+                info.descricao = $(trs[1]).text().trim();
+            }
+        }
+        
+        // Requisitos
+        if (reRequisitos.test(texto) && trs.length >= 2) {
+            const headerText = $(trs[0]).text().trim();
+            if (reRequisitos.test(headerText)) {
+                info.requisitos = $(trs[1]).text().trim();
+            }
+        }
+        
+        // Bibliografia
+        if (reBibliografia.test(texto) && trs.length >= 2) {
+            const headerText = $(trs[0]).text().trim();
+            if (reBibliografia.test(headerText)) {
+                info.bibliografia = $(trs[1]).text().trim();
+            }
+        }
+        
+        // Créditos
+        if (reCreditos.test(texto)) {
+            $folha.find('tr').each((_, tr) => {
+                const tds = $(tr).find('td');
+                if (tds.length >= 2) {
+                    const label = $(tds[0]).text().trim();
+                    const value = $(tds[1]).text().trim();
+                    if (/Créditos\s+Aula:/i.test(label)) {
+                        info.creditos_aula = parseInt(value) || 0;
+                    } else if (/Créditos\s+Trabalho:/i.test(label)) {
+                        info.creditos_trabalho = parseInt(value) || 0;
+                    }
+                }
+            });
+        }
+    });
+    
+    return info;
+}
+
+/**
+ * Parseia informações de uma turma
+ */
+function parsearInfoTurma($, folha) {
+    const info = {};
+    
+    $(folha).find('tr').each((_, tr) => {
+        const tds = $(tr).find('td');
+        if (tds.length >= 2) {
+            const label = $(tds[0]).text().trim();
+            const value = $(tds[1]).text().trim();
+            
+            if (/Código\s+da\s+Turma\s+Teórica/i.test(label)) {
+                info.codigo_teorica = value;
+            } else if (/Código\s+da\s+Turma/i.test(label)) {
+                const match = value.match(/^(\w+)/);
+                if (match) info.codigo = match[1];
+            } else if (/Início/i.test(label)) {
+                info.inicio = value;
+            } else if (/Fim/i.test(label)) {
+                info.fim = value;
+            } else if (/Tipo\s+da\s+Turma/i.test(label)) {
+                info.tipo = value;
+            } else if (/Observações/i.test(label)) {
+                info.observacoes = value;
+            }
+        }
+    });
+    
+    return info;
+}
+
+/**
+ * Parseia horários de uma turma
+ */
+function parsearHorario($, folha) {
+    const horarios = [];
+    let accum = null;
+    
+    $(folha).find('tr').each((_, tr) => {
+        const tds = $(tr).find('td');
+        const valores = [];
+        tds.each((_, td) => valores.push($(td).text().trim()));
+        
+        if (valores.length < 4) return;
+        if (valores[0] === 'Horário') return; // Cabeçalho
+        
+        const [dia, inicio, fim, professor] = valores;
+        
+        if (dia !== '') {
+            // Novo dia de aula
+            if (accum !== null) {
+                horarios.push(accum);
+            }
+            accum = {
+                dia: dia,
+                inicio: inicio,
+                fim: fim,
+                professores: professor ? [professor] : []
+            };
+        } else if (dia === '' && inicio === '') {
+            // Mais professores ou horário estendido
+            if (accum) {
+                if (fim && fim > accum.fim) {
+                    accum.fim = fim;
+                }
+                if (professor) {
+                    accum.professores.push(professor);
+                }
+            }
+        } else if (dia === '' && inicio !== '') {
+            // Mais uma aula no mesmo dia
+            if (accum !== null) {
+                horarios.push(accum);
+            }
+            accum = {
+                dia: accum ? accum.dia : '',
+                inicio: inicio,
+                fim: fim,
+                professores: professor ? [professor] : []
+            };
+        }
+    });
+    
+    if (accum !== null) {
+        horarios.push(accum);
+    }
+    
+    return horarios;
+}
+
+/**
+ * Parseia turmas de uma disciplina
+ */
+function parsearTurmas($, tabelasFolha) {
+    const turmas = [];
+    let info = null;
+    let horario = null;
+    
+    tabelasFolha.each((_, folha) => {
+        const texto = $(folha).text();
+        
+        if (/Código\s+da\s+Turma/i.test(texto)) {
+            // Nova turma - salvar a anterior se existir
+            if (info !== null && horario) {
+                info.horario = horario;
+                turmas.push(info);
+            }
+            info = parsearInfoTurma($, folha);
+            horario = null;
+        } else if (/^Horário/.test(texto.trim()) || $(folha).find('td:contains("Horário")').length > 0) {
+            horario = parsearHorario($, folha);
+        }
+        // Ignoramos vagas conforme solicitado
+    });
+    
+    // Última turma
+    if (info !== null) {
+        info.horario = horario || [];
+        turmas.push(info);
+    }
+    
+    return turmas;
+}
+
+/**
+ * Processa uma disciplina completa (turmas + info)
+ */
+async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
+    return semaphore.run(async () => {
+        const { codigo, nome } = disciplina;
+        logger.debug(`Processando ${codigo} - ${nome}`);
+        
+        try {
+            // 1. Obter turmas
+            const htmlTurmas = await fetchWithRetry(`/obterTurma?print=true&sgldis=${codigo}`);
+            const $turmas = cheerio.load(htmlTurmas);
+            
+            const tabelasFolhaTurmas = $turmas('table').filter((_, t) => ehTabelaFolha($turmas, t));
+            const turmas = parsearTurmas($turmas, tabelasFolhaTurmas);
+            
+            if (turmas.length === 0) {
+                logger.debug(`  ${codigo}: sem turmas válidas, ignorando`);
+                return null;
+            }
+            
+            // 2. Obter informações da disciplina
+            const htmlInfo = await fetchWithRetry(`/obterDisciplina?print=true&sgldis=${codigo}`);
+            const $info = cheerio.load(htmlInfo);
+            
+            const tabelasFolhaInfo = $info('table').filter((_, t) => ehTabelaFolha($info, t));
+            const info = parsearInfoDisciplina($info, tabelasFolhaInfo);
+            
+            if (!info.codigo) {
+                info.codigo = codigo;
+            }
+            if (!info.nome) {
+                info.nome = nome;
+            }
+            
+            // Adicionar campus
+            info.campus = CAMPUS_POR_UNIDADE[parseInt(codigoUnidade)] || 'Outro';
+            
+            // Adicionar turmas
+            info.turmas = turmas;
+            
+            logger.debug(`  ${codigo}: ${turmas.length} turmas`);
+            return info;
+            
+        } catch (error) {
+            logger.error(`Erro ao processar ${codigo}: ${error.message}`);
+            return null;
+        }
+    });
+}
+
+// ===================== MAIN =====================
+
+async function main() {
+    // Parsear argumentos
+    const args = parseArgs();
+    
+    logger = new Logger(args.verbose);
+    CONFIG.simultaneidade = args.simultaneidade;
+    CONFIG.timeout = args.timeout;
+    
+    logger.info('=== Scraping de Disciplinas USP ===');
+    logger.info(`Simultaneidade: ${CONFIG.simultaneidade}`);
+    logger.info(`Timeout: ${CONFIG.timeout}ms`);
+    
+    if (args.dryRun) {
+        logger.warn('MODO DRY-RUN: Nenhum dado será salvo');
+    }
+    
+    try {
+        // 1. Limpar dados se solicitado
+        if (args.clear && !args.dryRun) {
+            logger.info('Limpando dados existentes...');
+            await DisciplinesService.clearAllData();
+            logger.success('Dados limpos');
+        }
+        
+        // 2. Obter unidades
+        const unidades = await obterUnidades();
+        
+        // 3. Filtrar unidades se especificado
+        let codigosParaProcessar;
+        if (args.unidades && args.unidades.length > 0) {
+            codigosParaProcessar = args.unidades;
+            logger.info(`Processando apenas unidades: ${codigosParaProcessar.join(', ')}`);
+        } else {
+            codigosParaProcessar = Object.values(unidades);
+        }
+        
+        // 4. Obter disciplinas de todas as unidades
+        logger.info('Obtendo lista de disciplinas...');
+        const todasDisciplinas = [];
+        
+        for (const codigoUnidade of codigosParaProcessar) {
+            try {
+                const disciplinas = await obterDisciplinasUnidade(codigoUnidade);
+                for (const d of disciplinas) {
+                    todasDisciplinas.push({ ...d, codigoUnidade });
+                }
+            } catch (error) {
+                logger.error(`Erro na unidade ${codigoUnidade}: ${error.message}`);
+            }
+        }
+        
+        logger.success(`${todasDisciplinas.length} disciplinas encontradas`);
+        
+        // 5. Processar disciplinas com semáforo
+        logger.info('Processando disciplinas...');
+        const semaphore = new Semaphore(CONFIG.simultaneidade);
+        
+        const promises = todasDisciplinas.map(d => 
+            processarDisciplina(semaphore, d, d.codigoUnidade)
+        );
+        
+        const resultados = await Promise.all(promises);
+        const disciplinasValidas = resultados.filter(r => r !== null);
+        
+        logger.success(`${disciplinasValidas.length} disciplinas processadas com sucesso`);
+        
+        // 6. Salvar no banco
+        if (!args.dryRun) {
+            logger.info('Salvando no banco de dados...');
+            let salvos = 0;
+            let erros = 0;
+            
+            for (const disciplina of disciplinasValidas) {
+                try {
+                    await DisciplinesService.saveDiscipline(disciplina);
+                    salvos++;
+                    if (salvos % 100 === 0) {
+                        logger.info(`  ${salvos}/${disciplinasValidas.length} salvas...`);
+                    }
+                } catch (error) {
+                    logger.error(`Erro ao salvar ${disciplina.codigo}: ${error.message}`);
+                    erros++;
+                }
+            }
+            
+            logger.success(`${salvos} disciplinas salvas, ${erros} erros`);
+        } else {
+            // Dry run - mostrar exemplo
+            if (disciplinasValidas.length > 0) {
+                logger.info('Exemplo de disciplina processada:');
+                console.log(JSON.stringify(disciplinasValidas[0], null, 2));
+            }
+        }
+        
+        logger.success(`=== Concluído em ${logger.elapsed()}s ===`);
+        
+    } catch (error) {
+        logger.error(`Erro fatal: ${error.message}`);
+        console.error(error);
+        process.exit(1);
+    }
+}
+
+function parseArgs() {
+    const args = {
+        unidades: [],
+        simultaneidade: 20,
+        timeout: 60000,
+        verbose: false,
+        dryRun: false,
+        clear: false,
+    };
+    
+    const argv = process.argv.slice(2);
+    
+    for (let i = 0; i < argv.length; i++) {
+        const arg = argv[i];
+        
+        if (arg === '-u' || arg === '--unidades') {
+            args.unidades = argv[++i].split(',').map(s => s.trim());
+        } else if (arg === '-s' || arg === '--simultaneidade') {
+            args.simultaneidade = parseInt(argv[++i]) || 20;
+        } else if (arg === '-t' || arg === '--timeout') {
+            args.timeout = parseInt(argv[++i]) || 60000;
+        } else if (arg === '-v' || arg === '--verbose') {
+            args.verbose = true;
+        } else if (arg === '--dry-run') {
+            args.dryRun = true;
+        } else if (arg === '--clear') {
+            args.clear = true;
+        } else if (arg === '-h' || arg === '--help') {
+            console.log(`
+Scraping de Disciplinas USP (JupiterWeb)
+
+Uso:
+  node scrapeUSPDisciplines.js [opções]
+
+Opções:
+  -u, --unidades <codigos>   Códigos de unidades (separados por vírgula)
+  -s, --simultaneidade <n>   Requisições simultâneas (padrão: 20)
+  -t, --timeout <ms>         Timeout em ms (padrão: 60000)
+  -v, --verbose              Modo verboso
+  --dry-run                  Não salva, apenas mostra
+  --clear                    Limpa dados antes de iniciar
+  -h, --help                 Mostra esta ajuda
+
+Exemplos:
+  node scrapeUSPDisciplines.js -u 45,3 -v
+  node scrapeUSPDisciplines.js --clear --dry-run
+  node scrapeUSPDisciplines.js -s 10 -t 120000
+            `);
+            process.exit(0);
+        }
+    }
+    
+    return args;
+}
+
+// Executar
+main().catch(error => {
+    console.error('Erro não tratado:', error);
+    process.exit(1);
+});
