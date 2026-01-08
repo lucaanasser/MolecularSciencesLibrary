@@ -220,7 +220,7 @@ const Index = () => {
                 Apoiar a biblioteca é investir no futuro do conhecimento e na oportunidade de aprender juntos.
               </p>
               <Button asChild className="bg-cm-purple hover:bg-cm-purple/90 rounded-2xl px-8 py-4 text-lg">
-                <Link to="/404">Ajude a biblioteca</Link>
+                <Link to="/ajude">Ajude a biblioteca</Link>
               </Button>
             </div>
             <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-white">
