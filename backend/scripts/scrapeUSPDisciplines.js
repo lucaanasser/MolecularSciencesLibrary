@@ -505,9 +505,10 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
             const tabelasFolhaTurmas = $turmas('table').filter((_, t) => ehTabelaFolha($turmas, t));
             const turmas = parsearTurmas($turmas, tabelasFolhaTurmas);
             
-            if (turmas.length === 0) {
-                logger.debug(`  ${codigo}: sem turmas válidas, ignorando`);
-                return null;
+            const hasValidClasses = turmas.length > 0;
+            
+            if (!hasValidClasses) {
+                logger.debug(`  ${codigo}: sem turmas válidas`);
             }
             
             // 2. Obter informações da disciplina
@@ -527,10 +528,13 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
             // Adicionar campus
             info.campus = CAMPUS_POR_UNIDADE[parseInt(codigoUnidade)] || 'Outro';
             
-            // Adicionar turmas
+            // Marcar se tem turmas válidas
+            info.has_valid_classes = hasValidClasses;
+            
+            // Adicionar turmas (pode ser array vazio)
             info.turmas = turmas;
             
-            logger.debug(`  ${codigo}: ${turmas.length} turmas`);
+            logger.debug(`  ${codigo}: ${turmas.length} turmas${hasValidClasses ? '' : ' (sem turmas válidas)'}`);
             return info;
             
         } catch (error) {

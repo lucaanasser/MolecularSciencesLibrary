@@ -110,8 +110,8 @@ class DisciplinesModel {
                 codigo, nome, unidade, departamento, campus,
                 creditos_aula, creditos_trabalho, objetivos,
                 programa_resumido, descricao, bibliografia, requisitos,
-                updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                has_valid_classes, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(codigo) DO UPDATE SET
                 nome = excluded.nome,
                 unidade = excluded.unidade,
@@ -124,6 +124,7 @@ class DisciplinesModel {
                 descricao = excluded.descricao,
                 bibliografia = excluded.bibliografia,
                 requisitos = excluded.requisitos,
+                has_valid_classes = excluded.has_valid_classes,
                 updated_at = CURRENT_TIMESTAMP
         `;
         const params = [
@@ -138,7 +139,8 @@ class DisciplinesModel {
             data.programa_resumido || null,
             data.descricao || null,
             data.bibliografia || null,
-            data.requisitos || null
+            data.requisitos || null,
+            data.has_valid_classes ? 1 : 0
         ];
 
         try {

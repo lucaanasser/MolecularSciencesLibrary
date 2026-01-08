@@ -263,6 +263,7 @@ db.serialize(() => {
             descricao TEXT,
             bibliografia TEXT,
             requisitos TEXT,
+            has_valid_classes INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
