@@ -2,7 +2,10 @@ const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
 
-const dbUrl = process.env.DATABASE_URL || 'sqlite://./database/library.db';
+// Database configuration - usar pasta database na raiz do projeto (fora de backend)
+const projectRoot = path.resolve(__dirname, '..', '..', '..');
+const defaultDbPath = path.join(projectRoot, 'database', 'library.db');
+const dbUrl = process.env.DATABASE_URL || `sqlite://${defaultDbPath}`;
 const dbPath = dbUrl.replace('sqlite://', '');
 const dbDir = path.dirname(dbPath);
 
