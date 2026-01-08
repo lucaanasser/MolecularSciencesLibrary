@@ -247,6 +247,93 @@ db.serialize(() => {
         console.log('🟢 [initDb] Configuração padrão de prateleiras inserida');
     });
 
+    // DISCIPLINES TABLE - Disciplinas da USP
+    db.run(`
+        CREATE TABLE IF NOT EXISTS disciplines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            codigo TEXT UNIQUE NOT NULL,
+            nome TEXT NOT NULL,
+            unidade TEXT NOT NULL,
+            departamento TEXT,
+            campus TEXT,
+            creditos_aula INTEGER DEFAULT 0,
+            creditos_trabalho INTEGER DEFAULT 0,
+            objetivos TEXT,
+            programa_resumido TEXT,
+            descricao TEXT,
+            bibliografia TEXT,
+            requisitos TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela disciplines:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela disciplines criada com sucesso');
+    });
+
+    // DISCIPLINE_CLASSES TABLE - Turmas das disciplinas
+    db.run(`
+        CREATE TABLE IF NOT EXISTS discipline_classes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            discipline_id INTEGER NOT NULL,
+            codigo_turma TEXT NOT NULL,
+            codigo_turma_teorica TEXT,
+            tipo TEXT,
+            inicio DATE,
+            fim DATE,
+            observacoes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(discipline_id) REFERENCES disciplines(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela discipline_classes:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela discipline_classes criada com sucesso');
+    });
+
+    // CLASS_SCHEDULES TABLE - Horários de aula
+    db.run(`
+        CREATE TABLE IF NOT EXISTS class_schedules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            class_id INTEGER NOT NULL,
+            dia TEXT NOT NULL,
+            horario_inicio TEXT NOT NULL,
+            horario_fim TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(class_id) REFERENCES discipline_classes(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela class_schedules:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela class_schedules criada com sucesso');
+    });
+
+    // CLASS_PROFESSORS TABLE - Professores por turma/horário
+    db.run(`
+        CREATE TABLE IF NOT EXISTS class_professors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            class_id INTEGER NOT NULL,
+            schedule_id INTEGER,
+            nome TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(class_id) REFERENCES discipline_classes(id) ON DELETE CASCADE,
+            FOREIGN KEY(schedule_id) REFERENCES class_schedules(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela class_professors:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela class_professors criada com sucesso');
+    });
+
     // Função para gerar código de livro no padrão BooksService
     function generateBookCode(area, subarea, seq, volume) {
         const areaCodes = {
