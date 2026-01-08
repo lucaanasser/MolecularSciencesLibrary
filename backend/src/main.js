@@ -13,6 +13,7 @@ const badgesRouter = require('./routes/BadgesRoutes');
 const donatorsRouter = require('./routes/DonatorsRoutes');
 const virtualBookShelfRouter = require('./routes/VirtualBookSheflRoute'); 
 const formsRouter = require('./routes/FormsRoutes');
+const disciplinesRouter = require('./routes/DisciplinesRoutes');
 require('dotenv').config();
 
 /**
@@ -43,6 +44,7 @@ app.use('/api/badges', badgesRouter);
 app.use('/api/donators', donatorsRouter);
 app.use('/api/virtual-bookshelf', virtualBookShelfRouter); // Adicione esta linha
 app.use('/api/forms', formsRouter);
+app.use('/api/disciplines', disciplinesRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {
