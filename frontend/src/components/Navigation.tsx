@@ -138,17 +138,15 @@ const Navigation: React.FC = () => {
             <Link to="/estante-virtual" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               Estante Virtual
             </Link>
+            <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
+              Ajude
+            </Link>
             <Link to="/faq" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
               FAQ
             </Link>
             {showProAlunoHeader && (
               <Link to="/proaluno" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>Portal Pró-Aluno</Link>
             )}
-            {/*
-            <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
-              Ajude a Biblioteca
-            </Link>
-            */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -254,6 +252,16 @@ const Navigation: React.FC = () => {
                 }}
               >
                 Estante Virtual
+              </Link>
+              <Link
+                to="/ajude"
+                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  console.log("🟢 [Navigation] Menu mobile fechado (Ajude)");
+                }}
+              >
+                Ajude
               </Link>
               <Link
                 to="/faq"

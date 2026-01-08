@@ -357,8 +357,8 @@ const CardTabs: React.FC = () => {
           </button>
         ))}
       </div>
-      <div className="border border-gray-200 rounded-b-2xl p-8 flex flex-col md:flex-row justify-between items-center bg-cm-bg shadow-md">
-        <div className="w-full md:w-[60%] md:pr-8">
+      <div className="border border-gray-200 rounded-b-2xl p-6 flex flex-col md:flex-row justify-between items-start bg-cm-bg shadow-md">
+        <div className="w-full md:w-[60%] md:pr-6">
           <h2 className="text-2xl mb-3">{data.title}</h2>
           <p className="text-gray-700 mb-4">{data.description}</p>
           {/* Formulário específico da tab */}
@@ -368,8 +368,7 @@ const CardTabs: React.FC = () => {
           <img
             src={data.image}
             alt={data.imageAlt}
-            className="w-full max-w-xs md:max-w-none object-contain"
-            style={{ width: "100%" }}
+            className="w-full max-w-[280px] md:max-w-none object-contain"
           />
         </div>
       </div>
@@ -382,8 +381,8 @@ const DonationPage = () => (
 		<Navigation />
 
 		{/* Texto introdutório sobre formas de ajudar */}
-		<div className="max-w-6xl mx-auto mt-20">
-      <h2 className="text-5xl text-black mb-4">Ajude a biblioteca</h2>
+		<div className="max-w-7xl mx-auto mt-20 px-4 sm:px-6 lg:px-8">
+      <h2 className="text-5xl text-black mb-4">Ajude</h2>
 			<p className="text-lg text-black">
 				A Biblioteca conta com o apoio da comunidade para crescer e se manter relevante. Você pode contribuir enviando feedbacks, sugerindo novos livros, doando exemplares ou apoiando financeiramente. Toda ajuda é bem-vinda!
 			</p>
@@ -391,45 +390,46 @@ const DonationPage = () => (
 		
 		<CardTabs />
 
-    {/* Statistics Section with Diagonal Design */}
-      <section className="relative py-40 mt-20 mb-20 bg-cm-purple">
-        {/* Top Diagonal Cut */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
-        
-        {/* Bottom Diagonal Cut */}
-        <div className="absolute bottom-0 right-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-bottom-right"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-5xl text-cm-bg mb-4">Apoio financeiro</h2>
-          <p className="text-lg text-cm-bg mb-8">
-            Sua contribuição é fundamental para a preservação do acervo.
-          </p>
-          {/* QR Code grande acima do botão */}
-          <div className="flex flex-col items-center mb-8">
-            <img
-              src="/images/qr-donation.png"
-              alt="QR Code para doação"
-              className="w-64 h-64 rounded-xl border border-gray-300 shadow-lg"
-            />
-            <span className="text-cm-bg mt-2 font-semibold">Escaneie para doar</span>
-          </div>
-          <Button
-            className="w-full max-w-xs bg-cm-bg hover:bg-gray-200 text-cm-purple rounded-xl font-bold py-3 flex items-center justify-center gap-2 shadow-md mx-auto"
-            onClick={() => window.location.href = "/donate"}
-          >
-            <Gift className="h-4 w-4" />
-            Ou clique aqui para doar
-          </Button>
+		{/* Feature que pode ser implementada no futuro: Seção de apoio financeiro com doações */}
+		{/*
+    <section className="relative py-40 mt-20 mb-20 bg-cm-purple">
+      <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
+      <div className="absolute bottom-0 right-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-bottom-right"></div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-5xl text-cm-bg mb-4">Apoio financeiro</h2>
+        <p className="text-lg text-cm-bg mb-8">
+          Sua contribuição é fundamental para a preservação do acervo.
+        </p>
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/images/qr-donation.png"
+            alt="QR Code para doação"
+            className="w-64 h-64 rounded-xl border border-gray-300 shadow-lg"
+          />
+          <span className="text-cm-bg mt-2 font-semibold">Escaneie para doar</span>
         </div>
-      </section>
-		{/* Texto com número de apoiadores e incentivo */}
+        <Button
+          className="w-full max-w-xs bg-cm-bg hover:bg-gray-200 text-cm-purple rounded-xl font-bold py-3 flex items-center justify-center gap-2 shadow-md mx-auto"
+          onClick={() => window.location.href = "/donate"}
+        >
+          <Gift className="h-4 w-4" />
+          Ou clique aqui para doar
+        </Button>
+      </div>
+    </section>
+		*/}
+
+		{/* Feature que pode ser implementada no futuro: Roleta com nomes dos apoiadores */}
+		{/*
 		<div className="mt-18 flex flex-col items-center mb-24">
 			<h2 className="text-5xl text-center mb-8">
 				{supporters.length}+ pessoas já apoiaram a Biblioteca! 
 			</h2>
-			
-			{/* Roleta de agradecimento aos apoiadores movida para o final */}
 			<SupportersCarousel />
 		</div>
+		*/}
+
+		<div className="mb-24"></div>
 		<Footer />
 	</div>
 );
