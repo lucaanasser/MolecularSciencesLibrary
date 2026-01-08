@@ -124,14 +124,26 @@ const httpClient = axios.create({
         'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
     },
     // Ignorar erros de certificado SSL (como no script original)
-    httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false })
+    httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false }),
+    // JupiterWeb usa ISO-8859-1, precisamos converter para UTF-8
+    responseType: 'arraybuffer',
+    responseEncoding: 'binary'
 });
+
+/**
+ * Converte buffer ISO-8859-1 para string UTF-8
+ */
+function decodeResponse(buffer) {
+    // Tentar detectar encoding do HTML ou assumir ISO-8859-1 (padrão do JupiterWeb)
+    const iconv = require('iconv-lite');
+    return iconv.decode(Buffer.from(buffer), 'iso-8859-1');
+}
 
 async function fetchWithRetry(url, retries = CONFIG.retryAttempts) {
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
             const response = await httpClient.get(url);
-            return response.data;
+            return decodeResponse(response.data);
         } catch (error) {
             if (attempt === retries) {
                 throw error;
@@ -373,21 +385,22 @@ function parsearInfoTurma($, folha) {
     $(folha).find('tr').each((_, tr) => {
         const tds = $(tr).find('td');
         if (tds.length >= 2) {
-            const label = $(tds[0]).text().trim();
-            const value = $(tds[1]).text().trim();
+            // Normalizar label removendo espaços extras
+            const label = normalizeText($(tds[0]).text());
+            const value = normalizeText($(tds[1]).text());
             
-            if (/Código\s+da\s+Turma\s+Teórica/i.test(label)) {
+            if (/C[óo]digo\s*da\s*Turma\s*Te[óo]rica/i.test(label)) {
                 info.codigo_teorica = value;
-            } else if (/Código\s+da\s+Turma/i.test(label)) {
+            } else if (/C[óo]digo\s*da\s*Turma/i.test(label)) {
                 const match = value.match(/^(\w+)/);
                 if (match) info.codigo = match[1];
-            } else if (/Início/i.test(label)) {
+            } else if (/In[íi]cio/i.test(label)) {
                 info.inicio = value;
             } else if (/Fim/i.test(label)) {
                 info.fim = value;
-            } else if (/Tipo\s+da\s+Turma/i.test(label)) {
+            } else if (/Tipo\s*da\s*Turma/i.test(label)) {
                 info.tipo = value;
-            } else if (/Observações/i.test(label)) {
+            } else if (/Observa[çc][õo]es/i.test(label)) {
                 info.observacoes = value;
             }
         }
@@ -456,6 +469,13 @@ function parsearHorario($, folha) {
 }
 
 /**
+ * Normaliza texto removendo espaços extras e quebras de linha
+ */
+function normalizeText(text) {
+    return text.replace(/\s+/g, ' ').trim();
+}
+
+/**
  * Parseia turmas de uma disciplina
  */
 function parsearTurmas($, tabelasFolha) {
@@ -464,9 +484,10 @@ function parsearTurmas($, tabelasFolha) {
     let horario = null;
     
     tabelasFolha.each((_, folha) => {
-        const texto = $(folha).text();
+        const texto = normalizeText($(folha).text());
         
-        if (/Código\s+da\s+Turma/i.test(texto)) {
+        // O texto "Código da Turma" pode estar quebrado em múltiplas linhas
+        if (/C[óo]digo\s*da\s*Turma/i.test(texto)) {
             // Nova turma - salvar a anterior se existir
             if (info !== null && horario) {
                 info.horario = horario;
@@ -474,7 +495,7 @@ function parsearTurmas($, tabelasFolha) {
             }
             info = parsearInfoTurma($, folha);
             horario = null;
-        } else if (/^Horário/.test(texto.trim()) || $(folha).find('td:contains("Horário")').length > 0) {
+        } else if (/Hor[áa]rio/i.test(texto) && $(folha).find('td').length >= 4) {
             horario = parsearHorario($, folha);
         }
         // Ignoramos vagas conforme solicitado
