@@ -8,6 +8,7 @@
     "build": "echo 'skip build'",
     "dev": "nodemon src/main.js",
     "init-db": "node initDb.js",
+    "seed": "node scripts/seed_database.js",
     "scrape:disciplines": "node scripts/scrapeUSPDisciplines.js",
     "scrape:disciplines:test": "node scripts/scrapeUSPDisciplines.js -u 45 -v --dry-run"
   },
