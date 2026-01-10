@@ -45,6 +45,21 @@ services:
     entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y wget curl tzdata rclone jq && ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime && echo $${TZ} > /etc/timezone && while true; do bash /app/scripts/backup_db_to_gdrive.sh; sleep 86400; done"]
     depends_on:
       - backend
+
+  # Scraping semanal de disciplinas da USP (roda todo domingo às 3h)
+  scrape-disciplines:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y tzdata && ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime && echo $${TZ} > /etc/timezone && sleep 60 && while true; do echo \"[$(date)] Iniciando scraping de disciplinas USP...\"; node scripts/scrapeUSPDisciplines.js; echo \"[$(date)] Scraping concluído. Próximo em 7 dias.\"; sleep 604800; done"]
+    volumes:
+      - ./database:/app/database
+    environment:
+      - DATABASE_URL=sqlite:///app/database/library.db
+      - SQLITE_BUSY_TIMEOUT=30000
+      - TZ=America/Sao_Paulo
+    depends_on:
+      - backend
   frontend:
     build:
       context: ./frontend

@@ -34,10 +34,11 @@ const DisciplinesService = require('../src/services/DisciplinesService');
 const CONFIG = {
     baseUrl: 'https://uspdigital.usp.br/jupiterweb',
     userAgent: 'BibliotecaCM-Scraper/1.0 (+https://github.com/lucaanasser/MolecularSciencesLibrary)',
-    simultaneidade: 20,
-    timeout: 60000,
-    retryAttempts: 2,
-    retryDelay: 2000,
+    simultaneidade: 3,   // Reduzido para evitar bloqueio do JupiterWeb (3-5 é seguro)
+    timeout: 30000,      // 30 segundos é suficiente
+    retryAttempts: 3,    // 3 tentativas
+    retryDelay: 2000,    // 2 segundos entre tentativas
+    delayEntreRequisicoes: 200, // 200ms entre cada requisição para evitar rate limit
 };
 
 // Mapeamento de códigos de unidade para campus
@@ -75,6 +76,8 @@ const CAMPUS_POR_UNIDADE = {
 
 // Dicionário global de unidades (nome -> código)
 let codigosUnidades = {};
+// Dicionário reverso (código -> nome)
+let nomesUnidades = {};
 
 // ===================== LOGGING =====================
 
@@ -148,8 +151,10 @@ async function fetchWithRetry(url, retries = CONFIG.retryAttempts) {
             if (attempt === retries) {
                 throw error;
             }
-            logger.warn(`Tentativa ${attempt + 1} falhou para ${url}. Tentando novamente...`);
-            await sleep(CONFIG.retryDelay);
+            // Backoff exponencial: 3s, 6s, 12s, 24s...
+            const delay = CONFIG.retryDelay * Math.pow(2, attempt);
+            logger.warn(`Tentativa ${attempt + 1} falhou para ${url}. Aguardando ${delay/1000}s...`);
+            await sleep(delay);
         }
     }
 }
@@ -187,6 +192,8 @@ class Semaphore {
     async run(fn) {
         await this.acquire();
         try {
+            // Adiciona delay entre requisições para evitar rate limiting
+            await sleep(CONFIG.delayEntreRequisicoes);
             return await fn();
         } finally {
             this.release();
@@ -212,6 +219,7 @@ async function obterUnidades() {
         const match = href.match(/codcg=(\d+)/);
         if (match && nome) {
             unidades[nome] = match[1];
+            nomesUnidades[match[1]] = nome; // Mapeamento reverso
         }
     });
     
@@ -251,129 +259,6 @@ async function obterDisciplinasUnidade(codigoUnidade) {
  */
 function ehTabelaFolha($, table) {
     return $(table).find('table').length === 0;
-}
-
-/**
- * Obtém strings limpas de um elemento
- */
-function getStrippedStrings($, el) {
-    const strings = [];
-    $(el).contents().each((_, node) => {
-        if (node.type === 'text') {
-            const text = $(node).text().trim();
-            if (text) strings.push(text);
-        }
-    });
-    // Se não encontrou nada, tenta o texto completo
-    if (strings.length === 0) {
-        const text = $(el).text().trim();
-        if (text) {
-            // Divide por quebras de linha e filtra vazios
-            return text.split(/\n/).map(s => s.trim()).filter(s => s);
-        }
-    }
-    return strings;
-}
-
-/**
- * Parseia informações da disciplina
- */
-function parsearInfoDisciplina($, tabelasFolha) {
-    const info = {};
-    
-    const reNome = /Disciplina:\s+.{7}\s+-.+/;
-    const reCreditos = /Créditos\s+Aula/;
-    const reRequisitos = /Requisito/i;
-    const reBibliografia = /Bibliografia/i;
-    const rePrograma = /Programa$/i;
-    
-    tabelasFolha.each((_, folha) => {
-        const $folha = $(folha);
-        const texto = $folha.text();
-        const trs = $folha.find('tr');
-        
-        // Cabeçalho com nome da disciplina
-        if (reNome.test(texto)) {
-            const strings = [];
-            $folha.find('td, th, span, b, font').each((_, el) => {
-                const t = $(el).text().trim();
-                if (t && !strings.includes(t)) strings.push(t);
-            });
-            
-            // Tentar encontrar unidade, departamento e disciplina
-            for (const s of strings) {
-                const matchDisciplina = s.match(/Disciplina:\s*([A-Z0-9\s]{7})\s*-\s*(.+)/);
-                if (matchDisciplina) {
-                    info.codigo = matchDisciplina[1].trim();
-                    info.nome = matchDisciplina[2].trim();
-                } else if (!info.unidade && s.length > 5 && !s.includes('Disciplina')) {
-                    if (!info.unidade) {
-                        info.unidade = s;
-                    } else if (!info.departamento) {
-                        info.departamento = s;
-                    }
-                }
-            }
-        }
-        
-        // Objetivos
-        if (trs.length >= 2) {
-            const headerText = $(trs[0]).text().trim();
-            if (headerText === 'Objetivos') {
-                info.objetivos = $(trs[1]).text().trim();
-            }
-        }
-        
-        // Programa Resumido
-        if (trs.length >= 2) {
-            const headerText = $(trs[0]).text().trim();
-            if (headerText === 'Programa Resumido') {
-                info.programa_resumido = $(trs[1]).text().trim();
-            }
-        }
-        
-        // Programa (descrição completa)
-        if (trs.length >= 2) {
-            const headerText = $(trs[0]).text().trim();
-            if (rePrograma.test(headerText) && headerText !== 'Programa Resumido') {
-                info.descricao = $(trs[1]).text().trim();
-            }
-        }
-        
-        // Requisitos
-        if (reRequisitos.test(texto) && trs.length >= 2) {
-            const headerText = $(trs[0]).text().trim();
-            if (reRequisitos.test(headerText)) {
-                info.requisitos = $(trs[1]).text().trim();
-            }
-        }
-        
-        // Bibliografia
-        if (reBibliografia.test(texto) && trs.length >= 2) {
-            const headerText = $(trs[0]).text().trim();
-            if (reBibliografia.test(headerText)) {
-                info.bibliografia = $(trs[1]).text().trim();
-            }
-        }
-        
-        // Créditos
-        if (reCreditos.test(texto)) {
-            $folha.find('tr').each((_, tr) => {
-                const tds = $(tr).find('td');
-                if (tds.length >= 2) {
-                    const label = $(tds[0]).text().trim();
-                    const value = $(tds[1]).text().trim();
-                    if (/Créditos\s+Aula:/i.test(label)) {
-                        info.creditos_aula = parseInt(value) || 0;
-                    } else if (/Créditos\s+Trabalho:/i.test(label)) {
-                        info.creditos_trabalho = parseInt(value) || 0;
-                    }
-                }
-            });
-        }
-    });
-    
-    return info;
 }
 
 /**
@@ -511,7 +396,32 @@ function parsearTurmas($, tabelasFolha) {
 }
 
 /**
- * Processa uma disciplina completa (turmas + info)
+ * Extrai créditos da página de turmas (se disponível na mesma página)
+ */
+function parsearCreditosDaTurma($, tabelasFolha) {
+    let creditos_aula = 0;
+    let creditos_trabalho = 0;
+    
+    tabelasFolha.each((_, folha) => {
+        const texto = $(folha).text();
+        
+        // Procurar por padrão de créditos no texto
+        const matchAula = texto.match(/Cr[ée]ditos?\s*Aula[:\s]*(\d+)/i);
+        const matchTrabalho = texto.match(/Cr[ée]ditos?\s*Trabalho[:\s]*(\d+)/i);
+        
+        if (matchAula) {
+            creditos_aula = parseInt(matchAula[1]) || 0;
+        }
+        if (matchTrabalho) {
+            creditos_trabalho = parseInt(matchTrabalho[1]) || 0;
+        }
+    });
+    
+    return { creditos_aula, creditos_trabalho };
+}
+
+/**
+ * Processa uma disciplina (apenas turmas - informações para grade interativa)
  */
 async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
     return semaphore.run(async () => {
@@ -519,12 +429,15 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
         logger.debug(`Processando ${codigo} - ${nome}`);
         
         try {
-            // 1. Obter turmas
+            // Obter turmas (única requisição necessária para grade interativa)
             const htmlTurmas = await fetchWithRetry(`/obterTurma?print=true&sgldis=${codigo}`);
             const $turmas = cheerio.load(htmlTurmas);
             
             const tabelasFolhaTurmas = $turmas('table').filter((_, t) => ehTabelaFolha($turmas, t));
             const turmas = parsearTurmas($turmas, tabelasFolhaTurmas);
+            
+            // Tentar extrair créditos da página de turmas (se disponível)
+            const creditos = parsearCreditosDaTurma($turmas, tabelasFolhaTurmas);
             
             const hasValidClasses = turmas.length > 0;
             
@@ -532,28 +445,17 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
                 logger.debug(`  ${codigo}: sem turmas válidas`);
             }
             
-            // 2. Obter informações da disciplina
-            const htmlInfo = await fetchWithRetry(`/obterDisciplina?print=true&sgldis=${codigo}`);
-            const $info = cheerio.load(htmlInfo);
-            
-            const tabelasFolhaInfo = $info('table').filter((_, t) => ehTabelaFolha($info, t));
-            const info = parsearInfoDisciplina($info, tabelasFolhaInfo);
-            
-            if (!info.codigo) {
-                info.codigo = codigo;
-            }
-            if (!info.nome) {
-                info.nome = nome;
-            }
-            
-            // Adicionar campus
-            info.campus = CAMPUS_POR_UNIDADE[parseInt(codigoUnidade)] || 'Outro';
-            
-            // Marcar se tem turmas válidas
-            info.has_valid_classes = hasValidClasses;
-            
-            // Adicionar turmas (pode ser array vazio)
-            info.turmas = turmas;
+            // Construir objeto da disciplina com informações essenciais para grade
+            const info = {
+                codigo: codigo,
+                nome: nome,
+                unidade: nomesUnidades[codigoUnidade] || 'Desconhecida',
+                campus: CAMPUS_POR_UNIDADE[parseInt(codigoUnidade)] || 'Outro',
+                creditos_aula: creditos.creditos_aula,
+                creditos_trabalho: creditos.creditos_trabalho,
+                has_valid_classes: hasValidClasses,
+                turmas: turmas
+            };
             
             logger.debug(`  ${codigo}: ${turmas.length} turmas${hasValidClasses ? '' : ' (sem turmas válidas)'}`);
             return info;
@@ -622,10 +524,24 @@ async function main() {
         
         // 5. Processar disciplinas com semáforo
         logger.info('Processando disciplinas...');
+        logger.info(`Tempo estimado: ~${Math.ceil(todasDisciplinas.length * (CONFIG.delayEntreRequisicoes + 1000) / 1000 / CONFIG.simultaneidade / 60)} minutos`);
         const semaphore = new Semaphore(CONFIG.simultaneidade);
         
+        let processadas = 0;
+        const total = todasDisciplinas.length;
+        const startProcess = Date.now();
+        
         const promises = todasDisciplinas.map(d => 
-            processarDisciplina(semaphore, d, d.codigoUnidade)
+            processarDisciplina(semaphore, d, d.codigoUnidade).then(result => {
+                processadas++;
+                if (processadas % 50 === 0 || processadas === total) {
+                    const elapsed = (Date.now() - startProcess) / 1000;
+                    const rate = processadas / elapsed;
+                    const remaining = Math.ceil((total - processadas) / rate / 60);
+                    logger.info(`📊 Progresso: ${processadas}/${total} (${(processadas/total*100).toFixed(1)}%) - ~${remaining}min restantes`);
+                }
+                return result;
+            })
         );
         
         const resultados = await Promise.all(promises);
@@ -673,8 +589,8 @@ async function main() {
 function parseArgs() {
     const args = {
         unidades: [],
-        simultaneidade: 20,
-        timeout: 60000,
+        simultaneidade: CONFIG.simultaneidade,  // Usa o valor do CONFIG
+        timeout: CONFIG.timeout,                // Usa o valor do CONFIG
         verbose: false,
         dryRun: false,
         clear: false,
@@ -688,9 +604,9 @@ function parseArgs() {
         if (arg === '-u' || arg === '--unidades') {
             args.unidades = argv[++i].split(',').map(s => s.trim());
         } else if (arg === '-s' || arg === '--simultaneidade') {
-            args.simultaneidade = parseInt(argv[++i]) || 20;
+            args.simultaneidade = parseInt(argv[++i]) || CONFIG.simultaneidade;
         } else if (arg === '-t' || arg === '--timeout') {
-            args.timeout = parseInt(argv[++i]) || 60000;
+            args.timeout = parseInt(argv[++i]) || CONFIG.timeout;
         } else if (arg === '-v' || arg === '--verbose') {
             args.verbose = true;
         } else if (arg === '--dry-run') {
@@ -706,8 +622,8 @@ Uso:
 
 Opções:
   -u, --unidades <codigos>   Códigos de unidades (separados por vírgula)
-  -s, --simultaneidade <n>   Requisições simultâneas (padrão: 20)
-  -t, --timeout <ms>         Timeout em ms (padrão: 60000)
+  -s, --simultaneidade <n>   Requisições simultâneas (padrão: 3)
+  -t, --timeout <ms>         Timeout em ms (padrão: 30000)
   -v, --verbose              Modo verboso
   --dry-run                  Não salva, apenas mostra
   --clear                    Limpa dados antes de iniciar

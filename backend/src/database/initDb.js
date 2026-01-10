@@ -249,22 +249,16 @@ db.serialize(() => {
         console.log('🟢 [initDb] Configuração padrão de prateleiras inserida');
     });
 
-    // DISCIPLINES TABLE - Disciplinas da USP
+    // DISCIPLINES TABLE - Disciplinas da USP (estrutura simplificada para grade interativa)
     db.run(`
         CREATE TABLE IF NOT EXISTS disciplines (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             codigo TEXT UNIQUE NOT NULL,
             nome TEXT NOT NULL,
-            unidade TEXT NOT NULL,
-            departamento TEXT,
+            unidade TEXT,
             campus TEXT,
             creditos_aula INTEGER DEFAULT 0,
             creditos_trabalho INTEGER DEFAULT 0,
-            objetivos TEXT,
-            programa_resumido TEXT,
-            descricao TEXT,
-            bibliografia TEXT,
-            requisitos TEXT,
             has_valid_classes INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

@@ -101,45 +101,32 @@ class DisciplinesModel {
     }
 
     /**
-     * Insere ou atualiza uma disciplina (upsert)
+     * Insere ou atualiza uma disciplina (upsert) - estrutura simplificada para grade interativa
      */
     async upsertDiscipline(data) {
         console.log(`🔵 [DisciplinesModel] Upsert disciplina: ${data.codigo}`);
         const query = `
             INSERT INTO disciplines (
-                codigo, nome, unidade, departamento, campus,
-                creditos_aula, creditos_trabalho, objetivos,
-                programa_resumido, descricao, bibliografia, requisitos,
+                codigo, nome, unidade, campus,
+                creditos_aula, creditos_trabalho,
                 has_valid_classes, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(codigo) DO UPDATE SET
                 nome = excluded.nome,
                 unidade = excluded.unidade,
-                departamento = excluded.departamento,
                 campus = excluded.campus,
                 creditos_aula = excluded.creditos_aula,
                 creditos_trabalho = excluded.creditos_trabalho,
-                objetivos = excluded.objetivos,
-                programa_resumido = excluded.programa_resumido,
-                descricao = excluded.descricao,
-                bibliografia = excluded.bibliografia,
-                requisitos = excluded.requisitos,
                 has_valid_classes = excluded.has_valid_classes,
                 updated_at = CURRENT_TIMESTAMP
         `;
         const params = [
             data.codigo,
             data.nome,
-            data.unidade,
-            data.departamento || null,
+            data.unidade || null,
             data.campus || null,
             data.creditos_aula || 0,
             data.creditos_trabalho || 0,
-            data.objetivos || null,
-            data.programa_resumido || null,
-            data.descricao || null,
-            data.bibliografia || null,
-            data.requisitos || null,
             data.has_valid_classes ? 1 : 0
         ];
 
@@ -282,9 +269,9 @@ class DisciplinesModel {
         ];
 
         try {
-            const result = await executeQuery(query, params);
-            console.log(`🟢 [DisciplinesModel] Turma inserida: ${data.codigo_turma}, ID: ${result.lastID}`);
-            return { id: result.lastID, ...data };
+            const lastID = await executeQuery(query, params);
+            console.log(`🟢 [DisciplinesModel] Turma inserida: ${data.codigo_turma}, ID: ${lastID}`);
+            return { id: lastID, ...data };
         } catch (error) {
             console.error("🔴 [DisciplinesModel] Erro ao inserir turma:", error.message);
             throw error;
@@ -342,9 +329,9 @@ class DisciplinesModel {
         ];
 
         try {
-            const result = await executeQuery(query, params);
-            console.log(`🟢 [DisciplinesModel] Horário inserido: ID ${result.lastID}`);
-            return { id: result.lastID, ...data };
+            const lastID = await executeQuery(query, params);
+            console.log(`🟢 [DisciplinesModel] Horário inserido: ID ${lastID}`);
+            return { id: lastID, ...data };
         } catch (error) {
             console.error("🔴 [DisciplinesModel] Erro ao inserir horário:", error.message);
             throw error;
@@ -401,9 +388,9 @@ class DisciplinesModel {
         ];
 
         try {
-            const result = await executeQuery(query, params);
-            console.log(`🟢 [DisciplinesModel] Professor inserido: ${data.nome}, ID: ${result.lastID}`);
-            return { id: result.lastID, ...data };
+            const lastID = await executeQuery(query, params);
+            console.log(`🟢 [DisciplinesModel] Professor inserido: ${data.nome}, ID: ${lastID}`);
+            return { id: lastID, ...data };
         } catch (error) {
             console.error("🔴 [DisciplinesModel] Erro ao inserir professor:", error.message);
             throw error;
