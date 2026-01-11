@@ -34,11 +34,19 @@ Now, *you*—students, alumni, contributors—are invited to help grow this into
 git clone https://github.com/lucaanasser/MolecularSciencesLibrary.git
 cd MolecularSciencesLibrary
 cp backend/.env.example backend/.env   # edit as needed
-docker compose -f docker-compose.dev.yml up --build
+
+# Setup aliases (optional but recommended)
+bash scripts/setup-aliases.sh
+source ~/.bash_aliases
+
+# Run with interactive menu
+npm run dev
 ```
 
-* Frontend → [http://localhost:3000](http://localhost:3000)
+* Frontend → [http://localhost:8080](http://localhost:8080)
 * API → [http://localhost:3001/api](http://localhost:3001/api)
+
+**Pro tip:** After setup, just type `dev` from anywhere to start! 🎯
 
 ---
 
@@ -56,21 +64,21 @@ docker compose -f docker-compose.dev.yml up --build
   - [7. Environments (Development vs Production)](#7-environments-development-vs-production)
   - [8. Environment Variables (Backend Example)](#8-environment-variables-backend-example)
   - [9. Running the Project](#9-running-the-project)
+    - [Quick Commands (with aliases)](#quick-commands-with-aliases)
     - [Development](#development)
     - [Production](#production)
-    - [Backend only](#backend-only)
-    - [Frontend only](#frontend-only)
-  - [10. Core Workflows](#10-core-workflows)
-  - [11. API Surface (Snapshot)](#11-api-surface-snapshot)
-  - [12. Background Tasks](#12-background-tasks)
-  - [13. Contribution Guide (Pull Requests)](#13-contribution-guide-pull-requests)
+  - [10. Developer Scripts \& Automation](#10-developer-scripts--automation)
+  - [11. Core Workflows](#11-core-workflows)
+  - [12. API Surface (Snapshot)](#12-api-surface-snapshot)
+  - [13. Background Tasks](#13-background-tasks)
+  - [14. Contribution Guide (Pull Requests)](#14-contribution-guide-pull-requests)
     - [Steps](#steps)
     - [Guidelines](#guidelines)
-  - [14. Code Quality, Style \& Testing](#14-code-quality-style--testing)
-  - [15. Roadmap](#15-roadmap)
-  - [16. Security \& Hardening](#16-security--hardening)
-  - [17. License (Public Domain – The Unlicense)](#17-license-public-domain--the-unlicense)
-  - [18. Acknowledgements](#18-acknowledgements)
+  - [15. Code Quality, Style \& Testing](#15-code-quality-style--testing)
+  - [16. Roadmap](#16-roadmap)
+  - [17. Security \& Hardening](#17-security--hardening)
+  - [18. License (Public Domain – The Unlicense)](#18-license-public-domain--the-unlicense)
+  - [19. Acknowledgements](#19-acknowledgements)
 
 ---
 
@@ -193,40 +201,105 @@ KIOSK_ALLOWED_IP=123.455.78.90
 
 ## 9. Running the Project
 
-### Development
+### Quick Commands (with aliases)
+
+After running `bash scripts/setup-aliases.sh` once:
 
 ```bash
-git clone https://github.com/lucaanasser/MolecularSciencesLibrary.git
-cd MolecularSciencesLibrary
-cp backend/.env.example backend/.env
+# Development
+dev           # Interactive development menu
+save          # Git add + commit + push (prompts for message)
+
+# Production (VPS)
+deploy        # Git pull + restart with SSL & prune
+restart       # Restart containers with cleanup
+rebuild       # Full rebuild from scratch
+
+# Monitoring
+logs          # Live container logs
+status        # Container status
+stop          # Stop all containers
+
+# Database
+db            # Open SQLite CLI
+seed          # Populate database with sample data
+backup        # Manual backup to Google Drive
+scrape        # Update USP disciplines
+
+# Utilities
+aliases       # Show all available commands
+biblioteca    # Navigate to project directory
+```
+
+### Development
+
+**Option 1: Interactive Menu** (Recommended)
+```bash
+npm run dev
+# or just: dev (if aliases are set up)
+```
+
+Choose from 6 development modes:
+1. Full Docker Compose (frontend + backend)
+2. Frontend only (Vite dev server)
+3. Backend in Docker + Frontend local (hot-reload)
+4. Backend only (nodemon)
+5. Backend Docker only
+6. Both frontend + backend local (best DX!)
+
+**Option 2: Manual Docker Compose**
+```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
 
 ### Production
 
+**On VPS:**
 ```bash
-docker compose up -d --build
-docker compose logs -f backend
+cd MolecularSciencesLibrary
+git pull
+npm run start
+# or just: deploy (if aliases are set up)
 ```
 
-### Backend only
+The production script automatically:
+- Stops existing containers
+- Cleans old images (`docker system prune`)
+- Copies SSL certificates
+- Starts fresh containers
+- Shows status
 
-```bash
-cd backend
-npm install
-npm start
-```
-
-### Frontend only
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
 ---
 
-## 10. Core Workflows
+## 10. Developer Scripts & Automation
+
+| Script | Command | Purpose |
+|--------|---------|---------|
+| **Development** |
+| `start-dev.sh` | `npm run dev` / `dev` | Interactive development menu with 6 modes |
+| `save.sh` | `save "message"` | Quick git add + commit + push |
+| **Production** |
+| `start-production.sh` | `npm run start` / `restart` | Deploy with SSL + cleanup |
+| `setup-aliases.sh` | Run once | Configure global shortcuts |
+| `show-aliases.sh` | `aliases` | Display all available commands |
+| **Database** |
+| `seed_database.js` | `npm run seed` / `seed` | Populate with sample data |
+| `importCsv.js` | `npm run import:csv file.csv` | Import books from CSV |
+| `clean_test_scenarios.js` | `npm run clean:test` | Remove test data |
+| **Maintenance** |
+| `backup_db_to_gdrive.sh` | `npm run backup` / `backup` | Upload DB to Google Drive |
+| `scrapeUSPDisciplines.js` | `npm run scrape:disciplines` / `scrape` | Update USP course catalog |
+| `checkOverdues.js` | Cron daily | Check overdue loans + send emails |
+| `troubleshoot.sh` | `npm run troubleshoot` | System diagnostics |
+
+**Background Services** (Production only):
+- `cron` → Daily overdue checks & notifications
+- `backup` → Daily Google Drive backups  
+- `certbot` → Automatic SSL renewal
+
+---
+
+## 11. Core Workflows
 
 * 📖 Add Book → generate code + EAN13.
 * 🟢 Borrow → validate policy, send email.
@@ -238,7 +311,7 @@ npm run dev
 
 ---
 
-## 11. API Surface (Snapshot)
+## 12. API Surface (Snapshot)
 
 ```http
 /books (GET filter, POST add, DELETE, POST borrow|return)
@@ -254,7 +327,7 @@ npm run dev
 
 ---
 
-## 12. Background Tasks
+## 13. Background Tasks
 
 | Service   | Purpose                     | Frequency |
 | --------- | --------------------------- | --------- |
@@ -264,7 +337,7 @@ npm run dev
 
 ---
 
-## 13. Contribution Guide (Pull Requests)
+## 14. Contribution Guide (Pull Requests)
 
 We *welcome* all contributions—code, docs, design, or even book donations.
 
@@ -275,6 +348,8 @@ We *welcome* all contributions—code, docs, design, or even book donations.
 3. Commit: `git commit -m "feat(books): add language filter"`.
 4. Push → PR with rationale + screenshots/tests.
 
+**Quick commit:** Use `save "your message"` for instant add + commit + push! 🚀
+
 ### Guidelines
 
 * No secrets in commits.
@@ -284,7 +359,7 @@ We *welcome* all contributions—code, docs, design, or even book donations.
 
 ---
 
-## 14. Code Quality, Style & Testing
+## 15. Code Quality, Style & Testing
 
 * ✍️ Small, pure functions.
 * ✅ Controllers thin, Services clean.
@@ -294,12 +369,16 @@ We *welcome* all contributions—code, docs, design, or even book donations.
 
 ---
 
-## 15. Roadmap
+## 16. Roadmap
 
 * [x] Virtual bookshelf editing.
+* [x] Developer automation scripts.
+* [x] Interactive development menu.
+* [x] Global command aliases.
+* [x] Automated deployment workflow.
 * [ ] Stronger type safety.
 * [ ] Automated test suite.
-* [ ] CSV import/export.
+* [ ] CSV import/export UI.
 * [ ] i18n framework.
 * [ ] PWA offline mode.
 * [ ] Postgres adapter.
@@ -307,7 +386,7 @@ We *welcome* all contributions—code, docs, design, or even book donations.
 
 ---
 
-## 16. Security & Hardening
+## 17. Security & Hardening
 
 * 🔑 Rotate JWT secrets.
 * 🍪 Consider httpOnly cookies for tokens.
@@ -317,7 +396,7 @@ We *welcome* all contributions—code, docs, design, or even book donations.
 
 ---
 
-## 17. License (Public Domain – The Unlicense)
+## 18. License (Public Domain – The Unlicense)
 
 Released into the **public domain**.
 Do whatever you want—use, remix, fork.
@@ -326,7 +405,7 @@ Attribution is optional, but **deeply appreciated**.
 
 ---
 
-## 18. Acknowledgements
+## 19. Acknowledgements
 
 🙏 To the CM-USP community—students, alumni, staff, donors—who believe shared knowledge compounds.
 💡 Special thanks to early collaborators & testers.

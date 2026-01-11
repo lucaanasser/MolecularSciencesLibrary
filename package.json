@@ -1,4 +1,17 @@
 {
+  "name": "biblioteca-cm",
+  "version": "1.0.0",
+  "description": "Biblioteca de Ciências Moleculares",
+  "scripts": {
+    "dev": "bash scripts/start-dev.sh",
+    "start": "bash scripts/start-production.sh",
+    "seed": "cd backend && npm run seed",
+    "import:csv": "cd backend && npm run import:csv",
+    "scrape:disciplines": "cd backend && npm run scrape:disciplines",
+    "clean:test": "cd backend && npm run clean:test",
+    "backup:db": "bash scripts/backup_db_to_gdrive.sh",
+    "troubleshoot": "bash scripts/troubleshoot.sh"
+  },
   "dependencies": {
     "csv-parser": "^3.2.0",
     "framer-motion": "^12.23.12"

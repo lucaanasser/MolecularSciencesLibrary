@@ -7,8 +7,10 @@
     "start": "node src/database/initDb.js && node src/main.js",
     "build": "echo 'skip build'",
     "dev": "nodemon src/main.js",
-    "init-db": "node initDb.js",
+    "init-db": "node src/database/initDb.js",
     "seed": "node scripts/seed_database.js",
+    "import:csv": "node scripts/importCsv.js",
+    "clean:test": "node scripts/clean_test_scenarios.js",
     "scrape:disciplines": "node scripts/scrapeUSPDisciplines.js",
     "scrape:disciplines:test": "node scripts/scrapeUSPDisciplines.js -u 45 -v --dry-run"
   },

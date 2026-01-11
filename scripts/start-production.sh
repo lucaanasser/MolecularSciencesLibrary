@@ -41,6 +41,10 @@ fi
 echo "🛑 Parando containers existentes..."
 docker compose down 2>/dev/null || docker-compose down 2>/dev/null || echo "Nenhum container rodando"
 
+# Limpar imagens e containers antigos
+echo "🧹 Limpando imagens e containers antigos..."
+docker system prune -af --volumes 2>/dev/null || echo "Nada para limpar"
+
 # Iniciar containers
 echo "🚀 Iniciando containers..."
 if command -v "docker compose" &> /dev/null; then
