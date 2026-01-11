@@ -8,6 +8,7 @@ echo "🔵 Preparando ambiente da Biblioteca Molecular Sciences..."
 # Verificar se estamos no diretório correto
 if [ ! -f "docker-compose.yml" ]; then
     echo "❌ Erro: docker-compose.yml não encontrado. Execute este script no diretório raiz do projeto."
+    echo "💡 Certifique-se de ter o Docker Compose v2+ instalado (docker compose, não docker-compose)"
     exit 1
 fi
 
@@ -39,7 +40,7 @@ fi
 
 # Parar containers existentes
 echo "🛑 Parando containers existentes..."
-docker compose down 2>/dev/null || docker-compose down 2>/dev/null || echo "Nenhum container rodando"
+docker compose down 2>/dev/null || echo "Nenhum container rodando"
 
 # Limpar imagens e containers antigos
 echo "🧹 Limpando imagens e containers antigos..."
@@ -47,11 +48,7 @@ docker system prune -af --volumes 2>/dev/null || echo "Nada para limpar"
 
 # Iniciar containers
 echo "🚀 Iniciando containers..."
-if command -v "docker compose" &> /dev/null; then
-    docker compose up -d
-else
-    docker-compose up -d
-fi
+docker compose up -d
 
 echo "✅ Containers iniciados!"
 echo ""
@@ -60,8 +57,4 @@ echo "📊 Status dos containers:"
 
 # Mostrar status dos containers
 sleep 3
-if command -v "docker compose" &> /dev/null; then
-    docker compose ps
-else
-    docker-compose ps
-fi
+docker compose ps
