@@ -9,6 +9,7 @@
     "import:csv": "cd backend && npm run import:csv",
     "scrape:disciplines": "cd backend && npm run scrape:disciplines",
     "clean:test": "cd backend && npm run clean:test",
+    "clean": "bash scripts/clean.sh",
     "backup:db": "bash scripts/backup_db_to_gdrive.sh",
     "troubleshoot": "bash scripts/troubleshoot.sh"
   },

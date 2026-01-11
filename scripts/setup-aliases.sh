@@ -26,6 +26,7 @@ cat >> "$ALIAS_FILE" << EOF
 # BibliotecaCM aliases
 alias aliases='bash $PROJECT_DIR/scripts/show-aliases.sh'
 alias save='bash $PROJECT_DIR/scripts/save.sh'
+alias clean='bash $PROJECT_DIR/scripts/clean.sh'
 alias biblioteca='cd $PROJECT_DIR'
 alias restart='cd $PROJECT_DIR && npm run start'
 alias dev='cd $PROJECT_DIR && npm run dev'
@@ -48,6 +49,9 @@ echo "   aliases     - Mostrar todos os aliases disponíveis"
 echo ""
 echo "   💾 Git:"
 echo "   save        - Git add + commit + push (pede mensagem)"
+echo ""
+echo "   🧹 Manutenção:"
+echo "   clean       - Limpa logs, Docker e libera espaço"
 echo ""
 echo "   🚀 Deploy & Containers:"
 echo "   🚀 Deploy & Containers:"
