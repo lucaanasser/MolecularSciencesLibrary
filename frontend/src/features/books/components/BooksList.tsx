@@ -3,6 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 interface Book {
   id: number;
@@ -116,15 +118,29 @@ export default function BooksList({ onClose }: BooksListProps) {
     return <Badge className="bg-green-500">Disponível</Badge>;
   };
 
+  const handleExportCSV = () => {
+    console.log("📥 [BooksList] Iniciando download do catálogo em CSV");
+    // Abre o endpoint de exportação em nova aba, o que iniciará o download
+    window.open("/api/books/export/csv", "_blank");
+  };
+
   if (loading) {
     return <div className="text-center py-8">Carregando livros...</div>;
   }
 
   return (
     <div className="space-y-4">
-      {/* Cabeçalho com botão fechar */}
-      {onClose && (
-        <div className="flex justify-end">
+      {/* Cabeçalho com botão fechar e exportar */}
+      <div className="flex justify-between items-center">
+        <Button
+          onClick={handleExportCSV}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Exportar Catálogo (CSV)
+        </Button>
+        {onClose && (
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 font-bold text-xl"
@@ -132,8 +148,8 @@ export default function BooksList({ onClose }: BooksListProps) {
           >
             ×
           </button>
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Filtros */}
       <div className="flex flex-col gap-2">

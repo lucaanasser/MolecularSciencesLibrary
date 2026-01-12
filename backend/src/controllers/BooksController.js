@@ -214,6 +214,217 @@ class BooksController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
+    /**
+     * Exporta todos os livros em formato CSV
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async exportBooksToCSV(req, res) {
+        try {
+            console.log('🔵 [BooksController] Exportando catálogo de livros em CSV');
+            const books = await BooksModel.getAll();
+            
+            // Cabeçalhos do CSV
+            const headers = [
+                'ID',
+                'Código',
+                'Título',
+                'Autores',
+                'Editora',
+                'Edição',
+                'ISBN',
+                'Ano',
+                'Código de Barras',
+                'Área',
+                'Subárea',
+                'Disponível',
+                'Reserva Didática',
+                'Observações'
+            ];
+            
+            // Converter livros para linhas CSV
+            const csvRows = [headers.join(',')];
+            
+            for (const book of books) {
+                const row = [
+                    book.id || '',
+                    this.escapeCSV(book.code || ''),
+                    this.escapeCSV(book.title || ''),
+                    this.escapeCSV(book.authors || ''),
+                    this.escapeCSV(book.publisher || ''),
+                    this.escapeCSV(book.edition || ''),
+                    this.escapeCSV(book.isbn || ''),
+                    book.year || '',
+                    this.escapeCSV(book.barcode || ''),
+                    this.escapeCSV(book.area || ''),
+                    this.escapeCSV(book.sub_area || ''),
+                    book.available ? 'Sim' : 'Não',
+                    book.is_reserved === 1 ? 'Sim' : 'Não',
+                    this.escapeCSV(book.observations || '')
+                ];
+                csvRows.push(row.join(','));
+            }
+            
+            const csvContent = csvRows.join('\n');
+            
+            // Configurar headers da resposta
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="catalogo_livros_${new Date().toISOString().split('T')[0]}.csv"`);
+            
+            console.log(`🟢 [BooksController] CSV exportado com sucesso: ${books.length} livros`);
+            res.send('\ufeff' + csvContent); // BOM para UTF-8
+        } catch (error) {
+            console.error('🔴 [BooksController] Erro ao exportar CSV:', error.message);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
+     * Escapa valores para CSV (adiciona aspas se necessário)
+     * @param {string} value - Valor a ser escapado
+     * @returns {string} Valor escapado
+     */
+    escapeCSV(value) {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+    }
+
+    /**
+     * Importa livros a partir de um arquivo CSV
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async importBooksFromCSV(req, res) {
+        try {
+            console.log('🔵 [BooksController] Iniciando importação de livros via CSV');
+            
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'Nenhum arquivo CSV fornecido' });
+            }
+
+            const csvContent = req.file.buffer.toString('utf-8');
+            const lines = csvContent.split('\n').filter(line => line.trim());
+            
+            if (lines.length < 2) {
+                return res.status(400).json({ success: false, message: 'Arquivo CSV vazio ou inválido' });
+            }
+
+            // Parse do cabeçalho
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            
+            const results = {
+                success: 0,
+                failed: 0,
+                errors: []
+            };
+
+            // Processar cada linha
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+
+                try {
+                    // Parse da linha CSV (simplificado - considera aspas)
+                    const values = this.parseCSVLine(line);
+                    const bookData = {};
+                    
+                    headers.forEach((header, index) => {
+                        bookData[header] = values[index] || '';
+                    });
+
+                    // Validação de campos obrigatórios
+                    const requiredFields = ['code', 'title', 'authors', 'area', 'subarea', 'edition', 'language', 'volume'];
+                    const missingFields = requiredFields.filter(field => !bookData[field] || bookData[field].trim() === '');
+                    
+                    if (missingFields.length > 0) {
+                        throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
+                    }
+
+                    // Validação específica do código do livro
+                    if (!bookData.code || bookData.code.trim() === '') {
+                        throw new Error('O código do livro (code) é obrigatório. Consulte os Padrões da Biblioteca para criar códigos corretos.');
+                    }
+
+                    // Preparar dados para inserção
+                    const bookToAdd = {
+                        code: bookData.code.trim(),
+                        title: bookData.title.trim(),
+                        subtitle: bookData.subtitle?.trim() || '',
+                        authors: bookData.authors.trim(),
+                        area: bookData.area.trim(),
+                        subarea: bookData.subarea.trim(),
+                        edition: bookData.edition.trim(),
+                        language: parseInt(bookData.language),
+                        volume: bookData.volume.trim(),
+                        isbn: bookData.isbn?.trim() || '',
+                        year: bookData.year?.trim() || '',
+                        publisher: bookData.publisher?.trim() || '',
+                        observations: bookData.observations?.trim() || '',
+                        barcode: bookData.barcode?.trim() || '',
+                        addType: 'csv_import'
+                    };
+
+                    // Adicionar livro usando o serviço existente
+                    await booksService.addBook(bookToAdd);
+                    results.success++;
+                    console.log(`🟢 [BooksController] Livro importado: ${bookToAdd.title} (linha ${i + 1})`);
+                } catch (error) {
+                    results.failed++;
+                    results.errors.push({
+                        row: i + 1,
+                        error: error.message,
+                        data: line.substring(0, 100)
+                    });
+                    console.error(`🔴 [BooksController] Erro na linha ${i + 1}:`, error.message);
+                }
+            }
+
+            console.log(`🟢 [BooksController] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`);
+            res.status(200).json(results);
+        } catch (error) {
+            console.error('🔴 [BooksController] Erro ao importar CSV:', error.message);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
+     * Parse simples de linha CSV (considera aspas)
+     * @param {string} line - Linha CSV
+     * @returns {Array<string>} Array de valores
+     */
+    parseCSVLine(line) {
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const nextChar = line[i + 1];
+            
+            if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                    current += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                values.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        values.push(current.trim());
+        return values;
+    }
 }
 
 // Exporta uma instância única do controlador

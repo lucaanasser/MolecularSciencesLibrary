@@ -281,6 +281,111 @@ async function seedLoans() {
     }
 }
 
+async function seedDisciplineClasses() {
+    console.log('\n👨‍🏫 Criando turmas de disciplinas...');
+    
+    // Pegar algumas disciplinas para criar turmas
+    const disciplines = await allQuery('SELECT * FROM disciplines LIMIT 5');
+    
+    if (disciplines.length === 0) {
+        console.log('  ⏭️  Sem disciplinas para criar turmas');
+        return 0;
+    }
+    
+    const turmas = ['45A', '45B', '46A'];
+    const tipos = ['Teórica', 'Prática', 'Teórico-Prática'];
+    let classesCreated = 0;
+    
+    for (const discipline of disciplines) {
+        for (const turma of turmas) {
+            try {
+                const existing = await getQuery(
+                    'SELECT * FROM discipline_classes WHERE discipline_id = ? AND codigo_turma = ?',
+                    [discipline.id, turma]
+                );
+                
+                if (!existing) {
+                    const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+                    const inicio = '2025-02-10';
+                    const fim = '2025-06-30';
+                    
+                    const result = await runQuery(
+                        `INSERT INTO discipline_classes (discipline_id, codigo_turma, tipo, inicio, fim) 
+                         VALUES (?, ?, ?, ?, ?)`,
+                        [discipline.id, turma, tipo, inicio, fim]
+                    );
+                    console.log(`  ✅ Turma criada: ${discipline.codigo} - Turma ${turma} (${tipo})`);
+                    classesCreated++;
+                    
+                    // Criar horários e professores para esta turma
+                    await seedClassSchedules(result.lastID, discipline.codigo, turma);
+                    await seedClassProfessors(result.lastID, discipline.codigo, turma);
+                } else {
+                    console.log(`  ⏭️  Turma já existe: ${discipline.codigo} - Turma ${turma}`);
+                }
+            } catch (err) {
+                console.error(`  ❌ Erro ao criar turma ${discipline.codigo}-${turma}:`, err.message);
+            }
+        }
+        
+        // Marcar que a disciplina tem turmas válidas
+        try {
+            await runQuery('UPDATE disciplines SET has_valid_classes = 1 WHERE id = ?', [discipline.id]);
+        } catch (err) {
+            console.error(`  ❌ Erro ao atualizar disciplina ${discipline.codigo}:`, err.message);
+        }
+    }
+    
+    return classesCreated;
+}
+
+async function seedClassSchedules(classId, disciplineCodigo, turma) {
+    // Criar 2-3 horários por turma (usando as colunas corretas: dia, horario_inicio, horario_fim)
+    const schedules = [
+        { dia: 'seg', horario_inicio: '08:00', horario_fim: '10:00' },
+        { dia: 'qua', horario_inicio: '08:00', horario_fim: '10:00' },
+        { dia: 'sex', horario_inicio: '14:00', horario_fim: '16:00' }
+    ];
+    
+    for (const schedule of schedules) {
+        try {
+            await runQuery(
+                `INSERT INTO class_schedules (class_id, dia, horario_inicio, horario_fim) 
+                 VALUES (?, ?, ?, ?)`,
+                [classId, schedule.dia, schedule.horario_inicio, schedule.horario_fim]
+            );
+        } catch (err) {
+            // Silenciosamente ignorar se já existe
+        }
+    }
+}
+
+async function seedClassProfessors(classId, disciplineCodigo, turma) {
+    // Lista de professores exemplo
+    const professors = [
+        'Prof. Dr. João Silva',
+        'Profa. Dra. Maria Santos',
+        'Prof. Dr. Carlos Oliveira',
+        'Profa. Dra. Ana Costa',
+        'Prof. Dr. Pedro Almeida'
+    ];
+    
+    // Escolher 1-2 professores aleatórios para a turma (usando coluna 'nome')
+    const numProfs = Math.floor(Math.random() * 2) + 1;
+    for (let i = 0; i < numProfs; i++) {
+        const prof = professors[Math.floor(Math.random() * professors.length)];
+        try {
+            await runQuery(
+                `INSERT INTO class_professors (class_id, nome) 
+                 VALUES (?, ?)`,
+                [classId, prof]
+            );
+        } catch (err) {
+            // Silenciosamente ignorar se já existe
+        }
+    }
+}
+
 async function seedBadges() {
     console.log('\n🏆 Criando badges...');
     
@@ -344,20 +449,23 @@ async function main() {
         await seedUsers();
         await seedBooks();
         await seedDisciplines();
+        const classesCount = await seedDisciplineClasses();
         await seedDonators();
         await seedLoans();
         await seedBadges();
         
         console.log('\n✅ Seed concluído com sucesso!');
         console.log('\n📋 Resumo:');
-        console.log(`   - ${USERS.length} usuários`);
+        console.log(`   - ${USERS.length + 2} usuários (incluindo Admin e ProAluno)`);
         console.log(`   - ${BOOKS.length} livros`);
         console.log(`   - ${DISCIPLINES.length} disciplinas`);
+        console.log(`   - ${classesCount || 0} turmas criadas`);
         console.log(`   - ${DONATORS.length} doadores`);
         console.log(`   - Empréstimos e badges criados`);
-        console.log('\n💡 Credenciais padrão para usuários de teste:');
-        console.log('   Email: <email do usuário>');
-        console.log('   Senha: senha123');
+        console.log('\n💡 Credenciais de acesso:');
+        console.log('   NUSP 1 = Admin (senha: 1)');
+        console.log('   NUSP 2 = ProAluno (senha: 1)');
+        console.log('   NUSP 3-8 = Alunos teste (senha: 1)');
         
     } catch (err) {
         console.error('\n❌ Erro durante o seed:', err.message);

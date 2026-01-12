@@ -336,7 +336,7 @@ const CardTabs: React.FC = () => {
   const data = cardContent[activeTab];
 
   return (
-    <div className="w-full max-w-7xl mx-auto my-16 px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-7xl mx-auto my-8 px-4 sm:px-6 lg:px-8">
       {/* Abas alinhadas à esquerda, estilo mais próximo dos cards */}
       <div className="flex border-b border-gray-200 mb-0">
         {(Object.keys(cardContent) as Tab[]).map((tab) => (
@@ -381,8 +381,8 @@ const DonationPage = () => (
 		<Navigation />
 
 		{/* Texto introdutório sobre formas de ajudar */}
-		<div className="max-w-7xl mx-auto mt-20 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-5xl text-black mb-4">Ajude</h2>
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 className="text-4xl font-bebas mb-8">Ajude a Biblioteca</h2>
 			<p className="text-lg text-black">
 				A Biblioteca conta com o apoio da comunidade para crescer e se manter relevante. Você pode contribuir enviando feedbacks, sugerindo novos livros, doando exemplares ou apoiando financeiramente. Toda ajuda é bem-vinda!
 			</p>

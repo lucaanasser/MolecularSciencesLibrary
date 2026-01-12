@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import AddBookForm from "@/features/books/components/AddBookWizard";
 import RemoveBookForm from "@/features/books/components/RemoveBookWizard";
 import BooksList from "@/features/books/components/BooksList";
+import ImportBooksCSV from "@/features/books/components/ImportBooksCSV";
 import AddUserForm from "@/features/users/components/AddUserForm";
 import UserList from "@/features/users/components/UserList";
 import RemoveUserForm from "@/features/users/components/RemoveUserForm";
@@ -74,7 +75,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
 // --- Gerenciamento de Livros ---
 const ManageBooks = () => {
-  const [selectedTab, setSelectedTab] = useState<"add" | "remove" | "list" | null>(null);
+  const [selectedTab, setSelectedTab] = useState<"add" | "remove" | "list" | "import" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -95,7 +96,7 @@ const ManageBooks = () => {
         </div>
       )}
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
         <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
             <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Livro</CardTitle>
@@ -127,6 +128,23 @@ const ManageBooks = () => {
               disabled={isLoading}
             >
               Remover
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base sm:text-lg md:text-xl">Importar CSV</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 text-sm sm:text-base transition-transform"
+              onClick={() => {
+                console.log("🔵 [AdminPage/ManageBooks] Selecionado: Importar CSV");
+                setSelectedTab("import");
+              }}
+              disabled={isLoading}
+            >
+              Importar
             </Button>
           </CardContent>
         </Card>
@@ -222,6 +240,37 @@ const ManageBooks = () => {
               </ErrorBoundary>
             </CardContent>
           </Card>
+        </div>
+      )}
+      
+      {selectedTab === "import" && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageBooks] Voltar da importação CSV");
+              setSelectedTab(null);
+            }}
+          >
+            Voltar
+          </Button>
+          <ErrorBoundary>
+            <ImportBooksCSV
+              onCancel={() => {
+                console.warn("🟡 [AdminPage/ManageBooks] Cancelar importação CSV");
+                setSelectedTab(null);
+              }}
+              onSuccess={(results) => {
+                console.log("🟢 [AdminPage/ManageBooks] Importação CSV concluída:", results);
+                // Manter na tela para visualizar resultados
+              }}
+              onError={(err) => {
+                setError(err.message || "Erro ao importar livros");
+                console.error("🔴 [AdminPage/ManageBooks] CSV import error:", err);
+              }}
+            />
+          </ErrorBoundary>
         </div>
       )}
       

@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const booksController = require('../controllers/BooksController');
+const multer = require('multer');
+
+// Configurar multer para upload de arquivos em memória
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 /**
  * Rotas relacionadas a livros.
@@ -114,6 +119,18 @@ router.post('/return', (req, res) => {
 router.post('/reserve', (req, res) => {
     console.log("🔵 [BooksRoutes] POST /reserve - Definir/remover reserva didática");
     booksController.setReservedStatus(req, res);
+});
+
+// Importa livros a partir de arquivo CSV
+router.post('/import/csv', upload.single('csvFile'), (req, res) => {
+    console.log("🔵 [BooksRoutes] POST /import/csv - Importar livros via CSV");
+    booksController.importBooksFromCSV(req, res);
+});
+
+// Exporta catálogo de livros em CSV
+router.get('/export/csv', (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /export/csv - Exportar catálogo em CSV");
+    booksController.exportBooksToCSV(req, res);
 });
 
 module.exports = router;

@@ -157,14 +157,26 @@ class BooksService {
                 subtitle,
                 addType,         
                 selectedBook,    
-                volume
+                volume,
+                code: providedCode
             } = bookData;
 
             const subareaInt = parseInt(subarea, 10);
-            const code = await this.generateBookCode({ area, subarea, addType, selectedBook, volume });
+            
+            // Se o código foi fornecido (ex: importação CSV), usa ele
+            // Caso contrário, gera automaticamente
+            let code;
+            if (providedCode && addType === 'csv_import') {
+                code = providedCode;
+                console.log("🟡 [BooksService] Usando código fornecido:", code);
+            } else {
+                code = await this.generateBookCode({ area, subarea, addType, selectedBook, volume });
+            }
 
-            // Gere EAN-13 automaticamente
-            const id = await generateUniqueEAN13();
+            // Gere EAN-13 automaticamente (ou use o barcode fornecido)
+            const id = bookData.barcode && bookData.barcode.length === 13 ? 
+                       Number(bookData.barcode) : 
+                       await generateUniqueEAN13();
 
             const bookToInsert = {
                 id,
