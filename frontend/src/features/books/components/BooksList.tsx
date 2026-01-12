@@ -130,8 +130,8 @@ export default function BooksList({ onClose }: BooksListProps) {
 
   return (
     <div className="space-y-4">
-      {/* Cabeçalho com botão fechar e exportar */}
-      <div className="flex justify-between items-center">
+      {/* Botão exportar */}
+      <div className="flex justify-start items-center">
         <Button
           onClick={handleExportCSV}
           variant="outline"
@@ -140,15 +140,6 @@ export default function BooksList({ onClose }: BooksListProps) {
           <Download className="h-4 w-4" />
           Exportar Catálogo (CSV)
         </Button>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 font-bold text-xl"
-            aria-label="Fechar"
-          >
-            ×
-          </button>
-        )}
       </div>
       
       {/* Filtros */}

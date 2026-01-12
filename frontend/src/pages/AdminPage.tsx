@@ -25,6 +25,7 @@ import LoanRulesForm from "@/features/rules/components/LoanRulesForm";
 import LoanRulesView from "@/features/rules/components/LoanRulesView";
 import DonatorsList from "@/features/donators/components/DonatorsList";
 import DonatorForm from "@/features/donators/components/DonatorForm";
+import ImportDonatorsCSV from "@/features/donators/components/ImportDonatorsCSV";
 import BookReservePanel from '@/features/books/components/BookReservePanel';
 
 // Log de início de renderização da página Admin
@@ -96,27 +97,28 @@ const ManageBooks = () => {
         </div>
       )}
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Livro</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-105 text-sm sm:text-base transition-transform" 
-              onClick={() => {
-                console.log("🔵 [AdminPage/ManageBooks] Selecionado: Adicionar Livro");
-                setSelectedTab("add");
-              }}
-              disabled={isLoading}
-            >
-              Adicionar
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Remover Livro</CardTitle>
+      {!selectedTab && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Adicionar Livro</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                className="w-full bg-cm-green hover:bg-cm-green/90 hover:scale-105 text-xs sm:text-sm transition-transform" 
+                onClick={() => {
+                  console.log("🔵 [AdminPage/ManageBooks] Selecionado: Adicionar Livro");
+                  setSelectedTab("add");
+                }}
+                disabled={isLoading}
+              >
+                Adicionar
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Remover Livro</CardTitle>
           </CardHeader>
           <CardContent>
             <Button 
@@ -133,11 +135,11 @@ const ManageBooks = () => {
         </Card>
         <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Importar CSV</CardTitle>
+            <CardTitle className="text-sm sm:text-base md:text-lg">Importar CSV</CardTitle>
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 text-sm sm:text-base transition-transform"
+              className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 text-xs sm:text-sm transition-transform"
               onClick={() => {
                 console.log("🔵 [AdminPage/ManageBooks] Selecionado: Importar CSV");
                 setSelectedTab("import");
@@ -150,11 +152,11 @@ const ManageBooks = () => {
         </Card>
         <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Todos os Livros</CardTitle>
+            <CardTitle className="text-sm sm:text-base md:text-lg">Todos os Livros</CardTitle>
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full bg-cm-blue hover:bg-cm-blue/90 hover:scale-105 text-sm sm:text-base transition-transform"
+              className="w-full bg-cm-blue hover:bg-cm-blue/90 hover:scale-105 text-xs sm:text-sm transition-transform"
               onClick={() => {
                 console.log("🔵 [AdminPage/ManageBooks] Selecionado: Ver Todos os Livros");
                 setSelectedTab("list");
@@ -166,6 +168,7 @@ const ManageBooks = () => {
           </CardContent>
         </Card>
       </div>
+      )}
       
       {selectedTab === "add" && (
         <div className="mt-6">
@@ -314,40 +317,17 @@ const ManageUsers = () => {
     <div className="p-3 sm:p-4 md:p-6">
       <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Gerenciamento de Usuários</h2>
       <p className="text-sm sm:text-base text-gray-600">Cadastre, busque ou remova usuários do sistema.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
-        {/* Adicionar Usuário */}
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Usuário</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {showAddForm ? (
-              <>
-                <AddUserForm
-                  onSuccess={() => {
-                    setShowAddForm(false);
-                    setSuccessMsg("Usuário adicionado com sucesso!");
-                    console.log("🟢 [AdminPage/ManageUsers] Usuário adicionado com sucesso");
-                  }}
-                  onError={(err) => {
-                    setSuccessMsg(`Erro: ${err.message}`);
-                    console.error("🔴 [AdminPage/ManageUsers] Erro ao adicionar usuário:", err);
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full text-sm sm:text-base"
-                  onClick={() => {
-                    console.warn("🟡 [AdminPage/ManageUsers] Cancelar adicionar usuário");
-                    setShowAddForm(false);
-                  }}
-                >
-                  Cancelar
-                </Button>
-              </>
-            ) : (
+      
+      {!showAddForm && !showUserList && !showRemoveForm && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
+          {/* Adicionar Usuário */}
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Adicionar Usuário</CardTitle>
+            </CardHeader>
+            <CardContent>
               <Button
-                className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base"
+                className="w-full bg-cm-green hover:bg-cm-green/90 text-xs sm:text-sm"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageUsers] Selecionado: Adicionar Usuário");
                   setShowAddForm(true);
@@ -355,35 +335,17 @@ const ManageUsers = () => {
               >
                 Adicionar
               </Button>
-            )}
-            {successMsg && (
-              <div className="mt-2 text-green-700 text-sm sm:text-base">{successMsg}</div>
-            )}
-          </CardContent>
-        </Card>
-        {/* Lista de Usuários */}
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Lista de Usuários</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {showUserList ? (
-              <>
-                <UserList onClose={() => setShowUserList(false)} />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full text-sm sm:text-base"
-                  onClick={() => {
-                    console.warn("🟡 [AdminPage/ManageUsers] Fechar lista de usuários");
-                    setShowUserList(false);
-                  }}
-                >
-                  Fechar
-                </Button>
-              </>
-            ) : (
+            </CardContent>
+          </Card>
+          
+          {/* Lista de Usuários */}
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Lista de Usuários</CardTitle>
+            </CardHeader>
+            <CardContent>
               <Button
-                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-xs sm:text-sm"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageUsers] Selecionado: Ver Todos Usuários");
                   setShowUserList(true);
@@ -391,42 +353,17 @@ const ManageUsers = () => {
               >
                 Ver Todos
               </Button>
-            )}
-          </CardContent>
-        </Card>
-        {/* Remover Usuário */}
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Remover Usuário</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {showRemoveForm ? (
-              <>
-                <RemoveUserForm
-                  onSuccess={() => {
-                    setShowRemoveForm(false);
-                    setSuccessMsg("Usuário removido com sucesso!");
-                    console.log("🟢 [AdminPage/ManageUsers] Usuário removido com sucesso");
-                  }}
-                  onError={(err) => {
-                    setSuccessMsg(`Erro: ${err.message}`);
-                    console.error("🔴 [AdminPage/ManageUsers] Erro ao remover usuário:", err);
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full text-sm sm:text-base"
-                  onClick={() => {
-                    console.warn("🟡 [AdminPage/ManageUsers] Cancelar remover usuário");
-                    setShowRemoveForm(false);
-                  }}
-                >
-                  Cancelar
-                </Button>
-              </>
-            ) : (
+            </CardContent>
+          </Card>
+          
+          {/* Remover Usuário */}
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Remover Usuário</CardTitle>
+            </CardHeader>
+            <CardContent>
               <Button
-                className="w-full bg-cm-red hover:bg-cm-red/90 text-sm sm:text-base"
+                className="w-full bg-cm-red hover:bg-cm-red/90 text-xs sm:text-sm"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageUsers] Selecionado: Remover Usuário");
                   setShowRemoveForm(true);
@@ -434,13 +371,108 @@ const ManageUsers = () => {
               >
                 Remover
               </Button>
-            )}
-            {successMsg && (
-              <div className="mt-2 text-green-700 text-sm sm:text-base">{successMsg}</div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs sm:text-sm">
+          {successMsg}
+        </div>
+      )}
+
+      {/* Formulário de adicionar usuário */}
+      {showAddForm && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageUsers] Voltar de adicionar usuário");
+              setShowAddForm(false);
+            }}
+          >
+            Voltar
+          </Button>
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Adicionar Usuário</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AddUserForm
+                onSuccess={() => {
+                  setShowAddForm(false);
+                  setSuccessMsg("Usuário adicionado com sucesso!");
+                  console.log("🟢 [AdminPage/ManageUsers] Usuário adicionado com sucesso");
+                }}
+                onError={(err) => {
+                  setSuccessMsg(`Erro: ${err.message}`);
+                  console.error("🔴 [AdminPage/ManageUsers] Erro ao adicionar usuário:", err);
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Lista de usuários */}
+      {showUserList && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageUsers] Voltar da lista de usuários");
+              setShowUserList(false);
+            }}
+          >
+            Voltar
+          </Button>
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Todos os Usuários</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UserList onClose={() => setShowUserList(false)} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Formulário de remover usuário */}
+      {showRemoveForm && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => {
+              console.warn("🟡 [AdminPage/ManageUsers] Voltar de remover usuário");
+              setShowRemoveForm(false);
+            }}
+          >
+            Voltar
+          </Button>
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Remover Usuário</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RemoveUserForm
+                onSuccess={() => {
+                  setShowRemoveForm(false);
+                  setSuccessMsg("Usuário removido com sucesso!");
+                  console.log("🟢 [AdminPage/ManageUsers] Usuário removido com sucesso");
+                }}
+                onError={(err) => {
+                  setSuccessMsg(`Erro: ${err.message}`);
+                  console.error("🔴 [AdminPage/ManageUsers] Erro ao remover usuário:", err);
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
@@ -836,77 +868,168 @@ const Settings = () => {
 const ManageDonators = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showList, setShowList] = useState(false);
+  const [showImportCSV, setShowImportCSV] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const handleExportCSV = async () => {
+    try {
+      const response = await fetch('/api/donators/export/csv');
+      if (!response.ok) throw new Error('Erro ao exportar CSV');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `doadores_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      setSuccessMsg('CSV exportado com sucesso!');
+      setTimeout(() => setSuccessMsg(null), 3000);
+    } catch (error) {
+      console.error('Erro ao exportar CSV:', error);
+      setSuccessMsg('Erro ao exportar CSV');
+    }
+  };
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
       <h2 className="text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 font-semibold">Gerenciamento de Doadores</h2>
       <p className="text-sm sm:text-base text-gray-600">Cadastre, busque ou visualize doadores do sistema.</p>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
-        {/* Adicionar Doador */}
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Adicionar Doador</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {showAddForm ? (
-              <>
-                <DonatorForm
-                  onSuccess={() => {
-                    setShowAddForm(false);
-                    setSuccessMsg("Doador adicionado com sucesso!");
-                  }}
-                  onError={(err) => setSuccessMsg(`Erro: ${err.message}`)}
-                />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full text-sm sm:text-base"
-                  onClick={() => setShowAddForm(false)}
-                >
-                  Cancelar
-                </Button>
-              </>
-            ) : (
+      
+      {!showList && !showImportCSV && !showAddForm && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
+          {/* Adicionar Doador */}
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Adicionar Doador</CardTitle>
+            </CardHeader>
+            <CardContent>
               <Button
-                className="w-full bg-cm-green hover:bg-cm-green/90 text-sm sm:text-base"
+                className="w-full bg-cm-green hover:bg-cm-green/90 text-xs sm:text-sm"
                 onClick={() => setShowAddForm(true)}
               >
                 Adicionar
               </Button>
-            )}
-            {successMsg && (
-              <div className="mt-2 text-green-700 text-sm sm:text-base">{successMsg}</div>
-            )}
-          </CardContent>
-        </Card>
-        {/* Lista de Doadores */}
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Lista de Doadores</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {showList ? (
-              <>
-                <DonatorsList />
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full text-sm sm:text-base"
-                  onClick={() => setShowList(false)}
-                >
-                  Fechar
-                </Button>
-              </>
-            ) : (
+            </CardContent>
+          </Card>
+          
+          {/* Lista de Doadores */}
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Lista de Doadores</CardTitle>
+            </CardHeader>
+            <CardContent>
               <Button
-                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-sm sm:text-base"
+                className="w-full bg-cm-blue hover:bg-cm-blue/90 text-xs sm:text-sm"
                 onClick={() => setShowList(true)}
               >
                 Ver Todos
               </Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+          
+          {/* Importar CSV */}
+          <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Importar CSV</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="w-full bg-cm-purple hover:bg-cm-purple/90 text-xs sm:text-sm"
+                onClick={() => setShowImportCSV(true)}
+              >
+                Importar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs sm:text-sm">
+          {successMsg}
+        </div>
+      )}
+
+      {/* Formulário de adicionar doador */}
+      {showAddForm && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => setShowAddForm(false)}
+          >
+            Voltar
+          </Button>
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Adicionar Doador</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DonatorForm
+                onSuccess={() => {
+                  setShowAddForm(false);
+                  setSuccessMsg("Doador adicionado com sucesso!");
+                }}
+                onError={(err) => setSuccessMsg(`Erro: ${err.message}`)}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Lista de doadores */}
+      {showList && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => setShowList(false)}
+          >
+            Voltar
+          </Button>
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Todos os Doadores</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <Button
+                  variant="outline"
+                  onClick={handleExportCSV}
+                  className="flex items-center gap-2"
+                >
+                  Exportar CSV
+                </Button>
+              </div>
+              <DonatorsList />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Importar CSV */}
+      {showImportCSV && (
+        <div className="mt-6">
+          <Button 
+            variant="outline" 
+            className="mb-4 rounded-xl" 
+            onClick={() => setShowImportCSV(false)}
+          >
+            Voltar
+          </Button>
+          <ImportDonatorsCSV
+            onCancel={() => setShowImportCSV(false)}
+            onSuccess={(results) => {
+              console.log("🟢 [AdminPage/ManageDonators] Importação CSV concluída:", results);
+              setShowImportCSV(false);
+              setSuccessMsg(`Importação concluída: ${results.success} sucesso, ${results.failed} falhas`);
+            }}
+            onError={(err) => setSuccessMsg(`Erro: ${err.message}`)}
+          />
+        </div>
+      )}
     </div>
   );
 };
