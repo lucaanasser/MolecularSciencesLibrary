@@ -236,11 +236,12 @@ class ReportsService {
                 `SELECT 
                     u.id, u.name, u.NUSP, u.role, u.class,
                     COUNT(l.id) as total_loans,
-                    SUM(CASE WHEN l.returned_at IS NULL THEN 1 ELSE 0 END) as active_loans
+                    SUM(CASE WHEN l.id IS NOT NULL AND l.returned_at IS NULL THEN 1 ELSE 0 END) as active_loans
                  FROM users u
                  LEFT JOIN loans l ON u.id = l.student_id
                  WHERE u.id != 0
                  GROUP BY u.id
+                 HAVING total_loans > 0
                  ORDER BY total_loans DESC
                  LIMIT 15`,
                 []
