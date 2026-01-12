@@ -58,68 +58,53 @@ function allQuery(sql, params = []) {
 }
 
 // Dados de Seed
+// ⚠️ MODO DESENVOLVIMENTO - Senha padrão: 1
+// NUSP 1 = Admin, NUSP 2 = ProAluno (já criados na inicialização)
 const USERS = [
-    { name: 'João Silva', nusp: 12345678, email: 'joao.silva@usp.br', phone: '(11) 98765-4321', role: 'aluno', class: '2024A' },
-    { name: 'Maria Santos', nusp: 23456789, email: 'maria.santos@usp.br', phone: '(11) 97654-3210', role: 'aluno', class: '2024B' },
-    { name: 'Pedro Oliveira', nusp: 34567890, email: 'pedro.oliveira@usp.br', phone: '(11) 96543-2109', role: 'aluno', class: '2023A' },
-    { name: 'Ana Costa', nusp: 45678901, email: 'ana.costa@usp.br', phone: '(11) 95432-1098', role: 'aluno', class: '2023B' },
-    { name: 'Carlos Ferreira', nusp: 56789012, email: 'carlos.ferreira@usp.br', phone: '(11) 94321-0987', role: 'aluno', class: '2024A' },
-    { name: 'Juliana Almeida', nusp: 67890123, email: 'juliana.almeida@usp.br', phone: '(11) 93210-9876', role: 'aluno', class: '2024B' },
-    { name: 'Roberto Lima', nusp: 78901234, email: 'roberto.lima@usp.br', phone: '(11) 92109-8765', role: 'aluno', class: '2023A' },
-    { name: 'Fernanda Souza', nusp: 89012345, email: 'fernanda.souza@usp.br', phone: '(11) 91098-7654', role: 'aluno', class: '2023B' },
-    { name: 'Lucas Pereira', nusp: 90123456, email: 'lucas.pereira@usp.br', phone: '(11) 90987-6543', role: 'proaluno', class: '2022A' },
-    { name: 'Mariana Ribeiro', nusp: 10234567, email: 'mariana.ribeiro@usp.br', phone: '(11) 89876-5432', role: 'proaluno', class: '2022B' },
+    { name: 'Teste Aluno 1', nusp: 3, email: 'aluno3@usp.br', phone: '(11) 91111-1111', role: 'aluno', class: '2024A' },
+    { name: 'Teste Aluno 2', nusp: 4, email: 'aluno4@usp.br', phone: '(11) 92222-2222', role: 'aluno', class: '2024B' },
+    { name: 'Teste Aluno 3', nusp: 5, email: 'aluno5@usp.br', phone: '(11) 93333-3333', role: 'aluno', class: '2023A' },
+    { name: 'Teste Aluno 4', nusp: 6, email: 'aluno6@usp.br', phone: '(11) 94444-4444', role: 'aluno', class: '2023B' },
+    { name: 'Teste Aluno 5', nusp: 7, email: 'aluno7@usp.br', phone: '(11) 95555-5555', role: 'aluno', class: '2024A' },
+    { name: 'Teste Aluno 6', nusp: 8, email: 'aluno8@usp.br', phone: '(11) 96666-6666', role: 'aluno', class: '2024B' },
 ];
 
 const BOOKS = [
+    // Códigos de barras simples: 1, 2, 3, 4... (modo dev)
     // Física
-    { area: 'Física', subarea: 1, title: 'Física I - Mecânica', authors: 'Halliday, Resnick, Walker', edition: 10, volume: 1, language: 1 },
-    { area: 'Física', subarea: 1, title: 'Física I - Mecânica', authors: 'Halliday, Resnick, Walker', edition: 10, volume: 1, language: 1 },
-    { area: 'Física', subarea: 2, title: 'Física II - Termodinâmica', authors: 'Halliday, Resnick, Walker', edition: 10, volume: 2, language: 1 },
-    { area: 'Física', subarea: 3, title: 'Física III - Eletromagnetismo', authors: 'Halliday, Resnick, Walker', edition: 10, volume: 3, language: 1 },
-    { area: 'Física', subarea: 4, title: 'Fundamentos de Física Moderna', authors: 'Eisberg, Resnick', edition: 1, volume: 0, language: 1 },
-    { area: 'Física', subarea: 5, title: 'Mecânica Quântica', authors: 'Cohen-Tannoudji', edition: 2, volume: 1, language: 1 },
+    { barcode: '1', area: 'Física', subarea: 1, title: 'Física I - Mecânica', authors: 'Halliday', edition: 10, volume: 1, language: 1 },
+    { barcode: '2', area: 'Física', subarea: 1, title: 'Física I - Mecânica', authors: 'Halliday', edition: 10, volume: 1, language: 1 },
+    { barcode: '3', area: 'Física', subarea: 2, title: 'Física II - Termodinâmica', authors: 'Halliday', edition: 10, volume: 2, language: 1 },
+    { barcode: '4', area: 'Física', subarea: 3, title: 'Física III - Eletromagnetismo', authors: 'Halliday', edition: 10, volume: 3, language: 1 },
+    { barcode: '5', area: 'Física', subarea: 4, title: 'Física Moderna', authors: 'Eisberg', edition: 1, volume: 0, language: 1 },
     
     // Química
-    { area: 'Química', subarea: 1, title: 'Química Geral', authors: 'Atkins, Jones', edition: 9, volume: 0, language: 1 },
-    { area: 'Química', subarea: 1, title: 'Química Geral', authors: 'Atkins, Jones', edition: 9, volume: 0, language: 1 },
-    { area: 'Química', subarea: 2, title: 'Química Orgânica', authors: 'Solomons, Fryhle', edition: 12, volume: 1, language: 1 },
-    { area: 'Química', subarea: 2, title: 'Química Orgânica', authors: 'Solomons, Fryhle', edition: 12, volume: 2, language: 1 },
-    { area: 'Química', subarea: 3, title: 'Físico-Química', authors: 'Atkins, De Paula', edition: 10, volume: 1, language: 1 },
-    { area: 'Química', subarea: 4, title: 'Química Inorgânica', authors: 'Shriver, Atkins', edition: 6, volume: 0, language: 1 },
-    { area: 'Química', subarea: 5, title: 'Química Analítica Quantitativa', authors: 'Harris', edition: 8, volume: 0, language: 1 },
+    { barcode: '6', area: 'Química', subarea: 1, title: 'Química Geral', authors: 'Atkins', edition: 9, volume: 0, language: 1 },
+    { barcode: '7', area: 'Química', subarea: 1, title: 'Química Geral', authors: 'Atkins', edition: 9, volume: 0, language: 1 },
+    { barcode: '8', area: 'Química', subarea: 2, title: 'Química Orgânica', authors: 'Solomons', edition: 12, volume: 1, language: 1 },
+    { barcode: '9', area: 'Química', subarea: 2, title: 'Química Orgânica', authors: 'Solomons', edition: 12, volume: 2, language: 1 },
+    { barcode: '10', area: 'Química', subarea: 3, title: 'Físico-Química', authors: 'Atkins', edition: 10, volume: 1, language: 1 },
     
     // Biologia
-    { area: 'Biologia', subarea: 1, title: 'Biologia Celular e Molecular', authors: 'Alberts, Johnson, Lewis', edition: 6, volume: 0, language: 1 },
-    { area: 'Biologia', subarea: 2, title: 'Bioquímica', authors: 'Lehninger, Nelson, Cox', edition: 7, volume: 0, language: 1 },
-    { area: 'Biologia', subarea: 2, title: 'Bioquímica', authors: 'Voet, Voet, Pratt', edition: 4, volume: 0, language: 1 },
-    { area: 'Biologia', subarea: 3, title: 'Genética', authors: 'Griffiths, Wessler, Carroll', edition: 11, volume: 0, language: 1 },
-    { area: 'Biologia', subarea: 4, title: 'Biologia dos Microrganismos', authors: 'Madigan, Bender, Buckley', edition: 15, volume: 0, language: 1 },
-    { area: 'Biologia', subarea: 5, title: 'Fisiologia Humana', authors: 'Guyton, Hall', edition: 13, volume: 0, language: 1 },
-    { area: 'Biologia', subarea: 6, title: 'Ecologia', authors: 'Begon, Townsend, Harper', edition: 4, volume: 0, language: 1 },
+    { barcode: '11', area: 'Biologia', subarea: 1, title: 'Biologia Celular', authors: 'Alberts', edition: 6, volume: 0, language: 1 },
+    { barcode: '12', area: 'Biologia', subarea: 2, title: 'Bioquímica', authors: 'Lehninger', edition: 7, volume: 0, language: 1 },
+    { barcode: '13', area: 'Biologia', subarea: 2, title: 'Bioquímica', authors: 'Voet', edition: 4, volume: 0, language: 1 },
+    { barcode: '14', area: 'Biologia', subarea: 3, title: 'Genética', authors: 'Griffiths', edition: 11, volume: 0, language: 1 },
+    { barcode: '15', area: 'Biologia', subarea: 4, title: 'Microbiologia', authors: 'Madigan', edition: 15, volume: 0, language: 1 },
     
     // Matemática
-    { area: 'Matemática', subarea: 1, title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 1 },
-    { area: 'Matemática', subarea: 1, title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 1 },
-    { area: 'Matemática', subarea: 2, title: 'Cálculo II', authors: 'Stewart', edition: 8, volume: 2, language: 1 },
-    { area: 'Matemática', subarea: 3, title: 'Álgebra Linear', authors: 'Boldrini, Costa, Figueiredo', edition: 3, volume: 0, language: 1 },
-    { area: 'Matemática', subarea: 4, title: 'Equações Diferenciais', authors: 'Boyce, DiPrima', edition: 10, volume: 0, language: 1 },
-    { area: 'Matemática', subarea: 5, title: 'Análise Real', authors: 'Lima, Elon Lages', edition: 1, volume: 1, language: 1 },
-    { area: 'Matemática', subarea: 6, title: 'Estatística Básica', authors: 'Bussab, Morettin', edition: 9, volume: 0, language: 1 },
+    { barcode: '16', area: 'Matemática', subarea: 1, title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 1 },
+    { barcode: '17', area: 'Matemática', subarea: 1, title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 1 },
+    { barcode: '18', area: 'Matemática', subarea: 2, title: 'Cálculo II', authors: 'Stewart', edition: 8, volume: 2, language: 1 },
+    { barcode: '19', area: 'Matemática', subarea: 3, title: 'Álgebra Linear', authors: 'Boldrini', edition: 3, volume: 0, language: 1 },
+    { barcode: '20', area: 'Matemática', subarea: 4, title: 'Equações Diferenciais', authors: 'Boyce', edition: 10, volume: 0, language: 1 },
     
     // Computação
-    { area: 'Computação', subarea: 1, title: 'Introdução à Programação em Python', authors: 'Downey', edition: 2, volume: 0, language: 1 },
-    { area: 'Computação', subarea: 2, title: 'Estruturas de Dados e Algoritmos', authors: 'Cormen, Leiserson, Rivest', edition: 3, volume: 0, language: 1 },
-    { area: 'Computação', subarea: 3, title: 'Sistemas Operacionais', authors: 'Tanenbaum, Bos', edition: 4, volume: 0, language: 1 },
-    { area: 'Computação', subarea: 4, title: 'Redes de Computadores', authors: 'Tanenbaum, Wetherall', edition: 5, volume: 0, language: 1 },
-    { area: 'Computação', subarea: 5, title: 'Banco de Dados', authors: 'Elmasri, Navathe', edition: 7, volume: 0, language: 1 },
-    { area: 'Computação', subarea: 6, title: 'Inteligência Artificial', authors: 'Russell, Norvig', edition: 4, volume: 0, language: 1 },
-    
-    // Variados
-    { area: 'Variados', subarea: 1, title: 'Redação Científica', authors: 'Day, Robert A.', edition: 6, volume: 0, language: 1 },
-    { area: 'Variados', subarea: 2, title: 'Ética na Ciência', authors: 'Resnik, David B.', edition: 1, volume: 0, language: 1 },
-    { area: 'Variados', subarea: 3, title: 'História da Ciência', authors: 'Kuhn, Thomas S.', edition: 1, volume: 0, language: 1 },
-    { area: 'Variados', subarea: 4, title: 'Metodologia Científica', authors: 'Gil, Antonio Carlos', edition: 7, volume: 0, language: 1 },
+    { barcode: '21', area: 'Computação', subarea: 1, title: 'Python', authors: 'Downey', edition: 2, volume: 0, language: 1 },
+    { barcode: '22', area: 'Computação', subarea: 2, title: 'Algoritmos', authors: 'Cormen', edition: 3, volume: 0, language: 1 },
+    { barcode: '23', area: 'Computação', subarea: 3, title: 'Sistemas Operacionais', authors: 'Tanenbaum', edition: 4, volume: 0, language: 1 },
+    { barcode: '24', area: 'Computação', subarea: 4, title: 'Redes', authors: 'Tanenbaum', edition: 5, volume: 0, language: 1 },
+    { barcode: '25', area: 'Computação', subarea: 5, title: 'Banco de Dados', authors: 'Elmasri', edition: 7, volume: 0, language: 1 },
 ];
 
 const DISCIPLINES = [
@@ -137,7 +122,7 @@ const DISCIPLINES = [
     { codigo: 'MAT0122', nome: 'Cálculo II', unidade: 'IME', campus: 'São Paulo', creditos_aula: 6, creditos_trabalho: 0 },
     { codigo: 'MAT0205', nome: 'Álgebra Linear', unidade: 'IME', campus: 'São Paulo', creditos_aula: 4, creditos_trabalho: 0 },
     { codigo: 'MAC0110', nome: 'Introdução à Computação', unidade: 'IME', campus: 'São Paulo', creditos_aula: 4, creditos_trabalho: 0 },
-    { codigo: 'MAC0122', nome: 'Algoritmos e Estruturas de Dados', unidade: 'IME', campus: 'São Paulo', creditos_aula: 6, creditos_trabalho: 0 },
+    { codigo: 'MAC0122', nome: 'Algoritmos', unidade: 'IME', campus: 'São Paulo', creditos_aula: 6, creditos_trabalho: 0 },
 ];
 
 const DONATORS = [
@@ -172,8 +157,9 @@ function generateBookCode(area, subarea, seq, volume) {
 
 // Funções de Seed
 async function seedUsers() {
-    console.log('\n📝 Criando usuários...');
-    const defaultPassword = await bcrypt.hash('senha123', SALT_ROUNDS);
+    console.log('\n📝 Criando usuários de teste...');
+    console.log('⚠️  MODO DESENVOLVIMENTO - Senha padrão para todos: "1"');
+    const defaultPassword = await bcrypt.hash('1', SALT_ROUNDS);
     
     for (const user of USERS) {
         try {
@@ -184,56 +170,40 @@ async function seedUsers() {
                      VALUES (?, ?, ?, ?, ?, ?, ?)`,
                     [user.name, user.nusp, user.email, user.phone, defaultPassword, user.role, user.class]
                 );
-                console.log(`  ✅ Usuário criado: ${user.name} (${user.email})`);
+                console.log(`  ✅ Usuário criado: ${user.name} (NUSP: ${user.nusp}, Senha: 1)`);
             } else {
-                console.log(`  ⏭️  Usuário já existe: ${user.name}`);
+                console.log(`  ⏭️  Usuário já existe: ${user.name} (NUSP: ${user.nusp})`);
             }
         } catch (err) {
             console.error(`  ❌ Erro ao criar usuário ${user.name}:`, err.message);
         }
     }
+    
+    console.log('\n💡 Lembre-se:');
+    console.log('   NUSP 1 = Admin (senha: 1)');
+    console.log('   NUSP 2 = ProAluno (senha: 1)');
+    console.log('   NUSP 3-8 = Alunos teste (senha: 1)');
 }
 
 async function seedBooks() {
-    console.log('\n📚 Criando livros...');
+    console.log('\n📚 Criando livros com códigos de barras simples (modo dev)...');
     
-    // Agrupar livros por área e subárea para gerar códigos sequenciais
-    const booksByAreaSubarea = {};
-    
-    for (const book of BOOKS) {
-        const key = `${book.area}-${book.subarea}`;
-        if (!booksByAreaSubarea[key]) {
-            booksByAreaSubarea[key] = [];
-        }
-        booksByAreaSubarea[key].push(book);
-    }
-    
-    let bookId = 1;
-    for (const key in booksByAreaSubarea) {
-        const books = booksByAreaSubarea[key];
-        let seq = 1;
-        
-        for (const book of books) {
-            try {
-                const code = generateBookCode(book.area, book.subarea, seq, book.volume);
-                
-                const existing = await getQuery('SELECT * FROM books WHERE code = ?', [code]);
-                if (!existing) {
-                    await runQuery(
-                        `INSERT INTO books (id, code, area, subarea, title, authors, edition, volume, language, is_reserved) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-                        [bookId, code, book.area, book.subarea, book.title, book.authors, book.edition, book.volume, book.language]
-                    );
-                    console.log(`  ✅ Livro criado: ${code} - ${book.title}`);
-                    seq++;
-                } else {
-                    console.log(`  ⏭️  Livro já existe: ${code}`);
-                }
-                bookId++;
-            } catch (err) {
-                console.error(`  ❌ Erro ao criar livro ${book.title}:`, err.message);
-                bookId++;
+    for (let i = 0; i < BOOKS.length; i++) {
+        const book = BOOKS[i];
+        try {
+            const existing = await getQuery('SELECT * FROM books WHERE code = ?', [book.barcode]);
+            if (!existing) {
+                await runQuery(
+                    `INSERT INTO books (id, code, area, subarea, title, authors, edition, volume, language, is_reserved) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+                    [i + 1, book.barcode, book.area, book.subarea, book.title, book.authors, book.edition, book.volume, book.language]
+                );
+                console.log(`  ✅ Livro criado: Código ${book.barcode} - ${book.title}`);
+            } else {
+                console.log(`  ⏭️  Livro já existe: Código ${book.barcode}`);
             }
+        } catch (err) {
+            console.error(`  ❌ Erro ao criar livro ${book.title}:`, err.message);
         }
     }
 }

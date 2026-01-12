@@ -110,6 +110,17 @@ case $choice in
         
         if command -v tmux &> /dev/null; then
             echo ""
+            
+            # Verificar se já existe uma sessão rodando
+            if tmux has-session -t biblioteca-dev 2>/dev/null; then
+                echo -e "${YELLOW}⚠️  Sessão biblioteca-dev já está rodando!${NC}"
+                echo "🛑 Parando sessão anterior..."
+                tmux kill-session -t biblioteca-dev
+                echo -e "${GREEN}✅ Sessão anterior encerrada${NC}"
+                echo ""
+                sleep 1
+            fi
+            
             echo "🚀 Iniciando backend e frontend em painéis separados (tmux)..."
             echo ""
             echo -e "${YELLOW}💡 Dicas do tmux:${NC}"
@@ -131,6 +142,17 @@ case $choice in
             
         elif command -v screen &> /dev/null; then
             echo ""
+            
+            # Verificar se já existe screen rodando
+            if screen -list | grep -q "backend"; then
+                echo -e "${YELLOW}⚠️  Screen do backend já está rodando!${NC}"
+                echo "🛑 Parando screen anterior..."
+                screen -S backend -X quit 2>/dev/null
+                echo -e "${GREEN}✅ Screen anterior encerrado${NC}"
+                echo ""
+                sleep 1
+            fi
+            
             echo "🚀 Iniciando com screen..."
             echo ""
             
@@ -146,6 +168,18 @@ case $choice in
             
         else
             echo ""
+            
+            # Matar processos antigos que podem estar rodando
+            echo "🔍 Verificando processos anteriores..."
+            OLD_BACKEND_PID=$(lsof -ti:3001 2>/dev/null)
+            if [ -n "$OLD_BACKEND_PID" ]; then
+                echo -e "${YELLOW}⚠️  Backend já está rodando na porta 3001 (PID: $OLD_BACKEND_PID)${NC}"
+                echo "🛑 Parando processo anterior..."
+                kill -9 $OLD_BACKEND_PID 2>/dev/null
+                echo -e "${GREEN}✅ Processo anterior encerrado${NC}"
+                sleep 1
+            fi
+            
             echo -e "${YELLOW}⚠️  tmux/screen não encontrado. Usando método básico...${NC}"
             echo ""
             echo "📝 Para melhor experiência, instale tmux:"

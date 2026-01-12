@@ -35,6 +35,7 @@ alias logs='cd $PROJECT_DIR && docker compose logs -f'
 alias status='cd $PROJECT_DIR && docker compose ps'
 alias stop='cd $PROJECT_DIR && docker compose down'
 alias seed='cd $PROJECT_DIR && npm run seed'
+alias dseed='bash $PROJECT_DIR/scripts/dseed.sh'
 alias backup='cd $PROJECT_DIR && npm run backup:db'
 alias scrape='cd $PROJECT_DIR && npm run scrape:disciplines'
 alias db='cd $PROJECT_DIR && sqlite3 database/library.db'
@@ -70,6 +71,7 @@ echo ""
 echo "   🗄️  Banco & Dados:"
 echo "   db          - Abre SQLite CLI do banco"
 echo "   seed        - Popular banco com dados iniciais"
+echo "   dseed       - Mostra informações da seed (usuários, senhas, livros)"
 echo "   backup      - Backup do banco no Google Drive"
 echo "   scrape      - Atualizar disciplinas da USP"
 echo ""
