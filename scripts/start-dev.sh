@@ -26,175 +26,37 @@ echo -e "${NC}"
 echo ""
 echo -e "${BOLD}Escolha uma opção:${NC}"
 echo ""
-echo -e "  ${GREEN}1)${NC} Docker Compose Completo (Frontend + Backend)"
-echo -e "     ${YELLOW}→${NC} Tudo em containers com hot-reload"
+echo -e "  ${GREEN}1)${NC} ${BOLD}Frontend + Backend Locais${NC}  ${YELLOW}⚡ RECOMENDADO${NC}"
+echo -e "     ${YELLOW}→${NC} Frontend: ${BLUE}http://localhost:8080${NC} (Vite)"
+echo -e "     ${YELLOW}→${NC} Backend: ${BLUE}http://localhost:3001${NC} (Nodemon)"
+echo -e "     ${YELLOW}💡${NC} Use quando: Trabalhar em ambos simultaneamente (mudanças instantâneas)"
 echo ""
-echo -e "  ${GREEN}2)${NC} Frontend Local (npm run dev)"
-echo -e "     ${YELLOW}→${NC} Frontend: http://localhost:5173 (Vite dev server)"
-echo -e "     ${YELLOW}→${NC} Backend: Precisa rodar separadamente"
+echo -e "  ${GREEN}2)${NC} ${BOLD}Docker Compose${NC} (Frontend + Backend em containers)"
+echo -e "     ${YELLOW}→${NC} Frontend: ${BLUE}http://localhost:3000${NC}"
+echo -e "     ${YELLOW}→${NC} Backend: ${BLUE}http://localhost:3001${NC}"
+echo -e "     ${YELLOW}💡${NC} Use quando: Testar ambiente similar à produção ou problemas de setup"
 echo ""
-echo -e "  ${GREEN}3)${NC} Backend em Docker + Frontend Local com Hot-Reload"
-echo -e "     ${YELLOW}→${NC} Backend em container na porta 3001"
-echo -e "     ${YELLOW}→${NC} Frontend: http://localhost:5173 (Vite com proxy)"
+echo -e "  ${GREEN}3)${NC} ${BOLD}Frontend Local${NC} (Vite dev server)"
+echo -e "     ${YELLOW}→${NC} Frontend: ${BLUE}http://localhost:8080${NC} (hot-reload instantâneo)"
+echo -e "     ${YELLOW}→${NC} Backend: Precisa rodar separadamente em um novo terminal(opção 4)"
+echo -e "     ${YELLOW}💡${NC} Use quando: Trabalhar apenas no frontend com backend estável"
 echo ""
-echo -e "  ${GREEN}4)${NC} Backend Local (npm run dev)"
-echo -e "     ${YELLOW}→${NC} Backend com nodemon na porta 3001"
-echo -e "     ${YELLOW}→${NC} Frontend: Precisa rodar separadamente"
-echo ""
-echo -e "  ${GREEN}5)${NC} Apenas Backend em Docker"
-echo -e "     ${YELLOW}→${NC} Backend isolado para testes de API"
-echo ""
-echo -e "  ${GREEN}6)${NC} Frontend + Backend Local (Ambos com Hot-Reload)"
-echo -e "     ${YELLOW}→${NC} Frontend: http://localhost:8080 (Vite)"
-echo -e "     ${YELLOW}→${NC} Backend: http://localhost:3001 (Nodemon)"
-echo -e "     ${YELLOW}→${NC} Melhor DX: recarregamento instantâneo"
+echo -e "  ${GREEN}4)${NC} ${BOLD}Backend Local${NC} (Nodemon)"
+echo -e "     ${YELLOW}→${NC} Backend: ${BLUE}http://localhost:3001${NC} (hot-reload com nodemon)"
+echo -e "     ${YELLOW}→${NC} Frontend: Precisa rodar separadamente em um novo terminal(opção 3)"
+echo -e "     ${YELLOW}💡${NC} Use quando: Trabalhar apenas no backend (API, lógica, banco)"
 echo ""
 echo -e "  ${RED}0)${NC} Sair"
 echo ""
-echo -ne "${BOLD}Digite sua escolha [0-6]:${NC} "
+echo -ne "${BOLD}Digite sua escolha [0-4]:${NC} "
 read choice
 
 case $choice in
     1)
         echo ""
         echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BOLD}Opção 1: Docker Compose Completo${NC}"
+        echo -e "${BOLD}Opção 1: Frontend + Backend Local${NC}"
         echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo ""
-        echo "🐳 Iniciando todos os serviços em containers..."
-        echo ""
-        
-        # Verificar se existe docker-compose.dev.yml
-        if [ -f "docker-compose.dev.yml" ]; then
-            docker compose -f docker-compose.dev.yml down 2>/dev/null || true
-            docker compose -f docker-compose.dev.yml up --build
-        else
-            echo -e "${YELLOW}⚠️  docker-compose.dev.yml não encontrado, usando docker-compose.yml${NC}"
-            docker compose down 2>/dev/null || true
-            docker compose up --build
-        fi
-        ;;
-        
-    2)
-        echo ""
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BOLD}Opção 2: Frontend Local (Vite Dev Server)${NC}"
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo ""
-        echo -e "${YELLOW}⚠️  Lembre-se: O backend precisa estar rodando!${NC}"
-        echo -e "${YELLOW}   Execute em outro terminal:${NC}"
-        echo -e "${YELLOW}   • Opção 4 (Backend Local)${NC}"
-        echo -e "${YELLOW}   • Opção 5 (Backend em Docker)${NC}"
-        echo ""
-        echo "🎨 Iniciando frontend em modo desenvolvimento..."
-        echo "🌐 URL: http://localhost:5173"
-        echo ""
-        
-        cd frontend
-        
-        # Verificar se node_modules existe
-        if [ ! -d "node_modules" ]; then
-            echo "📦 Instalando dependências do frontend..."
-            npm install
-        fi
-        
-        npm run dev
-        ;;
-        
-    3)
-        echo ""
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BOLD}Opção 3: Backend Docker + Frontend Local${NC}"
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo ""
-        echo "🐳 Iniciando backend em Docker..."
-        
-        # Parar containers existentes
-        docker compose -f docker-compose.dev.yml down 2>/dev/null || true
-        
-        # Iniciar apenas o backend em background
-        docker compose -f docker-compose.dev.yml up -d backend
-        
-        echo ""
-        echo -e "${GREEN}✅ Backend rodando em: http://localhost:3001${NC}"
-        echo ""
-        echo "🎨 Iniciando frontend local com hot-reload..."
-        echo "🌐 URL: http://localhost:5173"
-        echo ""
-        
-        cd frontend
-        
-        # Verificar se node_modules existe
-        if [ ! -d "node_modules" ]; then
-            echo "📦 Instalando dependências do frontend..."
-            npm install
-        fi
-        
-        # Iniciar frontend (Ctrl+C irá parar o frontend, mas backend continua)
-        trap 'echo ""; echo "🛑 Frontend parado. Backend ainda está rodando em Docker."; echo "Para parar o backend: docker compose -f docker-compose.dev.yml down"; exit 0' INT
-        
-        npm run dev
-        ;;
-        
-    4)
-        echo ""
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BOLD}Opção 4: Backend Local (Nodemon)${NC}"
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo ""
-        echo -e "${YELLOW}⚠️  Lembre-se: O frontend precisa estar rodando!${NC}"
-        echo -e "${YELLOW}   Execute em outro terminal:${NC}"
-        echo -e "${YELLOW}   • Opção 2 (Frontend Local)${NC}"
-        echo ""
-        echo "🔧 Iniciando backend com hot-reload (nodemon)..."
-        echo "🌐 URL: http://localhost:3001"
-        echo ""
-        
-        cd backend
-        
-        # Verificar se node_modules existe
-        if [ ! -d "node_modules" ]; then
-            echo "📦 Instalando dependências do backend..."
-            npm install
-        fi
-        
-        # Verificar se nodemon está instalado
-        if ! command -v nodemon &> /dev/null; then
-            echo "📦 Instalando nodemon..."
-            npm install -g nodemon
-        fi
-        
-        # Inicializar banco de dados se necessário
-        if [ ! -f "../database/library.db" ]; then
-            echo "🗄️  Inicializando banco de dados..."
-            node src/database/initDb.js
-        fi
-        
-        npm run dev
-        ;;
-        
-    5)
-        echo ""
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BOLD}Opção 5: Apenas Backend em Docker${NC}"
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo ""
-        echo "🐳 Iniciando apenas o backend em Docker..."
-        
-        docker compose -f docker-compose.dev.yml down 2>/dev/null || true
-        docker compose -f docker-compose.dev.yml up backend
-        
-        echo ""
-        echo -e "${GREEN}✅ Backend rodando em: http://localhost:3001${NC}"
-        ;;
-        
-    6)
-        echo ""
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BOLD}Opção 6: Frontend + Backend Local (Full Hot-Reload)${NC}"
-        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo ""
-        echo -e "${GREEN}✨ Melhor experiência de desenvolvimento!${NC}"
         echo ""
         
         # Verificar dependências
@@ -213,7 +75,7 @@ case $choice in
         # Verificar se nodemon está instalado
         if ! command -v nodemon &> /dev/null; then
             echo "📦 Instalando nodemon globalmente..."
-            npm install -g nodemon
+            sudo npm install -g nodemon
         fi
         
         # Inicializar banco de dados se necessário
@@ -224,6 +86,28 @@ case $choice in
         fi
         
         # Verificar se tmux ou screen está disponível
+        if ! command -v tmux &> /dev/null && ! command -v screen &> /dev/null; then
+            echo ""
+            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${BOLD}⚠️  TMUX NÃO INSTALADO${NC}"
+            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo ""
+            echo -e "${YELLOW}Para rodar backend e frontend simultaneamente, você precisa:${NC}"
+            echo ""
+            echo -e "${BOLD}Opção A) Instalar tmux:${NC}"
+            echo -e "   ${GREEN}sudo apt install tmux${NC}  # Ubuntu/Debian"
+            echo -e "   ${GREEN}brew install tmux${NC}      # macOS"
+            echo ""
+            echo -e "${BOLD}Opção B) Usar dois terminais separados:${NC}"
+            echo -e "   ${GREEN}Terminal 1:${NC} Execute ${GREEN}dev${NC} e escolha ${BOLD}Opção 4${NC} (Backend Local)"
+            echo -e "   ${GREEN}Terminal 2:${NC} Execute ${GREEN}dev${NC} e escolha ${BOLD}Opção 3${NC} (Frontend Local)"
+            echo ""
+            echo -e "${YELLOW}Pressione qualquer tecla para voltar ao menu...${NC}"
+            read -n 1 -s
+            cd "$PROJECT_DIR"
+            exec bash "$PROJECT_DIR/scripts/start-dev.sh"
+        fi
+        
         if command -v tmux &> /dev/null; then
             echo ""
             echo "🚀 Iniciando backend e frontend em painéis separados (tmux)..."
@@ -289,6 +173,89 @@ case $choice in
             
             npm run dev
         fi
+        ;;
+        
+    2)
+        echo ""
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BOLD}Opção 2: Docker Completo${NC}"
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo "🐳 Iniciando todos os serviços em containers..."
+        echo ""
+        
+        # Verificar se existe docker-compose.dev.yml
+        if [ -f "docker-compose.dev.yml" ]; then
+            docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+            docker compose -f docker-compose.dev.yml up --build
+        else
+            echo -e "${YELLOW}⚠️  docker-compose.dev.yml não encontrado, usando docker-compose.yml${NC}"
+            docker compose down 2>/dev/null || true
+            docker compose up --build
+        fi
+        ;;
+        
+    3)
+        echo ""
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BOLD}Opção 3: Frontend Local${NC}"
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}⚠️  Lembre-se: O backend precisa estar rodando!${NC}"
+        echo -e "${YELLOW}   Execute em outro terminal:${NC}"
+        echo -e "${YELLOW}   • Opção 4 (Backend Local)${NC}"
+        echo -e "${YELLOW}   • Opção 5 (Backend em Docker)${NC}"
+        echo ""
+        echo "🎨 Iniciando frontend em modo desenvolvimento..."
+        echo "🌐 URL: http://localhost:8080"
+        echo ""
+        
+        cd frontend
+        
+        # Verificar se node_modules existe
+        if [ ! -d "node_modules" ]; then
+            echo "📦 Instalando dependências do frontend..."
+            npm install
+        fi
+        
+        npm run dev
+        ;;
+        
+    4)
+        echo ""
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BOLD}Opção 4: Backend Local${NC}"
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}⚠️  Lembre-se: O frontend precisa estar rodando!${NC}"
+        echo -e "${YELLOW}   Execute em outro terminal:${NC}"
+        echo -e "${YELLOW}   • Opção 3 (Frontend Local)${NC}"
+        echo ""
+        echo "🔧 Iniciando backend com hot-reload (nodemon)..."
+        echo "🌐 URL: http://localhost:3001"
+        echo ""
+        
+        cd backend
+        
+        # Verificar se node_modules existe
+        if [ ! -d "node_modules" ]; then
+            echo "📦 Instalando dependências do backend..."
+            npm install
+        fi
+        
+        # Verificar se nodemon está instalado
+        if ! command -v nodemon &> /dev/null; then
+            echo "📦 Instalando nodemon..."
+            sudo npm install -g nodemon
+        fi
+        
+        # Inicializar banco de dados se necessário
+        if [ ! -f "../database/library.db" ]; then
+            echo "🗄️  Inicializando banco de dados..."
+            node src/database/initDb.js
+        fi
+        
+        npm run dev
         ;;
         
     0)
