@@ -216,6 +216,23 @@ class BooksController {
     }
 
     /**
+     * Remove todos os livros da reserva didática
+     * @param {Object} req - Objeto da requisição
+     * @param {Object} res - Objeto da resposta
+     * @returns {Promise<void>}
+     */
+    async clearAllReservedBooks(req, res) {
+        try {
+            console.log('🔵 [BooksController] Removendo todos os livros da reserva didática');
+            const result = await booksService.clearAllReservedBooks();
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('🔴 [BooksController] Erro ao limpar reserva didática:', error.message);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
      * Exporta todos os livros em formato CSV
      * @param {Object} req - Objeto da requisição
      * @param {Object} res - Objeto da resposta

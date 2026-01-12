@@ -79,16 +79,16 @@ export default function DonatorsList() {
 
   const getDonationBadge = (donator: Donator) => {
     if (donator.donation_type === "book") {
-      return <Badge className="bg-blue-500">Livro</Badge>;
+      return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Livro</Badge>;
     }
-    return <Badge className="bg-green-500">Financeira</Badge>;
+    return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Financeira</Badge>;
   };
 
   const getUserTypeBadge = (donator: Donator) => {
     if (donator.user_id) {
-      return <Badge variant="outline" className="text-xs">Usuário</Badge>;
+      return <Badge variant="outline" className="border-purple-200 text-purple-700">Cadastrado</Badge>;
     }
-    return <Badge variant="outline" className="text-xs">Não usuário</Badge>;
+    return <Badge variant="outline" className="border-gray-300 text-gray-600">Não cadastrado</Badge>;
   };
 
   if (loading) {
@@ -130,53 +130,74 @@ export default function DonatorsList() {
       </div>
 
       {/* Tabela com scroll */}
-      <div className="rounded-md border max-h-[400px] overflow-y-auto">
+      <div className="rounded-md border max-h-[500px] overflow-y-auto">
         <Table>
-          <TableHeader className="sticky top-0 bg-white z-10">
+          <TableHeader className="sticky top-0 bg-gray-50 z-10">
             <TableRow>
-              <TableHead className="text-sm">ID</TableHead>
-              <TableHead className="text-sm">Nome</TableHead>
-              <TableHead className="text-sm">Tipo</TableHead>
-              <TableHead className="text-sm">Detalhes</TableHead>
-              <TableHead className="text-sm">Data</TableHead>
+              <TableHead className="font-semibold">ID</TableHead>
+              <TableHead className="font-semibold">Nome</TableHead>
+              <TableHead className="font-semibold">NUSP</TableHead>
+              <TableHead className="font-semibold">Tipo Doação</TableHead>
+              <TableHead className="font-semibold">Livro/Valor</TableHead>
+              <TableHead className="font-semibold">Contato</TableHead>
+              <TableHead className="font-semibold">Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredDonators.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   Nenhum doador encontrado
                 </TableCell>
               </TableRow>
             ) : (
               filteredDonators.map((donator) => (
-                <TableRow key={donator.id}>
+                <TableRow key={donator.id} className="hover:bg-gray-50">
                   <TableCell className="font-mono text-sm">{donator.id}</TableCell>
                   <TableCell>
-                    <div className="font-medium text-sm">{donator.name}</div>
-                    <div className="flex gap-1 mt-1">
-                      {getUserTypeBadge(donator)}
-                      {donator.user_id && (
-                        <span className="text-xs text-gray-500">NUSP: {donator.user_id}</span>
-                      )}
+                    <div className="flex items-center gap-1.5 group relative">
+                      <span className="font-medium">{donator.name}</span>
+                      <div 
+                        className={`w-2 h-2 rounded-full ${
+                          donator.user_id 
+                            ? 'bg-purple-500' 
+                            : 'bg-gray-400'
+                        }`}
+                      />
+                      <div className="absolute left-0 top-full mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                        {donator.user_id ? 'Usuário cadastrado' : 'Não usuário'}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell>{getDonationBadge(donator)}</TableCell>
-                  <TableCell className="text-sm">
-                    {donator.donation_type === "book" ? (
-                      <span>Livro ID: {donator.book_id}</span>
+                  <TableCell>
+                    {donator.user_id ? (
+                      <span className="text-sm font-mono">{donator.user_id}</span>
                     ) : (
-                      <span className="font-semibold text-green-600">
-                        R$ {donator.amount?.toFixed(2)}
-                      </span>
-                    )}
-                    {donator.contact && (
-                      <div className="text-xs text-gray-500 mt-1">{donator.contact}</div>
+                      <span className="text-gray-400 text-sm">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-xs text-gray-500">
+                  <TableCell>{getDonationBadge(donator)}</TableCell>
+                  <TableCell>
+                    {donator.donation_type === "book" ? (
+                      <span className="text-sm">
+                        <span className="text-gray-500">ID:</span> {donator.book_id || "—"}
+                      </span>
+                    ) : (
+                      <span className="font-semibold text-green-600">
+                        R$ {donator.amount?.toFixed(2) || "0.00"}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {donator.contact || <span className="text-gray-400">—</span>}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
                     {donator.created_at
-                      ? new Date(donator.created_at).toLocaleDateString("pt-BR")
+                      ? new Date(donator.created_at).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric"
+                        })
                       : "—"}
                   </TableCell>
                 </TableRow>
@@ -187,8 +208,8 @@ export default function DonatorsList() {
       </div>
 
       {/* Contador */}
-      <div className="text-xs text-gray-600">
-        {filteredDonators.length} de {donators.length} doadores
+      <div className="text-sm text-gray-600">
+        Total: {filteredDonators.length} de {donators.length} doador{donators.length !== 1 ? 'es' : ''}
       </div>
     </div>
   );

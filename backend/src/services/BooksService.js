@@ -367,6 +367,18 @@ class BooksService {
             throw error;
         }
     }
+
+    async clearAllReservedBooks() {
+        try {
+            console.log(`🔵 [BooksService] Removendo todos os livros da reserva didática`);
+            const result = await booksModel.clearAllReservedBooks();
+            console.log(`🟢 [BooksService] Todos os livros removidos da reserva didática`);
+            return { success: true, message: 'Todos os livros foram removidos da reserva didática', affectedRows: result.affectedRows };
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao limpar reserva didática: ${error.message}`);
+            throw error;
+        }
+    }
 }
 
 module.exports = new BooksService();

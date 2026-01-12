@@ -69,6 +69,19 @@ class BooksModel {
         }
     }
 
+    async clearAllReservedBooks() {
+        console.log(`🔵 [BooksModel] Removendo todos os livros da reserva didática`);
+        const query = `UPDATE books SET is_reserved = 0 WHERE is_reserved = 1`;
+        try {
+            const result = await executeQuery(query, []);
+            console.log(`🟢 [BooksModel] Todos os livros removidos da reserva didática: ${result.affectedRows} livros afetados`);
+            return result;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao limpar reserva didática:", error.message);
+            throw error;
+        }
+    }
+
     // Método para buscar todos os livros sem filtros
     async getAll() {
         console.log("🔵 [BooksModel] Buscando todos os livros");

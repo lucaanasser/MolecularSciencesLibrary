@@ -63,6 +63,12 @@ router.get('/reserved', (req, res) => {
     booksController.getReservedBooks(req, res);
 });
 
+// Remove todos os livros da reserva didática
+router.delete('/reserved/clear', (req, res) => {
+    console.log("🔵 [BooksRoutes] DELETE /reserved/clear - Remover todos os livros da reserva");
+    booksController.clearAllReservedBooks(req, res);
+});
+
 // Busca um livro específico pelo ID
 router.get('/:id', async (req, res) => {
     try {
