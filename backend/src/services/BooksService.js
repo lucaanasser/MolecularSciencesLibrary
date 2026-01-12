@@ -6,6 +6,7 @@
 // 🔴 Erro
 
 const booksModel = require('../models/BooksModel');
+const DonatorsModel = require('../models/DonatorsModel');
 const bwipjs = require('bwip-js');
 const { PDFDocument, rgb } = require('pdf-lib');
 const RulesService = require('./RulesService');
@@ -269,6 +270,15 @@ class BooksService {
         try {
             console.log(`🔵 [BooksService] Buscando livro por id: ${id}`);
             const book = await booksModel.getBookById(id);
+            
+            // Se o livro existe, buscar informações do doador
+            if (book) {
+                const donator = await DonatorsModel.getDonatorByBookId(id);
+                if (donator) {
+                    book.donator_name = donator.name;
+                }
+            }
+            
             console.log(`🟢 [BooksService] Livro encontrado: ${book ? book.title : 'não encontrado'}`);
             return book;
         } catch (error) {

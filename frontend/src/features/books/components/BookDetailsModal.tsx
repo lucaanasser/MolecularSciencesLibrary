@@ -72,6 +72,9 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
             <p>Área: {book.area}</p>
             <p>Subárea: {resolvedSubarea}</p>
             <p>Idioma: {LANGUAGE_MAP[Number(book.language)] || LANGUAGE_MAP[book.language] || book.language || '—'}</p>
+            {book.donator_name && (
+              <p className="mt-2 font-semibold text-cm-purple">Doado por: {book.donator_name}</p>
+            )}
           
           {showAvailabilityText && (
             <div className="mt-3">

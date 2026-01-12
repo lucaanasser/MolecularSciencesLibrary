@@ -43,6 +43,25 @@ const BookSearch: React.FC = () => {
 
   // State para detalhes do livro selecionado
   const [selectedBook, setSelectedBook] = useState<any | null>(null);
+  const [loadingBookDetails, setLoadingBookDetails] = useState(false);
+
+  // Função para buscar detalhes completos do livro
+  const handleBookClick = async (book: any) => {
+    setLoadingBookDetails(true);
+    try {
+      const response = await fetch(`/api/books/${book.id}`);
+      if (!response.ok) {
+        throw new Error('Erro ao buscar detalhes do livro');
+      }
+      const bookDetails = await response.json();
+      setSelectedBook({ ...book, ...bookDetails });
+    } catch (error) {
+      console.error('🔴 [BookSearchPanel] Erro ao buscar detalhes:', error);
+      setSelectedBook(book); // Fallback para o livro sem detalhes completos
+    } finally {
+      setLoadingBookDetails(false);
+    }
+  };
 
   // Gera opções de categoria e subcategoria
   const categoryOptions = Object.keys(areaCodes);
@@ -245,11 +264,10 @@ const BookSearch: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
-                        onClick={() => {
-                          setSelectedBook(book);
-                        }}
+                        onClick={() => handleBookClick(book)}
+                        disabled={loadingBookDetails}
                       >
-                        Detalhes
+                        {loadingBookDetails ? 'Carregando...' : 'Detalhes'}
                       </Button>
                       {/* Botão de nudge para livros atrasados ou na janela final ou estendidos */}
                       {(book.overdue || book.due_in_window || book.is_extended) && (
