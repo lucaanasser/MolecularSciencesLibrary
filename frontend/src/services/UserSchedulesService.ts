@@ -63,9 +63,26 @@ export interface CustomDiscipline {
   schedule_name?: string;
 }
 
+export interface ScheduleDiscipline {
+  id: number;
+  schedule_id: number;
+  discipline_id: number;
+  selected_class_id: number | null;
+  is_visible: boolean;
+  is_expanded: boolean;
+  color: string;
+  discipline_codigo: string;
+  discipline_nome: string;
+  unidade: string;
+  campus: string;
+  creditos_aula: number;
+  creditos_trabalho: number;
+}
+
 export interface FullSchedule extends Schedule {
   classes: ScheduleClass[];
   customDisciplines: CustomDiscipline[];
+  scheduleDisciplines: ScheduleDiscipline[];
 }
 
 export interface Conflict {
@@ -136,6 +153,29 @@ class UserSchedulesService {
       return schedules;
     } catch (error) {
       console.error('🔴 [UserSchedulesService] Erro ao listar planos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Busca plano completo com turmas e disciplinas customizadas
+   */
+  async getFullSchedule(scheduleId: number): Promise<FullSchedule> {
+    console.log(`🔵 [UserSchedulesService] Buscando plano completo ${scheduleId}`);
+    try {
+      const response = await fetch(`/api/user-schedules/${scheduleId}/full`, {
+        headers: this.getAuthHeaders()
+      });
+      if (!response.ok) {
+        if (response.status === 404) throw new Error('Plano não encontrado');
+        if (response.status === 401) throw new Error('Não autenticado');
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      const schedule = await response.json();
+      console.log(`🟢 [UserSchedulesService] Plano completo carregado`);
+      return schedule;
+    } catch (error) {
+      console.error('🔴 [UserSchedulesService] Erro ao buscar plano completo:', error);
       throw error;
     }
   }
@@ -396,6 +436,106 @@ class UserSchedulesService {
       console.log(`🟢 [UserSchedulesService] Disciplina customizada removida`);
     } catch (error) {
       console.error('🔴 [UserSchedulesService] Erro ao remover disciplina customizada:', error);
+      throw error;
+    }
+  }
+
+  // ==================== DISCIPLINAS NA LISTA (SIDEBAR) ====================
+
+  /**
+   * Adiciona uma disciplina à lista do plano
+   */
+  async addDisciplineToSchedule(scheduleId: number, disciplineId: number, options?: {
+    selectedClassId?: number | null;
+    isVisible?: boolean;
+    isExpanded?: boolean;
+    color?: string;
+  }): Promise<ScheduleDiscipline> {
+    console.log(`🔵 [UserSchedulesService] Adicionando disciplina ${disciplineId} à lista do plano ${scheduleId}`);
+    try {
+      const response = await fetch(`/api/user-schedules/${scheduleId}/disciplines`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ disciplineId, ...options })
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `Erro HTTP: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log(`🟢 [UserSchedulesService] Disciplina adicionada à lista`);
+      return result;
+    } catch (error) {
+      console.error('🔴 [UserSchedulesService] Erro ao adicionar disciplina à lista:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Atualiza uma disciplina na lista do plano
+   */
+  async updateScheduleDiscipline(scheduleId: number, disciplineId: number, updates: {
+    selectedClassId?: number | null;
+    isVisible?: boolean;
+    isExpanded?: boolean;
+    color?: string;
+  }): Promise<void> {
+    console.log(`🔵 [UserSchedulesService] Atualizando disciplina ${disciplineId} na lista do plano ${scheduleId}`);
+    try {
+      const response = await fetch(`/api/user-schedules/${scheduleId}/disciplines/${disciplineId}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updates)
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `Erro HTTP: ${response.status}`);
+      }
+      console.log(`🟢 [UserSchedulesService] Disciplina atualizada na lista`);
+    } catch (error) {
+      console.error('🔴 [UserSchedulesService] Erro ao atualizar disciplina na lista:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove uma disciplina da lista do plano
+   */
+  async removeDisciplineFromSchedule(scheduleId: number, disciplineId: number): Promise<void> {
+    console.log(`🔵 [UserSchedulesService] Removendo disciplina ${disciplineId} da lista do plano ${scheduleId}`);
+    try {
+      const response = await fetch(`/api/user-schedules/${scheduleId}/disciplines/${disciplineId}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `Erro HTTP: ${response.status}`);
+      }
+      console.log(`🟢 [UserSchedulesService] Disciplina removida da lista`);
+    } catch (error) {
+      console.error('🔴 [UserSchedulesService] Erro ao remover disciplina da lista:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista disciplinas de um plano
+   */
+  async getScheduleDisciplines(scheduleId: number): Promise<ScheduleDiscipline[]> {
+    console.log(`🔵 [UserSchedulesService] Listando disciplinas do plano ${scheduleId}`);
+    try {
+      const response = await fetch(`/api/user-schedules/${scheduleId}/disciplines`, {
+        headers: this.getAuthHeaders()
+      });
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      const disciplines = await response.json();
+      console.log(`🟢 [UserSchedulesService] ${disciplines.length} disciplinas encontradas`);
+      return disciplines;
+    } catch (error) {
+      console.error('🔴 [UserSchedulesService] Erro ao listar disciplinas:', error);
       throw error;
     }
   }
