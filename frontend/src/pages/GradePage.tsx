@@ -43,6 +43,7 @@ const GradePage: React.FC = () => {
     error,
     isAuthenticated,
     editingScheduleName,
+    scheduleDisciplines,
     setActiveScheduleId,
     setEditingScheduleName,
     setError,
@@ -51,10 +52,14 @@ const GradePage: React.FC = () => {
     deleteSchedule,
     duplicateSchedule,
     loadSchedules,
+    reloadActiveScheduleData,
     addClass,
     removeClass,
     addCustomDiscipline,
     removeCustomDiscipline,
+    addDisciplineToList,
+    updateDisciplineInList,
+    removeDisciplineFromList,
     addLocalSlot,
     removeLocalSlot,
     SCHEDULE_COLORS
@@ -83,12 +88,58 @@ const GradePage: React.FC = () => {
   // Preview: slots da combinação selecionada
   const [previewSlots, setPreviewSlots] = useState<GradeSlot[]>([]);
 
-  // Cria plano inicial se usuário logado não tiver nenhum
+  // Carrega disciplinas salvas do banco quando scheduleDisciplines mudar
   useEffect(() => {
-    if (isAuthenticated && !isLoading && schedules.length === 0) {
-      createSchedule('Meu Plano');
-    }
-  }, [isAuthenticated, isLoading, schedules.length, createSchedule]);
+    const loadSavedDisciplines = async () => {
+      if (!isAuthenticated || !scheduleDisciplines || scheduleDisciplines.length === 0) {
+        return;
+      }
+
+      // Para cada disciplina salva, carrega os dados completos (com turmas)
+      const loadedStates: DisciplineState[] = [];
+      
+      for (const savedDiscipline of scheduleDisciplines) {
+        try {
+          const response = await fetch(`/api/disciplines/${savedDiscipline.discipline_codigo}/full`);
+          if (response.ok) {
+            const data = await response.json();
+            
+            const disciplineWithClasses: DisciplineWithClasses = {
+              id: savedDiscipline.discipline_id,
+              codigo: savedDiscipline.discipline_codigo,
+              nome: savedDiscipline.discipline_nome,
+              creditos_aula: Number(savedDiscipline.creditos_aula) || 0,
+              creditos_trabalho: Number(savedDiscipline.creditos_trabalho) || 0,
+              classes: (data.turmas || []).map((cls: any) => ({
+                id: cls.id,
+                codigo_turma: cls.codigo_turma,
+                discipline_id: savedDiscipline.discipline_id,
+                discipline_codigo: savedDiscipline.discipline_codigo,
+                discipline_nome: savedDiscipline.discipline_nome,
+                schedules: cls.schedules || [],
+                professors: cls.professors || []
+              }))
+            };
+            
+            loadedStates.push({
+              discipline: disciplineWithClasses,
+              isVisible: Boolean(savedDiscipline.is_visible),
+              selectedClassId: savedDiscipline.selected_class_id,
+              isExpanded: Boolean(savedDiscipline.is_expanded)
+            });
+          }
+        } catch (error) {
+          console.error(`Erro ao carregar disciplina ${savedDiscipline.discipline_codigo}:`, error);
+        }
+      }
+      
+      if (loadedStates.length > 0) {
+        setDisciplineStates(loadedStates);
+      }
+    };
+
+    loadSavedDisciplines();
+  }, [isAuthenticated, scheduleDisciplines]);
 
   // Handler para remover slot
   const handleRemoveSlot = async (slot: GradeSlot) => {
@@ -98,7 +149,7 @@ const GradePage: React.FC = () => {
       } else {
         await removeCustomDiscipline(slot.id);
       }
-      loadSchedules();
+      reloadActiveScheduleData();
     } else {
       removeLocalSlot(slot.id);
     }
@@ -112,9 +163,6 @@ const GradePage: React.FC = () => {
     }
     
     const result = await addClass(classId);
-    if (result && typeof result === 'object' && 'success' in result && result.success) {
-      loadSchedules();
-    }
     return result as { success: boolean; conflicts?: any[] };
   };
 
@@ -142,9 +190,6 @@ const GradePage: React.FC = () => {
     }
     
     const result = await addCustomDiscipline(data);
-    if (result) {
-      loadSchedules();
-    }
     return result;
   };
 
@@ -156,50 +201,93 @@ const GradePage: React.FC = () => {
   // ============= LÓGICA DE DISCIPLINAS E TURMAS =============
 
   // Adiciona disciplina à lista
-  const handleAddToDisciplineList = useCallback((discipline: DisciplineWithClasses) => {
-    setDisciplineStates(prev => {
-      // Evita duplicatas
-      if (prev.some(d => d.discipline.id === discipline.id)) {
-        return prev;
-      }
+  const handleAddToDisciplineList = useCallback(async (discipline: DisciplineWithClasses) => {
+    // Evita duplicatas
+    if (disciplineStates.some(d => d.discipline.id === discipline.id)) {
+      return;
+    }
 
-      // Seleciona automaticamente a primeira turma disponível
-      const firstClass = discipline.classes[0];
-      
-      return [...prev, {
-        discipline,
+    // Seleciona automaticamente a primeira turma disponível
+    const firstClass = discipline.classes[0];
+    const newState = {
+      discipline,
+      isVisible: true,
+      selectedClassId: firstClass?.id || null,
+      isExpanded: false
+    };
+
+    // Atualiza estado local
+    setDisciplineStates(prev => [...prev, newState]);
+
+    // Salva no banco se autenticado
+    if (isAuthenticated && activeScheduleId) {
+      await addDisciplineToList(discipline.id, {
+        selectedClassId: newState.selectedClassId,
         isVisible: true,
-        selectedClassId: firstClass?.id || null,
         isExpanded: false
-      }];
-    });
-  }, []);
+      });
+    }
+  }, [disciplineStates, isAuthenticated, activeScheduleId, addDisciplineToList]);
 
   // Toggle visibilidade de uma disciplina
-  const handleToggleVisibility = useCallback((disciplineId: number) => {
+  const handleToggleVisibility = useCallback(async (disciplineId: number) => {
+    const discipline = disciplineStates.find(d => d.discipline.id === disciplineId);
+    if (!discipline) return;
+
+    const newIsVisible = !discipline.isVisible;
+    
+    // Atualiza estado local
     setDisciplineStates(prev => prev.map(d =>
-      d.discipline.id === disciplineId ? { ...d, isVisible: !d.isVisible } : d
+      d.discipline.id === disciplineId ? { ...d, isVisible: newIsVisible } : d
     ));
-  }, []);
+
+    // Salva no banco se autenticado
+    if (isAuthenticated && activeScheduleId) {
+      await updateDisciplineInList(disciplineId, { isVisible: newIsVisible });
+    }
+  }, [disciplineStates, isAuthenticated, activeScheduleId, updateDisciplineInList]);
 
   // Seleciona turma específica
-  const handleSelectClass = useCallback((disciplineId: number, classId: number) => {
+  const handleSelectClass = useCallback(async (disciplineId: number, classId: number) => {
+    // Atualiza estado local
     setDisciplineStates(prev => prev.map(d =>
       d.discipline.id === disciplineId ? { ...d, selectedClassId: classId } : d
     ));
-  }, []);
+
+    // Salva no banco se autenticado
+    if (isAuthenticated && activeScheduleId) {
+      await updateDisciplineInList(disciplineId, { selectedClassId: classId });
+    }
+  }, [isAuthenticated, activeScheduleId, updateDisciplineInList]);
 
   // Toggle expansão
-  const handleToggleExpanded = useCallback((disciplineId: number) => {
+  const handleToggleExpanded = useCallback(async (disciplineId: number) => {
+    const discipline = disciplineStates.find(d => d.discipline.id === disciplineId);
+    if (!discipline) return;
+
+    const newIsExpanded = !discipline.isExpanded;
+    
+    // Atualiza estado local
     setDisciplineStates(prev => prev.map(d =>
-      d.discipline.id === disciplineId ? { ...d, isExpanded: !d.isExpanded } : d
+      d.discipline.id === disciplineId ? { ...d, isExpanded: newIsExpanded } : d
     ));
-  }, []);
+
+    // Salva no banco se autenticado
+    if (isAuthenticated && activeScheduleId) {
+      await updateDisciplineInList(disciplineId, { isExpanded: newIsExpanded });
+    }
+  }, [disciplineStates, isAuthenticated, activeScheduleId, updateDisciplineInList]);
 
   // Remove disciplina da lista
-  const handleRemoveFromDisciplineList = useCallback((disciplineId: number) => {
+  const handleRemoveFromDisciplineList = useCallback(async (disciplineId: number) => {
+    // Atualiza estado local
     setDisciplineStates(prev => prev.filter(d => d.discipline.id !== disciplineId));
-  }, []);
+
+    // Salva no banco se autenticado
+    if (isAuthenticated && activeScheduleId) {
+      await removeDisciplineFromList(disciplineId);
+    }
+  }, [isAuthenticated, activeScheduleId, removeDisciplineFromList]);
 
   // Adiciona disciplina da busca ao quadro
   const handleAddDisciplineFromSearch = useCallback(async (discipline: { id: number; codigo: string; nome: string; creditos_aula: number; creditos_trabalho: number }) => {
@@ -218,8 +306,8 @@ const GradePage: React.FC = () => {
           id: discipline.id,
           codigo: discipline.codigo,
           nome: discipline.nome,
-          creditos_aula: discipline.creditos_aula,
-          creditos_trabalho: discipline.creditos_trabalho,
+          creditos_aula: Number(discipline.creditos_aula) || 0,
+          creditos_trabalho: Number(discipline.creditos_trabalho) || 0,
           classes: (data.turmas || []).map((cls: any) => ({
             id: cls.id,
             codigo_turma: cls.codigo_turma,
@@ -395,24 +483,22 @@ const GradePage: React.FC = () => {
   const displayCredits = useMemo(() => {
     if (showCombinationPreview && combinations[currentCombinationIndex]) {
       return {
-        creditos_aula: combinations[currentCombinationIndex].totalCreditsAula,
-        creditos_trabalho: combinations[currentCombinationIndex].totalCreditsTrabalho
+        creditos_aula: combinations[currentCombinationIndex].totalCreditsAula || 0,
+        creditos_trabalho: combinations[currentCombinationIndex].totalCreditsTrabalho || 0
       };
     }
     
-    // Créditos das disciplinas visíveis + créditos da grade salva
+    // Créditos das disciplinas visíveis (apenas as adicionadas pela lista)
     const disciplineCredits = disciplineStates
       .filter(d => d.isVisible)
       .reduce((acc, d) => ({
-        creditos_aula: acc.creditos_aula + d.discipline.creditos_aula,
-        creditos_trabalho: acc.creditos_trabalho + d.discipline.creditos_trabalho
+        creditos_aula: acc.creditos_aula + (d.discipline.creditos_aula || 0),
+        creditos_trabalho: acc.creditos_trabalho + (d.discipline.creditos_trabalho || 0)
       }), { creditos_aula: 0, creditos_trabalho: 0 });
 
-    return {
-      creditos_aula: credits.creditos_aula + disciplineCredits.creditos_aula,
-      creditos_trabalho: credits.creditos_trabalho + disciplineCredits.creditos_trabalho
-    };
-  }, [showCombinationPreview, combinations, currentCombinationIndex, credits, disciplineStates]);
+    // Retorna apenas os créditos das disciplinas visíveis (não soma com credits pois seria duplicação)
+    return disciplineCredits;
+  }, [showCombinationPreview, combinations, currentCombinationIndex, disciplineStates]);
 
   // Lista única de disciplinas na grade
   const uniqueDisciplines = Array.from(
