@@ -44,6 +44,18 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Variáveis de modo - Biblioteca (padrão) */
+    --mode-primary: 302 32% 52%; /* cm-purple */
+    --mode-primary-light: 302 32% 62%;
+    --mode-bg: 0 0% 100%;
+  }
+  
+  /* Modo Acadêmico */
+  .mode-academico {
+    --mode-primary: 171 78% 31%; /* cm-academic (teal-600) */
+    --mode-primary-light: 168 76% 42%; /* teal-500 */
+    --mode-bg: 170 76% 98%; /* teal-50 */
   }
 
   * {
@@ -52,6 +64,17 @@
 
   body {
     @apply bg-cm-bg text-foreground font-dmsans;
+    transition: background-color 0.5s ease, color 0.3s ease;
+  }
+  
+  /* Transição suave ao mudar de modo */
+  .mode-biblioteca body,
+  .mode-academico body {
+    transition: background-color 0.5s ease-in-out;
+  }
+  
+  .mode-academico body {
+    @apply bg-cm-academic-bg;
   }
 
   h1, h2, h3, h4, h5, h6 {

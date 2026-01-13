@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useSiteMode } from "@/hooks/useSiteMode";
+import ModeSwitcher from "./ModeSwitcher";
 
 /**
  * Barra de navegação principal.
@@ -27,9 +29,26 @@ const Navigation: React.FC = () => {
   const user = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAcademico, isBiblioteca } = useSiteMode();
 
   // Exibe "Portal Pró-Aluno" sempre que o usuário for proaluno, independente da rota
   const showProAlunoHeader = user?.role?.toLowerCase() === "proaluno";
+
+  // Links baseados no modo atual
+  const navLinks = isAcademico
+    ? [
+        { to: "/academico", label: "Início" },
+        { to: "/academico/buscar", label: "Buscar" },
+        { to: "/academico/grade", label: "Grade" },
+        { to: "/academico/faq", label: "FAQ" },
+      ]
+    : [
+        { to: "/", label: "Início" },
+        { to: "/buscar", label: "Buscar" },
+        { to: "/estante-virtual", label: "Estante Virtual" },
+        { to: "/ajude", label: "Ajude" },
+        { to: "/faq", label: "FAQ" },
+      ];
 
 
   useEffect(() => {
@@ -69,21 +88,27 @@ const Navigation: React.FC = () => {
   };
 
 
-  // Só permite transição de cor na home, nas demais páginas sempre roxo
+  // Só permite transição de cor na home, nas demais páginas sempre com cor do modo
   const alwaysPurple = location.pathname !== "/";
-  const navbarBg = alwaysPurple ? "bg-cm-purple/80" : (isScrolled ? "bg-cm-bg" : "bg-cm-purple/80");
+  
+  // Cores baseadas no modo
+  const primaryColor = isAcademico ? "cm-academic" : "cm-purple";
+  const primaryColorClass = isAcademico ? "bg-cm-academic/80" : "bg-cm-purple/80";
+  const drawerBgClass = isAcademico ? "bg-cm-academic" : "bg-cm-purple";
+  
+  const navbarBg = alwaysPurple ? primaryColorClass : (isScrolled ? "bg-cm-bg" : primaryColorClass);
   const textColor = alwaysPurple ? "text-black" : (isScrolled ? "text-gray-900" : "text-black");
-  const brandColor = alwaysPurple ? "text-black" : (isScrolled ? "text-cm-purple" : "text-black");
+  const brandColor = alwaysPurple ? "text-black" : (isScrolled ? `text-${primaryColor}` : "text-black");
   const hoverBg = alwaysPurple ? "hover:bg-white/20" : (isScrolled ? "hover:bg-gray-100" : "hover:bg-white/20");
   const buttonVariant = alwaysPurple ? "ghost" : (isScrolled ? "outline" : "ghost");
   const buttonColors = alwaysPurple
-    ? "border-black text-black hover:bg-cm-purple hover:text-white"
+    ? `border-black text-black hover:bg-${primaryColor} hover:text-white`
     : (isScrolled 
-      ? "border-cm-purple text-cm-purple hover:bg-cm-purple hover:text-white" 
-      : "border-black text-black hover:bg-cm-purple hover:text-white");
+      ? `border-${primaryColor} text-${primaryColor} hover:bg-${primaryColor} hover:text-white` 
+      : `border-black text-black hover:bg-${primaryColor} hover:text-white`);
 
-  // Força cor roxa correta quando menu mobile está aberto
-  const effectiveNavbarBg = isMobileMenuOpen ? "bg-cm-purple/80" : navbarBg;
+  // Força cor correta quando menu mobile está aberto
+  const effectiveNavbarBg = isMobileMenuOpen ? primaryColorClass : navbarBg;
   const effectiveTextColor = isMobileMenuOpen ? "text-black" : textColor;
 
   // Controla visibilidade do drawer para permitir transição
@@ -112,38 +137,30 @@ const Navigation: React.FC = () => {
 
   return (
     <nav className={`relative ${effectiveNavbarBg} ${effectiveTextColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
-      {/* Fundo branco + camada roxa translúcida apenas se NÃO for index */}
+      {/* Fundo branco + camada colorida translúcida apenas se NÃO for index */}
       {location.pathname !== "/" && (
         <>
           <div className="absolute inset-0 w-full h-full bg-white z-0" />
-          <div className="absolute inset-0 w-full h-full bg-cm-purple/80 z-10" />
+          <div className={`absolute inset-0 w-full h-full ${primaryColorClass} z-10`} />
         </>
       )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="flex justify-between h-24">
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center">
-              <img  src="images/logoestendido.png" alt="Logo da Biblioteca" className="h-20" />
+              <img src={isAcademico ? "/images/logoestendido-academic.png" : "/images/logoestendido.png"} alt="Logo" className="h-20" onError={(e) => { e.currentTarget.src = "/images/logoestendido.png"; }} />
             </Link>
+            {/* Mode Switcher */}
+            <ModeSwitcher />
           </div>
 
           {/* Desktop navigation */}
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link to="/" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
-              Início
-            </Link>
-            <Link to="/buscar" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
-              Buscar
-            </Link>
-            <Link to="/estante-virtual" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
-              Estante Virtual
-            </Link>
-            <Link to="/ajude" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
-              Ajude
-            </Link>
-            <Link to="/faq" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}> 
-              FAQ
-            </Link>
+            {navLinks.map((link) => (
+              <Link key={link.to} to={link.to} className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>
+                {link.label}
+              </Link>
+            ))}
             {showProAlunoHeader && (
               <Link to="/proaluno" className={`px-3 py-2 rounded-md ${textColor} ${hoverBg}`}>Portal Pró-Aluno</Link>
             )}
@@ -205,15 +222,15 @@ const Navigation: React.FC = () => {
           {/* Drawer lateral à direita com transição suave */}
           <div
             className={
-              `relative w-64 max-w-[80vw] h-full bg-cm-purple text-white shadow-lg ` +
+              `relative w-64 max-w-[80vw] h-full ${drawerBgClass} text-white shadow-lg ` +
               `transition-transform ease-in-out ` +
               drawerTransition + ' ' +
               drawerOpenClass
             }
             style={{ willChange: 'transform' }}
           >
-            {/* Topo do drawer: botão X para fechar */}
-            <div className="flex items-center justify-start pt-6 pb-2 pl-4 pr-2">
+            {/* Topo do drawer: botão X para fechar e ModeSwitcher */}
+            <div className="flex items-center justify-between pt-6 pb-2 pl-4 pr-4">
               <button
                 className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -221,58 +238,22 @@ const Navigation: React.FC = () => {
               >
                 <span className="text-3xl text-white">×</span>
               </button>
+              <ModeSwitcher />
             </div>
             <div className="pt-2 pb-3 px-4 space-y-1 flex-1 flex flex-col">
-              <Link
-                to="/"
-                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (Início)");
-                }}
-              >
-                Início
-              </Link>
-              <Link
-                to="/buscar"
-                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (Buscar)");
-                }}
-              >
-                Buscar
-              </Link>
-              <Link
-                to="/estante-virtual"
-                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (Estante Virtual)");
-                }}
-              >
-                Estante Virtual
-              </Link>
-              <Link
-                to="/ajude"
-                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (Ajude)");
-                }}
-              >
-                Ajude
-              </Link>
-              <Link
-                to="/faq"
-                className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  console.log("🟢 [Navigation] Menu mobile fechado (FAQ)");
-                }}
-              >
-                FAQ
-              </Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`block px-3 py-2 rounded-md text-white ${hoverBg}`}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    console.log(`🟢 [Navigation] Menu mobile fechado (${link.label})`);
+                  }}
+                >
+                  {link.label}
+                </Link>
+              ))}
               {showProAlunoHeader && (
                 <Link
                   to="/proaluno"
