@@ -38,17 +38,7 @@ coverage/
 
 # Misc
 *.swp
-###########################
-# Ambiente de desenvolvimento
-###########################
-# Docker dev
-frontend/Dockerfile.dev
-frontend/nginx.dev.conf
-frontend/bun.lockb
 
-
-# Certificados dev
-ssl-dev/
 # Outros arquivos temporários/dev
 frontend/coverage/
 frontend/.env*
