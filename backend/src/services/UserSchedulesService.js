@@ -513,6 +513,107 @@ class UserSchedulesService {
             throw error;
         }
     }
+
+    // ===================== DISCIPLINAS NA LISTA (SIDEBAR) =====================
+
+    /**
+     * Adiciona uma disciplina à lista do plano
+     */
+    async addDisciplineToSchedule(scheduleId, userId, disciplineId, options = {}) {
+        console.log(`🔵 [UserSchedulesService] Adicionando disciplina ${disciplineId} à lista do plano ${scheduleId}`);
+        try {
+            // Valida propriedade do plano
+            const schedule = await this.getScheduleById(scheduleId, userId);
+            if (!schedule) {
+                throw new Error('Plano não encontrado');
+            }
+
+            // Conta itens para determinar cor
+            const existingDisciplines = await userSchedulesModel.getScheduleDisciplines(scheduleId);
+            const color = options.color || this.getNextColor(existingDisciplines.length);
+
+            const result = await userSchedulesModel.addDisciplineToSchedule(scheduleId, disciplineId, {
+                ...options,
+                color
+            });
+            console.log(`🟢 [UserSchedulesService] Disciplina adicionada à lista`);
+            return result;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesService] Erro ao adicionar disciplina à lista:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza uma disciplina na lista do plano
+     */
+    async updateScheduleDiscipline(scheduleId, userId, disciplineId, updates) {
+        console.log(`🔵 [UserSchedulesService] Atualizando disciplina ${disciplineId} na lista do plano ${scheduleId}`);
+        try {
+            // Valida propriedade do plano
+            const schedule = await this.getScheduleById(scheduleId, userId);
+            if (!schedule) {
+                throw new Error('Plano não encontrado');
+            }
+
+            // Busca o registro da disciplina no plano
+            const disciplines = await userSchedulesModel.getScheduleDisciplines(scheduleId);
+            const discipline = disciplines.find(d => d.discipline_id === disciplineId);
+            
+            if (!discipline) {
+                throw new Error('Disciplina não encontrada no plano');
+            }
+
+            await userSchedulesModel.updateScheduleDiscipline(discipline.id, updates);
+            console.log(`🟢 [UserSchedulesService] Disciplina atualizada na lista`);
+            return true;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesService] Erro ao atualizar disciplina na lista:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Remove uma disciplina da lista do plano
+     */
+    async removeDisciplineFromSchedule(scheduleId, userId, disciplineId) {
+        console.log(`🔵 [UserSchedulesService] Removendo disciplina ${disciplineId} da lista do plano ${scheduleId}`);
+        try {
+            // Valida propriedade do plano
+            const schedule = await this.getScheduleById(scheduleId, userId);
+            if (!schedule) {
+                throw new Error('Plano não encontrado');
+            }
+
+            await userSchedulesModel.removeDisciplineFromSchedule(scheduleId, disciplineId);
+            console.log(`🟢 [UserSchedulesService] Disciplina removida da lista`);
+            return true;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesService] Erro ao remover disciplina da lista:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Lista as disciplinas na lista de um plano
+     */
+    async getScheduleDisciplines(scheduleId, userId) {
+        console.log(`🔵 [UserSchedulesService] Listando disciplinas do plano ${scheduleId}`);
+        try {
+            // Valida propriedade do plano
+            const schedule = await this.getScheduleById(scheduleId, userId);
+            if (!schedule) {
+                throw new Error('Plano não encontrado');
+            }
+
+            const disciplines = await userSchedulesModel.getScheduleDisciplines(scheduleId);
+            console.log(`🟢 [UserSchedulesService] ${disciplines.length} disciplinas encontradas`);
+            return disciplines;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesService] Erro ao listar disciplinas:", error.message);
+            throw error;
+        }
+    }
 }
 
 module.exports = new UserSchedulesService();
