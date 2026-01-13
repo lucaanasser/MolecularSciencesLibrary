@@ -49,8 +49,9 @@ function SupportersCarousel() {
 
 	useEffect(() => {
 		if (!listRef.current) return;
+		const itemHeight = window.innerWidth < 640 ? 2 : 2.2;
 		listRef.current.style.transition = "transform 0.5s ease-in-out";
-		listRef.current.style.transform = `translateY(-${index * 2.2}rem)`;
+		listRef.current.style.transform = `translateY(-${index * itemHeight}rem)`;
 
 		if (index === supporters.length) {
 			// Após a transição, reseta instantaneamente para o início, sem animação
@@ -72,11 +73,11 @@ function SupportersCarousel() {
 	}, [index]);
 
 	return (
-		<div className="text-center text-xl md:text-2xl font-semibold flex flex-wrap justify-center items-center gap-2">
+		<div className="text-center text-lg sm:text-xl md:text-2xl font-semibold flex flex-wrap justify-center items-center gap-2 px-4">
 			<span className="text-black">Obrigado</span>
 			<div
-				className="overflow-hidden h-[12rem] relative"
-				style={{ width: "auto", minWidth: "12rem" }}
+				className="overflow-hidden h-[10rem] sm:h-[12rem] relative"
+				style={{ width: "auto", minWidth: "10rem" }}
 			>
 				<div
 					ref={listRef}
@@ -85,7 +86,7 @@ function SupportersCarousel() {
 					{displaySupporters.map((supporter, i) => (
 						<div
 							key={i}
-							className={`h-[2.2rem] flex items-center justify-center font-bold ${
+							className={`h-[2rem] sm:h-[2.2rem] flex items-center justify-center font-bold text-sm sm:text-base ${
 								i === index + 2 ? "text-cm-purple" : "text-gray-400"
 							}`}
 						>
@@ -335,15 +336,22 @@ const CardTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('Críticas e sugestões');
   const data = cardContent[activeTab];
 
+  // Textos abreviados para mobile
+  const tabLabels: Record<Tab, { full: string; short: string }> = {
+    'Críticas e sugestões': { full: 'Críticas e sugestões', short: 'Críticas' },
+    'Sugestões de livros': { full: 'Sugestões de livros', short: 'Sugestões' },
+    'Doação de exemplares': { full: 'Doação de exemplares', short: 'Doações' }
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto my-8 px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-7xl mx-auto my-6 sm:my-8 px-4 sm:px-6 lg:px-8">
       {/* Abas alinhadas à esquerda, estilo mais próximo dos cards */}
-      <div className="flex border-b border-gray-200 mb-0">
+      <div className="flex overflow-x-auto border-b border-gray-200 mb-0 scrollbar-hide">
         {(Object.keys(cardContent) as Tab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`py-2 px-5 font-semibold text-xl transition-colors border-b-2 -mb-px
+            className={`py-2 px-3 sm:px-5 md:px-6 font-semibold text-sm sm:text-base md:text-lg lg:text-xl transition-colors border-b-2 -mb-px whitespace-nowrap flex-shrink-0
               ${
                 activeTab === tab
                   ? 'text-cm-bg border-cm-purple bg-cm-purple'
@@ -353,22 +361,23 @@ const CardTabs: React.FC = () => {
             `}
             style={{ outline: "none" }}
           >
-            {tab}
+            <span className="hidden sm:inline">{tabLabels[tab].full}</span>
+            <span className="sm:hidden">{tabLabels[tab].short}</span>
           </button>
         ))}
       </div>
-      <div className="border border-gray-200 rounded-b-2xl p-6 flex flex-col md:flex-row justify-between items-start bg-cm-bg shadow-md">
-        <div className="w-full md:w-[60%] md:pr-6">
-          <h2 className="text-2xl mb-3">{data.title}</h2>
-          <p className="text-gray-700 mb-4">{data.description}</p>
+      <div className="border border-gray-200 rounded-b-2xl p-4 sm:p-6 flex flex-col-reverse md:flex-row justify-between items-start bg-cm-bg shadow-md gap-4 md:gap-6">
+        <div className="w-full md:w-[60%]">
+          <h2 className="text-xl sm:text-2xl mb-2 sm:mb-3">{data.title}</h2>
+          <p className="text-sm sm:text-base text-gray-700 mb-4">{data.description}</p>
           {/* Formulário específico da tab */}
           <TabForm tab={activeTab} />
         </div>
-        <div className="flex flex-col items-center mt-6 md:mt-0 w-full md:w-[40%]">
+        <div className="flex flex-col items-center w-full md:w-[40%]">
           <img
             src={data.image}
             alt={data.imageAlt}
-            className="w-full max-w-[280px] md:max-w-none object-contain"
+            className="w-full max-w-[200px] sm:max-w-[240px] md:max-w-none object-contain"
           />
         </div>
       </div>
@@ -381,9 +390,9 @@ const DonationPage = () => (
 		<Navigation />
 
 		{/* Texto introdutório sobre formas de ajudar */}
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 className="text-4xl font-bebas mb-8">Ajude a Biblioteca</h2>
-			<p className="text-lg text-black">
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bebas mb-4 sm:mb-6 md:mb-8">Ajude a Biblioteca</h2>
+			<p className="text-base sm:text-lg text-black">
 				A Biblioteca conta com o apoio da comunidade para crescer e se manter relevante. Você pode contribuir enviando feedbacks, sugerindo novos livros, doando exemplares ou apoiando financeiramente. Toda ajuda é bem-vinda!
 			</p>
 		</div>
@@ -440,6 +449,10 @@ const style = `
 .animate-spin-slow { animation: spin-slow 6s linear infinite; }
 @keyframes wiggle { 0%, 100% { transform: rotate(-8deg);} 50% { transform: rotate(8deg);} }
 .animate-wiggle { animation: wiggle 1.2s ease-in-out infinite; }
+
+/* Esconder scrollbar mantendo funcionalidade */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
 const StyleInjector = () => {
