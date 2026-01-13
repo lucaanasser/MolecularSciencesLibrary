@@ -15,6 +15,7 @@ const virtualBookShelfRouter = require('./routes/VirtualBookSheflRoute');
 const formsRouter = require('./routes/FormsRoutes');
 const disciplinesRouter = require('./routes/DisciplinesRoutes');
 const reportsRouter = require('./routes/ReportsRoutes');
+const userSchedulesRouter = require('./routes/UserSchedulesRoutes');
 require('dotenv').config();
 
 /**
@@ -47,6 +48,7 @@ app.use('/api/virtual-bookshelf', virtualBookShelfRouter); // Adicione esta linh
 app.use('/api/forms', formsRouter);
 app.use('/api/disciplines', disciplinesRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/user-schedules', userSchedulesRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {
