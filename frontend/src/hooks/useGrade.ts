@@ -4,6 +4,7 @@ import userSchedulesService, {
   Schedule, 
   ScheduleClass, 
   CustomDiscipline, 
+  ScheduleDiscipline,
   Conflict,
   SCHEDULE_COLORS
 } from '@/services/UserSchedulesService';
@@ -50,6 +51,7 @@ export function useGrade() {
   const [activeScheduleId, setActiveScheduleId] = useState<number | null>(null);
   const [classes, setClasses] = useState<ScheduleClass[]>([]);
   const [customDisciplines, setCustomDisciplines] = useState<CustomDiscipline[]>([]);
+  const [scheduleDisciplines, setScheduleDisciplines] = useState<ScheduleDiscipline[]>([]);
   
   // Estados de loading/error
   const [isLoading, setIsLoading] = useState(true);
@@ -58,12 +60,18 @@ export function useGrade() {
   
   // Estados para edição
   const [editingScheduleName, setEditingScheduleName] = useState<number | null>(null);
+  
+  // Flag para controlar se já inicializou
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // ================ CARREGAR DADOS INICIAIS ================
 
   const loadSchedules = useCallback(async () => {
     if (!isAuthenticated) {
       setSchedules([]);
+      setClasses([]);
+      setCustomDisciplines([]);
+      setScheduleDisciplines([]);
       setIsLoading(false);
       return;
     }
@@ -75,23 +83,67 @@ export function useGrade() {
       const data = await userSchedulesService.getSchedules();
       setSchedules(data);
       
-      // Se não tem plano ativo, seleciona o primeiro
+      // Se não tem plano ativo e tem planos disponíveis, seleciona o primeiro
       if (data.length > 0 && !activeScheduleId) {
         const firstActive = data.find(s => s.is_active) || data[0];
         setActiveScheduleId(firstActive.id);
+      }
+      
+      // Se não há planos, limpa os dados
+      if (data.length === 0) {
+        setClasses([]);
+        setCustomDisciplines([]);
+        setScheduleDisciplines([]);
+        setActiveScheduleId(null);
       }
     } catch (err) {
       console.error('Erro ao carregar planos:', err);
       setError('Erro ao carregar planos');
     } finally {
       setIsLoading(false);
+      setHasInitialized(true);
+    }
+  }, [isAuthenticated, activeScheduleId]);
+
+  // Recarrega dados do plano ativo (turmas, disciplinas customizadas e disciplinas da lista)
+  const reloadActiveScheduleData = useCallback(async () => {
+    if (!isAuthenticated || !activeScheduleId) return;
+    
+    try {
+      const fullSchedule = await userSchedulesService.getFullSchedule(activeScheduleId);
+      setClasses(fullSchedule.classes || []);
+      setCustomDisciplines(fullSchedule.customDisciplines || []);
+      setScheduleDisciplines(fullSchedule.scheduleDisciplines || []);
+    } catch (err) {
+      console.error('Erro ao recarregar dados do plano:', err);
+      setError('Erro ao recarregar dados do plano');
     }
   }, [isAuthenticated, activeScheduleId]);
 
   // Carrega planos ao iniciar
   useEffect(() => {
-    loadSchedules();
-  }, [loadSchedules]);
+    if (!hasInitialized) {
+      loadSchedules();
+    }
+  }, [hasInitialized, loadSchedules]);
+
+  // Carrega dados do plano ativo quando ele mudar
+  useEffect(() => {
+    const loadActiveScheduleData = async () => {
+      if (!isAuthenticated || !activeScheduleId || !hasInitialized) return;
+      
+      try {
+        const fullSchedule = await userSchedulesService.getFullSchedule(activeScheduleId);
+        setClasses(fullSchedule.classes || []);
+        setCustomDisciplines(fullSchedule.customDisciplines || []);
+        setScheduleDisciplines(fullSchedule.scheduleDisciplines || []);
+      } catch (err) {
+        console.error('Erro ao carregar dados do plano:', err);
+      }
+    };
+    
+    loadActiveScheduleData();
+  }, [activeScheduleId, isAuthenticated, hasInitialized]);
 
   // ================ OPERAÇÕES COM PLANOS ================
 
@@ -184,8 +236,8 @@ export function useGrade() {
       
       const result = await userSchedulesService.addClass(activeScheduleId, classId);
       
-      // Recarrega os dados
-      await loadSchedules();
+      // Recarrega os dados do plano ativo
+      await reloadActiveScheduleData();
       
       return { success: true, color: result.color };
     } catch (err) {
@@ -195,7 +247,7 @@ export function useGrade() {
     } finally {
       setIsSaving(false);
     }
-  }, [activeScheduleId, loadSchedules]);
+  }, [activeScheduleId, reloadActiveScheduleData]);
 
   const removeClass = useCallback(async (classId: number) => {
     if (!activeScheduleId) return false;
@@ -272,6 +324,75 @@ export function useGrade() {
       setIsSaving(false);
     }
   }, []);
+
+  // ================ OPERAÇÕES COM DISCIPLINAS DA LISTA (SIDEBAR) ================
+
+  const addDisciplineToList = useCallback(async (disciplineId: number, options?: {
+    selectedClassId?: number | null;
+    isVisible?: boolean;
+    isExpanded?: boolean;
+    color?: string;
+  }) => {
+    if (!activeScheduleId) return null;
+    
+    setIsSaving(true);
+    try {
+      const result = await userSchedulesService.addDisciplineToSchedule(activeScheduleId, disciplineId, options);
+      setScheduleDisciplines(prev => {
+        // Verifica se já existe (caso de update)
+        const existing = prev.find(d => d.discipline_id === disciplineId);
+        if (existing) {
+          return prev.map(d => d.discipline_id === disciplineId ? { ...d, ...result } : d);
+        }
+        return [...prev, result];
+      });
+      return result;
+    } catch (err) {
+      console.error('Erro ao adicionar disciplina à lista:', err);
+      setError('Erro ao adicionar disciplina à lista');
+      return null;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [activeScheduleId]);
+
+  const updateDisciplineInList = useCallback(async (disciplineId: number, updates: {
+    selectedClassId?: number | null;
+    isVisible?: boolean;
+    isExpanded?: boolean;
+    color?: string;
+  }) => {
+    if (!activeScheduleId) return false;
+    
+    try {
+      await userSchedulesService.updateScheduleDiscipline(activeScheduleId, disciplineId, updates);
+      setScheduleDisciplines(prev => prev.map(d => 
+        d.discipline_id === disciplineId ? { ...d, ...updates } : d
+      ));
+      return true;
+    } catch (err) {
+      console.error('Erro ao atualizar disciplina na lista:', err);
+      setError('Erro ao atualizar disciplina na lista');
+      return false;
+    }
+  }, [activeScheduleId]);
+
+  const removeDisciplineFromList = useCallback(async (disciplineId: number) => {
+    if (!activeScheduleId) return false;
+    
+    setIsSaving(true);
+    try {
+      await userSchedulesService.removeDisciplineFromSchedule(activeScheduleId, disciplineId);
+      setScheduleDisciplines(prev => prev.filter(d => d.discipline_id !== disciplineId));
+      return true;
+    } catch (err) {
+      console.error('Erro ao remover disciplina da lista:', err);
+      setError('Erro ao remover disciplina da lista');
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [activeScheduleId]);
 
   // ================ CÁLCULOS DE EXIBIÇÃO ================
 
@@ -392,6 +513,7 @@ export function useGrade() {
     activeSchedule: schedules.find(s => s.id === activeScheduleId),
     classes,
     customDisciplines,
+    scheduleDisciplines,
     gradeSlots: isAuthenticated ? gradeSlots : localSlots,
     credits,
     timeRange,
@@ -409,6 +531,7 @@ export function useGrade() {
     setError,
     setClasses,
     setCustomDisciplines,
+    setScheduleDisciplines,
     
     // Ações - Planos
     createSchedule,
@@ -416,6 +539,7 @@ export function useGrade() {
     deleteSchedule,
     duplicateSchedule,
     loadSchedules,
+    reloadActiveScheduleData,
     
     // Ações - Turmas
     addClass,
@@ -425,6 +549,11 @@ export function useGrade() {
     // Ações - Disciplinas Customizadas
     addCustomDiscipline,
     removeCustomDiscipline,
+    
+    // Ações - Disciplinas na Lista (Sidebar)
+    addDisciplineToList,
+    updateDisciplineInList,
+    removeDisciplineFromList,
     
     // Ações - Local (não logado)
     addLocalSlot,
