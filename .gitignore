@@ -45,8 +45,7 @@ coverage/
 frontend/Dockerfile.dev
 frontend/nginx.dev.conf
 frontend/bun.lockb
-# Docker Compose dev
-docker-compose.dev.yml
+
 
 # Certificados dev
 ssl-dev/
