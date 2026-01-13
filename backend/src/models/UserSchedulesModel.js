@@ -437,8 +437,169 @@ class UserSchedulesModel {
         }
     }
 
+    // ===================== SCHEDULE DISCIPLINES (Disciplinas na lista) =====================
+
     /**
-     * Busca um plano completo com todas as turmas, horários e disciplinas customizadas
+     * Lista todas as disciplinas na lista de um plano
+     */
+    async getScheduleDisciplines(scheduleId) {
+        console.log(`🔵 [UserSchedulesModel] Buscando disciplinas do plano ${scheduleId}`);
+        const query = `
+            SELECT 
+                usd.id,
+                usd.schedule_id,
+                usd.discipline_id,
+                usd.selected_class_id,
+                usd.is_visible,
+                usd.is_expanded,
+                usd.color,
+                d.codigo as discipline_codigo,
+                d.nome as discipline_nome,
+                d.unidade,
+                d.campus,
+                d.creditos_aula,
+                d.creditos_trabalho
+            FROM user_schedule_disciplines usd
+            JOIN disciplines d ON usd.discipline_id = d.id
+            WHERE usd.schedule_id = ?
+            ORDER BY usd.created_at ASC
+        `;
+        try {
+            const disciplines = await allQuery(query, [scheduleId]);
+            console.log(`🟢 [UserSchedulesModel] Disciplinas encontradas: ${disciplines.length}`);
+            return disciplines;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesModel] Erro ao buscar disciplinas do plano:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Adiciona uma disciplina à lista do plano
+     */
+    async addDisciplineToSchedule(scheduleId, disciplineId, { selectedClassId = null, isVisible = true, isExpanded = false, color = '#14b8a6' } = {}) {
+        console.log(`🔵 [UserSchedulesModel] Adicionando disciplina ${disciplineId} ao plano ${scheduleId}`);
+        
+        // Verifica se já existe
+        const existing = await getQuery(
+            `SELECT id FROM user_schedule_disciplines WHERE schedule_id = ? AND discipline_id = ?`,
+            [scheduleId, disciplineId]
+        );
+        
+        if (existing) {
+            console.log(`🟡 [UserSchedulesModel] Disciplina já existe no plano, atualizando...`);
+            return this.updateScheduleDiscipline(existing.id, { selectedClassId, isVisible, isExpanded, color });
+        }
+
+        const query = `
+            INSERT INTO user_schedule_disciplines 
+            (schedule_id, discipline_id, selected_class_id, is_visible, is_expanded, color, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `;
+        try {
+            const result = await executeQuery(query, [scheduleId, disciplineId, selectedClassId, isVisible ? 1 : 0, isExpanded ? 1 : 0, color]);
+            console.log(`🟢 [UserSchedulesModel] Disciplina adicionada com ID: ${result.lastID}`);
+            
+            // Atualiza updated_at do plano
+            await executeQuery(
+                `UPDATE user_schedules SET updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                [scheduleId]
+            );
+            
+            return { 
+                id: result.lastID, 
+                schedule_id: scheduleId, 
+                discipline_id: disciplineId,
+                selected_class_id: selectedClassId,
+                is_visible: isVisible ? 1 : 0,
+                is_expanded: isExpanded ? 1 : 0,
+                color
+            };
+        } catch (error) {
+            console.error("🔴 [UserSchedulesModel] Erro ao adicionar disciplina ao plano:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza uma disciplina na lista do plano
+     */
+    async updateScheduleDiscipline(id, { selectedClassId, isVisible, isExpanded, color }) {
+        console.log(`🔵 [UserSchedulesModel] Atualizando disciplina ${id} no plano`);
+        const updates = [];
+        const params = [];
+
+        if (selectedClassId !== undefined) { 
+            updates.push('selected_class_id = ?'); 
+            params.push(selectedClassId); 
+        }
+        if (isVisible !== undefined) { 
+            updates.push('is_visible = ?'); 
+            params.push(isVisible ? 1 : 0); 
+        }
+        if (isExpanded !== undefined) { 
+            updates.push('is_expanded = ?'); 
+            params.push(isExpanded ? 1 : 0); 
+        }
+        if (color !== undefined) { 
+            updates.push('color = ?'); 
+            params.push(color); 
+        }
+
+        if (updates.length === 0) {
+            return null;
+        }
+
+        params.push(id);
+        const query = `UPDATE user_schedule_disciplines SET ${updates.join(', ')} WHERE id = ?`;
+        try {
+            await executeQuery(query, params);
+            console.log(`🟢 [UserSchedulesModel] Disciplina ${id} atualizada no plano`);
+            return this.getScheduleDisciplineById(id);
+        } catch (error) {
+            console.error("🔴 [UserSchedulesModel] Erro ao atualizar disciplina no plano:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Busca uma disciplina do plano por ID
+     */
+    async getScheduleDisciplineById(id) {
+        const query = `SELECT * FROM user_schedule_disciplines WHERE id = ?`;
+        try {
+            return await getQuery(query, [id]);
+        } catch (error) {
+            console.error("🔴 [UserSchedulesModel] Erro ao buscar disciplina do plano:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Remove uma disciplina da lista do plano
+     */
+    async removeDisciplineFromSchedule(scheduleId, disciplineId) {
+        console.log(`🔵 [UserSchedulesModel] Removendo disciplina ${disciplineId} do plano ${scheduleId}`);
+        const query = `DELETE FROM user_schedule_disciplines WHERE schedule_id = ? AND discipline_id = ?`;
+        try {
+            await executeQuery(query, [scheduleId, disciplineId]);
+            console.log(`🟢 [UserSchedulesModel] Disciplina removida do plano`);
+            
+            // Atualiza updated_at do plano
+            await executeQuery(
+                `UPDATE user_schedules SET updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                [scheduleId]
+            );
+            
+            return true;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesModel] Erro ao remover disciplina do plano:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Busca um plano completo com todas as turmas, horários, disciplinas da lista e customizadas
      */
     async getFullSchedule(scheduleId) {
         console.log(`🔵 [UserSchedulesModel] Buscando plano completo ${scheduleId}`);
@@ -456,12 +617,16 @@ class UserSchedulesModel {
             }
 
             const customDisciplines = await this.getCustomDisciplines(scheduleId);
+            
+            // Busca disciplinas da lista (sidebar)
+            const scheduleDisciplines = await this.getScheduleDisciplines(scheduleId);
 
             console.log(`🟢 [UserSchedulesModel] Plano completo carregado`);
             return {
                 ...schedule,
                 classes,
-                customDisciplines
+                customDisciplines,
+                scheduleDisciplines
             };
         } catch (error) {
             console.error("🔴 [UserSchedulesModel] Erro ao buscar plano completo:", error.message);
