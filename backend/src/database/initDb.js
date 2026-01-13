@@ -331,6 +331,69 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela class_professors criada com sucesso');
     });
 
+    // USER_SCHEDULES TABLE - Grades/Planos salvos dos usuários
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_schedules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL DEFAULT 'Plano 1',
+            is_active INTEGER DEFAULT 1,
+            is_deleted INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela user_schedules:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela user_schedules criada com sucesso');
+    });
+
+    // USER_SCHEDULE_CLASSES TABLE - Turmas adicionadas à grade do usuário
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_schedule_classes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            schedule_id INTEGER NOT NULL,
+            class_id INTEGER NOT NULL,
+            color TEXT DEFAULT '#14b8a6',
+            is_visible INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(schedule_id) REFERENCES user_schedules(id) ON DELETE CASCADE,
+            FOREIGN KEY(class_id) REFERENCES discipline_classes(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela user_schedule_classes:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela user_schedule_classes criada com sucesso');
+    });
+
+    // USER_CUSTOM_DISCIPLINES TABLE - Disciplinas adicionadas manualmente pelo usuário
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_custom_disciplines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            schedule_id INTEGER NOT NULL,
+            nome TEXT NOT NULL,
+            codigo TEXT,
+            dia TEXT NOT NULL,
+            horario_inicio TEXT NOT NULL,
+            horario_fim TEXT NOT NULL,
+            color TEXT DEFAULT '#14b8a6',
+            is_visible INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(schedule_id) REFERENCES user_schedules(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela user_custom_disciplines:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela user_custom_disciplines criada com sucesso');
+    });
+
     // Função para gerar código de livro no padrão BooksService
     function generateBookCode(area, subarea, seq, volume) {
         const areaCodes = {
