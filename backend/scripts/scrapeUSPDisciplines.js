@@ -396,28 +396,37 @@ function parsearTurmas($, tabelasFolha) {
 }
 
 /**
- * Extrai créditos da página de turmas (se disponível na mesma página)
+ * Extrai créditos da página de detalhes da disciplina
  */
-function parsearCreditosDaTurma($, tabelasFolha) {
-    let creditos_aula = 0;
-    let creditos_trabalho = 0;
-    
-    tabelasFolha.each((_, folha) => {
-        const texto = $(folha).text();
+async function obterCreditosDisciplina(codigoDisciplina) {
+    try {
+        const html = await fetchWithRetry(`/obterDisciplina?sgldis=${codigoDisciplina}`);
+        const $ = cheerio.load(html);
         
-        // Procurar por padrão de créditos no texto
-        const matchAula = texto.match(/Cr[ée]ditos?\s*Aula[:\s]*(\d+)/i);
-        const matchTrabalho = texto.match(/Cr[ée]ditos?\s*Trabalho[:\s]*(\d+)/i);
+        let creditos_aula = 0;
+        let creditos_trabalho = 0;
         
-        if (matchAula) {
-            creditos_aula = parseInt(matchAula[1]) || 0;
-        }
-        if (matchTrabalho) {
-            creditos_trabalho = parseInt(matchTrabalho[1]) || 0;
-        }
-    });
-    
-    return { creditos_aula, creditos_trabalho };
+        // Buscar em todas as células de tabela
+        $('td').each((_, td) => {
+            const texto = $(td).text();
+            
+            // Padrões mais flexíveis para capturar créditos
+            const matchAula = texto.match(/Cr[ée]ditos?\s*Aula\s*[:\-]?\s*(\d+)/i);
+            const matchTrabalho = texto.match(/Cr[ée]ditos?\s*Trabalho\s*[:\-]?\s*(\d+)/i);
+            
+            if (matchAula) {
+                creditos_aula = parseInt(matchAula[1]) || 0;
+            }
+            if (matchTrabalho) {
+                creditos_trabalho = parseInt(matchTrabalho[1]) || 0;
+            }
+        });
+        
+        return { creditos_aula, creditos_trabalho };
+    } catch (error) {
+        logger.debug(`  Erro ao buscar créditos: ${error.message}`);
+        return { creditos_aula: 0, creditos_trabalho: 0 };
+    }
 }
 
 /**
@@ -429,15 +438,15 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
         logger.debug(`Processando ${codigo} - ${nome}`);
         
         try {
-            // Obter turmas (única requisição necessária para grade interativa)
+            // Obter turmas
             const htmlTurmas = await fetchWithRetry(`/obterTurma?print=true&sgldis=${codigo}`);
             const $turmas = cheerio.load(htmlTurmas);
             
             const tabelasFolhaTurmas = $turmas('table').filter((_, t) => ehTabelaFolha($turmas, t));
             const turmas = parsearTurmas($turmas, tabelasFolhaTurmas);
             
-            // Tentar extrair créditos da página de turmas (se disponível)
-            const creditos = parsearCreditosDaTurma($turmas, tabelasFolhaTurmas);
+            // Buscar créditos na página de detalhes da disciplina
+            const creditos = await obterCreditosDisciplina(codigo);
             
             const hasValidClasses = turmas.length > 0;
             
@@ -457,7 +466,7 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
                 turmas: turmas
             };
             
-            logger.debug(`  ${codigo}: ${turmas.length} turmas${hasValidClasses ? '' : ' (sem turmas válidas)'}`);
+            logger.debug(`  ${codigo}: ${turmas.length} turmas, ${creditos.creditos_aula}+${creditos.creditos_trabalho} créditos${hasValidClasses ? '' : ' (sem turmas válidas)'}`);
             return info;
             
         } catch (error) {
