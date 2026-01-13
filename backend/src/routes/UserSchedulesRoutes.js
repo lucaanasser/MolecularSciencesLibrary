@@ -24,6 +24,12 @@ router.get('/', (req, res) => {
     userSchedulesController.getSchedules(req, res);
 });
 
+// Busca uma grade completa (com turmas e disciplinas customizadas)
+router.get('/:scheduleId/full', (req, res) => {
+    console.log(`🔵 [UserSchedulesRoutes] GET /${req.params.scheduleId}/full - Buscar grade completa`);
+    userSchedulesController.getFullSchedule(req, res);
+});
+
 // Cria uma nova grade
 router.post('/', (req, res) => {
     console.log("🔵 [UserSchedulesRoutes] POST / - Criar nova grade");
@@ -94,6 +100,32 @@ router.delete('/custom-disciplines/:disciplineId', (req, res) => {
 router.post('/:scheduleId/check-conflicts', (req, res) => {
     console.log(`🔵 [UserSchedulesRoutes] POST /${req.params.scheduleId}/check-conflicts - Verificar conflitos`);
     userSchedulesController.checkConflicts(req, res);
+});
+
+// ==================== DISCIPLINAS NA LISTA (SIDEBAR) ====================
+
+// Lista disciplinas da lista do plano
+router.get('/:scheduleId/disciplines', (req, res) => {
+    console.log(`🔵 [UserSchedulesRoutes] GET /${req.params.scheduleId}/disciplines - Listar disciplinas da lista`);
+    userSchedulesController.getDisciplines(req, res);
+});
+
+// Adiciona uma disciplina à lista do plano
+router.post('/:scheduleId/disciplines', (req, res) => {
+    console.log(`🔵 [UserSchedulesRoutes] POST /${req.params.scheduleId}/disciplines - Adicionar disciplina à lista`);
+    userSchedulesController.addDiscipline(req, res);
+});
+
+// Atualiza uma disciplina na lista do plano
+router.put('/:scheduleId/disciplines/:disciplineId', (req, res) => {
+    console.log(`🔵 [UserSchedulesRoutes] PUT /${req.params.scheduleId}/disciplines/${req.params.disciplineId} - Atualizar disciplina`);
+    userSchedulesController.updateDiscipline(req, res);
+});
+
+// Remove uma disciplina da lista do plano
+router.delete('/:scheduleId/disciplines/:disciplineId', (req, res) => {
+    console.log(`🔵 [UserSchedulesRoutes] DELETE /${req.params.scheduleId}/disciplines/${req.params.disciplineId} - Remover disciplina`);
+    userSchedulesController.removeDiscipline(req, res);
 });
 
 module.exports = router;

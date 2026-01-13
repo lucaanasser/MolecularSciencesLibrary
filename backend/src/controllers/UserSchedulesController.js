@@ -29,6 +29,11 @@ class UserSchedulesController {
         this.getConflicts = this.getConflicts.bind(this);
         this.checkConflicts = this.checkConflicts.bind(this);
         this.getCredits = this.getCredits.bind(this);
+        // Disciplinas na lista
+        this.addDiscipline = this.addDiscipline.bind(this);
+        this.updateDiscipline = this.updateDiscipline.bind(this);
+        this.removeDiscipline = this.removeDiscipline.bind(this);
+        this.getDisciplines = this.getDisciplines.bind(this);
     }
 
     /**
@@ -452,6 +457,102 @@ class UserSchedulesController {
         } catch (error) {
             console.error("🔴 [UserSchedulesController] Erro ao atualizar cor da turma:", error.message);
             res.status(500).json({ error: 'Erro ao atualizar cor da turma' });
+        }
+    }
+
+    // ===================== DISCIPLINAS NA LISTA (SIDEBAR) =====================
+
+    /**
+     * Adiciona uma disciplina à lista do plano
+     * POST /api/user-schedules/:scheduleId/disciplines
+     */
+    async addDiscipline(req, res) {
+        try {
+            const userId = req.user.id;
+            const scheduleId = parseInt(req.params.scheduleId);
+            const { disciplineId, selectedClassId, isVisible, isExpanded, color } = req.body;
+            console.log(`🔵 [UserSchedulesController] Adicionando disciplina ${disciplineId} à lista do plano ${scheduleId}`);
+            
+            if (!disciplineId) {
+                return res.status(400).json({ error: 'disciplineId é obrigatório' });
+            }
+
+            const result = await userSchedulesService.addDisciplineToSchedule(
+                scheduleId, userId, disciplineId, 
+                { selectedClassId, isVisible, isExpanded, color }
+            );
+            
+            console.log(`🟢 [UserSchedulesController] Disciplina adicionada à lista`);
+            res.status(201).json(result);
+        } catch (error) {
+            console.error("🔴 [UserSchedulesController] Erro ao adicionar disciplina:", error.message);
+            res.status(500).json({ error: 'Erro ao adicionar disciplina à lista' });
+        }
+    }
+
+    /**
+     * Atualiza uma disciplina na lista do plano
+     * PUT /api/user-schedules/:scheduleId/disciplines/:disciplineId
+     */
+    async updateDiscipline(req, res) {
+        try {
+            const userId = req.user.id;
+            const scheduleId = parseInt(req.params.scheduleId);
+            const disciplineId = parseInt(req.params.disciplineId);
+            const { selectedClassId, isVisible, isExpanded, color } = req.body;
+            console.log(`🔵 [UserSchedulesController] Atualizando disciplina ${disciplineId} na lista do plano ${scheduleId}`);
+
+            await userSchedulesService.updateScheduleDiscipline(
+                scheduleId, userId, disciplineId, 
+                { selectedClassId, isVisible, isExpanded, color }
+            );
+            
+            console.log(`🟢 [UserSchedulesController] Disciplina atualizada na lista`);
+            res.json({ success: true });
+        } catch (error) {
+            console.error("🔴 [UserSchedulesController] Erro ao atualizar disciplina:", error.message);
+            res.status(500).json({ error: 'Erro ao atualizar disciplina na lista' });
+        }
+    }
+
+    /**
+     * Remove uma disciplina da lista do plano
+     * DELETE /api/user-schedules/:scheduleId/disciplines/:disciplineId
+     */
+    async removeDiscipline(req, res) {
+        try {
+            const userId = req.user.id;
+            const scheduleId = parseInt(req.params.scheduleId);
+            const disciplineId = parseInt(req.params.disciplineId);
+            console.log(`🔵 [UserSchedulesController] Removendo disciplina ${disciplineId} da lista do plano ${scheduleId}`);
+
+            await userSchedulesService.removeDisciplineFromSchedule(scheduleId, userId, disciplineId);
+            
+            console.log(`🟢 [UserSchedulesController] Disciplina removida da lista`);
+            res.json({ success: true });
+        } catch (error) {
+            console.error("🔴 [UserSchedulesController] Erro ao remover disciplina:", error.message);
+            res.status(500).json({ error: 'Erro ao remover disciplina da lista' });
+        }
+    }
+
+    /**
+     * Lista disciplinas da lista de um plano
+     * GET /api/user-schedules/:scheduleId/disciplines
+     */
+    async getDisciplines(req, res) {
+        try {
+            const userId = req.user.id;
+            const scheduleId = parseInt(req.params.scheduleId);
+            console.log(`🔵 [UserSchedulesController] Listando disciplinas do plano ${scheduleId}`);
+
+            const disciplines = await userSchedulesService.getScheduleDisciplines(scheduleId, userId);
+            
+            console.log(`🟢 [UserSchedulesController] ${disciplines.length} disciplinas encontradas`);
+            res.json(disciplines);
+        } catch (error) {
+            console.error("🔴 [UserSchedulesController] Erro ao listar disciplinas:", error.message);
+            res.status(500).json({ error: 'Erro ao listar disciplinas' });
         }
     }
 }
