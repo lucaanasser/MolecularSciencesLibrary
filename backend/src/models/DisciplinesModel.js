@@ -417,6 +417,7 @@ class DisciplinesModel {
 
     /**
      * Busca disciplina completa com turmas, horários e professores
+     * Agrupa turmas teóricas com suas práticas vinculadas
      */
     async getFullDiscipline(codigo) {
         console.log(`🔵 [DisciplinesModel] Buscando disciplina completa: ${codigo}`);
@@ -426,15 +427,50 @@ class DisciplinesModel {
                 return null;
             }
 
-            const classes = await this.getClassesByDisciplineId(discipline.id);
+            const allClasses = await this.getClassesByDisciplineId(discipline.id);
             
-            for (const cls of classes) {
+            // Carregar horários e professores para todas as turmas
+            for (const cls of allClasses) {
                 cls.schedules = await this.getSchedulesByClassId(cls.id);
                 cls.professors = await this.getProfessorsByClassId(cls.id);
             }
 
-            discipline.turmas = classes;
-            console.log(`🟢 [DisciplinesModel] Disciplina completa carregada: ${codigo}`);
+            // Separar turmas teóricas e práticas
+            const teoricas = allClasses.filter(cls => !cls.codigo_turma_teorica);
+            const praticas = allClasses.filter(cls => cls.codigo_turma_teorica);
+
+            // Agrupar teóricas com suas práticas
+            const turmasAgrupadas = teoricas.map(teorica => {
+                // Encontrar práticas vinculadas a esta teórica
+                const praticasVinculadas = praticas.filter(
+                    pratica => pratica.codigo_turma_teorica === teorica.codigo_turma
+                );
+
+                // Se há práticas vinculadas, mesclar horários e professores
+                if (praticasVinculadas.length > 0) {
+                    const allSchedules = [...teorica.schedules];
+                    const allProfessors = [...teorica.professors];
+
+                    praticasVinculadas.forEach(pratica => {
+                        allSchedules.push(...pratica.schedules);
+                        allProfessors.push(...pratica.professors);
+                    });
+
+                    return {
+                        ...teorica,
+                        schedules: allSchedules,
+                        professors: allProfessors,
+                        // Marcar que esta turma tem prática vinculada
+                        has_pratica: true,
+                        praticas_vinculadas: praticasVinculadas.map(p => p.codigo_turma)
+                    };
+                }
+
+                return teorica;
+            });
+
+            discipline.turmas = turmasAgrupadas;
+            console.log(`🟢 [DisciplinesModel] Disciplina completa carregada: ${codigo} (${turmasAgrupadas.length} turmas agrupadas)`);
             return discipline;
         } catch (error) {
             console.error("🔴 [DisciplinesModel] Erro ao buscar disciplina completa:", error.message);
