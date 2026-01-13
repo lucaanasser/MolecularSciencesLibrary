@@ -371,6 +371,30 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela user_schedule_classes criada com sucesso');
     });
 
+    // USER_SCHEDULE_DISCIPLINES TABLE - Disciplinas na lista do plano (sidebar)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_schedule_disciplines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            schedule_id INTEGER NOT NULL,
+            discipline_id INTEGER NOT NULL,
+            selected_class_id INTEGER,
+            is_visible INTEGER DEFAULT 1,
+            is_expanded INTEGER DEFAULT 0,
+            color TEXT DEFAULT '#14b8a6',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(schedule_id) REFERENCES user_schedules(id) ON DELETE CASCADE,
+            FOREIGN KEY(discipline_id) REFERENCES disciplines(id) ON DELETE CASCADE,
+            FOREIGN KEY(selected_class_id) REFERENCES discipline_classes(id) ON DELETE SET NULL,
+            UNIQUE(schedule_id, discipline_id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela user_schedule_disciplines:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela user_schedule_disciplines criada com sucesso');
+    });
+
     // USER_CUSTOM_DISCIPLINES TABLE - Disciplinas adicionadas manualmente pelo usuário
     db.run(`
         CREATE TABLE IF NOT EXISTS user_custom_disciplines (
