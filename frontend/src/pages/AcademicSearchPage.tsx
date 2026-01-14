@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Search, Clock, TrendingUp, Star, Users, Loader2 } from "lucide-react";
+import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { searchDisciplines, type SearchResult } from "@/services/DisciplinesService";
 import { getAggregatedRatings } from "@/services/DisciplineEvaluationsService";
 
@@ -229,7 +229,7 @@ const AcademicSearchPage: React.FC = () => {
   }, []);
 
   const showDropdown = isFocused && (
-    (searchMode === "disciplinas" && (disciplineSuggestions.length > 0 || searchQuery.length === 0 || isLoading)) ||
+    (searchMode === "disciplinas" && (disciplineSuggestions.length > 0 || searchQuery.length >= 0 || isLoading)) ||
     (searchMode === "usuarios" && (userSuggestions.length > 0 || searchQuery.length > 0))
   );
 
@@ -411,8 +411,20 @@ const AcademicSearchPage: React.FC = () => {
 
                   {/* Sem resultados */}
                   {!isLoading && searchQuery.length >= 2 && disciplineSuggestions.length === 0 && (
-                    <div className="px-4 py-8 text-center text-gray-500">
-                      Nenhuma disciplina encontrada para "{searchQuery}"
+                    <div className="px-4 py-6 text-center">
+                      <p className="text-gray-700 font-medium mb-1">
+                        Nenhuma disciplina encontrada para "{searchQuery}"
+                      </p>
+                      <p className="text-gray-500 text-sm mb-3">
+                        É uma disciplina da pós? Adicione ela manualmente.
+                      </p>
+                      <Link
+                        to={`/academico/criar-disciplina?codigo=${encodeURIComponent(searchQuery.toUpperCase())}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-cm-academic text-white rounded-lg hover:bg-cm-academic/90 transition-colors text-sm font-medium"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Adicionar Disciplina
+                      </Link>
                     </div>
                   )}
 
