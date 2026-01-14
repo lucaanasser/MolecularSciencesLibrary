@@ -22,6 +22,7 @@ import {
   Lightbulb,
   BarChart3,
   GraduationCap,
+  School,
   FileText,
   Info,
   Loader2,
@@ -405,7 +406,7 @@ const DisciplinePage: React.FC = () => {
           {/* Botão Voltar */}
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/academico/buscar")}
             className="mb-4 text-gray-600 hover:text-cm-academic -ml-2"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
@@ -415,8 +416,14 @@ const DisciplinePage: React.FC = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8">
             {/* Ícone */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-cm-academic flex items-center justify-center flex-shrink-0">
-              <GraduationCap className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+              disciplina.is_postgrad ? 'bg-purple-600' : 'bg-cm-academic'
+            }`}>
+              {disciplina.is_postgrad ? (
+                <School className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+              ) : (
+                <GraduationCap className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+              )}
             </div>
             
             {/* Info */}
@@ -424,6 +431,13 @@ const DisciplinePage: React.FC = () => {
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <span className="px-3 py-1 bg-cm-academic/10 text-cm-academic font-mono text-sm rounded-lg font-semibold">
                   {disciplina.codigo}
+                </span>
+                <span className={`px-3 py-1 text-sm rounded-lg font-semibold ${
+                  disciplina.is_postgrad 
+                    ? 'bg-purple-100 text-purple-700' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {disciplina.is_postgrad ? 'Pós-Graduação' : 'Graduação'}
                 </span>
                 {disciplina.unidade && <span className="text-sm text-gray-500">{disciplina.unidade}</span>}
                 {disciplina.campus && <span className="text-sm text-gray-400">• {disciplina.campus}</span>}
@@ -611,60 +625,8 @@ const DisciplinePage: React.FC = () => {
                       </motion.div>
                     )}
 
-                    {/* Turmas */}
-                    {disciplina.turmas && disciplina.turmas.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Turmas Oferecidas</h2>
-                        <div className="space-y-3">
-                          {disciplina.turmas.map((turma) => (
-                            <div
-                              key={turma.codigo_turma}
-                              className="p-4 bg-gray-50 rounded-xl border border-gray-100"
-                            >
-                              <div className="flex items-center justify-between mb-3">
-                                <span className="font-semibold text-gray-900">Turma {turma.codigo_turma}</span>
-                                {turma.tipo && (
-                                  <span className="px-3 py-1 bg-cm-academic/10 text-cm-academic text-sm rounded-full font-medium">
-                                    {turma.tipo}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="space-y-2 text-sm text-gray-600">
-                                {turma.professors && turma.professors.length > 0 && (
-                                  <div className="flex items-start gap-2">
-                                    <Users className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
-                                    <span>{turma.professors.join(", ")}</span>
-                                  </div>
-                                )}
-                                {turma.schedules && turma.schedules.length > 0 && (
-                                  <div className="flex items-start gap-2">
-                                    <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
-                                    <span>
-                                      {turma.schedules.map(s => `${s.dia} ${s.horario_inicio}-${s.horario_fim}`).join(", ")}
-                                    </span>
-                                  </div>
-                                )}
-                                {turma.inicio && turma.fim && (
-                                  <div className="flex items-start gap-2">
-                                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
-                                    <span>
-                                      {new Date(turma.inicio).toLocaleDateString("pt-BR")} - {new Date(turma.fim).toLocaleDateString("pt-BR")}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-
                     {/* Sem informações */}
-                    {!disciplina.ementa && !disciplina.objetivos && (!disciplina.turmas || disciplina.turmas.length === 0) && (
+                    {!disciplina.ementa && !disciplina.objetivos && !disciplina.conteudo_programatico && (
                       <p className="text-gray-500 text-center py-8">
                         Informações detalhadas não disponíveis para esta disciplina.
                       </p>
