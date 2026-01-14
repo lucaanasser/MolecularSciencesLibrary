@@ -254,6 +254,37 @@ class DisciplinesService {
     }
 
     /**
+     * Cria uma disciplina manualmente (sem turmas)
+     */
+    async createManualDiscipline(data) {
+        console.log(`🔵 [DisciplinesService] Criando disciplina manualmente: ${data.codigo}`);
+        console.log(`🔵 [DisciplinesService] is_postgrad recebido:`, data.is_postgrad);
+        try {
+            await disciplinesModel.upsertDiscipline({
+                codigo: data.codigo,
+                nome: data.nome,
+                unidade: data.unidade,
+                campus: data.campus,
+                creditos_aula: data.creditos_aula,
+                creditos_trabalho: data.creditos_trabalho,
+                is_postgrad: data.is_postgrad,
+                ementa: data.ementa,
+                objetivos: data.objetivos,
+                conteudo_programatico: data.conteudo_programatico,
+                has_valid_classes: false
+            });
+            
+            // Retorna a disciplina criada
+            const created = await disciplinesModel.getDisciplineByCodigo(data.codigo);
+            console.log(`🟢 [DisciplinesService] Disciplina criada: ${data.codigo}`);
+            return created;
+        } catch (error) {
+            console.error("🔴 [DisciplinesService] Erro ao criar disciplina:", error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Estatísticas das disciplinas
      */
     async getStats() {
