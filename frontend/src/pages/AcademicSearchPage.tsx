@@ -1,11 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Search, Clock, TrendingUp, Star, Users } from "lucide-react";
+import { Search, Clock, TrendingUp, Star, Users, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { searchDisciplines, type SearchResult } from "@/services/DisciplinesService";
+import { getAggregatedRatings } from "@/services/DisciplineEvaluationsService";
 
 type SearchMode = "disciplinas" | "usuarios";
+
+interface DisciplineWithRating extends SearchResult {
+  avaliacao?: number | null;
+}
 
 /**
  * Página de busca do modo acadêmico - Estilo Google.
@@ -18,40 +24,30 @@ const AcademicSearchPage: React.FC = () => {
   const [searchMode, setSearchMode] = useState<SearchMode>("disciplinas");
   const [isFocused, setIsFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [disciplineSuggestions, setDisciplineSuggestions] = useState<DisciplineWithRating[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Mock de disciplinas (substituir por API real)
-  const allDisciplines = [
-    { codigo: "MAT0111", nome: "Cálculo I", instituto: "IME", avaliacao: 4.2 },
-    { codigo: "MAT0120", nome: "Cálculo II", instituto: "IME", avaliacao: 3.8 },
-    { codigo: "MAT0206", nome: "Cálculo III", instituto: "IME", avaliacao: 4.0 },
-    { codigo: "4302111", nome: "Física I", instituto: "IF", avaliacao: 4.5 },
-    { codigo: "4302112", nome: "Física II", instituto: "IF", avaliacao: 4.1 },
-    { codigo: "4302211", nome: "Física III", instituto: "IF", avaliacao: 3.9 },
-    { codigo: "QFL0230", nome: "Química Geral", instituto: "IQ", avaliacao: 4.3 },
-    { codigo: "QFL0231", nome: "Química Orgânica I", instituto: "IQ", avaliacao: 4.0 },
-    { codigo: "BIO0101", nome: "Biologia Celular", instituto: "IB", avaliacao: 4.4 },
-    { codigo: "MAC0110", nome: "Introdução à Computação", instituto: "IME", avaliacao: 4.6 },
-    { codigo: "MAC0121", nome: "Algoritmos e Estruturas de Dados", instituto: "IME", avaliacao: 4.2 },
-    { codigo: "ACH1033", nome: "Ecologia", instituto: "EACH", avaliacao: 4.3 },
-  ];
+  // Buscas recentes (localStorage)
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("academicRecentSearches");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  // Buscas recentes (mock - substituir por localStorage ou API)
-  const recentSearches = [
-    "Cálculo I",
-    "Física II",
-    "Programação",
-  ];
-
-  // Disciplinas populares
+  // Disciplinas populares (estático por enquanto)
   const popularDisciplines = [
     { codigo: "MAC0110", nome: "Introdução à Computação" },
-    { codigo: "MAT0111", nome: "Cálculo I" },
+    { codigo: "MAT0111", nome: "Cálculo Diferencial e Integral I" },
     { codigo: "4302111", nome: "Física I" },
   ];
 
-  // Mock de usuários (substituir por API real)
+  // Mock de usuários (substituir por API real quando implementado)
   const allUsers = [
     { id: 1, nome: "Ana Silva", turma: "Turma 33", curso: "CM" },
     { id: 2, nome: "João Santos", turma: "Turma 34", curso: "CM" },
@@ -61,17 +57,74 @@ const AcademicSearchPage: React.FC = () => {
     { id: 6, nome: "Pedro Almeida", turma: "Turma 33", curso: "CM" },
   ];
 
-  // Filtrar sugestões baseado na query e modo
-  const suggestions = searchQuery.length > 0
-    ? searchMode === "disciplinas"
-      ? allDisciplines.filter(d => 
-          d.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          d.codigo.toLowerCase().includes(searchQuery.toLowerCase())
-        ).slice(0, 8)
-      : allUsers.filter(u => 
-          u.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          u.turma.toLowerCase().includes(searchQuery.toLowerCase())
-        ).slice(0, 8)
+  // Salvar busca recente
+  const saveRecentSearch = useCallback((term: string) => {
+    const updated = [term, ...recentSearches.filter(s => s !== term)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem("academicRecentSearches", JSON.stringify(updated));
+  }, [recentSearches]);
+
+  // Buscar disciplinas na API com debounce
+  const searchDisciplinesDebounced = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setDisciplineSuggestions([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await searchDisciplines(query, 8);
+      
+      // Buscar ratings para cada disciplina (em paralelo)
+      const resultsWithRatings = await Promise.all(
+        results.map(async (disc) => {
+          try {
+            const stats = await getAggregatedRatings(disc.codigo);
+            return { ...disc, avaliacao: stats.media_geral };
+          } catch {
+            return { ...disc, avaliacao: null };
+          }
+        })
+      );
+      
+      setDisciplineSuggestions(resultsWithRatings);
+    } catch (error) {
+      console.error("🔴 [AcademicSearchPage] Erro ao buscar disciplinas:", error);
+      setDisciplineSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Efeito para buscar com debounce
+  useEffect(() => {
+    if (searchMode !== "disciplinas") return;
+    
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    if (searchQuery.length >= 2) {
+      searchTimeoutRef.current = setTimeout(() => {
+        searchDisciplinesDebounced(searchQuery);
+      }, 300);
+    } else {
+      setDisciplineSuggestions([]);
+    }
+    
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery, searchMode, searchDisciplinesDebounced]);
+
+  // Filtrar sugestões de usuários (ainda usa mock)
+  const userSuggestions = searchQuery.length > 0 && searchMode === "usuarios"
+    ? allUsers.filter(u => 
+        u.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.turma.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8)
     : [];
 
   // Função para destacar o texto que coincide
@@ -86,7 +139,8 @@ const AcademicSearchPage: React.FC = () => {
   };
 
   // Navegar para disciplina
-  const handleSelectDiscipline = (codigo: string) => {
+  const handleSelectDiscipline = (codigo: string, nome?: string) => {
+    if (nome) saveRecentSearch(nome);
     navigate(`/academico/disciplina/${codigo}`);
   };
 
@@ -100,13 +154,13 @@ const AcademicSearchPage: React.FC = () => {
   const handleSearch = () => {
     if (searchQuery.trim()) {
       if (searchMode === "disciplinas") {
-        // Se tiver uma disciplina exata, navega direto
-        const exact = allDisciplines.find(d => 
+        // Se tiver uma disciplina exata nos resultados, navega direto
+        const exact = disciplineSuggestions.find(d => 
           d.nome.toLowerCase() === searchQuery.toLowerCase() ||
           d.codigo.toLowerCase() === searchQuery.toLowerCase()
         );
         if (exact) {
-          handleSelectDiscipline(exact.codigo);
+          handleSelectDiscipline(exact.codigo, exact.nome);
         }
       } else {
         // Busca de usuários
@@ -131,8 +185,8 @@ const AcademicSearchPage: React.FC = () => {
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const items = searchMode === "disciplinas"
-      ? (suggestions.length > 0 ? suggestions : (isFocused && !searchQuery ? popularDisciplines : []))
-      : suggestions;
+      ? (disciplineSuggestions.length > 0 ? disciplineSuggestions : (isFocused && !searchQuery ? popularDisciplines : []))
+      : userSuggestions;
     
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -144,7 +198,8 @@ const AcademicSearchPage: React.FC = () => {
       e.preventDefault();
       if (selectedIndex >= 0 && items[selectedIndex]) {
         if (searchMode === "disciplinas") {
-          handleSelectDiscipline((items[selectedIndex] as typeof allDisciplines[0]).codigo);
+          const disc = items[selectedIndex] as DisciplineWithRating;
+          handleSelectDiscipline(disc.codigo, disc.nome);
         } else {
           handleSelectUser((items[selectedIndex] as typeof allUsers[0]).id);
         }
@@ -173,7 +228,10 @@ const AcademicSearchPage: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const showDropdown = isFocused && (suggestions.length > 0 || (searchQuery.length === 0 && searchMode === "disciplinas"));
+  const showDropdown = isFocused && (
+    (searchMode === "disciplinas" && (disciplineSuggestions.length > 0 || searchQuery.length === 0 || isLoading)) ||
+    (searchMode === "usuarios" && (userSuggestions.length > 0 || searchQuery.length > 0))
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-cm-bg">
@@ -260,13 +318,21 @@ const AcademicSearchPage: React.FC = () => {
               {/* MODO DISCIPLINAS */}
               {searchMode === "disciplinas" && (
                 <>
+                  {/* Loading */}
+                  {isLoading && searchQuery.length >= 2 && (
+                    <div className="px-4 py-6 flex items-center justify-center gap-2 text-gray-500">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Buscando disciplinas...</span>
+                    </div>
+                  )}
+
                   {/* Quando tem query - mostra sugestões filtradas */}
-                  {searchQuery.length > 0 && suggestions.length > 0 && (
+                  {!isLoading && searchQuery.length >= 2 && disciplineSuggestions.length > 0 && (
                     <ul className="py-2">
-                      {(suggestions as typeof allDisciplines).map((disc, index) => (
+                      {disciplineSuggestions.map((disc, index) => (
                         <li
                           key={disc.codigo}
-                          onClick={() => handleSelectDiscipline(disc.codigo)}
+                          onClick={() => handleSelectDiscipline(disc.codigo, disc.nome)}
                           className={`
                             flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors
                             ${selectedIndex === index ? "bg-gray-100" : "hover:bg-gray-50"}
@@ -278,13 +344,15 @@ const AcademicSearchPage: React.FC = () => {
                               {highlightMatch(disc.nome, searchQuery)}
                             </span>
                             <span className="text-gray-400 text-sm ml-2">
-                              — {disc.codigo} • {disc.instituto}
+                              — {disc.codigo}{disc.unidade ? ` • ${disc.unidade}` : ""}
                             </span>
                           </div>
-                          <div className="flex items-center gap-1 text-sm text-gray-500">
-                            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                            {disc.avaliacao}
-                          </div>
+                          {disc.avaliacao && (
+                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                              {disc.avaliacao.toFixed(1)}
+                            </div>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -342,9 +410,16 @@ const AcademicSearchPage: React.FC = () => {
                   )}
 
                   {/* Sem resultados */}
-                  {searchQuery.length > 0 && suggestions.length === 0 && (
+                  {!isLoading && searchQuery.length >= 2 && disciplineSuggestions.length === 0 && (
                     <div className="px-4 py-8 text-center text-gray-500">
                       Nenhuma disciplina encontrada para "{searchQuery}"
+                    </div>
+                  )}
+
+                  {/* Digitando menos de 2 caracteres */}
+                  {searchQuery.length === 1 && (
+                    <div className="px-4 py-6 text-center text-gray-500">
+                      Digite pelo menos 2 caracteres para buscar
                     </div>
                   )}
                 </>
@@ -354,9 +429,9 @@ const AcademicSearchPage: React.FC = () => {
               {searchMode === "usuarios" && (
                 <>
                   {/* Quando tem query - mostra sugestões filtradas */}
-                  {searchQuery.length > 0 && suggestions.length > 0 && (
+                  {searchQuery.length > 0 && userSuggestions.length > 0 && (
                     <ul className="py-2">
-                      {(suggestions as typeof allUsers).map((user, index) => (
+                      {userSuggestions.map((user, index) => (
                         <li
                           key={user.id}
                           onClick={() => handleSelectUser(user.id)}
@@ -384,7 +459,7 @@ const AcademicSearchPage: React.FC = () => {
                   )}
 
                   {/* Sem resultados */}
-                  {searchQuery.length > 0 && suggestions.length === 0 && (
+                  {searchQuery.length > 0 && userSuggestions.length === 0 && (
                     <div className="px-4 py-8 text-center text-gray-500">
                       Nenhum usuário encontrado para "{searchQuery}"
                     </div>
