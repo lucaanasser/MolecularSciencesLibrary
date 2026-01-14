@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -22,48 +24,34 @@ import {
   GraduationCap,
   FileText,
   Info,
+  Loader2,
+  AlertCircle,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getFullDiscipline, type FullDiscipline } from "@/services/DisciplinesService";
+import {
+  getEvaluationsByDiscipline,
+  getAggregatedRatings,
+  getMyEvaluationForDiscipline,
+  createEvaluation,
+  updateEvaluation,
+  deleteEvaluation,
+  toggleLike,
+  type Evaluation,
+  type AggregatedRatings,
+} from "@/services/DisciplineEvaluationsService";
 
 // Tipos
-interface DisciplineInfo {
-  id: string;
-  codigo: string;
-  nome: string;
-  instituto: string;
-  creditos_aula: number;
-  creditos_trabalho: number;
-  carga_horaria: number;
-  ementa: string;
-  objetivos: string;
-  programa: string;
-  turmas: Array<{
-    codigo: string;
-    professores: string[];
-    horarios: string;
-    vagas: number;
-  }>;
-}
-
-interface Rating {
-  geral: number;
-  dificuldade: number;
-  carga_trabalho: number;
-  professores: number;
-  clareza: number;
-  utilidade: number;
-  organizacao: number;
-}
-
-interface Review {
-  id: number;
-  usuario: string;
-  turma: string;
-  semestre: string;
-  rating: Rating;
-  comentario: string;
-  likes: number;
-  data: string;
+interface FormRatings {
+  geral: number | null;
+  dificuldade: number | null;
+  carga_trabalho: number | null;
+  professores: number | null;
+  clareza: number | null;
+  utilidade: number | null;
+  organizacao: number | null;
 }
 
 const DisciplinePage: React.FC = () => {
@@ -71,87 +59,244 @@ const DisciplinePage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"info" | "avaliacoes">("info");
   const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  // Estados de dados
+  const [disciplina, setDisciplina] = useState<FullDiscipline | null>(null);
+  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
+  const [aggregatedRatings, setAggregatedRatings] = useState<AggregatedRatings | null>(null);
+  const [myEvaluation, setMyEvaluation] = useState<Evaluation | null>(null);
+  
+  // Estados de carregamento
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingEvaluations, setIsLoadingEvaluations] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Estados do formulário
+  const [formRatings, setFormRatings] = useState<FormRatings>({
+    geral: null,
+    dificuldade: null,
+    carga_trabalho: null,
+    professores: null,
+    clareza: null,
+    utilidade: null,
+    organizacao: null,
+  });
+  const [formComentario, setFormComentario] = useState("");
+  const [formIsAnonymous, setFormIsAnonymous] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  // Verificar se está logado
+  const isLoggedIn = !!localStorage.getItem("token");
 
-  // Mock data - substituir por API
-  const disciplina: DisciplineInfo = {
-    id: "1",
-    codigo: "ACH1033",
-    nome: "Ecologia",
-    instituto: "EACH",
-    creditos_aula: 3,
-    creditos_trabalho: 1,
-    carga_horaria: 75,
-    ementa: "A disciplina apresentará a fundamentação teórica necessária para o entendimento básico dos processos organizadores da natureza na presença e ausência de perturbações antrópicas e nos diversos níveis de organização biológica.",
-    objetivos: "Apresentar aos futuros Gestores Ambientais os conceitos e procedimentos mais relevantes em Ecologia, enfatizando processos gerais e integrados ao longo dos diversos níveis de organização biológica.",
-    programa: "Parte teórica: O que é e como se estuda a ecologia; níveis de organização biológica; conceitos, propriedades e processos operando em cada nível de organização biológica.",
-    turmas: [
-      {
-        codigo: "01",
-        professores: ["Prof. João Silva", "Prof. Maria Santos"],
-        horarios: "Seg 14h-16h, Qua 14h-16h",
-        vagas: 45,
-      },
-    ],
+  // Carregar dados da disciplina
+  const loadDiscipline = useCallback(async () => {
+    if (!codigo) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const data = await getFullDiscipline(codigo);
+      if (!data) {
+        setError("Disciplina não encontrada");
+        return;
+      }
+      setDisciplina(data);
+    } catch (err) {
+      console.error("Erro ao carregar disciplina:", err);
+      setError("Erro ao carregar disciplina");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [codigo]);
+
+  // Carregar avaliações
+  const loadEvaluations = useCallback(async () => {
+    if (!codigo) return;
+    
+    setIsLoadingEvaluations(true);
+    
+    try {
+      const [evals, stats] = await Promise.all([
+        getEvaluationsByDiscipline(codigo),
+        getAggregatedRatings(codigo),
+      ]);
+      
+      setEvaluations(evals);
+      setAggregatedRatings(stats);
+      
+      // Buscar avaliação do usuário se logado
+      if (isLoggedIn) {
+        try {
+          const myEval = await getMyEvaluationForDiscipline(codigo);
+          setMyEvaluation(myEval);
+        } catch {
+          setMyEvaluation(null);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao carregar avaliações:", err);
+    } finally {
+      setIsLoadingEvaluations(false);
+    }
+  }, [codigo, isLoggedIn]);
+
+  // Carregar dados ao montar
+  useEffect(() => {
+    loadDiscipline();
+    loadEvaluations();
+  }, [loadDiscipline, loadEvaluations]);
+
+  // Preencher formulário com avaliação existente
+  const fillFormWithExisting = useCallback((eval_: Evaluation) => {
+    setFormRatings({
+      geral: eval_.rating_geral,
+      dificuldade: eval_.rating_dificuldade,
+      carga_trabalho: eval_.rating_carga_trabalho,
+      professores: eval_.rating_professores,
+      clareza: eval_.rating_clareza,
+      utilidade: eval_.rating_utilidade,
+      organizacao: eval_.rating_organizacao,
+    });
+    setFormComentario(eval_.comentario || "");
+    setFormIsAnonymous(eval_.is_anonymous);
+    setIsEditMode(true);
+    setShowReviewForm(true);
+    setActiveTab("avaliacoes");
+  }, []);
+
+  // Limpar formulário
+  const resetForm = () => {
+    setFormRatings({
+      geral: null,
+      dificuldade: null,
+      carga_trabalho: null,
+      professores: null,
+      clareza: null,
+      utilidade: null,
+      organizacao: null,
+    });
+    setFormComentario("");
+    setFormIsAnonymous(false);
+    setIsEditMode(false);
+    setShowReviewForm(false);
   };
 
-  const mediaAvaliacoes: Rating = {
-    geral: 4.3,
-    dificuldade: 3.2,
-    carga_trabalho: 3.5,
-    professores: 4.5,
-    clareza: 4.0,
-    utilidade: 4.2,
-    organizacao: 4.1,
+  // Submeter avaliação
+  const handleSubmitEvaluation = async () => {
+    if (!codigo) return;
+    
+    // Validar: pelo menos um rating ou comentário
+    const hasRating = Object.values(formRatings).some(r => r !== null);
+    const hasComment = formComentario.trim().length > 0;
+    
+    if (!hasRating && !hasComment) {
+      alert("Por favor, avalie com estrelas ou deixe um comentário");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      if (isEditMode && myEvaluation) {
+        await updateEvaluation(myEvaluation.id, {
+          ratingGeral: formRatings.geral,
+          ratingDificuldade: formRatings.dificuldade,
+          ratingCargaTrabalho: formRatings.carga_trabalho,
+          ratingProfessores: formRatings.professores,
+          ratingClareza: formRatings.clareza,
+          ratingUtilidade: formRatings.utilidade,
+          ratingOrganizacao: formRatings.organizacao,
+          comentario: formComentario.trim() || undefined,
+          isAnonymous: formIsAnonymous,
+        });
+      } else {
+        await createEvaluation({
+          disciplineCodigo: codigo,
+          ratingGeral: formRatings.geral,
+          ratingDificuldade: formRatings.dificuldade,
+          ratingCargaTrabalho: formRatings.carga_trabalho,
+          ratingProfessores: formRatings.professores,
+          ratingClareza: formRatings.clareza,
+          ratingUtilidade: formRatings.utilidade,
+          ratingOrganizacao: formRatings.organizacao,
+          comentario: formComentario.trim() || undefined,
+          isAnonymous: formIsAnonymous,
+        });
+      }
+      
+      resetForm();
+      await loadEvaluations();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar avaliação";
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const totalAvaliacoes = 28;
+  // Deletar avaliação
+  const handleDeleteEvaluation = async () => {
+    if (!myEvaluation || !confirm("Tem certeza que deseja excluir sua avaliação?")) return;
+    
+    try {
+      await deleteEvaluation(myEvaluation.id);
+      setMyEvaluation(null);
+      resetForm();
+      await loadEvaluations();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao excluir avaliação";
+      alert(message);
+    }
+  };
 
-  const reviews: Review[] = [
-    {
-      id: 1,
-      usuario: "Ana Silva",
-      turma: "Turma 33",
-      semestre: "2025.2",
-      rating: {
-        geral: 5,
-        dificuldade: 3,
-        carga_trabalho: 4,
-        professores: 5,
-        clareza: 4,
-        utilidade: 5,
-        organizacao: 4,
-      },
-      comentario: "Disciplina excelente! Os professores são muito atenciosos e o conteúdo é muito relevante. As aulas práticas de campo são o ponto alto.",
-      likes: 12,
-      data: "2025-12-10",
-    },
-    {
-      id: 2,
-      usuario: "Carlos Mendes",
-      turma: "Turma 32",
-      semestre: "2025.1",
-      rating: {
-        geral: 4,
-        dificuldade: 4,
-        carga_trabalho: 3,
-        professores: 4,
-        clareza: 4,
-        utilidade: 4,
-        organizacao: 4,
-      },
-      comentario: "Boa disciplina, mas exige bastante dedicação. As provas são bem elaboradas e os trabalhos práticos são desafiadores.",
-      likes: 8,
-      data: "2025-07-15",
-    },
-  ];
+  // Toggle like
+  const handleToggleLike = async (evaluationId: number) => {
+    if (!isLoggedIn) {
+      alert("Faça login para curtir avaliações");
+      return;
+    }
+    
+    try {
+      const result = await toggleLike(evaluationId);
+      // Atualizar lista local
+      setEvaluations(prev => prev.map(e => {
+        if (e.id === evaluationId) {
+          return {
+            ...e,
+            helpful_count: result.liked ? e.helpful_count + 1 : e.helpful_count - 1,
+            user_has_voted: result.liked,
+          };
+        }
+        return e;
+      }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao processar like";
+      alert(message);
+    }
+  };
+
+  // Médias para exibição
+  const mediaAvaliacoes = aggregatedRatings ? {
+    geral: aggregatedRatings.media_geral || 0,
+    dificuldade: aggregatedRatings.media_dificuldade || 0,
+    carga_trabalho: aggregatedRatings.media_carga_trabalho || 0,
+    professores: aggregatedRatings.media_professores || 0,
+    clareza: aggregatedRatings.media_clareza || 0,
+    utilidade: aggregatedRatings.media_utilidade || 0,
+    organizacao: aggregatedRatings.media_organizacao || 0,
+  } : null;
+
+  const totalAvaliacoes = aggregatedRatings?.total_avaliacoes || 0;
 
   const criterios = [
-    { key: "dificuldade" as keyof Rating, label: "Dificuldade", icon: TrendingUp, color: "cm-red" },
-    { key: "carga_trabalho" as keyof Rating, label: "Carga de Trabalho", icon: BarChart3, color: "cm-orange" },
-    { key: "professores" as keyof Rating, label: "Professores", icon: Users, color: "cm-blue" },
-    { key: "clareza" as keyof Rating, label: "Clareza", icon: Lightbulb, color: "cm-yellow" },
-    { key: "utilidade" as keyof Rating, label: "Utilidade", icon: Target, color: "cm-green" },
-    { key: "organizacao" as keyof Rating, label: "Organização", icon: Award, color: "cm-purple" },
+    { key: "dificuldade" as const, label: "Dificuldade", icon: TrendingUp, color: "cm-red" },
+    { key: "carga_trabalho" as const, label: "Carga de Trabalho", icon: BarChart3, color: "cm-orange" },
+    { key: "professores" as const, label: "Professores", icon: Users, color: "cm-blue" },
+    { key: "clareza" as const, label: "Clareza", icon: Lightbulb, color: "cm-yellow" },
+    { key: "utilidade" as const, label: "Utilidade", icon: Target, color: "cm-green" },
+    { key: "organizacao" as const, label: "Organização", icon: Award, color: "cm-purple" },
   ];
 
   const tabs = [
@@ -159,27 +304,97 @@ const DisciplinePage: React.FC = () => {
     { id: "avaliacoes" as const, label: "Avaliações", shortLabel: "Avaliações", icon: MessageSquare },
   ];
 
-  const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" | "lg" }) => {
+  const StarRating = ({ rating, size = "sm", interactive = false, onChange }: { 
+    rating: number | null; 
+    size?: "sm" | "md" | "lg";
+    interactive?: boolean;
+    onChange?: (value: number) => void;
+  }) => {
     const sizeClasses = {
       sm: "w-4 h-4",
       md: "w-5 h-5",
       lg: "w-6 h-6",
     };
 
+    const handleClick = (starValue: number, isHalf: boolean) => {
+      if (!interactive || !onChange) return;
+      const value = isHalf ? starValue - 0.5 : starValue;
+      onChange(value);
+    };
+
     return (
       <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={cn(
-              sizeClasses[size],
-              star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-            )}
-          />
-        ))}
+        {[1, 2, 3, 4, 5].map((star) => {
+          const isFilled = rating !== null && star <= Math.floor(rating);
+          const isHalf = rating !== null && star === Math.ceil(rating) && rating % 1 !== 0;
+          
+          return (
+            <div 
+              key={star} 
+              className={cn("relative", interactive && "cursor-pointer")}
+              onClick={() => interactive && handleClick(star, false)}
+            >
+              {/* Metade esquerda (clicável para meia estrela) */}
+              {interactive && (
+                <div 
+                  className="absolute left-0 top-0 w-1/2 h-full z-10"
+                  onClick={(e) => { e.stopPropagation(); handleClick(star, true); }}
+                />
+              )}
+              <Star
+                className={cn(
+                  sizeClasses[size],
+                  "transition-colors",
+                  isFilled || isHalf ? "fill-yellow-400 text-yellow-400" : "text-gray-300",
+                  interactive && "hover:text-yellow-400"
+                )}
+                style={isHalf ? { clipPath: "inset(0 50% 0 0)" } : undefined}
+              />
+              {/* Estrela vazia por trás da meia */}
+              {isHalf && (
+                <Star
+                  className={cn(sizeClasses[size], "absolute top-0 left-0 text-gray-300")}
+                  style={{ clipPath: "inset(0 0 0 50%)" }}
+                />
+              )}
+            </div>
+          );
+        })}
+        {rating !== null && <span className="ml-1 text-sm text-gray-600">{rating.toFixed(1)}</span>}
       </div>
     );
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navigation />
+        <div className="flex-grow flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-cm-academic" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !disciplina) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navigation />
+        <div className="flex-grow flex flex-col items-center justify-center gap-4">
+          <AlertCircle className="w-12 h-12 text-red-500" />
+          <p className="text-gray-600">{error || "Disciplina não encontrada"}</p>
+          <Button onClick={() => navigate(-1)} variant="outline">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Voltar
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -210,7 +425,8 @@ const DisciplinePage: React.FC = () => {
                 <span className="px-3 py-1 bg-cm-academic/10 text-cm-academic font-mono text-sm rounded-lg font-semibold">
                   {disciplina.codigo}
                 </span>
-                <span className="text-sm text-gray-500">{disciplina.instituto}</span>
+                {disciplina.unidade && <span className="text-sm text-gray-500">{disciplina.unidade}</span>}
+                {disciplina.campus && <span className="text-sm text-gray-400">• {disciplina.campus}</span>}
               </div>
               <h1 className="text-3xl sm:text-4xl font-bebas text-gray-900">{disciplina.nome}</h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">
@@ -221,10 +437,6 @@ const DisciplinePage: React.FC = () => {
                 <span className="flex items-center gap-1">
                   <FileText className="w-4 h-4" />
                   {disciplina.creditos_trabalho} créditos trabalho
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {disciplina.carga_horaria}h totais
                 </span>
               </div>
             </div>
@@ -240,53 +452,90 @@ const DisciplinePage: React.FC = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                   <div className="text-center mb-4">
                     <p className="text-sm text-gray-500 mb-2">Avaliação Geral</p>
-                    <div className="flex items-center justify-center gap-3">
-                      <span className="text-5xl font-bold text-gray-900">{mediaAvaliacoes.geral.toFixed(1)}</span>
-                      <div className="flex flex-col items-start">
-                        <StarRating rating={Math.round(mediaAvaliacoes.geral)} size="md" />
-                        <span className="text-xs text-gray-400 mt-1">{totalAvaliacoes} avaliações</span>
+                    {isLoadingEvaluations ? (
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+                    ) : mediaAvaliacoes && totalAvaliacoes > 0 ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <span className="text-5xl font-bold text-gray-900">{mediaAvaliacoes.geral.toFixed(1)}</span>
+                        <div className="flex flex-col items-start">
+                          <StarRating rating={mediaAvaliacoes.geral} size="md" />
+                          <span className="text-xs text-gray-400 mt-1">{totalAvaliacoes} avaliações</span>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <p className="text-gray-400 text-sm">Nenhuma avaliação ainda</p>
+                    )}
                   </div>
                   
-                  <div className="border-t border-gray-100 pt-4 space-y-3">
-                    {criterios.map((criterio) => {
-                      const Icon = criterio.icon;
-                      const valor = mediaAvaliacoes[criterio.key];
-                      return (
-                        <div key={criterio.key} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-8 h-8 rounded-lg bg-${criterio.color}/10 flex items-center justify-center`}>
-                              <Icon className={`w-4 h-4 text-${criterio.color}`} />
+                  {mediaAvaliacoes && totalAvaliacoes > 0 && (
+                    <div className="border-t border-gray-100 pt-4 space-y-3">
+                      {criterios.map((criterio) => {
+                        const Icon = criterio.icon;
+                        const valor = mediaAvaliacoes[criterio.key];
+                        return (
+                          <div key={criterio.key} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-8 h-8 rounded-lg bg-${criterio.color}/10 flex items-center justify-center`}>
+                                <Icon className={`w-4 h-4 text-${criterio.color}`} />
+                              </div>
+                              <span className="text-sm text-gray-700">{criterio.label}</span>
                             </div>
-                            <span className="text-sm text-gray-700">{criterio.label}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 bg-gray-200 rounded-full h-1.5">
-                              <div
-                                className={`bg-${criterio.color} rounded-full h-1.5`}
-                                style={{ width: `${(valor / 5) * 100}%` }}
-                              />
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                <div
+                                  className={`bg-${criterio.color} rounded-full h-1.5`}
+                                  style={{ width: `${(valor / 5) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium text-gray-900 w-6 text-right">{valor.toFixed(1)}</span>
                             </div>
-                            <span className="text-sm font-medium text-gray-900 w-6 text-right">{valor.toFixed(1)}</span>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                {/* Botão Avaliar - Mobile também */}
-                <Button
-                  onClick={() => {
-                    setActiveTab("avaliacoes");
-                    setShowReviewForm(true);
-                  }}
-                  className="w-full bg-cm-academic hover:bg-cm-academic/90 text-white rounded-xl font-bold py-3"
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  Avaliar Disciplina
-                </Button>
+                {/* Botão Avaliar */}
+                {isLoggedIn ? (
+                  myEvaluation ? (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => fillFormWithExisting(myEvaluation)}
+                        className="flex-1 bg-cm-academic hover:bg-cm-academic/90 text-white rounded-xl font-bold py-3"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar Avaliação
+                      </Button>
+                      <Button
+                        onClick={handleDeleteEvaluation}
+                        variant="outline"
+                        className="rounded-xl py-3 text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        setActiveTab("avaliacoes");
+                        setShowReviewForm(true);
+                      }}
+                      className="w-full bg-cm-academic hover:bg-cm-academic/90 text-white rounded-xl font-bold py-3"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Avaliar Disciplina
+                    </Button>
+                  )
+                ) : (
+                  <Button
+                    onClick={() => navigate("/login")}
+                    variant="outline"
+                    className="w-full rounded-xl font-bold py-3 border-cm-academic text-cm-academic hover:bg-cm-academic/5"
+                  >
+                    Faça login para avaliar
+                  </Button>
+                )}
               </div>
             </aside>
 
@@ -328,90 +577,194 @@ const DisciplinePage: React.FC = () => {
                 {activeTab === "info" && (
                   <div className="space-y-6">
                     {/* Ementa */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
-                      <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-3">Ementa</h2>
-                      <p className="text-gray-600 leading-relaxed">{disciplina.ementa}</p>
-                    </motion.div>
+                    {disciplina.ementa && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-3">Ementa</h2>
+                        <p className="text-gray-600 leading-relaxed">{disciplina.ementa}</p>
+                      </motion.div>
+                    )}
 
                     {/* Objetivos */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-3">Objetivos</h2>
-                      <p className="text-gray-600 leading-relaxed">{disciplina.objetivos}</p>
-                    </motion.div>
+                    {disciplina.objetivos && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-3">Objetivos</h2>
+                        <p className="text-gray-600 leading-relaxed">{disciplina.objetivos}</p>
+                      </motion.div>
+                    )}
+
+                    {/* Conteúdo Programático */}
+                    {disciplina.conteudo_programatico && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 }}
+                      >
+                        <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-3">Conteúdo Programático</h2>
+                        <p className="text-gray-600 leading-relaxed whitespace-pre-line">{disciplina.conteudo_programatico}</p>
+                      </motion.div>
+                    )}
 
                     {/* Turmas */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Turmas Oferecidas</h2>
-                      <div className="space-y-3">
-                        {disciplina.turmas.map((turma) => (
-                          <div
-                            key={turma.codigo}
-                            className="p-4 bg-gray-50 rounded-xl border border-gray-100"
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="font-semibold text-gray-900">Turma {turma.codigo}</span>
-                              <span className="px-3 py-1 bg-cm-green/10 text-cm-green text-sm rounded-full font-medium">
-                                {turma.vagas} vagas
-                              </span>
-                            </div>
-                            <div className="space-y-2 text-sm text-gray-600">
-                              <div className="flex items-start gap-2">
-                                <Users className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
-                                <span>{turma.professores.join(", ")}</span>
+                    {disciplina.turmas && disciplina.turmas.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Turmas Oferecidas</h2>
+                        <div className="space-y-3">
+                          {disciplina.turmas.map((turma) => (
+                            <div
+                              key={turma.codigo_turma}
+                              className="p-4 bg-gray-50 rounded-xl border border-gray-100"
+                            >
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="font-semibold text-gray-900">Turma {turma.codigo_turma}</span>
+                                {turma.tipo && (
+                                  <span className="px-3 py-1 bg-cm-academic/10 text-cm-academic text-sm rounded-full font-medium">
+                                    {turma.tipo}
+                                  </span>
+                                )}
                               </div>
-                              <div className="flex items-start gap-2">
-                                <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
-                                <span>{turma.horarios}</span>
+                              <div className="space-y-2 text-sm text-gray-600">
+                                {turma.professors && turma.professors.length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <Users className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
+                                    <span>{turma.professors.join(", ")}</span>
+                                  </div>
+                                )}
+                                {turma.schedules && turma.schedules.length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
+                                    <span>
+                                      {turma.schedules.map(s => `${s.dia} ${s.horario_inicio}-${s.horario_fim}`).join(", ")}
+                                    </span>
+                                  </div>
+                                )}
+                                {turma.inicio && turma.fim && (
+                                  <div className="flex items-start gap-2">
+                                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
+                                    <span>
+                                      {new Date(turma.inicio).toLocaleDateString("pt-BR")} - {new Date(turma.fim).toLocaleDateString("pt-BR")}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Sem informações */}
+                    {!disciplina.ementa && !disciplina.objetivos && (!disciplina.turmas || disciplina.turmas.length === 0) && (
+                      <p className="text-gray-500 text-center py-8">
+                        Informações detalhadas não disponíveis para esta disciplina.
+                      </p>
+                    )}
                   </div>
                 )}
 
                 {activeTab === "avaliacoes" && (
                   <div className="space-y-6">
                     {/* Formulário de Avaliação */}
-                    {showReviewForm && (
+                    {showReviewForm && isLoggedIn && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
-                        className="p-4 bg-cm-academic/5 rounded-xl border border-cm-academic/20"
+                        className="p-4 sm:p-6 bg-cm-academic/5 rounded-xl border border-cm-academic/20"
                       >
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Sua Avaliação</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {isEditMode ? "Editar Avaliação" : "Sua Avaliação"}
+                        </h3>
                         <p className="text-sm text-gray-500 mb-4">
-                          Compartilhe sua experiência para ajudar outros alunos
+                          Avalie com estrelas (anônimo) e/ou deixe um comentário
                         </p>
-                        <Textarea
-                          placeholder="Escreva seu comentário sobre a disciplina..."
-                          rows={4}
-                          className="resize-none mb-4"
-                        />
+                        
+                        {/* Ratings */}
+                        <div className="space-y-4 mb-6">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Rating Geral */}
+                            <div className="p-3 bg-white rounded-lg border border-gray-200">
+                              <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                                Avaliação Geral
+                              </Label>
+                              <StarRating 
+                                rating={formRatings.geral} 
+                                size="lg" 
+                                interactive 
+                                onChange={(v) => setFormRatings(prev => ({ ...prev, geral: v }))}
+                              />
+                            </div>
+                            
+                            {criterios.map((criterio) => (
+                              <div key={criterio.key} className="p-3 bg-white rounded-lg border border-gray-200">
+                                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                                  {criterio.label}
+                                </Label>
+                                <StarRating 
+                                  rating={formRatings[criterio.key]} 
+                                  size="md" 
+                                  interactive 
+                                  onChange={(v) => setFormRatings(prev => ({ ...prev, [criterio.key]: v }))}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Comentário */}
+                        <div className="mb-4">
+                          <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                            Comentário (opcional)
+                          </Label>
+                          <Textarea
+                            value={formComentario}
+                            onChange={(e) => setFormComentario(e.target.value)}
+                            placeholder="Compartilhe sua experiência com a disciplina..."
+                            rows={4}
+                            className="resize-none"
+                          />
+                        </div>
+                        
+                        {/* Anônimo */}
+                        {formComentario.trim() && (
+                          <div className="flex items-center gap-3 mb-4 p-3 bg-white rounded-lg border border-gray-200">
+                            <Switch
+                              id="anonymous"
+                              checked={formIsAnonymous}
+                              onCheckedChange={setFormIsAnonymous}
+                            />
+                            <Label htmlFor="anonymous" className="text-sm text-gray-700 cursor-pointer">
+                              Publicar comentário como anônimo
+                            </Label>
+                          </div>
+                        )}
+                        
                         <div className="flex gap-2">
-                          <Button className="bg-cm-academic hover:bg-cm-academic/90">
-                            Publicar Avaliação
+                          <Button 
+                            onClick={handleSubmitEvaluation}
+                            disabled={isSubmitting}
+                            className="bg-cm-academic hover:bg-cm-academic/90"
+                          >
+                            {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            {isEditMode ? "Salvar Alterações" : "Publicar Avaliação"}
                           </Button>
-                          <Button variant="outline" onClick={() => setShowReviewForm(false)}>
+                          <Button variant="outline" onClick={resetForm}>
                             Cancelar
                           </Button>
                         </div>
                       </motion.div>
                     )}
 
-                    {!showReviewForm && (
+                    {!showReviewForm && isLoggedIn && !myEvaluation && (
                       <Button
                         onClick={() => setShowReviewForm(true)}
                         variant="outline"
@@ -422,49 +775,100 @@ const DisciplinePage: React.FC = () => {
                       </Button>
                     )}
 
+                    {/* Loading avaliações */}
+                    {isLoadingEvaluations && (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                      </div>
+                    )}
+
                     {/* Lista de Reviews */}
-                    <div className="space-y-4">
-                      {reviews.map((review) => (
-                        <motion.div
-                          key={review.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-4 bg-gray-50 rounded-xl border border-gray-100"
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-cm-purple/10 flex items-center justify-center">
-                                <span className="text-cm-purple font-semibold">
-                                  {review.usuario.charAt(0)}
-                                </span>
+                    {!isLoadingEvaluations && evaluations.length > 0 && (
+                      <div className="space-y-4">
+                        {evaluations.map((evaluation) => (
+                          <motion.div
+                            key={evaluation.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={cn(
+                              "p-4 rounded-xl border",
+                              evaluation.is_own_evaluation 
+                                ? "bg-cm-academic/5 border-cm-academic/20" 
+                                : "bg-gray-50 border-gray-100"
+                            )}
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                {evaluation.comentario ? (
+                                  <>
+                                    <div className="w-10 h-10 rounded-full bg-cm-purple/10 flex items-center justify-center">
+                                      <span className="text-cm-purple font-semibold">
+                                        {evaluation.is_anonymous ? "?" : (evaluation.user_name?.charAt(0) || "?")}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <p className="font-semibold text-gray-900">
+                                        {evaluation.is_anonymous ? "Anônimo" : evaluation.user_name}
+                                        {evaluation.is_own_evaluation && (
+                                          <span className="text-xs ml-2 text-cm-academic">(você)</span>
+                                        )}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        {evaluation.turma_codigo && `Turma ${evaluation.turma_codigo}`}
+                                        {evaluation.semestre && ` • ${evaluation.semestre}`}
+                                      </p>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <p className="text-sm text-gray-500 italic">Avaliação anônima</p>
+                                )}
                               </div>
-                              <div>
-                                <p className="font-semibold text-gray-900">{review.usuario}</p>
-                                <p className="text-xs text-gray-500">{review.turma} • {review.semestre}</p>
-                              </div>
+                              {evaluation.rating_geral && (
+                                <div className="flex items-center gap-2">
+                                  <StarRating rating={evaluation.rating_geral} size="sm" />
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <StarRating rating={review.rating.geral} size="sm" />
-                              <span className="font-semibold text-gray-900">{review.rating.geral}</span>
+                            
+                            {evaluation.comentario && (
+                              <p className="text-gray-600 text-sm leading-relaxed mb-3">
+                                {evaluation.comentario}
+                              </p>
+                            )}
+                            
+                            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                              <button 
+                                onClick={() => handleToggleLike(evaluation.id)}
+                                disabled={evaluation.is_own_evaluation}
+                                className={cn(
+                                  "flex items-center gap-2 text-sm transition-colors",
+                                  evaluation.is_own_evaluation 
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : evaluation.user_has_voted
+                                      ? "text-cm-academic font-medium"
+                                      : "text-gray-500 hover:text-cm-academic"
+                                )}
+                              >
+                                <ThumbsUp className={cn("w-4 h-4", evaluation.user_has_voted && "fill-current")} />
+                                <span>{evaluation.helpful_count} acharam útil</span>
+                              </button>
+                              <span className="text-xs text-gray-400">
+                                {new Date(evaluation.created_at).toLocaleDateString("pt-BR")}
+                              </span>
                             </div>
-                          </div>
-                          
-                          <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                            {review.comentario}
-                          </p>
-                          
-                          <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                            <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-cm-academic transition-colors">
-                              <ThumbsUp className="w-4 h-4" />
-                              <span>{review.likes} acharam útil</span>
-                            </button>
-                            <span className="text-xs text-gray-400">
-                              {new Date(review.data).toLocaleDateString("pt-BR")}
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Nenhuma avaliação */}
+                    {!isLoadingEvaluations && evaluations.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                        <p>Nenhuma avaliação ainda.</p>
+                        <p className="text-sm">Seja o primeiro a avaliar esta disciplina!</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
