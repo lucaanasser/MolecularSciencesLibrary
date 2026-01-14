@@ -11,6 +11,12 @@ const disciplinesController = require('../controllers/DisciplinesController');
  * 🔴 Erro
  */
 
+// Criar disciplina manualmente
+router.post('/', (req, res) => {
+    console.log("🔵 [DisciplinesRoutes] POST / - Criar disciplina manualmente");
+    disciplinesController.createDiscipline(req, res);
+});
+
 // Busca por termo (autocomplete) - DEVE vir antes de /:codigo
 router.get('/search', (req, res) => {
     console.log("🔵 [DisciplinesRoutes] GET /search - Buscar por termo");
