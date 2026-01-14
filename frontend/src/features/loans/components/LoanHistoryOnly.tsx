@@ -28,25 +28,25 @@ export default function LoanHistoryOnly({ userId }: LoanHistoryOnlyProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-4">
       {returnedLoans.map((loan: Loan) => (
         <div
           key={loan.loan_id}
-          className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm"
+          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm gap-4"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center flex-shrink-0">
               <Book className="w-5 h-5 text-cm-purple" />
             </div>
-            <div>
-              <div className="flex flex-row flex-wrap items-center gap-x-1">
-                <span className="text-md font-medium text-black">{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
-                <span className="text-sm text-gray-500">{loan.book_authors ? `, ${loan.book_authors}` : ", Autor desconhecido"}</span>
+            <div className="min-w-0">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 min-w-0">
+                <span className="text-md font-medium text-black truncate block max-w-[12rem]" title={loan.book_title || `Livro ID: ${loan.book_id}`}>{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
+                <span className="text-sm text-gray-500 truncate block max-w-[10rem] sm:before:content-[',_'] before:content-['']" title={loan.book_authors || "Autor desconhecido"}>{loan.book_authors || "Autor desconhecido"}</span>
               </div>
-              <div className="flex flex-row gap-4 mt-1">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-1">
                 <span className="flex items-center text-sm text-gray-500">
                   <Clock className="w-3 h-3 mr-1" />
-                  Empréstimo: {formatDate(loan.borrowed_at)}
+                  Início: {formatDate(loan.borrowed_at)}
                 </span>
                 {loan.returned_at && (
                   <span className="flex items-center text-sm text-gray-500">
@@ -57,7 +57,7 @@ export default function LoanHistoryOnly({ userId }: LoanHistoryOnlyProps) {
               </div>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-center sm:text-right flex flex-col items-center sm:items-end min-w-[8rem]">
             <span
               className={`inline-block px-3 py-2 rounded-full text-sm font-medium bg-cm-green/20 text-cm-green`}
             >

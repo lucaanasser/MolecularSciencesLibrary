@@ -186,32 +186,35 @@ const ProfilePage = () => {
             <aside className="w-full lg:w-64 flex-shrink-0">
               {/* Cards de estatísticas - horizontal em mobile, vertical em desktop */}
               <div className="grid grid-cols-3 lg:grid-cols-1 gap-3 lg:sticky lg:top-24">
-                {/* Livros lidos - Roxo */}
+                {/* Empréstimos ativos - Vermelho */}
                 <div className="bg-cm-red/20 rounded-xl p-4 shadow-md text-center lg:text-left">
                   <div className="flex flex-col lg:flex-row items-center lg:gap-3">
                     <div className="w-10 h-10 rounded-full bg-cm-red/50 flex items-center justify-center mb-2 lg:mb-0">
-                      <BookMarked className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-cm-red">{userStats.totalLoans}</p>
-                      <p className="text-sm text-cm-red">Livros lidos</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Empréstimos ativos - Azul */}
-                <div className="bg-cm-blue/20 rounded-xl p-4 shadow-md text-center lg:text-left">
-                  <div className="flex flex-col lg:flex-row items-center lg:gap-3">
-                    <div className="w-10 h-10 rounded-full bg-cm-blue/50 flex items-center justify-center mb-2 lg:mb-0">
                       <TrendingUp className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-cm-blue">{userStats.currentLoans}</p>
-                      <p className="text-sm text-cm-blue">Empréstimos ativos</p>
+                      <p className="text-2xl font-bold text-cm-red">{userStats.currentLoans}</p>
+                      <p className="text-sm text-cm-red hidden md:block">Empréstimos ativos</p>
+                      <p className="text-sm text-cm-red md:hidden">Ativos</p>
+                    </div>
+                  </div>
+                </div>
+              
+                {/* Livros lidos - Azul */}
+                <div className="bg-cm-blue/20 rounded-xl p-4 shadow-md text-center lg:text-left">
+                  <div className="flex flex-col lg:flex-row items-center lg:gap-3">
+                    <div className="w-10 h-10 rounded-full bg-cm-blue/50 flex items-center justify-center mb-2 lg:mb-0">
+                      <BookMarked className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-cm-blue">{userStats.totalLoans}</p>
+                      <p className="text-sm text-cm-blue hidden md:block">Livros lidos</p>
+                      <p className="text-sm text-cm-blue md:hidden">Lidos</p>
                     </div>
                   </div>
                 </div>
 
+                
                 {/* Doações feitas - Verde */}
                 <div className="bg-cm-green/20 rounded-xl p-4 shadow-md text-center lg:text-left">
                   <div className="flex flex-col lg:flex-row items-center lg:gap-3">
@@ -220,7 +223,8 @@ const ProfilePage = () => {
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-cm-green">{userStats.donations}</p>
-                      <p className="text-sm text-cm-green">Doações feitas</p>
+                      <p className="text-sm text-cm-green hidden md:block">Doações feitas</p>
+                      <p className="text-sm text-cm-green md:hidden">Doações</p>
                     </div>
                   </div>
                 </div>
@@ -229,7 +233,7 @@ const ProfilePage = () => {
 
             {/* Card com botões no topo */}
             <div className="flex-1 min-w-0">
-              <div className={`rounded-2xl border-b border-${getTabColor()} bg-white shadow-lg p-0 sm:p-0 flex flex-col`}>
+              <div className={`rounded-2xl border-b border-${getTabColor()} bg-white shadow-lg p-0 flex flex-col`}>
                 {/* Botões no topo */}
                 <div className={`flex flex-row bg-white rounded-t-2xl overflow-hidden`}>
                   {tabs.map((tab, idx) => {
@@ -249,7 +253,7 @@ const ProfilePage = () => {
                       >
                         <Icon className="w-4 h-4" />
                         <span className="hidden sm:inline">{tab.label}</span>
-                        <span className="sm:hidden">{tab.shortLabel}</span>
+                        <span className="sm:hidden">{isActive ? tab.shortLabel : ""}</span>
                       </button>
                     );
                   })}

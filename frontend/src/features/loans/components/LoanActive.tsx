@@ -121,7 +121,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
           <p className="text-cm-red">Você possui livro(s) atrasado(s). Devolva-o(s) antes de renovar ou estender qualquer empréstimo.</p>
         </div>
       )}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-4">
         {activeLoans.map((loan) => {
           const overdue = isOverdue(loan);
           const { statusText } = getLoanStatusProps(loan);
@@ -132,21 +132,21 @@ export default function LoanActive({ userId }: LoanActiveProps) {
           return (
             <div
               key={loan.loan_id}
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm gap-4"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center flex-shrink-0">
                   <Book className="w-5 h-5 text-cm-purple" />
                 </div>
-                <div>
-                  <div className="flex flex-row flex-wrap items-center gap-x-1">
-                    <span className="text-md font-medium text-black">{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
-                    <span className="text-sm text-gray-500">{loan.book_authors ? `, ${loan.book_authors}` : ", Autor desconhecido"}</span>
+                <div className="min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 min-w-0">
+                    <span className="text-md font-medium text-black truncate block max-w-[12rem]" title={loan.book_title || `Livro ID: ${loan.book_id}`}>{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
+                    <span className="text-sm text-gray-500 truncate block max-w-[10rem] sm:before:content-[',_'] before:content-['']" title={loan.book_authors || "Autor desconhecido"}>{loan.book_authors || "Autor desconhecido"}</span>
                   </div>
-                  <div className="flex flex-row gap-4 mt-1">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-1">
                     <span className="flex items-center text-sm text-gray-500">
                       <Clock className="w-3 h-3 mr-1" />
-                      Empréstimo: {loan.borrowed_at ? new Date(loan.borrowed_at).toLocaleDateString("pt-BR") : "-"}
+                      Início: {loan.borrowed_at ? new Date(loan.borrowed_at).toLocaleDateString("pt-BR") : "-"}
                     </span>
                     <span className="flex items-center text-sm font-semibold text-cm-purple">
                       <Clock className="w-3 h-3 mr-1" />
@@ -155,7 +155,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                   </div>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-center sm:text-right flex flex-col items-center sm:items-end min-w-[8rem]">
                 <span
                   className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
                     loan.returned_at
@@ -167,9 +167,8 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 >
                   {loan.returned_at ? "Devolvido" : overdue ? "Atrasado" : statusText}
                 </span>
-                {/* Prazo removido daqui, pois já aparece ao lado do empréstimo */}
                 {/* Botões de ação */}
-                <div className="flex flex-col gap-1 items-end w-full mt-2">
+                <div className="flex flex-col gap-1 items-center sm:items-end w-full mt-2">
                   {showRenew && (
                     <button
                       className="flex items-center gap-2 bg-cm-purple text-white px-3 py-1 rounded-full hover:bg-cm-purple/80 disabled:opacity-50"
