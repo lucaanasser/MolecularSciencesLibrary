@@ -19,6 +19,7 @@ export interface Discipline {
   creditos_aula: number;
   creditos_trabalho: number;
   has_valid_classes: boolean;
+  is_postgrad: boolean;
   ementa: string | null;
   objetivos: string | null;
   conteudo_programatico: string | null;
@@ -249,4 +250,57 @@ export async function countDisciplines(): Promise<number> {
   const data = await response.json();
   console.log(`🟢 [DisciplinesService] Total: ${data.count} disciplinas`);
   return data.count;
+}
+
+// ================ TIPOS PARA CRIAÇÃO ================
+
+export interface CreateDisciplineData {
+  codigo: string;
+  nome: string;
+  unidade?: string;
+  campus?: string;
+  creditos_aula?: number;
+  creditos_trabalho?: number;
+  is_postgrad?: boolean;
+  ementa?: string;
+  objetivos?: string;
+  conteudo_programatico?: string;
+}
+
+export interface CreateDisciplineError {
+  error: string;
+  codigo?: string;
+  nome?: string;
+}
+
+// ================ CRIAÇÃO MANUAL ================
+
+/**
+ * Cria uma disciplina manualmente
+ * POST /api/disciplines
+ */
+export async function createDiscipline(data: CreateDisciplineData): Promise<Discipline> {
+  console.log(`🔵 [DisciplinesService] Criando disciplina: ${data.codigo}`);
+  
+  const response = await fetch('/api/disciplines', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const errorData: CreateDisciplineError = await response.json();
+    console.error(`🔴 [DisciplinesService] Erro ao criar disciplina:`, errorData);
+    
+    // Retorna erro estruturado para tratamento no frontend
+    const error = new Error(errorData.error) as Error & { data?: CreateDisciplineError };
+    error.data = errorData;
+    throw error;
+  }
+  
+  const discipline = await response.json();
+  console.log(`🟢 [DisciplinesService] Disciplina criada: ${discipline.codigo}`);
+  return discipline;
 }
