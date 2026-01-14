@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
 const PROFILE_IMAGES = [
-  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png"].map(img => `/images/user-images/${img}`)
+  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png", "test_qui.png", "test_mat.png"].map(img => `/images/user-images/${img}`)
 ];
 
 // Mock de doações do usuário
@@ -24,6 +24,17 @@ type TabType = "ativos" | "historico" | "doacoes" ;
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("ativos");
+
+  // Função para determinar cor das abas conforme imagem de perfil
+  const getTabColor = () => {
+    if (!user?.profile_image) return "cm-purple";
+    if (user.profile_image.includes("mat")) return "cm-red";
+    if (user.profile_image.includes("fis")) return "cm-orange";
+    if (user.profile_image.includes("qui")) return "cm-yellow";
+    if (user.profile_image.includes("bio")) return "cm-green";
+    if (user.profile_image.includes("cmp")) return "cm-blue";
+    return "cm-purple";
+  };
   const { user, loading: userLoading, error: userError } = useUserProfile();
   const [showImageSelector, setShowImageSelector] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -218,23 +229,23 @@ const ProfilePage = () => {
 
             {/* Card com botões no topo */}
             <div className="flex-1 min-w-0">
-              <div className="rounded-2xl bg-white shadow-lg p-0 sm:p-0 flex flex-col">
+              <div className="rounded-2xl border-${getTabColor()} bg-white shadow-lg p-0 sm:p-0 flex flex-col">
                 {/* Botões no topo */}
-                <div className="flex flex-row border-b border-gray-200 bg-white rounded-t-2xl overflow-hidden">
+                <div className={`flex flex-row bg-white rounded-t-2xl overflow-hidden`}>
                   {tabs.map((tab, idx) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
+                    const color = ["ativos", "historico", "doacoes"].includes(tab.id) ? getTabColor() : "cm-purple";
                     return (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 font-semibold text-sm sm:text-base transition-colors
                           ${isActive
-                            ? 'text-white border-b-4 border-cm-purple bg-cm-purple'
-                            : 'text-gray-500 border-b-4 border-cm-purple hover:text-cm-purple bg-white'
+                            ? `text-white border-b-4 border-${color} bg-${color} `
+                            : `text-gray-500 border-b-4 border-${color} hover:text-${color} bg-white`
                           }
                         `}
-                        style={{ zIndex: isActive ? 2 : 1 }}
                       >
                         <Icon className="w-4 h-4" />
                         <span className="hidden sm:inline">{tab.label}</span>
