@@ -229,7 +229,7 @@ const ProfilePage = () => {
 
             {/* Card com botões no topo */}
             <div className="flex-1 min-w-0">
-              <div className="rounded-2xl border-${getTabColor()} bg-white shadow-lg p-0 sm:p-0 flex flex-col">
+              <div className={`rounded-2xl border-b border-${getTabColor()} bg-white shadow-lg p-0 sm:p-0 flex flex-col`}>
                 {/* Botões no topo */}
                 <div className={`flex flex-row bg-white rounded-t-2xl overflow-hidden`}>
                   {tabs.map((tab, idx) => {
