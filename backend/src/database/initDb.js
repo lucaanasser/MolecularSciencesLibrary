@@ -260,6 +260,7 @@ db.serialize(() => {
             creditos_aula INTEGER DEFAULT 0,
             creditos_trabalho INTEGER DEFAULT 0,
             has_valid_classes INTEGER DEFAULT 0,
+            is_postgrad INTEGER DEFAULT 0,
             ementa TEXT,
             objetivos TEXT,
             conteudo_programatico TEXT,
