@@ -28,8 +28,6 @@ export default {
         "cm-bg": "#ffffff",
         // Cores do modo acadêmico (verde-água/teal)
         "cm-academic": "#01aad0",
-        "cm-academic-light": "#14b8a6",
-        "cm-academic-dark": "#0f766e",
         "cm-academic-bg": "#f0fdfa",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

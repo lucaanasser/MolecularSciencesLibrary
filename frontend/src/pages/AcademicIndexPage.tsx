@@ -89,15 +89,15 @@ const SUGGESTIONS = [
   "como faço para encontrar um orientador?",
   "como faço para montar minha grade?",
   "como faço para cursar disciplinas da pós?",
-  "onde encontrar os horários das disciplinas?",
-  "onde encontrar os contatos dos professores?",
-  "é possível me formar ou estou fadado a virar uma capivara na raia?"
+  "onde encontro os horários das disciplinas?",
+  "onde encontro os contatos dos professores?",
+  "é possível me formar ou estou fadado a virar uma capivara da raia?"
 ];
 
 // Sequência de digitação simulada
 const TYPED_SEQUENCES = [
   { text: "como faço para", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("como faço para")).slice(0, 3) },
-  { text: "onde encontrar", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("onde encontrar")).slice(0, 3) },
+  { text: "onde encontro", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("onde encontro")).slice(0, 3) },
   { text: "é possível", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("é possível")).slice(0, 3) }
 ];
 
@@ -310,7 +310,7 @@ const AcademicIndexPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Card 1 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-academic border-8 border-cm-bg">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-cm-bg">
                 <Search className="h-10 w-10 text-cm-bg" />
               </div>
               <h3 className="text-2xl mb-2">Busque disciplinas</h3>
@@ -319,13 +319,13 @@ const AcademicIndexPage = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-academic hover:bg-cm-academic/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
                 <Link to="/academico/buscar">Buscar Disciplinas</Link>
               </Button>
             </div>
             {/* Card 2 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-academic-light border-8 border-cm-bg">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
                 <Calendar className="h-10 w-10 text-cm-bg" />
               </div>
               <h3 className="text-2xl mb-2">Monte sua grade</h3>
@@ -334,13 +334,13 @@ const AcademicIndexPage = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-academic-light hover:bg-cm-academic-light/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
                 <Link to="/academico/grade">Montar Grade</Link>
               </Button>
             </div>
             {/* Card 3 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-academic-dark border-8 border-cm-bg">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
                 <GraduationCap className="h-10 w-10 text-cm-bg" />
               </div>
               <h3 className="text-2xl mb-2">Tire suas dúvidas</h3>
@@ -349,7 +349,7 @@ const AcademicIndexPage = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-academic-dark hover:bg-cm-academic-dark/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
                 <Link to="/academico/faq">Ver FAQ</Link>
               </Button>
             </div>

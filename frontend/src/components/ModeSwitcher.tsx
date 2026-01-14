@@ -31,10 +31,10 @@ const ModeSwitcher: React.FC = () => {
       className={`
         relative flex items-center gap-2 px-3 py-2 rounded-full
         transition-all duration-500 ease-in-out
-        border-2 cursor-pointer
+        cursor-pointer
         ${isAcademico 
-          ? "bg-gradient-to-r from-cm-academic to-cm-academic-light border-cm-academic text-white" 
-          : "bg-gradient-to-r from-cm-purple to-cm-purple/80 border-cm-purple text-white"
+          ? "bg-cm-academic text-white" 
+          : "bg-gradient-to-r from-cm-purple to-cm-purple/80 text-white"
         }
         hover:scale-105 hover:shadow-lg
         focus:outline-none focus:ring-2 focus:ring-offset-2
