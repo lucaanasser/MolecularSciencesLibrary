@@ -20,7 +20,7 @@ const MOCK_DONATIONS = [
   { id: 3, title: "Química Orgânica", author: "Solomons", date: "2025-12-01", status: "em análise" },
 ];
 
-type TabType = "ativos" | "historico" | "doacoes" | "notificacoes";
+type TabType = "ativos" | "historico" | "doacoes" ;
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("ativos");
@@ -50,9 +50,8 @@ const ProfilePage = () => {
 
   const tabs: { id: TabType; label: string; shortLabel: string; icon: React.ElementType }[] = [
     { id: "ativos", label: "Empréstimos Ativos", shortLabel: "Ativos", icon: BookOpen },
-    { id: "historico", label: "Histórico", shortLabel: "Histórico", icon: History },
+    { id: "historico", label: "Empréstimos Passados", shortLabel: "Histórico", icon: History },
     { id: "doacoes", label: "Minhas Doações", shortLabel: "Doações", icon: Gift },
-    { id: "notificacoes", label: "Notificações", shortLabel: "Avisos", icon: Bell },
   ];
 
   if (userLoading) {
@@ -101,50 +100,70 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      
+
       <div className="flex-grow bg-cm-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          
+        <div className="max-w-7xl mx-auto mb-10 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
           {/* Header do Perfil */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8">
-            {/* Avatar */}
-            <div className="relative">
-              <Avatar className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-cm-purple/20">
-                {user.profile_image ? (
-                  <AvatarImage src={user.profile_image} alt="Foto de perfil" />
-                ) : null}
-                <AvatarFallback className="bg-cm-purple text-white text-2xl sm:text-3xl font-bebas">
-                  {user.name?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <button
-                onClick={() => setShowImageSelector(true)}
-                className="absolute -bottom-1 -right-1 w-8 h-8 bg-cm-purple text-white rounded-full flex items-center justify-center shadow-lg hover:bg-cm-purple/90 transition-colors"
-                title="Alterar foto"
-              >
-                <Camera className="w-4 h-4" />
-              </button>
+          <div className="mt-8 mb-8">
+            {/* Aba colorida acima do card */}
+            <div className="flex mb-[-12px] z-10 relative">
+              <div className="h-3 w-1/5 rounded-tl-2xl bg-cm-red" />
+              <div className="h-3 w-1/5 bg-cm-orange" />
+              <div className="h-3 w-1/5 bg-cm-yellow" />
+              <div className="h-3 w-1/5 bg-cm-green" />
+              <div className="h-3 w-1/5 rounded-tr-2xl bg-cm-blue" />
             </div>
-            
-            {/* Info */}
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bebas text-gray-900">{user.name}</h1>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-600">
-                {user.class && <span>Turma {user.class}</span>}
-                {user.NUSP !== undefined && <span>NUSP: {user.NUSP}</span>}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-white rounded-2xl shadow-lg p-12 border border-gray-100">
+              {/* Avatar */}
+              <div className="relative">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-cm-purple/20">
+                  {user.profile_image ? (
+                    <AvatarImage src={user.profile_image} alt="Foto de perfil" />
+                  ) : null}
+                  <AvatarFallback className="bg-cm-purple text-white text-2xl sm:text-3xl font-bebas">
+                    {user.name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={() => setShowImageSelector(true)}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-cm-purple text-white rounded-full flex items-center justify-center shadow-lg hover:bg-cm-purple/90 transition-colors"
+                  title="Alterar foto"
+                >
+                  <Camera className="w-4 h-4" />
+                </button>
               </div>
-              {/* Contato - visível apenas em telas maiores */}
-              <div className="hidden sm:flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Mail className="w-4 h-4" />
-                  {user.email}
-                </span>
-                {user.phone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="w-4 h-4" />
-                    {user.phone}
-                  </span>
-                )}
+
+              {/* Info */}
+              <div className="flex-1 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-bebas text-gray-900">{user.name}</h1>
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-1 mt-2 text-gray-600">
+                    {user.class && <span>Turma {user.class}</span>}
+                    {user.NUSP !== undefined && <span>NUSP {user.NUSP}</span>}
+                  </div>
+                </div>
+                {/* Contato - canto direito em telas grandes */}
+                <div className="flex flex-col mt-2 sm:mt-0 text-gray-500 min-w-[140px] pl-2 sm:pl-0">
+                    <div className="mb-1">
+                      <span className="font-bold text-gray-700">Email</span>
+                    </div>
+                    <span className="flex items-center gap-1 mb-2">
+                      <Mail className="w-4 h-4" />
+                      {user.email}
+                    </span>
+                  {user.phone && (
+                    <>
+                      <div className="mb-1">
+                        <span className="font-bold text-gray-700">Telefone</span>
+                      </div>
+                      <span className="flex items-center gap-1">
+                        <Phone className="w-4 h-4" />
+                        {user.phone}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -156,149 +175,140 @@ const ProfilePage = () => {
             <aside className="w-full lg:w-64 flex-shrink-0">
               {/* Cards de estatísticas - horizontal em mobile, vertical em desktop */}
               <div className="grid grid-cols-3 lg:grid-cols-1 gap-3 lg:sticky lg:top-24">
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center lg:text-left">
+                {/* Livros lidos - Roxo */}
+                <div className="bg-cm-red/20 rounded-xl p-4 shadow-md text-center lg:text-left">
                   <div className="flex flex-col lg:flex-row items-center lg:gap-3">
-                    <div className="w-10 h-10 rounded-full bg-cm-purple/10 flex items-center justify-center mb-2 lg:mb-0">
-                      <BookMarked className="w-5 h-5 text-cm-purple" />
+                    <div className="w-10 h-10 rounded-full bg-cm-red/50 flex items-center justify-center mb-2 lg:mb-0">
+                      <BookMarked className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-gray-900">{userStats.totalLoans}</p>
-                      <p className="text-xs text-gray-500">Livros lidos</p>
+                      <p className="text-2xl font-bold text-cm-red">{userStats.totalLoans}</p>
+                      <p className="text-sm text-cm-red">Livros lidos</p>
                     </div>
                   </div>
                 </div>
-                
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center lg:text-left">
+
+                {/* Empréstimos ativos - Azul */}
+                <div className="bg-cm-blue/20 rounded-xl p-4 shadow-md text-center lg:text-left">
                   <div className="flex flex-col lg:flex-row items-center lg:gap-3">
-                    <div className="w-10 h-10 rounded-full bg-cm-blue/10 flex items-center justify-center mb-2 lg:mb-0">
-                      <TrendingUp className="w-5 h-5 text-cm-blue" />
+                    <div className="w-10 h-10 rounded-full bg-cm-blue/50 flex items-center justify-center mb-2 lg:mb-0">
+                      <TrendingUp className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-gray-900">{userStats.currentLoans}</p>
-                      <p className="text-xs text-gray-500">Empréstimos ativos</p>
+                      <p className="text-2xl font-bold text-cm-blue">{userStats.currentLoans}</p>
+                      <p className="text-sm text-cm-blue">Empréstimos ativos</p>
                     </div>
                   </div>
                 </div>
-                
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center lg:text-left">
+
+                {/* Doações feitas - Verde */}
+                <div className="bg-cm-green/20 rounded-xl p-4 shadow-md text-center lg:text-left">
                   <div className="flex flex-col lg:flex-row items-center lg:gap-3">
-                    <div className="w-10 h-10 rounded-full bg-cm-green/10 flex items-center justify-center mb-2 lg:mb-0">
-                      <Gift className="w-5 h-5 text-cm-green" />
+                    <div className="w-10 h-10 rounded-full bg-cm-green/50 flex items-center justify-center mb-2 lg:mb-0">
+                      <Gift className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-gray-900">{userStats.donations}</p>
-                      <p className="text-xs text-gray-500">Doações feitas</p>
+                      <p className="text-2xl font-bold text-cm-green">{userStats.donations}</p>
+                      <p className="text-sm text-cm-green">Doações feitas</p>
                     </div>
                   </div>
                 </div>
               </div>
             </aside>
 
-            {/* Tabs Content */}
+            {/* Card com botões no topo */}
             <div className="flex-1 min-w-0">
-              {/* Tabs */}
-              <div className="flex overflow-x-auto border-b border-gray-200 mb-0 scrollbar-hide">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`py-3 px-4 sm:px-6 font-semibold text-sm sm:text-base transition-colors border-b-2 -mb-px whitespace-nowrap flex-shrink-0 flex items-center gap-2
-                        ${activeTab === tab.id
-                          ? 'text-white border-cm-purple bg-cm-purple'
-                          : 'text-gray-600 border-transparent hover:text-cm-purple hover:bg-gray-50'
-                        }
-                        rounded-t-xl
-                      `}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span className="hidden sm:inline">{tab.label}</span>
-                      <span className="sm:hidden">{tab.shortLabel}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Tab Content */}
-              <div className="border border-gray-200 border-t-0 rounded-b-2xl bg-white shadow-sm p-4 sm:p-6">
-                {activeTab === "ativos" && (
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Empréstimos Ativos</h2>
-                    {user.id ? (
-                      <LoanActive userId={user.id} />
-                    ) : (
-                      <p className="text-gray-500 text-center py-8">Não foi possível carregar os empréstimos.</p>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === "historico" && (
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Histórico de Empréstimos</h2>
-                    {user.id ? (
-                      <LoanHistoryOnly userId={user.id} />
-                    ) : (
-                      <p className="text-gray-500 text-center py-8">Não foi possível carregar o histórico.</p>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === "doacoes" && (
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Minhas Doações</h2>
-                    {MOCK_DONATIONS.length > 0 ? (
-                      <div className="space-y-3">
-                        {MOCK_DONATIONS.map((donation) => (
-                          <div 
-                            key={donation.id} 
-                            className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
-                                <Gift className="w-5 h-5 text-cm-purple" />
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">{donation.title}</p>
-                                <p className="text-sm text-gray-500">{donation.author}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                donation.status === "aceita" 
-                                  ? "bg-cm-green/10 text-cm-green" 
-                                  : "bg-cm-yellow/20 text-cm-orange"
-                              }`}>
-                                {donation.status === "aceita" ? "Aceita" : "Em análise"}
-                              </span>
-                              <p className="text-xs text-gray-400 mt-1">
-                                {new Date(donation.date).toLocaleDateString("pt-BR")}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">Você ainda não fez nenhuma doação.</p>
-                        <a href="/ajude" className="text-cm-purple hover:underline text-sm mt-2 inline-block">
-                          Que tal doar um livro?
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === "notificacoes" && (
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bebas text-gray-900 mb-4">Notificações</h2>
-                    <div className="text-center py-12">
-                      <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">Nenhuma notificação no momento.</p>
+              <div className="rounded-2xl bg-white shadow-lg p-0 sm:p-0 flex flex-col">
+                {/* Botões no topo */}
+                <div className="flex flex-row border-b border-gray-200 bg-white rounded-t-2xl overflow-hidden">
+                  {tabs.map((tab, idx) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 font-semibold text-sm sm:text-base transition-colors
+                          ${isActive
+                            ? 'text-white border-b-4 border-cm-purple bg-cm-purple'
+                            : 'text-gray-500 border-b-4 border-cm-purple hover:text-cm-purple bg-white'
+                          }
+                        `}
+                        style={{ zIndex: isActive ? 2 : 1 }}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="hidden sm:inline">{tab.label}</span>
+                        <span className="sm:hidden">{tab.shortLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Conteúdo do card */}
+                <div className="p-4 sm:p-6">
+                  {activeTab === "ativos" && (
+                    <div>
+                      {user.id ? (
+                        <LoanActive userId={user.id} />
+                      ) : (
+                        <p className="text-gray-500 text-center py-8">Não foi possível carregar os empréstimos.</p>
+                      )}
                     </div>
-                  </div>
-                )}
+                  )}
+                  {activeTab === "historico" && (
+                    <div>
+                      {user.id ? (
+                        <LoanHistoryOnly userId={user.id} />
+                      ) : (
+                        <p className="text-gray-500 text-center py-8">Não foi possível carregar o histórico.</p>
+                      )}
+                    </div>
+                  )}
+                  {activeTab === "doacoes" && (
+                    <div>
+                      {MOCK_DONATIONS.length > 0 ? (
+                        <div className="space-y-3">
+                          {MOCK_DONATIONS.map((donation) => (
+                            <div 
+                              key={donation.id} 
+                              className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
+                            >
+              {/* Ícone de presente removido para manter igual ao LoanActive atual */}
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
+                                  <Gift className="w-5 h-5 text-cm-purple" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-900">{donation.title}</p>
+                                  <p className="text-sm text-gray-500">{donation.author}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                  donation.status === "aceita" 
+                                    ? "bg-cm-green/10 text-cm-green" 
+                                    : "bg-cm-yellow/20 text-cm-orange"
+                                }`}>
+                                  {donation.status === "aceita" ? "Aceita" : "Em análise"}
+                                </span>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {new Date(donation.date).toLocaleDateString("pt-BR")}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                          <p className="text-gray-500">Você ainda não fez nenhuma doação.</p>
+                          <a href="/ajude" className="text-cm-purple hover:underline text-sm mt-2 inline-block">
+                            Que tal doar um livro?
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -250,35 +250,33 @@ async function seedDonators() {
 async function seedLoans() {
     console.log('\n📖 Criando empréstimos de exemplo...');
     
-    // Pegar alguns usuários e livros para criar empréstimos
-    const users = await allQuery('SELECT id FROM users WHERE role = ? LIMIT 3', ['aluno']);
-    const books = await allQuery('SELECT id FROM books LIMIT 5');
-    
-    if (users.length === 0 || books.length === 0) {
-        console.log('  ⏭️  Sem usuários ou livros para criar empréstimos');
+    // Buscar o aluno 1 (NUSP 3) e os 6 primeiros livros
+    const aluno1 = await getQuery('SELECT id FROM users WHERE NUSP = ?', [3]);
+    const livros = await allQuery('SELECT id FROM books ORDER BY id ASC LIMIT 6');
+
+    if (!aluno1 || livros.length < 6) {
+        console.log('  ⏭️  Sem aluno 1 ou livros suficientes para criar empréstimos');
         return;
     }
-    
-    // Criar alguns empréstimos ativos
+
     const now = new Date();
-    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
-    for (let i = 0; i < Math.min(3, users.length, books.length); i++) {
+    // 2 empréstimos em dia (ativos)
+    for (let i = 0; i < 2; i++) {
+        const borrowedAt = new Date(now.getTime() - (i * 2) * 24 * 60 * 60 * 1000); // hoje e ontem
+        const dueDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // daqui 7 dias
         try {
             await runQuery(
-                `INSERT INTO loans (book_id, student_id, borrowed_at, due_date, renewals, is_extended, returned_at) 
+                `INSERT INTO loans (book_id, student_id, borrowed_at, due_date, renewals, is_extended, returned_at)
                  VALUES (?, ?, ?, ?, 0, 0, NULL)`,
-                [books[i].id, users[i].id, now.toISOString(), sevenDaysFromNow.toISOString()]
+                [livros[i].id, aluno1.id, borrowedAt.toISOString(), dueDate.toISOString()]
             );
-            
-            // Marcar livro como reservado
-            await runQuery('UPDATE books SET is_reserved = 1 WHERE id = ?', [books[i].id]);
-            
-            console.log(`  ✅ Empréstimo criado: Livro ${books[i].id} para Usuário ${users[i].id}`);
+            await runQuery('UPDATE books SET is_reserved = 1 WHERE id = ?', [livros[i].id]);
+            console.log(`  ✅ Empréstimo em dia criado: Livro ${livros[i].id} para Aluno 1`);
         } catch (err) {
-            console.error(`  ❌ Erro ao criar empréstimo:`, err.message);
+            console.error(`  ❌ Erro ao criar empréstimo em dia:`, err.message);
         }
     }
+    // Não criar empréstimos atrasados nem devolvidos para o aluno teste 1
 }
 
 async function seedDisciplineClasses() {

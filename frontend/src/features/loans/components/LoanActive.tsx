@@ -1,4 +1,4 @@
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Book, Clock } from "lucide-react";
 import { useUserLoans } from "../hooks/useUserLoans";
 import { Loan } from "../types/loan";
 import { useState, useRef, useEffect } from "react";
@@ -117,33 +117,97 @@ export default function LoanActive({ userId }: LoanActiveProps) {
   return (
     <div className="space-y-4">
       {hasOverdueLoans && (
-        <div className="bg-red-500/10 rounded p-3 mb-4">
-          <p className="text-red-700 text-sm">Você possui livro(s) atrasado(s). Devolva-o(s) antes de renovar ou estender qualquer empréstimo.</p>
+        <div className=" rounded-xl p-2 mb-4">
+          <p className="text-cm-red">Você possui livro(s) atrasado(s). Devolva-o(s) antes de renovar ou estender qualquer empréstimo.</p>
         </div>
       )}
-      {activeLoans.map(item => {
-        const overdue = isOverdue(item); const { statusText, statusColor } = getLoanStatusProps(item);
-        const reachedMaxRenewals = rules ? (item.renewals ?? 0) >= rules.max_renewals : false;
-        // Bloqueia renovação/extensão se houver qualquer empréstimo atrasado
-        const showRenew = !hasOverdueLoans && !overdue && (item.is_extended !== 1) && !reachedMaxRenewals;
-        const showExtend = !hasOverdueLoans && !overdue && (item.is_extended !== 1) && reachedMaxRenewals;
-        return (
-          <LoanItem key={item.loan_id} loan={item} statusText={statusText} statusColor={statusColor} onRenew={showRenew ? () => handlePreviewRenew(item) : undefined} renewLoading={renewLoading === item.loan_id} showRenew={showRenew}>
-            <div className="flex flex-col gap-1 items-end w-full">
-              {showExtend && (
-                <button className="flex items-center gap-2 bg-cm-orange text-white px-4 py-2 rounded hover:bg-cm-orange/80 disabled:opacity-50" disabled={extendLoading === item.loan_id} onClick={() => handlePreviewExtend(item)}>
-                  {extendLoading === item.loan_id ? "Estendendo..." : "Extender"}
-                </button>
-              )}
-              {renewLoading === item.loan_id && renewError && <div className="text-red-600 text-xs mt-1">{renewError}</div>}
-              {renewLoading === item.loan_id && renewSuccess && <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>}
-              {extendLoading === item.loan_id && extendError && <div className="text-red-600 text-xs mt-1">{extendError}</div>}
-              {extendLoading === item.loan_id && extendSuccess && <div className="text-green-600 text-xs mt-1">{extendSuccess}</div>}
+      <div className="space-y-3">
+        {activeLoans.map((loan) => {
+          const overdue = isOverdue(loan);
+          const { statusText } = getLoanStatusProps(loan);
+          const reachedMaxRenewals = rules ? (loan.renewals ?? 0) >= rules.max_renewals : false;
+          // Bloqueia renovação/extensão se houver qualquer empréstimo atrasado
+          const showRenew = !hasOverdueLoans && !overdue && (loan.is_extended !== 1) && !reachedMaxRenewals;
+          const showExtend = !hasOverdueLoans && !overdue && (loan.is_extended !== 1) && reachedMaxRenewals;
+          return (
+            <div
+              key={loan.loan_id}
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
+                  <Book className="w-5 h-5 text-cm-purple" />
+                </div>
+                <div>
+                  <div className="flex flex-row flex-wrap items-center gap-x-1">
+                    <span className="text-md font-medium text-black">{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
+                    <span className="text-sm text-gray-500">{loan.book_authors ? `, ${loan.book_authors}` : ", Autor desconhecido"}</span>
+                  </div>
+                  <div className="flex flex-row gap-4 mt-1">
+                    <span className="flex items-center text-sm text-gray-500">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Empréstimo: {loan.borrowed_at ? new Date(loan.borrowed_at).toLocaleDateString("pt-BR") : "-"}
+                    </span>
+                    <span className="flex items-center text-sm font-semibold text-cm-purple">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Prazo: {loan.due_date ? new Date(loan.due_date).toLocaleDateString("pt-BR") : "Sem data"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <span
+                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                    loan.returned_at
+                      ? "bg-cm-green/20 text-cm-green"
+                      : overdue
+                      ? "bg-cm-red/20 text-cm-red"
+                      : "bg-cm-yellow/20 text-cm-orange"
+                  }`}
+                >
+                  {loan.returned_at ? "Devolvido" : overdue ? "Atrasado" : statusText}
+                </span>
+                {/* Prazo removido daqui, pois já aparece ao lado do empréstimo */}
+                {/* Botões de ação */}
+                <div className="flex flex-col gap-1 items-end w-full mt-2">
+                  {showRenew && (
+                    <button
+                      className="flex items-center gap-2 bg-cm-purple text-white px-3 py-1 rounded-full hover:bg-cm-purple/80 disabled:opacity-50"
+                      onClick={() => handlePreviewRenew(loan)}
+                      disabled={renewLoading === loan.loan_id}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      {renewLoading === loan.loan_id ? "Renovando..." : "Renovar"}
+                    </button>
+                  )}
+                  {showExtend && (
+                    <button
+                      className="flex items-center gap-2 bg-cm-orange text-white px-2 py-1 rounded text-xs hover:bg-cm-orange/80 disabled:opacity-50"
+                      disabled={extendLoading === loan.loan_id}
+                      onClick={() => handlePreviewExtend(loan)}
+                    >
+                      {extendLoading === loan.loan_id ? "Estendendo..." : "Extender"}
+                    </button>
+                  )}
+                  {renewLoading === loan.loan_id && renewError && (
+                    <div className="text-red-600 text-xs mt-1">{renewError}</div>
+                  )}
+                  {renewLoading === loan.loan_id && renewSuccess && (
+                    <div className="text-green-600 text-xs mt-1">{renewSuccess}</div>
+                  )}
+                  {extendLoading === loan.loan_id && extendError && (
+                    <div className="text-red-600 text-xs mt-1">{extendError}</div>
+                  )}
+                  {extendLoading === loan.loan_id && extendSuccess && (
+                    <div className="text-green-600 text-xs mt-1">{extendSuccess}</div>
+                  )}
+                </div>
+              </div>
             </div>
-          </LoanItem>
-        );
-      })}
-
+          );
+        })}
+      </div>
+      {/* Diálogo de confirmação */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
