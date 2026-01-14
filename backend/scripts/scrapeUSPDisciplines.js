@@ -402,15 +402,19 @@ function parsearTurmas($, tabelasFolha) {
 }
 
 /**
- * Extrai créditos da página de detalhes da disciplina
+ * Extrai créditos e informações detalhadas da página de detalhes da disciplina
+ * (Ementa, Objetivos, Conteúdo Programático)
  */
-async function obterCreditosDisciplina(codigoDisciplina) {
+async function obterDetalhesDisciplina(codigoDisciplina) {
     try {
         const html = await fetchWithRetry(`/obterDisciplina?sgldis=${codigoDisciplina}`);
         const $ = cheerio.load(html);
         
         let creditos_aula = 0;
         let creditos_trabalho = 0;
+        let ementa = null;
+        let objetivos = null;
+        let conteudo_programatico = null;
         
         // Buscar em todas as células de tabela
         $('td').each((_, td) => {
@@ -428,15 +432,99 @@ async function obterCreditosDisciplina(codigoDisciplina) {
             }
         });
         
-        return { creditos_aula, creditos_trabalho };
+        // Extrair Ementa, Objetivos e Conteúdo Programático
+        // Estrutura: <b>Título</b> seguido de <pre>Conteúdo</pre> ou texto na próxima linha
+        $('tr').each((_, tr) => {
+            const tds = $(tr).find('td');
+            if (tds.length > 0) {
+                const textoCompleto = $(tds[0]).text().trim();
+                const boldText = $(tds[0]).find('b').text().trim();
+                
+                // Verificar se é a linha de título
+                if (boldText) {
+                    // Normalizar e remover espaços extras, converter para minúsculo
+                    const normalizedBold = normalizeText(boldText).toLowerCase().trim();
+                    
+                    // A linha seguinte contém o conteúdo
+                    const nextTr = $(tr).next('tr');
+                    if (nextTr.length > 0) {
+                        // Buscar conteúdo em <pre> ou diretamente no td
+                        let conteudo = nextTr.find('pre').text().trim();
+                        if (!conteudo) {
+                            conteudo = nextTr.find('td').first().text().trim();
+                        }
+                        
+                        // Limpar e normalizar o conteúdo
+                        if (conteudo) {
+                            conteudo = limparTextoHTML(conteudo);
+                        }
+                        
+                        if (normalizedBold === 'ementa' && conteudo) {
+                            ementa = conteudo;
+                        } else if (normalizedBold === 'objetivos' && conteudo) {
+                            // Evitar "Objetivos da atividade" que é parte de extensão
+                            if (!boldText.toLowerCase().includes('atividade')) {
+                                objetivos = conteudo;
+                            }
+                        } else if ((normalizedBold === 'conteúdo programático' || normalizedBold === 'conteudo programatico') && conteudo) {
+                            conteudo_programatico = conteudo;
+                        }
+                    }
+                }
+            }
+        });
+        
+        return { creditos_aula, creditos_trabalho, ementa, objetivos, conteudo_programatico };
     } catch (error) {
-        logger.debug(`  Erro ao buscar créditos: ${error.message}`);
-        return { creditos_aula: 0, creditos_trabalho: 0 };
+        logger.debug(`  Erro ao buscar detalhes: ${error.message}`);
+        return { creditos_aula: 0, creditos_trabalho: 0, ementa: null, objetivos: null, conteudo_programatico: null };
     }
 }
 
 /**
- * Processa uma disciplina (apenas turmas - informações para grade interativa)
+ * Limpa texto HTML, removendo tags <br> e normalizando espaços
+ */
+function limparTextoHTML(texto) {
+    if (!texto) return null;
+    
+    // Substituir <br> e <br/> por quebras de linha
+    let limpo = texto.replace(/<br\s*\/?>/gi, '\n');
+    
+    // Remover outras tags HTML residuais
+    limpo = limpo.replace(/<[^>]+>/g, '');
+    
+    // Decodificar entidades HTML comuns
+    limpo = limpo
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&ccedil;/g, 'ç')
+        .replace(/&atilde;/g, 'ã')
+        .replace(/&aacute;/g, 'á')
+        .replace(/&eacute;/g, 'é')
+        .replace(/&iacute;/g, 'í')
+        .replace(/&oacute;/g, 'ó')
+        .replace(/&uacute;/g, 'ú')
+        .replace(/&otilde;/g, 'õ')
+        .replace(/&agrave;/g, 'à')
+        .replace(/&ecirc;/g, 'ê')
+        .replace(/&ocirc;/g, 'ô');
+    
+    // Normalizar múltiplas quebras de linha e espaços
+    limpo = limpo.replace(/\n{3,}/g, '\n\n');
+    limpo = limpo.replace(/[ \t]+/g, ' ');
+    
+    // Remover espaços no início e fim de cada linha
+    limpo = limpo.split('\n').map(line => line.trim()).join('\n');
+    
+    return limpo.trim() || null;
+}
+
+/**
+ * Processa uma disciplina (turmas + detalhes - informações para grade interativa)
  */
 async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
     return semaphore.run(async () => {
@@ -451,8 +539,8 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
             const tabelasFolhaTurmas = $turmas('table').filter((_, t) => ehTabelaFolha($turmas, t));
             const turmas = parsearTurmas($turmas, tabelasFolhaTurmas);
             
-            // Buscar créditos na página de detalhes da disciplina
-            const creditos = await obterCreditosDisciplina(codigo);
+            // Buscar créditos, ementa, objetivos e conteúdo programático na página de detalhes
+            const detalhes = await obterDetalhesDisciplina(codigo);
             
             const hasValidClasses = turmas.length > 0;
             
@@ -460,19 +548,22 @@ async function processarDisciplina(semaphore, disciplina, codigoUnidade) {
                 logger.debug(`  ${codigo}: sem turmas válidas`);
             }
             
-            // Construir objeto da disciplina com informações essenciais para grade
+            // Construir objeto da disciplina com informações completas
             const info = {
                 codigo: codigo,
                 nome: nome,
                 unidade: nomesUnidades[codigoUnidade] || 'Desconhecida',
                 campus: CAMPUS_POR_UNIDADE[parseInt(codigoUnidade)] || 'Outro',
-                creditos_aula: creditos.creditos_aula,
-                creditos_trabalho: creditos.creditos_trabalho,
+                creditos_aula: detalhes.creditos_aula,
+                creditos_trabalho: detalhes.creditos_trabalho,
                 has_valid_classes: hasValidClasses,
+                ementa: detalhes.ementa,
+                objetivos: detalhes.objetivos,
+                conteudo_programatico: detalhes.conteudo_programatico,
                 turmas: turmas
             };
             
-            logger.debug(`  ${codigo}: ${turmas.length} turmas, ${creditos.creditos_aula}+${creditos.creditos_trabalho} créditos${hasValidClasses ? '' : ' (sem turmas válidas)'}`);
+            logger.debug(`  ${codigo}: ${turmas.length} turmas, ${detalhes.creditos_aula}+${detalhes.creditos_trabalho} créditos${hasValidClasses ? '' : ' (sem turmas válidas)'}${detalhes.ementa ? ' [ementa]' : ''}${detalhes.objetivos ? ' [obj]' : ''}${detalhes.conteudo_programatico ? ' [prog]' : ''}`);
             return info;
             
         } catch (error) {

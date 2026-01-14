@@ -109,8 +109,8 @@ class DisciplinesModel {
             INSERT INTO disciplines (
                 codigo, nome, unidade, campus,
                 creditos_aula, creditos_trabalho,
-                has_valid_classes, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                has_valid_classes, ementa, objetivos, conteudo_programatico, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(codigo) DO UPDATE SET
                 nome = excluded.nome,
                 unidade = excluded.unidade,
@@ -118,6 +118,9 @@ class DisciplinesModel {
                 creditos_aula = excluded.creditos_aula,
                 creditos_trabalho = excluded.creditos_trabalho,
                 has_valid_classes = excluded.has_valid_classes,
+                ementa = excluded.ementa,
+                objetivos = excluded.objetivos,
+                conteudo_programatico = excluded.conteudo_programatico,
                 updated_at = CURRENT_TIMESTAMP
         `;
         const params = [
@@ -127,7 +130,10 @@ class DisciplinesModel {
             data.campus || null,
             data.creditos_aula || 0,
             data.creditos_trabalho || 0,
-            data.has_valid_classes ? 1 : 0
+            data.has_valid_classes ? 1 : 0,
+            data.ementa || null,
+            data.objetivos || null,
+            data.conteudo_programatico || null
         ];
 
         try {
