@@ -22,6 +22,7 @@ import GradePage from "./pages/GradePage";
 import AcademicFAQPage from "./pages/AcademicFAQPage";
 import AcademicIndexPage from "./pages/AcademicIndexPage";
 import DisciplinePage from "./pages/DisciplinePage";
+import CreateDisciplinePage from "./pages/CreateDisciplinePage";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/academico" element={<AcademicIndexPage />} />
             <Route path="/academico/buscar" element={<AcademicSearchPage />} />
             <Route path="/academico/disciplina/:codigo" element={<DisciplinePage />} />
+            <Route path="/academico/criar-disciplina" element={<CreateDisciplinePage />} />
             <Route path="/academico/grade" element={<GradePage />} />
             <Route path="/academico/faq" element={<AcademicFAQPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
