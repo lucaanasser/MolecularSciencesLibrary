@@ -27,10 +27,10 @@ export default {
         "cm-purple": "#b657b3",
         "cm-bg": "#ffffff",
         // Cores do modo acadêmico (verde-água/teal)
-        "cm-academic": "#0d9488", // teal-600
-        "cm-academic-light": "#14b8a6", // teal-500
-        "cm-academic-dark": "#0f766e", // teal-700
-        "cm-academic-bg": "#f0fdfa", // teal-50
+        "cm-academic": "#01aad0",
+        "cm-academic-light": "#14b8a6",
+        "cm-academic-dark": "#0f766e",
+        "cm-academic-bg": "#f0fdfa",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

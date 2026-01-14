@@ -21,6 +21,12 @@
  *   node scrapeUSPDisciplines.js --clear -s 10
  */
 
+// Corrige ReferenceError: File is not defined para undici/fetch
+const { File, FormData, Blob } = require('formdata-node');
+global.File = File;
+global.FormData = FormData;
+global.Blob = Blob;
+
 const axios = require('axios');
 const cheerio = require('cheerio');
 const path = require('path');

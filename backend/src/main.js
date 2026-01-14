@@ -1,3 +1,9 @@
+// Corrige ReferenceError: File is not defined para undici/fetch
+const { File, FormData, Blob } = require('formdata-node');
+global.File = File;
+global.FormData = FormData;
+global.Blob = Blob;
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');

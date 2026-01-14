@@ -84,48 +84,50 @@ function StatsGrid({ stats }: { stats: StatsType }) {
 // Log de início de renderização da página inicial acadêmica
 console.log("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
 
-const HERO_AREAS = [
-  { name: "Matemática", color: "text-cm-red" },
-  { name: "Física", color: "text-cm-orange" },
-  { name: "Química", color: "text-cm-yellow" },
-  { name: "Biologia", color: "text-cm-green" },
-  { name: "Computação", color: "text-cm-blue" },
-  { name: "Universo", color: "text-cm-academic" },
+// Perguntas ilustrativas
+const SUGGESTIONS = [
+  "como faço para encontrar um orientador?",
+  "como faço para montar minha grade?",
+  "como faço para cursar disciplinas da pós?",
+  "onde encontrar os horários das disciplinas?",
+  "onde encontrar os contatos dos professores?",
+  "é possível me formar ou estou fadado a virar uma capivara na raia?"
+];
+
+// Sequência de digitação simulada
+const TYPED_SEQUENCES = [
+  { text: "como faço para", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("como faço para")).slice(0, 3) },
+  { text: "onde encontrar", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("onde encontrar")).slice(0, 3) },
+  { text: "é possível", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("é possível")).slice(0, 3) }
 ];
 
 const AcademicIndexPage = () => {
-  const { scrollYProgress } = useScroll();
-  const translateY = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const [areaIndex, setAreaIndex] = useState(0);
-  const [displayText, setDisplayText] = useState(HERO_AREAS[0].name);
-  const [typing, setTyping] = useState(true);
+  // Estados para digitação simulada
+  const [typed, setTyped] = useState("");
+  const [phase, setPhase] = useState(0); // 0: "como", 1: "onde encontrar", 2: "é possível"
+  const [showOptions, setShowOptions] = useState(false);
 
+  // Efeito de digitação automática para cada sequência
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    if (typing) {
-      if (displayText.length < HERO_AREAS[areaIndex].name.length) {
-        timeout = setTimeout(() => {
-          setDisplayText(HERO_AREAS[areaIndex].name.slice(0, displayText.length + 1));
-        }, 110);
-      } else {
-        timeout = setTimeout(() => setTyping(false), 1600);
-      }
+    const currentSeq = TYPED_SEQUENCES[phase];
+    if (typed.length < currentSeq.text.length) {
+      // Mostra sugestões apenas após 2 letras digitadas
+      if (typed.length >= 2) setShowOptions(true);
+      else setShowOptions(false);
+      timeout = setTimeout(() => {
+        setTyped(currentSeq.text.slice(0, typed.length + 1));
+      }, 140);
     } else {
-      if (displayText.length > 0) {
-        timeout = setTimeout(() => {
-          setDisplayText(displayText.slice(0, -1));
-        }, 70);
-      } else {
-        setAreaIndex((i) => (i + 1) % HERO_AREAS.length);
-        setTyping(true);
-      }
+      setShowOptions(true);
+      timeout = setTimeout(() => {
+        setShowOptions(false);
+        setTyped("");
+        setPhase((prev) => (prev + 1) % TYPED_SEQUENCES.length);
+      }, 2200);
     }
     return () => clearTimeout(timeout);
-  }, [displayText, typing, areaIndex]);
-
-  useEffect(() => {
-    if (typing) setDisplayText("");
-  }, [areaIndex]);
+  }, [typed, phase]);
 
   // Estados para estatísticas (placeholder por enquanto)
   const [stats, setStats] = useState<StatsType>({ users: 45, disciplines: 120, areas: 6 });
@@ -138,39 +140,113 @@ const AcademicIndexPage = () => {
       {/* Hero Section - Academic */}
       <section className="relative min-h-screen flex items-center bg-gradient-to-b from-cm-academic/80 via-cm-academic/10 to-cm-bg">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
+          {/* Content - Janela de busca estilo Google com aba CM */}
+          <div className="flex-1 flex flex-col items-center justify-center order-2 md:order-1">
+            <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-2xl py-24 px-8 flex flex-col items-center border border-gray-200 relative">
+              {/* Falsa abinha superior à esquerda */}
+              <div className="absolute left-5 -top-8 z-0">
+                <svg width="180" height="60" viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M0 30 Q15 12 30 10 H145 Q160 10 175 30 V60 H0 Z"
+                    fill="#e5e7eb"
+                    stroke="#d1d5db"
+                    strokeWidth="1"
+                  />
+                </svg>
+                <div className="absolute top-3 right-6 text-sm font-semibold text-gray-400 select-none">x</div>
+              </div>
+              {/* Falsa barra superior */}
+              <div className="absolute left-0 top-0 w-full h-12 flex items-center px-6 rounded-t-2xl bg-gray-100 border-b border-gray-300 z-10"
+                   style={{ borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem' }}>
+                {/* Setinhas fake */}
+                <div className="flex items-center gap-2">
+                  <span className="inline-block text-gray-400 text-lg font-bold select-none">&larr;</span>
+                  <span className="inline-block px-2 text-gray-400 text-lg font-bold select-none">&rarr;</span>
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <span className="bg-white w-full px-4 py-1 rounded text-gray-400 text-sm select-none shadow-sm border border-gray-200 text-center">
+                    https://molecoogle.com
+                  </span>
+                </div>
+              </div>
+              {/* Espaço para aba */}
+              <div style={{ height: "1rem" }} />
+              {/* Logo fake Molecoogle */}
+              <div className="flex items-center gap-1 mb-8 mt-2">
+                <span className="text-3xl font-bold text-[#4285F4]">M</span>
+                <span className="text-3xl font-bold text-[#EA4335]">o</span>
+                <span className="text-3xl font-bold text-[#FBBC05]">l</span>
+                <span className="text-3xl font-bold text-[#4285F4]">e</span>
+                <span className="text-3xl font-bold text-[#34A853]">c</span>
+                <span className="text-3xl font-bold text-[#EA4335]">o</span>
+                <span className="text-3xl font-bold text-[#4285F4]">o</span>
+                <span className="text-3xl font-bold text-[#FBBC05]">g</span>
+                <span className="text-3xl font-bold text-[#34A853]">l</span>
+                <span className="text-3xl font-bold text-[#EA4335]">e</span>
+              </div>
+              <div className="w-full flex flex-col items-center">
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    className="w-full px-6 py-4 rounded-full border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-cm-academic text-xl bg-gray-50"
+                    value={typed}
+                    readOnly
+                    placeholder="Faça uma pergunta..."
+                    autoComplete="off"
+                  />
+                  <span className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Search className="w-6 h-6" />
+                  </span>
+                  {/* Autocomplete options */}
+                  {showOptions && (
+                    <ul className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
+                      {TYPED_SEQUENCES[phase].suggestions.map((option) => {
+                        const typedLower = typed.toLowerCase();
+                        const optionLower = option.toLowerCase();
+                        const startIdx = optionLower.indexOf(typedLower);
+                        let before = startIdx >= 0 ? option.slice(0, startIdx) : "";
+                        let match = startIdx >= 0 ? option.slice(startIdx, startIdx + typed.length) : "";
+                        let after = startIdx >= 0 ? option.slice(startIdx + typed.length) : option;
+
+                        // Remove espaço extra entre bold e o restante
+                        let afterWithSpace = after;
+                        if (
+                          afterWithSpace &&
+                          match &&
+                          match.length > 0 &&
+                          match[match.length - 1] === " " &&
+                          afterWithSpace[0] === " "
+                        ) {
+                          afterWithSpace = afterWithSpace.slice(1);
+                        }
+
+                        return (
+                          <li key={option} className="px-6 py-3 text-gray-700">
+                            {startIdx >= 0 ? (
+                              <>
+                                {before}
+                                <span className="font-bold whitespace-nowrap">{match}</span>
+                                {afterWithSpace}
+                              </>
+                            ) : (
+                              option
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
           {/* Logo */}
-          <div className="flex-1 flex justify-center md:mb-0">
+          <div className="flex-1 flex justify-center order-1 md:order-2 md:mb-0">
             <img
               src="/images/home.png"
               alt="Ciências Moleculares"
               className="w-80 md:w-[34rem] lg:w-[40rem] h-auto"
             />
-          </div>
-          {/* Content */}
-          <div className="flex-1 flex flex-col items-start">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8">
-              Ciclo Avançado,<br />
-              {(() => {
-                const artigo =
-                  HERO_AREAS[areaIndex].name === "Universo" ? "o " : "a ";
-                return (
-                  <>
-                    domine {artigo} 
-                    <span
-                      className={`destaque border-r-2 border-current pr-2 transition-colors duration-500 ${HERO_AREAS[areaIndex].color}`}
-                    >
-                      {displayText}
-                    </span>
-                  </>
-                );
-              })()}
-            </h1>
-            <p className="subtexto text-xl md:text-2xl lg:text-3xl text-gray-700 max-w-2xl mb-10">
-              Organize sua grade, encontre disciplinas e conecte-se com colegas do Ciências Moleculares USP.
-            </p>
-            <Button asChild className="botao bg-cm-academic hover:bg-cm-academic/80 text-cm-bg rounded-2xl px-10 py-5 text-xl md:text-2xl font-bold shadow-lg">
-              <Link to="/academico/grade">Montar Grade</Link>
-            </Button>
           </div>
         </div>
       </section>

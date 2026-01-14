@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "csv-parser": "^3.2.0",
-    "framer-motion": "^12.23.12"
+    "formdata-node": "^6.0.3",
+    "framer-motion": "^12.23.12",
+    "undici": "^7.18.2",
+    "web-file-polyfill": "^1.0.4"
   }
 }
