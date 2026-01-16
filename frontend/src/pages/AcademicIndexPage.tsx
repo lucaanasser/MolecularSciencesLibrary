@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb } from "lucide-react";
+import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
@@ -307,7 +307,7 @@ const AcademicIndexPage = () => {
       <div className="py-40 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-5xl text-center mb-16">Recursos disponíveis</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Card 1 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-cm-bg">
@@ -339,6 +339,21 @@ const AcademicIndexPage = () => {
               </Button>
             </div>
             {/* Card 3 */}
+            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-academic border-8 border-cm-bg">
+                <MessageSquare className="h-10 w-10 text-cm-bg" />
+              </div>
+              <h3 className="text-2xl mb-2">MolecOverflow</h3>
+              <p className="text-gray-600 mb-4 text-base">
+                Fórum de dúvidas sobre o curso, créditos, projetos e orientadores.
+              </p>
+              <div className="flex flex-col items-center mb-4">
+              </div>
+              <Button asChild className="w-full bg-cm-academic hover:bg-cyan-600 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+                <Link to="/forum">Acessar Fórum</Link>
+              </Button>
+            </div>
+            {/* Card 4 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
                 <GraduationCap className="h-10 w-10 text-cm-bg" />

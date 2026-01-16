@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, User, LogIn } from "lucide-react";
+import { Menu, User, LogIn, UserCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,6 +40,7 @@ const Navigation: React.FC = () => {
         { to: "/academico", label: "Início" },
         { to: "/academico/buscar", label: "Buscar" },
         { to: "/academico/grade", label: "Montar Grade" },
+        { to: "/forum", label: "Fórum" },
         { to: "/academico/faq", label: "FAQ" },
       ]
     : [
@@ -176,15 +177,31 @@ const Navigation: React.FC = () => {
                     <span className="ml-2">{user.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white text-neutral-900">
-                  <DropdownMenuItem onClick={handleProfileClick} className="hover:bg-neutral-100 focus:bg-neutral-100">
+                <DropdownMenuContent align="end" className="bg-white text-neutral-900 min-w-[180px]">
+                  {user.role !== "admin" && user.role !== "proaluno" && (
+                    <DropdownMenuItem 
+                      onClick={() => navigate("/minha-pagina")}
+                      className="hover:bg-neutral-100 focus:bg-neutral-100 flex items-center gap-2"
+                    >
+                      <UserCircle size={16} />
+                      Página Pessoal
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem 
+                    onClick={handleProfileClick} 
+                    className="hover:bg-neutral-100 focus:bg-neutral-100 flex items-center gap-2"
+                  >
+                    <Settings size={16} />
                     {user.role === "admin"
                       ? "Painel Admin"
                       : user.role === "proaluno"
                       ? "Painel PróAluno"
-                      : "Perfil"}
+                      : "Minha Conta"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 hover:bg-red-50 focus:bg-red-50 hover:text-red-700 focus:text-red-700">
+                  <DropdownMenuItem 
+                    onClick={handleLogout} 
+                    className="text-red-600 hover:bg-red-50 focus:bg-red-50 hover:text-red-700 focus:text-red-700"
+                  >
                     Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -272,19 +289,33 @@ const Navigation: React.FC = () => {
               )}
               {user ? (
                 <>
+                  {user.role !== "admin" && user.role !== "proaluno" && (
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        navigate("/minha-pagina");
+                        console.log("🟢 [Navigation] Menu mobile fechado (Página Pessoal)");
+                      }}
+                      className={`block w-full text-left px-3 py-2 rounded-md text-white ${hoverBg} flex items-center gap-2`}
+                    >
+                      <UserCircle size={18} />
+                      Página Pessoal
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
                       handleProfileClick();
-                      console.log("🟢 [Navigation] Menu mobile fechado (Perfil)");
+                      console.log("🟢 [Navigation] Menu mobile fechado (Minha Conta)");
                     }}
-                    className={`block w-full text-left px-3 py-2 rounded-md text-white ${hoverBg}`}
+                    className={`block w-full text-left px-3 py-2 rounded-md text-white ${hoverBg} flex items-center gap-2`}
                   >
+                    <Settings size={18} />
                     {user.role === "admin"
                       ? "Painel Admin"
                       : user.role === "proaluno"
                       ? "Portal Pró Aluno"
-                      : "Perfil"}
+                      : "Minha Conta"}
                   </button>
                   <button
                     onClick={() => {
