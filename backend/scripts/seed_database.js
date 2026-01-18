@@ -135,6 +135,256 @@ const DONATORS = [
     { name: 'Fundação de Amparo à Pesquisa', donation_type: 'money', amount: 10000.00, notes: 'Verba para biblioteca' },
 ];
 
+// =====================================================
+// FORUM - Dados do fórum (migrados do frontend mockado)
+// =====================================================
+
+const FORUM_TAGS = [
+    // Acadêmico
+    { nome: 'créditos', topico: 'academico', descricao: 'Dúvidas sobre créditos para formatura' },
+    { nome: 'projeto-avançado', topico: 'academico', descricao: 'TCC, MAC0499 e projetos de conclusão' },
+    { nome: 'orientador', topico: 'academico', descricao: 'Como encontrar e trabalhar com orientadores' },
+    { nome: 'formatura', topico: 'academico', descricao: 'Requisitos e processos de formatura' },
+    { nome: 'iniciação-científica', topico: 'academico', descricao: 'IC, bolsas e pesquisa' },
+    { nome: 'grade-curricular', topico: 'academico', descricao: 'Mudanças na grade e disciplinas' },
+    { nome: 'optativas', topico: 'academico', descricao: 'Recomendações de optativas' },
+    { nome: 'tcc', topico: 'academico', descricao: 'Trabalho de conclusão de curso' },
+    { nome: 'pré-requisitos', topico: 'academico', descricao: 'Pré-requisitos de disciplinas' },
+    { nome: 'intercâmbio', topico: 'academico', descricao: 'Programas de intercâmbio' },
+    { nome: 'mac0499', topico: 'academico', descricao: 'Disciplina de Trabalho de Formatura' },
+    { nome: 'estágio', topico: 'academico', descricao: 'Estágios obrigatórios e opcionais' },
+    { nome: 'monitoria', topico: 'academico', descricao: 'Programa de monitoria (PAE)' },
+    { nome: 'mestrado', topico: 'academico', descricao: 'Pós-graduação stricto sensu' },
+    { nome: 'bolsas', topico: 'academico', descricao: 'Bolsas de estudo e auxílios' },
+    
+    // Administrativo
+    { nome: 'matrícula', topico: 'administrativo', descricao: 'Processo de matrícula' },
+    { nome: 'trancamento', topico: 'administrativo', descricao: 'Trancamento de disciplinas e curso' },
+    { nome: 'documentos', topico: 'administrativo', descricao: 'Emissão de documentos e declarações' },
+    { nome: 'prazos', topico: 'administrativo', descricao: 'Prazos acadêmicos e administrativos' },
+    { nome: 'transferência', topico: 'administrativo', descricao: 'Transferência entre cursos' },
+    
+    // Técnico
+    { nome: 'júpiter', topico: 'tecnico', descricao: 'Sistema Júpiter USP' },
+    { nome: 'machine-learning', topico: 'tecnico', descricao: 'Aprendizado de máquina' },
+    { nome: 'python', topico: 'tecnico', descricao: 'Linguagem de programação Python' },
+    { nome: 'javascript', topico: 'tecnico', descricao: 'Linguagem de programação JavaScript' },
+    { nome: 'java', topico: 'tecnico', descricao: 'Linguagem de programação Java' },
+    { nome: 'c', topico: 'tecnico', descricao: 'Linguagem de programação C' },
+    { nome: 'algoritmos', topico: 'tecnico', descricao: 'Estruturas de dados e algoritmos' },
+    { nome: 'banco-de-dados', topico: 'tecnico', descricao: 'Sistemas de gerenciamento de banco de dados' },
+    { nome: 'redes', topico: 'tecnico', descricao: 'Redes de computadores' },
+    { nome: 'sistemas-operacionais', topico: 'tecnico', descricao: 'Sistemas operacionais' },
+    
+    // Biblioteca
+    { nome: 'empréstimo', topico: 'biblioteca', descricao: 'Empréstimos de livros e materiais' },
+    { nome: 'renovação', topico: 'biblioteca', descricao: 'Renovação de empréstimos' },
+    { nome: 'reserva', topico: 'biblioteca', descricao: 'Reserva de livros' },
+    { nome: 'multa', topico: 'biblioteca', descricao: 'Multas e atrasos' },
+    { nome: 'doação', topico: 'biblioteca', descricao: 'Doações de livros e materiais' },
+    { nome: 'acervo', topico: 'biblioteca', descricao: 'Consultas sobre o acervo' },
+    { nome: 'horário-biblioteca', topico: 'biblioteca', descricao: 'Horários de funcionamento' },
+    
+    // Carreira
+    { nome: 'carreira', topico: 'carreira', descricao: 'Desenvolvimento de carreira profissional' },
+    { nome: 'entrevista', topico: 'carreira', descricao: 'Dicas para entrevistas de emprego' },
+    { nome: 'currículo', topico: 'carreira', descricao: 'Elaboração de currículo' },
+    { nome: 'linkedin', topico: 'carreira', descricao: 'Perfil profissional no LinkedIn' },
+    { nome: 'emprego', topico: 'carreira', descricao: 'Busca por oportunidades de trabalho' },
+    { nome: 'freelancer', topico: 'carreira', descricao: 'Trabalho freelancer e autônomo' },
+    
+    // Eventos
+    { nome: 'eventos', topico: 'eventos', descricao: 'Eventos da biblioteca e IME' },
+    { nome: 'palestras', topico: 'eventos', descricao: 'Palestras e seminários' },
+    { nome: 'workshops', topico: 'eventos', descricao: 'Workshops e cursos' },
+    { nome: 'hackathon', topico: 'eventos', descricao: 'Hackathons e competições' },
+    { nome: 'semana-da-computação', topico: 'eventos', descricao: 'Semana da Computação' },
+    
+    // Geral
+    { nome: 'modelos', topico: 'geral', descricao: 'Templates e modelos de documentos' },
+    { nome: 'recomendações', topico: 'geral', descricao: 'Recomendações gerais' },
+    { nome: 'experiência', topico: 'geral', descricao: 'Experiências e relatos' },
+    { nome: 'dúvida', topico: 'geral', descricao: 'Dúvidas gerais' },
+    { nome: 'iniciante', topico: 'geral', descricao: 'Questões para iniciantes' },
+    { nome: 'veterano', topico: 'geral', descricao: 'Dicas de veteranos' },
+    { nome: 'vida-universitária', topico: 'geral', descricao: 'Vida universitária e adaptação' },
+];
+
+// Perguntas do fórum (migradas do ForumPage.tsx)
+// autorId será mapeado para os usuários de seed (NUSP 3-8)
+const FORUM_QUESTIONS = [
+    {
+        titulo: 'Quantos créditos preciso para formar?',
+        conteudo: 'Estou no 3º ano e ainda não entendi direito quantos créditos preciso completar. Alguém pode explicar de forma clara? Vi no Júpiter mas está confuso...',
+        autorNusp: 3, // Teste Aluno 1
+        views: 234,
+        votos: 12,
+        tags: ['créditos', 'formatura', 'júpiter'],
+        createdAgo: '2 hours',
+    },
+    {
+        titulo: 'Como encontrar um orientador para o TCC?',
+        conteudo: 'Estou no último ano e preciso encontrar um orientador para o TCC. Qual a melhor forma de abordar um professor? Tem algum template de email?',
+        autorNusp: 4, // Teste Aluno 2
+        views: 189,
+        votos: 23,
+        tags: ['orientador', 'tcc', 'projeto-avançado'],
+        createdAgo: '5 hours',
+    },
+    {
+        titulo: 'Modelo de projeto de MAC0499 (avançado)',
+        conteudo: 'Alguém tem um exemplo de projeto de avançado aprovado? Quero ter uma ideia de como estruturar o meu. Qualquer área serve!',
+        autorNusp: 5, // Teste Aluno 3
+        views: 456,
+        votos: 8,
+        tags: ['projeto-avançado', 'mac0499', 'modelos'],
+        createdAgo: '1 day',
+    },
+    {
+        titulo: 'Iniciação científica conta como crédito?',
+        conteudo: 'Estou fazendo IC há 6 meses e queria saber se isso conta como crédito-aula ou crédito-trabalho para a formatura. Alguém sabe?',
+        autorNusp: 6, // Teste Aluno 4
+        views: 123,
+        votos: 15,
+        tags: ['créditos', 'iniciação-científica', 'formatura'],
+        createdAgo: '2 days',
+    },
+    {
+        titulo: 'Optativas recomendadas para quem gosta de ML',
+        conteudo: 'Quero me aprofundar em Machine Learning. Quais optativas vocês recomendam? Já fiz MAC0460.',
+        autorNusp: 7, // Teste Aluno 5
+        views: 567,
+        votos: 31,
+        tags: ['optativas', 'machine-learning', 'recomendações'],
+        createdAgo: '3 days',
+    },
+    {
+        titulo: 'Grade curricular mudou? Como isso me afeta?',
+        conteudo: 'Entrei em 2023 e vi que a grade mudou em 2024. Isso afeta quem já estava matriculado? Posso seguir a nova grade se eu quiser?',
+        autorNusp: 8, // Teste Aluno 6
+        views: 89,
+        votos: 6,
+        tags: ['grade-curricular', 'formatura'],
+        createdAgo: '4 days',
+    },
+    {
+        titulo: 'Como funciona o sistema de pré-requisitos?',
+        conteudo: 'Não consigo me matricular em MAC0338 mas já fiz todas as disciplinas listadas como pré-requisito. O que pode estar acontecendo?',
+        autorNusp: 3, // Teste Aluno 1
+        views: 178,
+        votos: 9,
+        tags: ['pré-requisitos', 'matrícula', 'júpiter'],
+        createdAgo: '5 days',
+    },
+    {
+        titulo: 'Vale a pena fazer intercâmbio?',
+        conteudo: 'Estou pensando em fazer intercâmbio no 4º ano. Alguém tem experiência? Como funciona a validação de créditos?',
+        autorNusp: 4, // Teste Aluno 2
+        views: 234,
+        votos: 42,
+        tags: ['intercâmbio', 'créditos', 'experiência'],
+        createdAgo: '1 week',
+    },
+];
+
+// Respostas do fórum
+const FORUM_ANSWERS = [
+    // Respostas para pergunta 1 (créditos para formar)
+    {
+        questionIndex: 0,
+        conteudo: 'Para BCC são 240 créditos no total, sendo pelo menos 156 em disciplinas obrigatórias. O resto você completa com optativas.',
+        autorNusp: 5,
+        votos: 8,
+        isAccepted: true,
+        createdAgo: '1 hour',
+    },
+    {
+        questionIndex: 0,
+        conteudo: 'Complementando: você pode ver o resumo no Júpiter em "Histórico Escolar" > "Resumo". Lá mostra quantos créditos você já tem e quantos faltam.',
+        autorNusp: 6,
+        votos: 5,
+        isAccepted: false,
+        createdAgo: '30 minutes',
+    },
+    // Respostas para pergunta 2 (orientador TCC)
+    {
+        questionIndex: 1,
+        conteudo: 'Eu mandei email para vários professores explicando meu interesse na área de pesquisa deles. Fui rejeitado por uns 3 antes de conseguir. Não desanime!',
+        autorNusp: 7,
+        votos: 12,
+        isAccepted: true,
+        createdAgo: '4 hours',
+    },
+    {
+        questionIndex: 1,
+        conteudo: 'Dica: vá nas aulas de optativas avançadas e converse com os professores pessoalmente. É muito mais efetivo que email.',
+        autorNusp: 8,
+        votos: 7,
+        isAccepted: false,
+        createdAgo: '3 hours',
+    },
+    // Respostas para pergunta 4 (IC conta como crédito)
+    {
+        questionIndex: 3,
+        conteudo: 'IC conta como crédito-trabalho! São 2 créditos por semestre de bolsa. Você precisa pedir para o orientador lançar no sistema.',
+        autorNusp: 4,
+        votos: 10,
+        isAccepted: true,
+        createdAgo: '1 day',
+    },
+    // Respostas para pergunta 5 (optativas ML)
+    {
+        questionIndex: 4,
+        conteudo: 'MAC0459 (Data Science) e MAC0318 (Robótica) são excelentes! Se puder, faça também algo de estatística no IME.',
+        autorNusp: 3,
+        votos: 15,
+        isAccepted: true,
+        createdAgo: '2 days',
+    },
+    {
+        questionIndex: 4,
+        conteudo: 'Recomendo também MAC0425 (Inteligência Artificial) se ainda não fez. É base importante para ML.',
+        autorNusp: 6,
+        votos: 9,
+        isAccepted: false,
+        createdAgo: '2 days',
+    },
+    // Respostas para pergunta 7 (pré-requisitos)
+    {
+        questionIndex: 6,
+        conteudo: 'Às vezes o sistema demora para atualizar. Tenta esperar uns dias e ver se resolve. Se não, vai na seção de alunos.',
+        autorNusp: 8,
+        votos: 4,
+        isAccepted: false,
+        createdAgo: '4 days',
+    },
+    {
+        questionIndex: 6,
+        conteudo: 'Pode ser pré-requisito fraco (só recomendado) vs forte (obrigatório). Verifica no programa da disciplina.',
+        autorNusp: 5,
+        votos: 6,
+        isAccepted: true,
+        createdAgo: '4 days',
+    },
+    // Respostas para pergunta 8 (intercâmbio)
+    {
+        questionIndex: 7,
+        conteudo: 'Fiz intercâmbio na Alemanha e foi a melhor decisão! A validação de créditos pode ser burocrática, mas vale muito a pena.',
+        autorNusp: 6,
+        votos: 18,
+        isAccepted: true,
+        createdAgo: '6 days',
+    },
+    {
+        questionIndex: 7,
+        conteudo: 'Dica: escolha universidades que já tenham convênio com o IME. Facilita muito a validação.',
+        autorNusp: 7,
+        votos: 11,
+        isAccepted: false,
+        createdAgo: '5 days',
+    },
+];
+
 // Função para gerar código de livro
 function generateBookCode(area, subarea, seq, volume) {
     const areaCodes = {
@@ -439,6 +689,197 @@ async function seedBadges() {
     }
 }
 
+// =====================================================
+// FORUM SEED - Perguntas, respostas, tags e votos
+// =====================================================
+
+async function seedForum() {
+    console.log('\n💬 Criando dados do fórum...');
+    
+    // Verificar se tabelas existem
+    const tableCheck = await getQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='forum_questions'");
+    if (!tableCheck) {
+        console.log('  ⚠️  Tabelas do fórum não existem. Execute initDb primeiro.');
+        return { questions: 0, answers: 0, tags: 0 };
+    }
+
+    // Verificar se já tem dados
+    const existingQuestions = await getQuery('SELECT COUNT(*) as count FROM forum_questions');
+    if (existingQuestions && existingQuestions.count > 0) {
+        console.log(`  ⏭️  Fórum já tem ${existingQuestions.count} perguntas. Pulando seed.`);
+        return { questions: existingQuestions.count, answers: 0, tags: 0 };
+    }
+
+    // Criar mapa de NUSP para ID de usuário
+    const userMap = {};
+    for (let nusp = 3; nusp <= 8; nusp++) {
+        const user = await getQuery('SELECT id FROM users WHERE NUSP = ?', [nusp]);
+        if (user) {
+            userMap[nusp] = user.id;
+        }
+    }
+
+    // 1. Criar tags
+    console.log('  📌 Criando tags...');
+    const tagIdMap = {};
+    for (const tag of FORUM_TAGS) {
+        try {
+            await runQuery(
+                'INSERT INTO forum_tags (nome, topico, descricao, approved, created_at) VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)',
+                [tag.nome, tag.topico, tag.descricao]
+            );
+            const created = await getQuery('SELECT id FROM forum_tags WHERE nome = ?', [tag.nome]);
+            if (created) {
+                tagIdMap[tag.nome] = created.id;
+            }
+        } catch (err) {
+            // Tag pode já existir
+            const existing = await getQuery('SELECT id FROM forum_tags WHERE nome = ?', [tag.nome]);
+            if (existing) {
+                tagIdMap[tag.nome] = existing.id;
+            }
+        }
+    }
+    console.log(`     ✅ ${Object.keys(tagIdMap).length} tags criadas/encontradas`);
+
+    // Função helper para converter tempo relativo em data
+    function getDateFromAgo(agoString) {
+        const now = new Date();
+        const match = agoString.match(/(\d+)\s*(hour|minute|day|week|month)/i);
+        if (!match) return now;
+        
+        const value = parseInt(match[1]);
+        const unit = match[2].toLowerCase();
+        
+        switch (unit) {
+            case 'minute':
+                return new Date(now.getTime() - value * 60 * 1000);
+            case 'hour':
+                return new Date(now.getTime() - value * 60 * 60 * 1000);
+            case 'day':
+                return new Date(now.getTime() - value * 24 * 60 * 60 * 1000);
+            case 'week':
+                return new Date(now.getTime() - value * 7 * 24 * 60 * 60 * 1000);
+            case 'month':
+                return new Date(now.getTime() - value * 30 * 24 * 60 * 60 * 1000);
+            default:
+                return now;
+        }
+    }
+
+    // 2. Criar perguntas
+    console.log('  ❓ Criando perguntas...');
+    const questionIdMap = [];
+    for (let i = 0; i < FORUM_QUESTIONS.length; i++) {
+        const q = FORUM_QUESTIONS[i];
+        const autorId = userMap[q.autorNusp];
+        
+        if (!autorId) {
+            console.log(`     ⚠️  Autor NUSP ${q.autorNusp} não encontrado, pulando pergunta`);
+            questionIdMap.push(null);
+            continue;
+        }
+
+        try {
+            const createdAt = getDateFromAgo(q.createdAgo);
+            
+            await runQuery(
+                `INSERT INTO forum_questions (titulo, conteudo, autor_id, votos, views, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [q.titulo, q.conteudo, autorId, q.votos, q.views, createdAt.toISOString(), createdAt.toISOString()]
+            );
+            
+            const created = await getQuery('SELECT id FROM forum_questions WHERE titulo = ?', [q.titulo]);
+            if (created) {
+                questionIdMap.push(created.id);
+                
+                // Adicionar tags à pergunta
+                for (const tagName of q.tags) {
+                    const tagId = tagIdMap[tagName];
+                    if (tagId) {
+                        await runQuery(
+                            'INSERT OR IGNORE INTO forum_question_tags (question_id, tag_id) VALUES (?, ?)',
+                            [created.id, tagId]
+                        );
+                    }
+                }
+            } else {
+                questionIdMap.push(null);
+            }
+        } catch (err) {
+            console.error(`     ❌ Erro ao criar pergunta "${q.titulo.substring(0, 30)}...":`, err.message);
+            questionIdMap.push(null);
+        }
+    }
+    console.log(`     ✅ ${questionIdMap.filter(id => id !== null).length} perguntas criadas`);
+
+    // 3. Criar respostas
+    console.log('  💡 Criando respostas...');
+    let answersCreated = 0;
+    for (const answer of FORUM_ANSWERS) {
+        const questionId = questionIdMap[answer.questionIndex];
+        const autorId = userMap[answer.autorNusp];
+        
+        if (!questionId || !autorId) {
+            continue;
+        }
+
+        try {
+            const createdAt = getDateFromAgo(answer.createdAgo);
+            
+            await runQuery(
+                `INSERT INTO forum_answers (question_id, conteudo, autor_id, votos, is_accepted, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [questionId, answer.conteudo, autorId, answer.votos, answer.isAccepted ? 1 : 0, createdAt.toISOString(), createdAt.toISOString()]
+            );
+            answersCreated++;
+        } catch (err) {
+            console.error(`     ❌ Erro ao criar resposta:`, err.message);
+        }
+    }
+    console.log(`     ✅ ${answersCreated} respostas criadas`);
+
+    // 4. Criar alguns votos de exemplo (para simular interação)
+    console.log('  👍 Criando votos de exemplo...');
+    let votesCreated = 0;
+    
+    // Votos em perguntas
+    for (let i = 0; i < questionIdMap.length; i++) {
+        const questionId = questionIdMap[i];
+        if (!questionId) continue;
+        
+        // Cada usuário pode votar em perguntas de outros
+        for (let nusp = 3; nusp <= 8; nusp++) {
+            const userId = userMap[nusp];
+            const questionAutorNusp = FORUM_QUESTIONS[i].autorNusp;
+            
+            // Não pode votar na própria pergunta
+            if (nusp === questionAutorNusp || !userId) continue;
+            
+            // 60% de chance de votar
+            if (Math.random() < 0.6) {
+                try {
+                    const voteType = Math.random() < 0.85 ? 1 : -1; // 85% upvote, 15% downvote
+                    await runQuery(
+                        'INSERT OR IGNORE INTO forum_votes (user_id, votable_type, votable_id, vote_type, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
+                        [userId, 'question', questionId, voteType]
+                    );
+                    votesCreated++;
+                } catch (err) {
+                    // Ignorar erros de duplicata
+                }
+            }
+        }
+    }
+    console.log(`     ✅ ${votesCreated} votos criados`);
+
+    return { 
+        questions: questionIdMap.filter(id => id !== null).length, 
+        answers: answersCreated, 
+        tags: Object.keys(tagIdMap).length 
+    };
+}
+
 // Execução Principal
 async function main() {
     console.log('🚀 Iniciando seed do banco de dados...\n');
@@ -451,6 +892,7 @@ async function main() {
         await seedDonators();
         await seedLoans();
         await seedBadges();
+        const forumStats = await seedForum();
         
         console.log('\n✅ Seed concluído com sucesso!');
         console.log('\n📋 Resumo:');
@@ -460,8 +902,9 @@ async function main() {
         console.log(`   - ${classesCount || 0} turmas criadas`);
         console.log(`   - ${DONATORS.length} doadores`);
         console.log(`   - Empréstimos e badges criados`);
+        console.log(`   - Fórum: ${forumStats.questions} perguntas, ${forumStats.answers} respostas, ${forumStats.tags} tags`);
         console.log('\n💡 Credenciais de acesso:');
-        console.log('   NUSP 1 = Admin (senha: 1)');
+        console.log('   NUSP 1 = Admin (senha: 1) - MODERADOR DO FÓRUM');
         console.log('   NUSP 2 = ProAluno (senha: 1)');
         console.log('   NUSP 3-8 = Alunos teste (senha: 1)');
         

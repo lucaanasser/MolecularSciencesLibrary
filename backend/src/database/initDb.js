@@ -422,6 +422,128 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela user_custom_disciplines criada com sucesso');
     });
 
+    // =====================================================
+    // FORUM TABLES - Sistema de perguntas e respostas
+    // =====================================================
+
+    // FORUM_QUESTIONS TABLE - Perguntas do fórum
+    db.run(`
+        CREATE TABLE IF NOT EXISTS forum_questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titulo TEXT NOT NULL,
+            conteudo TEXT NOT NULL,
+            autor_id INTEGER NOT NULL,
+            votos INTEGER DEFAULT 0,
+            views INTEGER DEFAULT 0,
+            is_closed INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(autor_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela forum_questions:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela forum_questions criada com sucesso');
+    });
+
+    // FORUM_ANSWERS TABLE - Respostas às perguntas
+    db.run(`
+        CREATE TABLE IF NOT EXISTS forum_answers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            question_id INTEGER NOT NULL,
+            conteudo TEXT NOT NULL,
+            autor_id INTEGER NOT NULL,
+            votos INTEGER DEFAULT 0,
+            is_accepted INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(question_id) REFERENCES forum_questions(id) ON DELETE CASCADE,
+            FOREIGN KEY(autor_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela forum_answers:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela forum_answers criada com sucesso');
+    });
+
+    // FORUM_TAGS TABLE - Tags para categorização
+    db.run(`
+        CREATE TABLE IF NOT EXISTS forum_tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT UNIQUE NOT NULL,
+            topico TEXT NOT NULL,
+            descricao TEXT,
+            created_by_user INTEGER,
+            approved INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(created_by_user) REFERENCES users(id) ON DELETE SET NULL
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela forum_tags:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela forum_tags criada com sucesso');
+    });
+
+    // FORUM_QUESTION_TAGS TABLE - Relacionamento N:N entre perguntas e tags
+    db.run(`
+        CREATE TABLE IF NOT EXISTS forum_question_tags (
+            question_id INTEGER NOT NULL,
+            tag_id INTEGER NOT NULL,
+            PRIMARY KEY (question_id, tag_id),
+            FOREIGN KEY(question_id) REFERENCES forum_questions(id) ON DELETE CASCADE,
+            FOREIGN KEY(tag_id) REFERENCES forum_tags(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela forum_question_tags:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela forum_question_tags criada com sucesso');
+    });
+
+    // FORUM_VOTES TABLE - Votos em perguntas e respostas (polimórfico)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS forum_votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            votable_type TEXT NOT NULL CHECK(votable_type IN ('question', 'answer')),
+            votable_id INTEGER NOT NULL,
+            vote_type INTEGER NOT NULL CHECK(vote_type IN (-1, 1)),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, votable_type, votable_id),
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela forum_votes:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela forum_votes criada com sucesso');
+    });
+
+    // Criar índices para melhor performance do fórum
+    db.run(`CREATE INDEX IF NOT EXISTS idx_forum_questions_autor ON forum_questions(autor_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_questions_autor:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_forum_questions_created ON forum_questions(created_at DESC)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_questions_created:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_forum_questions_votos ON forum_questions(votos DESC)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_questions_votos:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_forum_answers_question ON forum_answers(question_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_answers_question:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_forum_votes_votable ON forum_votes(votable_type, votable_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_votes_votable:', err.message);
+    });
+
     // Função para gerar código de livro no padrão BooksService
     function generateBookCode(area, subarea, seq, volume) {
         const areaCodes = {
