@@ -27,6 +27,7 @@ import CreateDisciplinePage from "./pages/CreateDisciplinePage";
 import ForumPage from "./pages/ForumPage";
 import QuestionDetailPage from "./pages/QuestionDetailPage";
 import NewQuestionPage from "./pages/NewQuestionPage";
+import AdminPendingTagsPage from "./pages/AdminPendingTagsPage";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -93,6 +94,14 @@ const App = () => (
             <Route path="/forum" element={<ForumPage />} />
             <Route path="/forum/:id" element={<QuestionDetailPage />} />
             <Route path="/forum/nova-pergunta" element={<NewQuestionPage />} />
+            <Route 
+              path="/admin/forum/tags/pending" 
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminPendingTagsPage />
+                </ProtectedRoute>
+              } 
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
