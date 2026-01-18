@@ -1,26 +1,48 @@
-import React from "react";
-import { TrendingUp, Star, MessageSquare, Award, AlertCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { TrendingUp, Star, MessageSquare, Award, AlertCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import * as ForumService from "@/services/ForumService";
 
-const ForumSidebar: React.FC = () => {
-  const popularTags = [
-    { name: "créditos", count: 42 },
-    { name: "projeto-avançado", count: 38 },
-    { name: "orientador", count: 31 },
-    { name: "formatura", count: 28 },
-    { name: "iniciação-científica", count: 24 },
-    { name: "grade-curricular", count: 20 },
-    { name: "optativas", count: 18 },
-    { name: "tcc", count: 15 },
-  ];
+interface ForumSidebarProps {
+  onTagClick?: (tagName: string) => void;
+  selectedTag?: string | null;
+}
 
-  const topContributors = [
-    { name: "Ana Silva", pontos: 2834, badges: 3 },
-    { name: "Carlos Mendes", pontos: 1952, badges: 2 },
-    { name: "Beatriz Costa", pontos: 1723, badges: 2 },
-    { name: "João Santos", pontos: 1456, badges: 1 },
-    { name: "Maria Oliveira", pontos: 1203, badges: 1 },
-  ];
+const ForumSidebar: React.FC<ForumSidebarProps> = ({ onTagClick, selectedTag }) => {
+  const [popularTags, setPopularTags] = useState<ForumService.Tag[]>([]);
+  const [topContributors, setTopContributors] = useState<ForumService.TopContributor[]>([]);
+  const [stats, setStats] = useState<ForumService.GlobalStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSidebarData = async () => {
+      try {
+        const [tagsData, contributorsData, statsData] = await Promise.all([
+          ForumService.getPopularTags(),
+          ForumService.getTopContributors(),
+          ForumService.getGlobalStats(),
+        ]);
+        
+        setPopularTags(tagsData);
+        setTopContributors(contributorsData);
+        setStats(statsData);
+      } catch (error) {
+        console.error("Erro ao carregar dados da sidebar:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSidebarData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-cm-academic" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -57,10 +79,17 @@ const ForumSidebar: React.FC = () => {
           {popularTags.map((tag, index) => (
             <button
               key={index}
-              className="bg-cyan-50 text-cyan-700 text-xs px-2 py-1 rounded hover:bg-cyan-100 transition-colors border border-cyan-200"
+              onClick={() => onTagClick?.(tag.nome)}
+              className={`text-xs px-2 py-1 rounded transition-colors border ${
+                selectedTag === tag.nome
+                  ? "bg-cyan-600 text-white border-cyan-600"
+                  : "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
+              }`}
             >
-              {tag.name}
-              <span className="ml-1 text-cyan-600">×{tag.count}</span>
+              {tag.nome}
+              <span className={`ml-1 ${selectedTag === tag.nome ? "text-cyan-100" : "text-cyan-600"}`}>
+                ×{tag.count}
+              </span>
             </button>
           ))}
         </div>
@@ -80,7 +109,7 @@ const ForumSidebar: React.FC = () => {
         <div className="space-y-3">
           {topContributors.map((user, index) => (
             <div
-              key={index}
+              key={user.id}
               className="flex items-center justify-between text-sm hover:bg-gray-50 p-2 rounded transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
@@ -93,9 +122,9 @@ const ForumSidebar: React.FC = () => {
                 <span className="text-gray-600 text-xs">
                   {user.pontos.toLocaleString()}
                 </span>
-                {user.badges > 0 && (
+                {user.pontos >= 100 && (
                   <div className="flex gap-0.5">
-                    {Array.from({ length: user.badges }).map((_, i) => (
+                    {Array.from({ length: Math.min(Math.floor(user.pontos / 100), 5) }).map((_, i) => (
                       <Star
                         key={i}
                         className="w-3 h-3 text-yellow-500 fill-yellow-500"
@@ -120,19 +149,27 @@ const ForumSidebar: React.FC = () => {
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex justify-between">
             <span>Perguntas:</span>
-            <span className="font-semibold text-gray-900">1,234</span>
+            <span className="font-semibold text-gray-900">
+              {stats?.total_questions.toLocaleString() || 0}
+            </span>
           </div>
           <div className="flex justify-between">
             <span>Respostas:</span>
-            <span className="font-semibold text-gray-900">3,456</span>
+            <span className="font-semibold text-gray-900">
+              {stats?.total_answers.toLocaleString() || 0}
+            </span>
           </div>
           <div className="flex justify-between">
             <span>Usuários ativos:</span>
-            <span className="font-semibold text-gray-900">567</span>
+            <span className="font-semibold text-gray-900">
+              {stats?.active_users.toLocaleString() || 0}
+            </span>
           </div>
           <div className="flex justify-between">
             <span>Taxa de resposta:</span>
-            <span className="font-semibold text-green-600">87%</span>
+            <span className="font-semibold text-green-600">
+              {stats?.response_rate ? `${Math.round(stats.response_rate)}%` : "0%"}
+            </span>
           </div>
         </div>
       </motion.div>
