@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, HelpCircle, AlertCircle, Lightbulb } from "lucide-react";
+import { ArrowLeft, HelpCircle, AlertCircle, Lightbulb, Loader2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import * as ForumService from "@/services/ForumService";
+import { toast } from "sonner";
+import CreateTagModal from "@/features/forum/components/CreateTagModal";
 
 const NewQuestionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,21 +15,39 @@ const NewQuestionPage: React.FC = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [availableTags, setAvailableTags] = useState<ForumService.Tag[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
+  const [showCreateTagModal, setShowCreateTagModal] = useState(false);
+  const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
-  const suggestedTags = [
-    "créditos",
-    "formatura",
-    "projeto-avançado",
-    "orientador",
-    "tcc",
-    "optativas",
-    "grade-curricular",
-    "júpiter",
-    "iniciação-científica",
-    "intercâmbio",
-    "pré-requisitos",
-    "matrícula",
-  ];
+  // Verificar se o usuário está logado
+  const isLoggedIn = !!localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      toast.error("Você precisa estar logado para fazer uma pergunta");
+      navigate("/login");
+      return;
+    }
+
+    // Buscar tags disponíveis
+    const fetchTags = async () => {
+      setIsLoadingTags(true);
+      try {
+        const tagsData = await ForumService.getTags();
+        setAvailableTags(tagsData);
+      } catch (error) {
+        console.error("Erro ao carregar tags:", error);
+        toast.error("Erro ao carregar tags sugeridas");
+      } finally {
+        setIsLoadingTags(false);
+      }
+    };
+
+    fetchTags();
+  }, [isLoggedIn, navigate]);
 
   const handleAddTag = (tag: string) => {
     const normalizedTag = tag.toLowerCase().trim();
@@ -43,7 +64,26 @@ const NewQuestionPage: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleAddTag(tagInput);
+      const normalizedInput = tagInput.toLowerCase().trim();
+      
+      // Verificar se a tag já existe
+      const existingTag = availableTags.find(t => t.nome.toLowerCase() === normalizedInput);
+      
+      if (existingTag) {
+        // Tag existe, adicionar normalmente
+        handleAddTag(normalizedInput);
+      } else if (normalizedInput.length >= 2) {
+        // Tag não existe, abrir modal para criar
+        setShowCreateTagModal(true);
+      }
+    }
+  };
+
+  const handleTagCreated = (newTag: ForumService.Tag) => {
+    // Adicionar a nova tag criada à lista de tags da pergunta
+    if (newTag.nome && !tags.includes(newTag.nome) && tags.length < 5) {
+      setTags([...tags, newTag.nome]);
+      setTagInput("");
     }
   };
 
@@ -70,11 +110,27 @@ const NewQuestionPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      console.log("Submitting question:", { titulo, conteudo, tags });
-      // TODO: Implementar submissão para API
-      navigate("/forum");
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const newQuestion = await ForumService.createQuestion({
+        titulo: titulo.trim(),
+        conteudo: conteudo.trim(),
+        tags: tags,
+        is_anonymous: isAnonymous,
+      });
+      
+      toast.success("Pergunta publicada com sucesso!");
+      navigate(`/forum/${newQuestion.id}`);
+    } catch (error: any) {
+      console.error("Erro ao criar pergunta:", error);
+      toast.error(error.message || "Erro ao publicar pergunta. Tente novamente.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -249,23 +305,131 @@ const NewQuestionPage: React.FC = () => {
 
               {/* Suggested Tags */}
               <div className="mt-4">
-                <p className="text-sm text-gray-600 mb-2">Tags sugeridas:</p>
-                <div className="flex flex-wrap gap-2">
-                  {suggestedTags
-                    .filter((tag) => !tags.includes(tag))
-                    .slice(0, 8)
-                    .map((tag, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleAddTag(tag)}
-                        disabled={tags.length >= 5}
-                        className="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-cyan-50 hover:text-cyan-700 hover:border hover:border-cyan-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {tag}
-                      </button>
-                    ))}
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm text-gray-600">
+                    Tags disponíveis {availableTags.length > 0 && `(${availableTags.length})`}:
+                  </p>
+                  <button
+                    onClick={() => setShowCreateTagModal(true)}
+                    type="button"
+                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Criar nova tag
+                  </button>
                 </div>
+                {tagInput.trim().length >= 2 && !availableTags.some(t => t.nome.toLowerCase() === tagInput.toLowerCase().trim()) && (
+                  <div className="mb-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded px-3 py-2">
+                    ✨ Pressione <kbd className="px-1.5 py-0.5 bg-white border border-green-300 rounded text-green-700 font-mono text-xs">Enter</kbd> para criar a tag "{tagInput.trim()}"
+                  </div>
+                )}
+                {isLoadingTags ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-cm-academic" />
+                  </div>
+                ) : availableTags.length === 0 ? (
+                  <div className="p-4 bg-gray-50 rounded-md border border-gray-200 text-center">
+                    <p className="text-sm text-gray-500 py-2">Nenhuma tag disponível. Clique em "Criar nova tag" para adicionar!</p>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-md border border-gray-200">
+                    {/* Agrupar tags por tópico */}
+                    {(() => {
+                      const topicLabels: Record<string, string> = {
+                        'academico': '🎓 Acadêmico',
+                        'administrativo': '📋 Administrativo',
+                        'tecnico': '💻 Técnico',
+                        'eventos': '🎉 Eventos',
+                        'carreira': '💼 Carreira',
+                        'biblioteca': '📚 Biblioteca',
+                        'geral': '🌐 Geral'
+                      };
+
+                      // Agrupar tags por tópico
+                      const tagsByTopic = availableTags
+                        .filter((tag) => !tags.includes(tag.nome))
+                        .reduce((acc, tag) => {
+                          const topic = tag.topico || 'geral';
+                          if (!acc[topic]) acc[topic] = [];
+                          acc[topic].push(tag);
+                          return acc;
+                        }, {} as Record<string, typeof availableTags>);
+
+                      // Ordenar tópicos
+                      const sortedTopics = Object.keys(tagsByTopic).sort();
+
+                      if (sortedTopics.length === 0) {
+                        return (
+                          <div className="p-4 text-center text-sm text-gray-500">
+                            Todas as tags já foram adicionadas!
+                          </div>
+                        );
+                      }
+
+                      const currentTopic = sortedTopics[currentTopicIndex];
+                      const canGoPrev = currentTopicIndex > 0;
+                      const canGoNext = currentTopicIndex < sortedTopics.length - 1;
+
+                      return (
+                        <div className="p-4">
+                          {/* Navegação de tópicos */}
+                          <div className="flex items-center justify-between mb-3">
+                            <button
+                              onClick={() => setCurrentTopicIndex(Math.max(0, currentTopicIndex - 1))}
+                              disabled={!canGoPrev}
+                              type="button"
+                              className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              <ChevronLeft className="w-5 h-5 text-gray-700" />
+                            </button>
+                            
+                            <h4 className="text-sm font-semibold text-gray-700">
+                              {topicLabels[currentTopic] || currentTopic}
+                              <span className="ml-2 text-xs text-gray-500">
+                                ({currentTopicIndex + 1}/{sortedTopics.length})
+                              </span>
+                            </h4>
+
+                            <button
+                              onClick={() => setCurrentTopicIndex(Math.min(sortedTopics.length - 1, currentTopicIndex + 1))}
+                              disabled={!canGoNext}
+                              type="button"
+                              className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              <ChevronRight className="w-5 h-5 text-gray-700" />
+                            </button>
+                          </div>
+
+                          {/* Tags do tópico atual */}
+                          <div className="flex flex-wrap gap-2 min-h-[120px] max-h-[200px] overflow-y-auto p-2">
+                            {tagsByTopic[currentTopic].map((tag, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleAddTag(tag.nome)}
+                                disabled={tags.length >= 5}
+                                type="button"
+                                className="bg-white text-gray-700 px-3 py-1.5 rounded border border-gray-300 text-sm hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-fit"
+                              >
+                                <span>{tag.nome}</span>
+                                {(tag.count || 0) > 0 && (
+                                  <span className="text-xs text-gray-400">({tag.count})</span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
+
+              {/* Create Tag Modal */}
+              <CreateTagModal
+                isOpen={showCreateTagModal}
+                onClose={() => setShowCreateTagModal(false)}
+                onTagCreated={handleTagCreated}
+              />
             </motion.div>
 
             {/* Submit Buttons */}
@@ -273,19 +437,38 @@ const NewQuestionPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="flex gap-3 justify-end"
+              className="space-y-3"
             >
-              <Link to="/forum">
-                <button className="px-6 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors">
-                  Cancelar
+              {/* Anonymous Checkbox */}
+              <div className="flex items-center gap-2 pl-1">
+                <input
+                  type="checkbox"
+                  id="anonymous"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="w-4 h-4 text-cm-academic border-gray-300 rounded focus:ring-cyan-500 cursor-pointer"
+                />
+                <label htmlFor="anonymous" className="text-sm text-gray-700 cursor-pointer">
+                  Postar anonimamente (apenas o admin verá seu nome)
+                </label>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 justify-end">
+                <Link to="/forum">
+                  <button className="px-6 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors">
+                    Cancelar
+                  </button>
+                </Link>
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="px-6 py-2.5 bg-cm-academic hover:bg-cyan-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md font-medium transition-colors shadow-md flex items-center gap-2"
+                >
+                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {submitting ? "Publicando..." : "Publicar Pergunta"}
                 </button>
-              </Link>
-              <button
-                onClick={handleSubmit}
-                className="px-6 py-2.5 bg-cm-academic hover:bg-cyan-600 text-white rounded-md font-medium transition-colors shadow-md"
-              >
-                Publicar Pergunta
-              </button>
+              </div>
             </motion.div>
           </div>
 
