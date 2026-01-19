@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GradeSlot, DIAS_SEMANA, DIA_LABELS } from '@/hooks/useGrade';
 
@@ -10,6 +10,7 @@ interface GradeGridProps {
   onRemoveSlot?: (slot: GradeSlot) => void;
   onSlotClick?: (slot: GradeSlot) => void;
   readOnly?: boolean;
+  conflictingSlotIds?: Set<number>;
 }
 
 // Altura por hora em pixels (compacta para caber na tela)
@@ -24,7 +25,8 @@ export function GradeGrid({
   timeRange,
   onRemoveSlot,
   onSlotClick,
-  readOnly = false
+  readOnly = false,
+  conflictingSlotIds = new Set()
 }: GradeGridProps) {
   // Converte horário para posição vertical em pixels
   const timeToPosition = useCallback((time: string): number => {
@@ -110,6 +112,7 @@ export function GradeGrid({
                 {slotsByDay[dia]?.map(slot => {
                   const height = getSlotHeight(slot.horario_inicio, slot.horario_fim);
                   const isSmall = height < 35;
+                  const hasConflict = conflictingSlotIds.has(slot.id);
                   
                   return (
                     <motion.div
@@ -118,16 +121,25 @@ export function GradeGrid({
                       animate={{ opacity: 1, scale: 1 }}
                       className={cn(
                         "absolute left-0.5 right-0.5 rounded overflow-hidden cursor-pointer group",
-                        "transition-all duration-150 hover:z-10 hover:shadow-lg hover:scale-[1.02]"
+                        "transition-all duration-150 hover:z-10 hover:shadow-lg hover:scale-[1.02]",
+                        hasConflict && "ring-2 ring-red-500 ring-offset-1 animate-pulse"
                       )}
                       style={{
                         top: timeToPosition(slot.horario_inicio),
                         height: height - 1,
-                        backgroundColor: slot.color,
+                        backgroundColor: hasConflict ? '#ef4444' : slot.color,
                       }}
                       onClick={() => onSlotClick?.(slot)}
+                      title={hasConflict ? '⚠️ Conflito de horário!' : `${slot.disciplina_nome} - T${slot.turma_codigo}`}
                     >
                       <div className="h-full flex flex-col justify-center px-1 py-0.5 text-white">
+                        {/* Ícone de conflito */}
+                        {hasConflict && (
+                          <div className="absolute top-0.5 left-0.5">
+                            <AlertTriangle className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                        
                         {/* Horário (topo) */}
                         <div className="text-[9px] opacity-90 leading-none">
                           {slot.horario_inicio}-{slot.horario_fim}

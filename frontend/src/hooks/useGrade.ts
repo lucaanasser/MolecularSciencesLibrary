@@ -166,6 +166,7 @@ export function useGrade() {
   }, [isAuthenticated]);
 
   const renameSchedule = useCallback(async (scheduleId: number, name: string) => {
+    console.log(`🔵 [useGrade] Renomeando plano ${scheduleId} para: ${name}`);
     setIsSaving(true);
     try {
       await userSchedulesService.updateSchedule(scheduleId, { name });
@@ -173,8 +174,9 @@ export function useGrade() {
         s.id === scheduleId ? { ...s, name } : s
       ));
       setEditingScheduleName(null);
+      console.log(`🟢 [useGrade] Plano renomeado com sucesso`);
     } catch (err) {
-      console.error('Erro ao renomear plano:', err);
+      console.error('🔴 [useGrade] Erro ao renomear plano:', err);
       setError('Erro ao renomear plano');
     } finally {
       setIsSaving(false);
@@ -396,10 +398,10 @@ export function useGrade() {
 
   // ================ CÁLCULOS DE EXIBIÇÃO ================
 
-  // Calcula o range de horários necessário (08:00 - 23:00 adaptável)
+  // Calcula o range de horários necessário (07:00 - 23:00 adaptável)
   const timeRange = useMemo(() => {
-    let minHour = 8; // Padrão começa 08:00
-    let maxHour = 22; // Padrão termina 22:00
+    let minHour = 7; // Padrão começa 07:00
+    let maxHour = 23; // Padrão termina 23:00
     
     // Verifica horários das turmas
     classes.forEach(cls => {

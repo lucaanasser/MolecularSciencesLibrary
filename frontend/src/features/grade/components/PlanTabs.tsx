@@ -55,10 +55,20 @@ export function PlanTabs({
 
   // Salva o nome ao pressionar Enter ou clicar fora
   const handleSaveName = () => {
-    if (editingScheduleName && newName.trim()) {
+    if (editingScheduleName !== null && newName.trim()) {
+      console.log(`🔵 [PlanTabs] Renomeando plano ${editingScheduleName} para: ${newName.trim()}`);
       onRenameSchedule(editingScheduleName, newName.trim());
     }
     setEditingScheduleName(null);
+  };
+
+  // Evita que o blur interfira com o click
+  const handleBlur = (e: React.FocusEvent) => {
+    // Se o click foi em um botão dentro do container, não salva no blur
+    if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('button')) {
+      return;
+    }
+    handleSaveName();
   };
 
   // Cancela edição ao pressionar Escape
@@ -91,7 +101,7 @@ export function PlanTabs({
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  onBlur={handleSaveName}
+                  onBlur={handleBlur}
                   className="h-6 w-28 text-sm px-2"
                 />
                 <button
