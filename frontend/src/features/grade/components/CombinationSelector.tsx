@@ -203,7 +203,7 @@ export function CombinationSelector({
                   {cls.discipline_codigo}
                 </span>
                 <span className="text-gray-500 dark:text-gray-400">
-                  Turma {cls.codigo_turma}
+                  Turma {cls.codigo_turma?.substring(4)}
                 </span>
               </div>
             ))}

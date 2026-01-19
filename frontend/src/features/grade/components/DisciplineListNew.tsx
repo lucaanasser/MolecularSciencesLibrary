@@ -67,9 +67,9 @@ export function DisciplineListNew({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-cm-academic" />
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -82,8 +82,15 @@ export function DisciplineListNew({
       </div>
 
       {/* Lista de disciplinas */}
-      <div className="space-y-1.5">
-        <AnimatePresence>
+      {disciplines.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-8">
+          <BookOpen className="w-10 h-10 mb-2 opacity-30" />
+          <p className="text-xs text-center">Nenhuma disciplina selecionada</p>
+          <p className="text-xs text-center mt-1 opacity-70">Busque acima para adicionar</p>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto space-y-1.5">
+          <AnimatePresence>
           {disciplines.map((state) => {
             const { discipline, isVisible, selectedClassId, isExpanded } = state;
             const selectedClass = discipline.classes.find(c => c.id === selectedClassId);
@@ -130,7 +137,7 @@ export function DisciplineListNew({
                       </span>
                       {selectedClass && (
                         <span className="text-xs bg-cm-academic text-white px-1.5 py-0.5 rounded">
-                          {selectedClass.codigo_turma}
+                          {selectedClass.codigo_turma?.substring(4)}
                         </span>
                       )}
                     </div>
@@ -182,7 +189,7 @@ export function DisciplineListNew({
                             )}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-medium">Turma {cls.codigo_turma}</span>
+                              <span className="font-medium">Turma {cls.codigo_turma?.substring(4)}</span>
                               {selectedClassId === cls.id && (
                                 <Check className="w-4 h-4" />
                               )}
@@ -199,22 +206,13 @@ export function DisciplineListNew({
               </motion.div>
             );
           })}
-        </AnimatePresence>
-      </div>
-
-      {/* Estado vazio */}
-      {disciplines.length === 0 && (
-        <div className="text-center py-4 text-gray-400 dark:text-gray-500">
-          <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
-          <p className="text-xs">
-            Busque disciplinas acima para adicionar
-          </p>
+          </AnimatePresence>
         </div>
       )}
 
       {/* Créditos totais */}
       {disciplines.length > 0 && (
-        <div className="flex items-center justify-center gap-4 text-xs pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-center gap-4 text-xs pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
           <span className="text-gray-500 dark:text-gray-400">
             Visíveis: <strong className="text-cm-academic">{totalCredits.aula}</strong> aula + <strong className="text-cm-academic">{totalCredits.trabalho}</strong> trabalho
           </span>

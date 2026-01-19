@@ -222,8 +222,9 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          loadClasses(discipline.id, discipline.codigo);
+                        onClick={async () => {
+                          console.log(`🔵 [DisciplineSearch] Adicionando disciplina ${discipline.codigo} ao quadro`);
+                          // Chama onAddToBoard que vai buscar as turmas
                           onAddToBoard(discipline);
                         }}
                         disabled={disabled}
@@ -259,7 +260,7 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-medium">
-                                    Turma {cls.codigo_turma}
+                                    Turma {cls.codigo_turma?.substring(4)}
                                   </span>
                                   <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                                     {cls.tipo}
