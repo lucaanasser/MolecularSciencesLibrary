@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Info, AlertCircle, Loader2, BookOpen, X } from "lucide-react";
+import { Download, Info, AlertCircle, Loader2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,13 @@ import {
   MiniGradeCombinations,
 } from "@/features/grade/components";
 import { useGrade, GradeSlot } from "@/hooks/useGrade";
-import { 
-  generateCombinations, 
-  DisciplineWithClasses, 
-  Combination,
-  ClassOption
-} from "@/utils/combinationsGenerator";
+import { useDisciplineList } from "@/hooks/useDisciplineList";
+import { useCombinations } from "@/hooks/useCombinations";
+import { useDisciplineSlots } from "@/features/grade/hooks/useDisciplineSlots";
+import { useLoadSavedDisciplines } from "@/features/grade/hooks/useLoadSavedDisciplines";
+import { DisciplineWithClasses } from "@/utils/combinationsGenerator";
+import { exportGradeToPDF } from "@/utils/pdfExport";
+import { toast } from "sonner";
 
 /**
  * Página da Grade Interativa do modo acadêmico.
@@ -32,11 +33,14 @@ import {
 const GradePage: React.FC = () => {
   console.log("🔵 [GradePage] Renderizando página da grade interativa");
 
+  // Ref para o elemento da grade (para captura de PDF)
+  const gradeRef = useRef<HTMLDivElement>(null);
+
+  // Hook principal da grade
   const {
     schedules,
     activeScheduleId,
     gradeSlots,
-    credits,
     timeRange,
     isLoading,
     isSaving,
@@ -65,81 +69,62 @@ const GradePage: React.FC = () => {
     SCHEDULE_COLORS
   } = useGrade();
 
-  // Estado para lista de disciplinas com seleção de turmas
-  interface DisciplineState {
-    discipline: DisciplineWithClasses;
-    isVisible: boolean;
-    selectedClassId: number | null;
-    isExpanded: boolean;
-  }
-  
-  const [disciplineStates, setDisciplineStates] = useState<DisciplineState[]>([]);
-  const [combinations, setCombinations] = useState<Combination[]>([]);
-  const [currentCombinationIndex, setCurrentCombinationIndex] = useState(0);
-  const [isGeneratingCombinations, setIsGeneratingCombinations] = useState(false);
-  
-  // Estados de UI
-  const [showCombinationPreview, setShowCombinationPreview] = useState(false);
-  
-  // Filtros de busca
-  const [campusFilter, setCampusFilter] = useState('todos');
-  const [unidadeFilter, setUnidadeFilter] = useState('todas');
-  
-  // Preview: slots da combinação selecionada
-  const [previewSlots, setPreviewSlots] = useState<GradeSlot[]>([]);
+  // Hook para gerenciar lista de disciplinas
+  const {
+    disciplineStates,
+    handleAddDiscipline,
+    handleToggleVisibility,
+    handleSelectClass,
+    handleToggleExpanded,
+    handleRemoveDiscipline,
+    loadDisciplines,
+    clearList
+  } = useDisciplineList(
+    isAuthenticated,
+    activeScheduleId,
+    addDisciplineToList,
+    updateDisciplineInList,
+    removeDisciplineFromList
+  );
 
-  // Carrega disciplinas salvas do banco quando scheduleDisciplines mudar
+  // Hook para carregar disciplinas salvas do banco
+  useLoadSavedDisciplines(isAuthenticated, scheduleDisciplines, loadDisciplines);
+
+  // Hook para gerar slots da grade a partir das disciplinas
+  const { 
+    disciplineSlots, 
+    credits: disciplineCredits,
+    conflicts,
+    conflictingSlotIds,
+    hasConflicts
+  } = useDisciplineSlots(
+    disciplineStates,
+    SCHEDULE_COLORS
+  );
+
+  // Hook para gerenciar combinações
+  const {
+    combinations,
+    currentCombinationIndex,
+    isGenerating: isGeneratingCombinations,
+    showPreview: showCombinationPreview,
+    previewSlots,
+    currentCredits: combinationCredits,
+    setShowPreview: setShowCombinationPreview,
+    applyCombination,
+    nextCombination,
+    previousCombination
+  } = useCombinations(disciplineStates, SCHEDULE_COLORS);
+
+  // Limpa a lista apenas quando troca de plano para outro plano diferente
   useEffect(() => {
-    const loadSavedDisciplines = async () => {
-      if (!isAuthenticated || !scheduleDisciplines || scheduleDisciplines.length === 0) {
-        return;
-      }
-
-      // Para cada disciplina salva, carrega os dados completos (com turmas)
-      const loadedStates: DisciplineState[] = [];
-      
-      for (const savedDiscipline of scheduleDisciplines) {
-        try {
-          const response = await fetch(`/api/disciplines/${savedDiscipline.discipline_codigo}/full`);
-          if (response.ok) {
-            const data = await response.json();
-            
-            const disciplineWithClasses: DisciplineWithClasses = {
-              id: savedDiscipline.discipline_id,
-              codigo: savedDiscipline.discipline_codigo,
-              nome: savedDiscipline.discipline_nome,
-              creditos_aula: Number(savedDiscipline.creditos_aula) || 0,
-              creditos_trabalho: Number(savedDiscipline.creditos_trabalho) || 0,
-              classes: (data.turmas || []).map((cls: any) => ({
-                id: cls.id,
-                codigo_turma: cls.codigo_turma,
-                discipline_id: savedDiscipline.discipline_id,
-                discipline_codigo: savedDiscipline.discipline_codigo,
-                discipline_nome: savedDiscipline.discipline_nome,
-                schedules: cls.schedules || [],
-                professors: cls.professors || []
-              }))
-            };
-            
-            loadedStates.push({
-              discipline: disciplineWithClasses,
-              isVisible: Boolean(savedDiscipline.is_visible),
-              selectedClassId: savedDiscipline.selected_class_id,
-              isExpanded: Boolean(savedDiscipline.is_expanded)
-            });
-          }
-        } catch (error) {
-          console.error(`Erro ao carregar disciplina ${savedDiscipline.discipline_codigo}:`, error);
-        }
-      }
-      
-      if (loadedStates.length > 0) {
-        setDisciplineStates(loadedStates);
-      }
-    };
-
-    loadSavedDisciplines();
-  }, [isAuthenticated, scheduleDisciplines]);
+    // Limpa apenas se não há disciplinas do banco sendo carregadas
+    // O hook useLoadSavedDisciplines vai popular depois
+    if (activeScheduleId !== null) {
+      console.log(`🔵 [GradePage] Plano ativo mudou para ${activeScheduleId}, limpando lista local`);
+      clearList();
+    }
+  }, [activeScheduleId]); // Removido clearList das dependências para não causar loop
 
   // Handler para remover slot
   const handleRemoveSlot = async (slot: GradeSlot) => {
@@ -193,283 +178,120 @@ const GradePage: React.FC = () => {
     return result;
   };
 
-  // Exportar para PDF
-  const handleExportPDF = () => {
-    alert('Funcionalidade de exportação em breve!');
-  };
-
-  // ============= LÓGICA DE DISCIPLINAS E TURMAS =============
-
-  // Adiciona disciplina à lista
-  const handleAddToDisciplineList = useCallback(async (discipline: DisciplineWithClasses) => {
-    // Evita duplicatas
-    if (disciplineStates.some(d => d.discipline.id === discipline.id)) {
-      return;
-    }
-
-    // Seleciona automaticamente a primeira turma disponível
-    const firstClass = discipline.classes[0];
-    const newState = {
-      discipline,
-      isVisible: true,
-      selectedClassId: firstClass?.id || null,
-      isExpanded: false
-    };
-
-    // Atualiza estado local
-    setDisciplineStates(prev => [...prev, newState]);
-
-    // Salva no banco se autenticado
-    if (isAuthenticated && activeScheduleId) {
-      await addDisciplineToList(discipline.id, {
-        selectedClassId: newState.selectedClassId,
-        isVisible: true,
-        isExpanded: false
-      });
-    }
-  }, [disciplineStates, isAuthenticated, activeScheduleId, addDisciplineToList]);
-
-  // Toggle visibilidade de uma disciplina
-  const handleToggleVisibility = useCallback(async (disciplineId: number) => {
-    const discipline = disciplineStates.find(d => d.discipline.id === disciplineId);
-    if (!discipline) return;
-
-    const newIsVisible = !discipline.isVisible;
-    
-    // Atualiza estado local
-    setDisciplineStates(prev => prev.map(d =>
-      d.discipline.id === disciplineId ? { ...d, isVisible: newIsVisible } : d
-    ));
-
-    // Salva no banco se autenticado
-    if (isAuthenticated && activeScheduleId) {
-      await updateDisciplineInList(disciplineId, { isVisible: newIsVisible });
-    }
-  }, [disciplineStates, isAuthenticated, activeScheduleId, updateDisciplineInList]);
-
-  // Seleciona turma específica
-  const handleSelectClass = useCallback(async (disciplineId: number, classId: number) => {
-    // Atualiza estado local
-    setDisciplineStates(prev => prev.map(d =>
-      d.discipline.id === disciplineId ? { ...d, selectedClassId: classId } : d
-    ));
-
-    // Salva no banco se autenticado
-    if (isAuthenticated && activeScheduleId) {
-      await updateDisciplineInList(disciplineId, { selectedClassId: classId });
-    }
-  }, [isAuthenticated, activeScheduleId, updateDisciplineInList]);
-
-  // Toggle expansão
-  const handleToggleExpanded = useCallback(async (disciplineId: number) => {
-    const discipline = disciplineStates.find(d => d.discipline.id === disciplineId);
-    if (!discipline) return;
-
-    const newIsExpanded = !discipline.isExpanded;
-    
-    // Atualiza estado local
-    setDisciplineStates(prev => prev.map(d =>
-      d.discipline.id === disciplineId ? { ...d, isExpanded: newIsExpanded } : d
-    ));
-
-    // Salva no banco se autenticado
-    if (isAuthenticated && activeScheduleId) {
-      await updateDisciplineInList(disciplineId, { isExpanded: newIsExpanded });
-    }
-  }, [disciplineStates, isAuthenticated, activeScheduleId, updateDisciplineInList]);
-
-  // Remove disciplina da lista
-  const handleRemoveFromDisciplineList = useCallback(async (disciplineId: number) => {
-    // Atualiza estado local
-    setDisciplineStates(prev => prev.filter(d => d.discipline.id !== disciplineId));
-
-    // Salva no banco se autenticado
-    if (isAuthenticated && activeScheduleId) {
-      await removeDisciplineFromList(disciplineId);
-    }
-  }, [isAuthenticated, activeScheduleId, removeDisciplineFromList]);
-
-  // Adiciona disciplina da busca ao quadro
-  const handleAddDisciplineFromSearch = useCallback(async (discipline: { id: number; codigo: string; nome: string; creditos_aula: number; creditos_trabalho: number }) => {
-    // Evita duplicatas
-    if (disciplineStates.some(d => d.discipline.id === discipline.id)) {
-      return;
-    }
-
+  // Handler para adicionar disciplina da busca ao quadro
+  const handleAddDisciplineFromSearch = useCallback(async (discipline: { 
+    id: number; 
+    codigo: string; 
+    nome: string; 
+    creditos_aula: number; 
+    creditos_trabalho: number 
+  }) => {
     // Busca as turmas da disciplina
     try {
       const response = await fetch(`/api/disciplines/${discipline.codigo}/full`);
       if (response.ok) {
         const data = await response.json();
         
+        // Usa o id da API /full se o id da busca não existir
+        const disciplineId = discipline.id || data.id;
+        
         const disciplineWithClasses: DisciplineWithClasses = {
-          id: discipline.id,
-          codigo: discipline.codigo,
-          nome: discipline.nome,
-          creditos_aula: Number(discipline.creditos_aula) || 0,
-          creditos_trabalho: Number(discipline.creditos_trabalho) || 0,
+          id: disciplineId,
+          codigo: data.codigo || discipline.codigo,
+          nome: data.nome || discipline.nome,
+          creditos_aula: Number(data.creditos_aula ?? discipline.creditos_aula) || 0,
+          creditos_trabalho: Number(data.creditos_trabalho ?? discipline.creditos_trabalho) || 0,
           classes: (data.turmas || []).map((cls: any) => ({
             id: cls.id,
             codigo_turma: cls.codigo_turma,
-            discipline_id: discipline.id,
-            discipline_codigo: discipline.codigo,
-            discipline_nome: discipline.nome,
+            discipline_id: disciplineId,
+            discipline_codigo: data.codigo || discipline.codigo,
+            discipline_nome: data.nome || discipline.nome,
             schedules: cls.schedules || [],
             professors: cls.professors || []
           }))
         };
         
-        handleAddToDisciplineList(disciplineWithClasses);
+        handleAddDiscipline(disciplineWithClasses);
       }
     } catch (error) {
       console.error('Erro ao carregar turmas:', error);
     }
-  }, [disciplineStates, handleAddToDisciplineList]);
+  }, [handleAddDiscipline]);
 
-  // Gera slots da grade a partir das disciplinas visíveis
-  const disciplineSlots = useMemo(() => {
-    const slots: GradeSlot[] = [];
+  // Aplica a combinação selecionada - seleciona as turmas correspondentes nas disciplinas
+  const handleApplyCombination = useCallback((index: number, combination: any) => {
+    console.log(`🔵 [GradePage] Aplicando combinação ${index + 1}`);
     
-    disciplineStates.forEach((state, index) => {
-      if (!state.isVisible || !state.selectedClassId) return;
-
-      const selectedClass = state.discipline.classes.find(c => c.id === state.selectedClassId);
-      if (!selectedClass) return;
-
-      const color = SCHEDULE_COLORS[index % SCHEDULE_COLORS.length];
-
-      selectedClass.schedules.forEach(schedule => {
-        slots.push({
-          type: 'class',
-          id: selectedClass.id,
-          color,
-          dia: schedule.dia,
-          horario_inicio: schedule.horario_inicio,
-          horario_fim: schedule.horario_fim,
-          disciplina_nome: state.discipline.nome,
-          disciplina_codigo: state.discipline.codigo,
-          turma_codigo: selectedClass.codigo_turma,
-          professor: selectedClass.professors?.[0]?.nome,
-          isVisible: true
-        });
+    // Primeiro, aplica a combinação para atualizar o índice e preview
+    applyCombination(index, combination);
+    
+    // Depois, em um microtask, atualiza as turmas selecionadas
+    // Isso garante que o índice seja atualizado antes das seleções
+    Promise.resolve().then(() => {
+      combination.classes.forEach((cls: any) => {
+        // Encontra a disciplina correspondente
+        const disciplineState = disciplineStates.find(
+          d => d.discipline.id === cls.discipline_id
+        );
+        
+        if (disciplineState && cls.id !== disciplineState.selectedClassId) {
+          console.log(`🔵 [GradePage] Selecionando turma ${cls.codigo_turma} para ${cls.discipline_codigo}`);
+          handleSelectClass(cls.discipline_id, cls.id);
+        }
       });
     });
+  }, [applyCombination, disciplineStates, handleSelectClass]);
 
-    return slots;
-  }, [disciplineStates, SCHEDULE_COLORS]);
-
-  // Gera combinações quando a lista de disciplinas muda (opcional)
-  useEffect(() => {
-    const visibleDisciplines = disciplineStates
-      .filter(d => d.isVisible)
-      .map(d => d.discipline);
-
-    if (visibleDisciplines.length === 0) {
-      setCombinations([]);
-      setPreviewSlots([]);
+  // Exportar para PDF
+  const handleExportPDF = async () => {
+    if (!gradeRef.current) {
+      toast.error('Erro ao capturar grade');
       return;
     }
 
-    setIsGeneratingCombinations(true);
-    
-    // Usa setTimeout para não travar a UI
-    const timer = setTimeout(() => {
-      const newCombinations = generateCombinations(visibleDisciplines, 100);
-      setCombinations(newCombinations);
-      setCurrentCombinationIndex(0);
-      
-      // Atualiza preview com a primeira combinação
-      if (newCombinations.length > 0) {
-        updatePreviewSlots(newCombinations[0]);
-      } else {
-        setPreviewSlots([]);
-      }
-      
-      setIsGeneratingCombinations(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [disciplineStates]);
-
-  // Atualiza preview quando muda a combinação selecionada
-  const updatePreviewSlots = useCallback((combination: Combination) => {
-    const slots: GradeSlot[] = [];
-    
-    combination.classes.forEach((cls, index) => {
-      const color = SCHEDULE_COLORS[index % SCHEDULE_COLORS.length];
-      
-      cls.schedules.forEach(schedule => {
-        slots.push({
-          type: 'class',
-          id: cls.id,
-          color,
-          dia: schedule.dia,
-          horario_inicio: schedule.horario_inicio,
-          horario_fim: schedule.horario_fim,
-          disciplina_nome: cls.discipline_nome,
-          disciplina_codigo: cls.discipline_codigo,
-          turma_codigo: cls.codigo_turma,
-          professor: cls.professors?.[0]?.nome,
-          isVisible: true
-        });
-      });
-    });
-    
-    setPreviewSlots(slots);
-  }, [SCHEDULE_COLORS]);
-
-  // Quando muda o índice da combinação, atualiza o preview
-  useEffect(() => {
-    if (combinations.length > 0 && combinations[currentCombinationIndex]) {
-      updatePreviewSlots(combinations[currentCombinationIndex]);
+    if (disciplineStates.filter(d => d.isVisible).length === 0) {
+      toast.error('Adicione disciplinas à grade antes de exportar');
+      return;
     }
-  }, [currentCombinationIndex, combinations, updatePreviewSlots]);
 
-  // Aplica a combinação selecionada - seleciona as turmas correspondentes nas disciplinas
-  const handleApplyCombination = useCallback((index: number, combination: Combination) => {
-    setCurrentCombinationIndex(index);
-    
-    // Para cada turma na combinação, encontra a disciplina e seleciona a turma correta
-    setDisciplineStates(prev => prev.map(state => {
-      // Encontra se há uma turma desta disciplina na combinação
-      const matchingClass = combination.classes.find(
-        cls => cls.discipline_id === state.discipline.id || cls.discipline_codigo === state.discipline.codigo
-      );
+    try {
+      toast.loading('Gerando PDF...');
       
-      if (matchingClass) {
-        // Seleciona a turma da combinação e torna visível
-        return {
-          ...state,
-          selectedClassId: matchingClass.id,
-          isVisible: true
-        };
-      }
+      const activePlan = schedules.find(s => s.id === activeScheduleId);
       
-      // Se não está na combinação, mantém invisível
-      return {
-        ...state,
-        isVisible: false
-      };
-    }));
-  }, []);
+      await exportGradeToPDF({
+        gradeElement: gradeRef.current,
+        disciplineStates,
+        totalCreditsAula: disciplineCredits.creditos_aula,
+        totalCreditsTrabalho: disciplineCredits.creditos_trabalho,
+        planName: activePlan?.name || 'Minha Grade'
+      });
+      
+      toast.dismiss();
+      toast.success('PDF gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast.dismiss();
+      toast.error('Erro ao gerar PDF');
+    }
+  };
 
   // Keyboard navigation for combinations
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (combinations.length === 0) return;
       
-      if (e.key === 'ArrowLeft' && currentCombinationIndex > 0) {
-        setCurrentCombinationIndex(prev => prev - 1);
-        setShowCombinationPreview(true);
-      } else if (e.key === 'ArrowRight' && currentCombinationIndex < combinations.length - 1) {
-        setCurrentCombinationIndex(prev => prev + 1);
-        setShowCombinationPreview(true);
+      if (e.key === 'ArrowLeft') {
+        previousCombination();
+      } else if (e.key === 'ArrowRight') {
+        nextCombination();
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [combinations.length, currentCombinationIndex]);
+  }, [combinations.length, previousCombination, nextCombination]);
 
   // Slots a exibir: preview de combinação ou disciplinas selecionadas manualmente
   const displaySlots = useMemo(() => {
@@ -481,29 +303,11 @@ const GradePage: React.FC = () => {
 
   // Créditos a exibir
   const displayCredits = useMemo(() => {
-    if (showCombinationPreview && combinations[currentCombinationIndex]) {
-      return {
-        creditos_aula: combinations[currentCombinationIndex].totalCreditsAula || 0,
-        creditos_trabalho: combinations[currentCombinationIndex].totalCreditsTrabalho || 0
-      };
+    if (showCombinationPreview && combinations.length > 0) {
+      return combinationCredits;
     }
-    
-    // Créditos das disciplinas visíveis (apenas as adicionadas pela lista)
-    const disciplineCredits = disciplineStates
-      .filter(d => d.isVisible)
-      .reduce((acc, d) => ({
-        creditos_aula: acc.creditos_aula + (d.discipline.creditos_aula || 0),
-        creditos_trabalho: acc.creditos_trabalho + (d.discipline.creditos_trabalho || 0)
-      }), { creditos_aula: 0, creditos_trabalho: 0 });
-
-    // Retorna apenas os créditos das disciplinas visíveis (não soma com credits pois seria duplicação)
     return disciplineCredits;
-  }, [showCombinationPreview, combinations, currentCombinationIndex, disciplineStates]);
-
-  // Lista única de disciplinas na grade
-  const uniqueDisciplines = Array.from(
-    new Map(gradeSlots.map(s => [s.disciplina_codigo, s])).values()
-  );
+  }, [showCombinationPreview, combinations.length, combinationCredits, disciplineCredits]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
@@ -530,7 +334,7 @@ const GradePage: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={handleExportPDF}
-            disabled={gradeSlots.length === 0}
+            disabled={disciplineStates.filter(d => d.isVisible).length === 0}
             className="text-white hover:bg-white/10"
           >
             <Download className="w-4 h-4 mr-1" />
@@ -584,52 +388,43 @@ const GradePage: React.FC = () => {
             colorIndex={gradeSlots.length}
           />
 
-          {/* Lista de disciplinas selecionadas */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 flex-1 overflow-hidden flex flex-col">
-            {disciplineStates.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-8">
-                <BookOpen className="w-10 h-10 mb-2 opacity-30" />
-                <p className="text-xs text-center">Nenhuma disciplina selecionada</p>
-                <p className="text-xs text-center mt-1 opacity-70">Busque acima para adicionar</p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto space-y-1.5 mb-3">
-                <DisciplineListNew
-                  disciplines={disciplineStates}
-                  onToggleVisibility={handleToggleVisibility}
-                  onSelectClass={handleSelectClass}
-                  onRemoveDiscipline={handleRemoveFromDisciplineList}
-                  onToggleExpanded={handleToggleExpanded}
-                  disabled={isSaving}
-                  maxDisciplines={10}
-                />
-              </div>
-            )}
+            {/* Lista de disciplinas selecionadas */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 flex-1 overflow-hidden flex flex-col">
+              <DisciplineListNew
+                disciplines={disciplineStates}
+                onToggleVisibility={handleToggleVisibility}
+                onSelectClass={handleSelectClass}
+                onRemoveDiscipline={handleRemoveDiscipline}
+                onToggleExpanded={handleToggleExpanded}
+                disabled={isSaving}
+                maxDisciplines={10}
+              />
 
-            {/* Abas de planos logo abaixo da lista (como no MatrUSP) */}
-            {isAuthenticated && (
-              <div className="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700">
-                <PlanTabs
-                  schedules={schedules}
-                  activeScheduleId={activeScheduleId}
-                  editingScheduleName={editingScheduleName}
-                  onSelectSchedule={setActiveScheduleId}
-                  onCreateSchedule={() => createSchedule()}
-                  onRenameSchedule={renameSchedule}
-                  onDeleteSchedule={deleteSchedule}
-                  onDuplicateSchedule={duplicateSchedule}
-                  setEditingScheduleName={setEditingScheduleName}
-                  disabled={isSaving}
-                />
-              </div>
-            )}
-          </div>
+              {/* Abas de planos logo abaixo da lista (como no MatrUSP) */}
+              {isAuthenticated && (
+                <div className="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <PlanTabs
+                    schedules={schedules}
+                    activeScheduleId={activeScheduleId}
+                    editingScheduleName={editingScheduleName}
+                    onSelectSchedule={setActiveScheduleId}
+                    onCreateSchedule={() => createSchedule()}
+                    onRenameSchedule={renameSchedule}
+                    onDeleteSchedule={deleteSchedule}
+                    onDuplicateSchedule={duplicateSchedule}
+                    setEditingScheduleName={setEditingScheduleName}
+                    disabled={isSaving}
+                  />
+                </div>
+              )}
+            </div>
         </motion.div>
 
         {/* Área central - Grade + Créditos */}
         <div className="flex-1 flex flex-col min-w-0 gap-3">
           {/* Grade */}
           <motion.div
+            ref={gradeRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex-1 min-h-[400px]"
@@ -639,12 +434,24 @@ const GradePage: React.FC = () => {
                 <Loader2 className="w-8 h-8 animate-spin text-cm-academic" />
               </div>
             ) : (
-              <GradeGrid
-                slots={displaySlots}
-                timeRange={timeRange}
-                onRemoveSlot={showCombinationPreview ? undefined : handleRemoveSlot}
-                readOnly={isSaving || showCombinationPreview}
-              />
+              <>
+                {/* Aviso de conflitos */}
+                {hasConflicts && !showCombinationPreview && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 px-3 py-2 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                    <span className="text-sm text-red-700 dark:text-red-300">
+                      Existem {conflicts.length} conflito(s) de horário. Ajuste as turmas selecionadas.
+                    </span>
+                  </div>
+                )}
+                <GradeGrid
+                  slots={displaySlots}
+                  timeRange={timeRange}
+                  onRemoveSlot={showCombinationPreview ? undefined : handleRemoveSlot}
+                  readOnly={isSaving || showCombinationPreview}
+                  conflictingSlotIds={conflictingSlotIds}
+                />
+              </>
             )}
           </motion.div>
 
