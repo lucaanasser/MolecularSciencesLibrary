@@ -104,16 +104,23 @@ class UserSchedulesModel {
 
     /**
      * Soft delete de um plano (marca is_deleted = 1)
+     * Apaga apenas as disciplinas da lista (user_schedule_disciplines)
      */
     async deleteSchedule(scheduleId) {
         console.log(`🔵 [UserSchedulesModel] Soft delete do plano ${scheduleId}`);
-        const query = `
-            UPDATE user_schedules 
-            SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP 
-            WHERE id = ?
-        `;
         try {
-            await executeQuery(query, [scheduleId]);
+            // Apaga todas as disciplinas da lista do plano
+            await executeQuery(
+                `DELETE FROM user_schedule_disciplines WHERE schedule_id = ?`,
+                [scheduleId]
+            );
+            console.log(`🟢 [UserSchedulesModel] Disciplinas do plano ${scheduleId} apagadas`);
+            
+            // Marca o plano como deletado (soft delete)
+            await executeQuery(
+                `UPDATE user_schedules SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                [scheduleId]
+            );
             console.log(`🟢 [UserSchedulesModel] Plano ${scheduleId} marcado como deletado`);
             return true;
         } catch (error) {
@@ -497,8 +504,8 @@ class UserSchedulesModel {
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
         try {
-            const result = await executeQuery(query, [scheduleId, disciplineId, selectedClassId, isVisible ? 1 : 0, isExpanded ? 1 : 0, color]);
-            console.log(`🟢 [UserSchedulesModel] Disciplina adicionada com ID: ${result.lastID}`);
+            const lastID = await executeQuery(query, [scheduleId, disciplineId, selectedClassId, isVisible ? 1 : 0, isExpanded ? 1 : 0, color]);
+            console.log(`🟢 [UserSchedulesModel] Disciplina adicionada com ID: ${lastID}`);
             
             // Atualiza updated_at do plano
             await executeQuery(
@@ -506,10 +513,20 @@ class UserSchedulesModel {
                 [scheduleId]
             );
             
+            // Busca os dados completos da disciplina para retornar
+            const disciplineData = await getQuery(
+                `SELECT codigo, nome, creditos_aula, creditos_trabalho FROM disciplines WHERE id = ?`,
+                [disciplineId]
+            );
+            
             return { 
-                id: result.lastID, 
+                id: lastID, 
                 schedule_id: scheduleId, 
                 discipline_id: disciplineId,
+                discipline_codigo: disciplineData?.codigo,
+                discipline_nome: disciplineData?.nome,
+                creditos_aula: disciplineData?.creditos_aula,
+                creditos_trabalho: disciplineData?.creditos_trabalho,
                 selected_class_id: selectedClassId,
                 is_visible: isVisible ? 1 : 0,
                 is_expanded: isExpanded ? 1 : 0,
