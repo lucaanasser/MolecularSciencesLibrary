@@ -30,10 +30,31 @@ const DAY_MAP: Record<string, number> = {
   'sab': 5
 };
 
-// Converte horário para posição Y (0-14 para 7h-21h)
-const timeToPosition = (time: string): number => {
+// Calcula o range de horários das combinações
+const getTimeRange = (combination: Combination) => {
+  let minHour = 23;
+  let maxHour = 7;
+
+  combination.classes.forEach(cls => {
+    cls.schedules.forEach(schedule => {
+      const startHour = parseInt(schedule.horario_inicio.split(':')[0]);
+      const endHour = parseInt(schedule.horario_fim.split(':')[0]);
+      if (startHour < minHour) minHour = startHour;
+      if (endHour > maxHour) maxHour = endHour;
+    });
+  });
+
+  // Adiciona folga de 1 hora antes e depois
+  minHour = Math.max(7, minHour - 1);
+  maxHour = Math.min(23, maxHour + 1);
+
+  return { minHour, maxHour, totalHours: maxHour - minHour };
+};
+
+// Converte horário para posição Y relativa ao range
+const timeToPosition = (time: string, minHour: number): number => {
   const [hours] = time.split(':').map(Number);
-  return Math.max(0, hours - 7);
+  return Math.max(0, hours - minHour);
 };
 
 /**
@@ -50,6 +71,9 @@ function MiniGrade({
   isSelected: boolean;
   onClick: () => void;
 }) {
+  // Calcula o range de horários para esta combinação
+  const timeRange = useMemo(() => getTimeRange(combination), [combination]);
+
   // Mapeia disciplinas para cores
   const disciplineColors = useMemo(() => {
     const map: Record<string, string> = {};
@@ -76,8 +100,8 @@ function MiniGrade({
         const dayIndex = DAY_MAP[schedule.dia];
         if (dayIndex === undefined) return;
 
-        const startY = timeToPosition(schedule.horario_inicio);
-        const endY = timeToPosition(schedule.horario_fim);
+        const startY = timeToPosition(schedule.horario_inicio, timeRange.minHour);
+        const endY = timeToPosition(schedule.horario_fim, timeRange.minHour);
         const height = endY - startY;
 
         result.push({
@@ -91,7 +115,7 @@ function MiniGrade({
     });
 
     return result;
-  }, [combination.classes, disciplineColors]);
+  }, [combination.classes, disciplineColors, timeRange]);
 
   return (
     <button
@@ -118,9 +142,9 @@ function MiniGrade({
           className="absolute rounded-sm"
           style={{
             left: `${(block.x / 6) * 100}%`,
-            top: `${(block.y / 14) * 100}%`,
+            top: `${(block.y / timeRange.totalHours) * 100}%`,
             width: `${(1 / 6) * 100}%`,
-            height: `${(block.height / 14) * 100}%`,
+            height: `${(block.height / timeRange.totalHours) * 100}%`,
             backgroundColor: block.color,
             minHeight: '2px'
           }}
