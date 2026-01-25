@@ -89,19 +89,15 @@ export const ProfileHeader = ({
   return (
     <div className="relative">
       {/* Banner */}
-      <div className="h-48 sm:h-56 bg-cm-purple relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
-            </pattern>
-            <rect width="100" height="100" fill="url(#grid)" />
-          </svg>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-white" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
-        
+      <div className="h-48 sm:h-56 bg-cm-bg relative overflow-hidden">
+        <img
+          src="/images/background-images/red_background.png"
+          alt="Banner mockado"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-cm-bg" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
         {isOwnProfile && isEditing && (
-          <button className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm backdrop-blur-sm transition-colors">
+          <button className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-cm-bg/20 hover:bg-cm-bg/30 text-cm-bg rounded-lg text-sm backdrop-blur-sm transition-colors">
             <Camera className="w-4 h-4" />
             Alterar banner
           </button>
