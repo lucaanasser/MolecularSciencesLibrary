@@ -254,6 +254,33 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Portal da Transparência Section */}
+      <div className="py-24 bg-cm-bg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-gray-100 p-12">
+              <TrendingUp className="h-48 w-48 text-cm-blue opacity-20" />
+            </div>
+            <div>
+              <h2 className="text-4xl mb-6">
+                Conheça melhor nossos números
+              </h2>
+              <p className="text-gray-600 mb-6 text-lg">
+                Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. 
+                Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento da biblioteca.
+              </p>
+              <p className="text-gray-600 mb-8 text-lg">
+                Confira gráficos detalhados sobre empréstimos, acervo e usuários. 
+                Todos os dados são apresentados de forma agregada, sem expor informações pessoais.
+              </p>
+              <Button asChild className="bg-cm-purple hover:bg-cm-purple/90 text-white rounded-2xl px-8 py-4 text-lg">
+                <Link to="/transparencia">Biblioteca em Dados</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Features Section */}
       <div className="py-40 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

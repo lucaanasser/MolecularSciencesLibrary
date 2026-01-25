@@ -28,6 +28,7 @@ import ForumPage from "./pages/ForumPage";
 import QuestionDetailPage from "./pages/QuestionDetailPage";
 import NewQuestionPage from "./pages/NewQuestionPage";
 import AdminPendingTagsPage from "./pages/AdminPendingTagsPage";
+import TransparencyPortalPage from "./pages/TransparencyPortalPage";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -102,6 +103,8 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            {/* Portal da Transparência */}
+            <Route path="/transparencia" element={<TransparencyPortalPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
