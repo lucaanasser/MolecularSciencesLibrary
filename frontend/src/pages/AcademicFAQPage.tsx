@@ -117,7 +117,7 @@ export default function AcademicFAQPage() {
             </div>
           </div>
           <div className="mt-10 text-center text-cm-academic text-base font-medium">
-            Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="underline hover:text-cm-bg">Fale conosco</a>!
+            Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="underline hover:text-black">Fale conosco</a>!
           </div>
         </div>
       </div>

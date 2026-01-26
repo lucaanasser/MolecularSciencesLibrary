@@ -1,6 +1,5 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, Clock, BookMarked, Lightbulb } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -47,11 +46,15 @@ function StatsGrid({ stats }: { stats: StatsType }) {
             <Users className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
-        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.users == null ? '-' : users}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">Usuários ativos</div>
-        <div className="text-cm-bg/80 text-md">
+        <p className="bigtext mb-2 font-bold text-cm-bg">
+          {stats.users == null ? '-' : users}
+        </p>
+        <p className="bigtext text-cm-bg">
+          Usuários ativos
+        </p>
+        <p className="text-cm-bg leading-tight">
           Conectando leitores e promovendo o acesso ao conhecimento.
-        </div>
+        </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
@@ -59,11 +62,15 @@ function StatsGrid({ stats }: { stats: StatsType }) {
             <Lightbulb className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
-        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.subareas == null ? '-' : subareas}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">Áreas do conhecimento</div>
-        <div className="text-cm-bg/80 text-md">
+        <p className="bigtext mb-2 font-bold text-cm-bg">
+          {stats.subareas == null ? '-' : subareas}
+        </p>
+        <p className="bigtext text-cm-bg">
+          Áreas do conhecimento
+        </p>
+        <p className="text-cm-bg leading-tight">
           Navegue pelas disciplinas e descubra conteúdos de diversas especialidades.
-        </div>
+        </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
@@ -71,11 +78,15 @@ function StatsGrid({ stats }: { stats: StatsType }) {
             <BookMarked className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
-        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.books == null ? '-' : books}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">Exemplares disponíveis</div>
-        <div className="text-cm-bg/80 text-md">
+        <p className="bigtext mb-2 font-bold text-cm-bg">
+          {stats.books == null ? '-' : books}
+        </p>
+        <p className="bigtext text-cm-bg">
+          Exemplares disponíveis
+        </p>
+        <p className="text-cm-bg leading-tight">
           Encontre facilmente o livro que procura no nosso acervo organizado.
-        </div>
+        </p>
       </div>
     </div>
   );
@@ -175,7 +186,7 @@ const Index = () => {
           </div>
           {/* Content */}
           <div className="flex-1 flex flex-col items-start">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8">
+            <h1>
               Abra um livro,<br />
               {(() => {
                 const artigo =
@@ -192,12 +203,12 @@ const Index = () => {
                 );
               })()}
             </h1>
-            <p className="subtexto text-xl md:text-2xl lg:text-3xl text-gray-700 max-w-2xl mb-10">
+            <p className="bigtext">
               Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
             </p>
-            <Button asChild className="botao bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-2xl px-10 py-5 text-xl md:text-2xl font-bold shadow-lg">
+            <button className="big-btn">
               <Link to="/buscar">Explorar Acervo</Link>
-            </Button>
+            </button>
           </div>
         </div>
       </section>
@@ -208,20 +219,20 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
-              <h2 className="text-4xl mb-6">
+              <h3>
                 Biblioteca: um espaço que cresce com você
-              </h2>
-              <p className="text-gray-600 mb-6 text-lg">
+              </h3>
+              <p>
                 A biblioteca é um lugar de encontros e descobertas. 
                 Aqui, cada livro, cada conversa e cada pesquisa ajudam a abrir caminhos para novas ideias e novas possibilidades.
               </p>
-              <p className="text-gray-600 mb-8 text-lg">
+              <p>
                 Mas para que esse espaço continue vivo e acessível a todos, precisamos de cuidado coletivo. 
                 Apoiar a biblioteca é investir no futuro do conhecimento e na oportunidade de aprender juntos.
               </p>
-              <Button asChild className="bg-cm-purple hover:bg-cm-purple/90 rounded-2xl px-8 py-4 text-lg">
+              <button className="primary-btn">
                 <Link to="/ajude">Ajude a biblioteca</Link>
-              </Button>
+              </button>
             </div>
             <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-white">
               <img 
@@ -242,7 +253,9 @@ const Index = () => {
         <div className="absolute bottom-0 right-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-5xl text-cm-bg mb-4">A biblioteca em números</h2>
+            <h2 className="text-cm-bg">
+              A biblioteca em números
+            </h2>
           </div>
           {loadingStats ? (
             <div className="text-center text-cm-bg text-xl">Carregando...</div>
@@ -262,20 +275,20 @@ const Index = () => {
               <TrendingUp className="h-48 w-48 text-cm-blue opacity-20" />
             </div>
             <div>
-              <h2 className="text-4xl mb-6">
+              <h3>
                 Conheça melhor nossos números
-              </h2>
-              <p className="text-gray-600 mb-6 text-lg">
+              </h3>
+              <p>
                 Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. 
                 Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento da biblioteca.
               </p>
-              <p className="text-gray-600 mb-8 text-lg">
+              <p>
                 Confira gráficos detalhados sobre empréstimos, acervo e usuários. 
                 Todos os dados são apresentados de forma agregada, sem expor informações pessoais.
               </p>
-              <Button asChild className="bg-cm-purple hover:bg-cm-purple/90 text-white rounded-2xl px-8 py-4 text-lg">
+              <button className="primary-btn">
                 <Link to="/transparencia">Biblioteca em Dados</Link>
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -284,52 +297,52 @@ const Index = () => {
       {/* Features Section */}
       <div className="py-40 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-5xl text-center mb-16">Recursos do site</h2>
+          <h2 className="text-center mb-16">Recursos do site</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Card 1 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
                 <Search className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Encontre livros no acervo</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>Encontre livros no acervo</h4>
+              <p className="smalltext">
                 Busque rapidamente por autor, título, tema ou área e descubra tudo o que a biblioteca oferece.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-red hover:bg-cm-red/70">
                 <Link to="/buscar">Buscar Livros</Link>
-              </Button>
+              </button>
             </div>
             {/* Card 2 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
                 <User className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Acompanhe seus empréstimos</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>Acompanhe seus empréstimos</h4>
+              <p className="smalltext">
                 Acesse sua área pessoal para renovar livros e consultar prazos de forma simples e rápida.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-blue hover:bg-cm-blue/70">
                 <Link to="/entrar">Fazer Login</Link>
-              </Button>
+              </button>
             </div>
             {/* Card 3 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green/90 border-8 border-cm-bg">
                 <BookOpen className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Explore a estante virtual</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>Explore a estante virtual</h4>
+              <p className="smalltext">
                 Navegue pelo acervo de maneira visual e interativa, como se estivesse dentro da biblioteca.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-green hover:bg-cm-green/70">
                 <Link to="/estante-virtual">Explorar Estante</Link>
-              </Button>
+              </button>
             </div>
           </div>
         </div>

@@ -26,9 +26,7 @@ export default {
         "cm-blue": "#008cff",
         "cm-purple": "#b657b3",
         "cm-bg": "#ffffff",
-        // Cores do modo acadêmico (verde-água/teal)
         "cm-academic": "#01aad0",
-        "cm-academic-bg": "#f0fdfa",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

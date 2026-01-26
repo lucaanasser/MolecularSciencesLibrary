@@ -1,9 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 // Hook para animar contagem de números
@@ -47,11 +45,15 @@ function StatsGrid({ stats }: { stats: StatsType }) {
             <Users className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
-        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.users == null ? '-' : users}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">Alunos no Ciclo Avançado</div>
-        <div className="text-cm-bg/80 text-md">
+        <p className="bigtext mb-2 font-bold text-cm-bg">
+          {stats.users == null ? '-' : users}
+        </p>
+        <p className="bigtext text-cm-bg">
+          Alunos cadastrados
+        </p>
+        <p className="text-cm-bg leading-tight">
           Conectando estudantes e promovendo colaboração acadêmica.
-        </div>
+        </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
@@ -59,11 +61,15 @@ function StatsGrid({ stats }: { stats: StatsType }) {
             <BookOpen className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
-        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.disciplines == null ? '-' : disciplines}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">Disciplinas disponíveis</div>
-        <div className="text-cm-bg/80 text-md">
+        <p className="bigtext mb-2 font-bold text-cm-bg">
+          {stats.disciplines == null ? '-' : disciplines}
+        </p>
+        <p className="bigtext text-cm-bg">
+          Disciplinas disponíveis
+        </p>
+        <p className="text-cm-bg leading-tight">
           Catálogo completo de disciplinas para seu planejamento.
-        </div>
+        </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
@@ -71,11 +77,15 @@ function StatsGrid({ stats }: { stats: StatsType }) {
             <Lightbulb className="h-8 w-8 text-cm-bg" />
           </div>
         </div>
-        <div className="text-4xl font-bold text-cm-bg mb-2">{stats.areas == null ? '-' : areas}</div>
-        <div className="text-xl text-cm-bg/90 mb-4">Áreas de concentração</div>
-        <div className="text-cm-bg/80 text-md">
+        <p className="bigtext mb-2 font-bold text-cm-bg">
+          {stats.areas == null ? '-' : areas}
+        </p>
+        <p className="bigtext text-cm-bg">
+          Áreas de concentração
+        </p>
+        <p className="text-cm-bg leading-tight">
           Escolha sua especialização e trace seu caminho.
-        </div>
+        </p>
       </div>
     </div>
   );
@@ -257,20 +267,20 @@ const AcademicIndexPage = () => {
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
-              <h2 className="text-4xl mb-6">
+              <h3>
                 Ciclo Avançado: sua jornada de especialização
-              </h2>
-              <p className="text-gray-600 mb-6 text-lg">
+              </h3>
+              <p>
                 O Ciclo Avançado do Ciências Moleculares é o momento de escolher sua área de concentração
                 e aprofundar seus conhecimentos em disciplinas específicas de diferentes institutos da USP.
               </p>
-              <p className="text-gray-600 mb-8 text-lg">
+              <p>
                 Esta plataforma foi criada para ajudar você a navegar pelas opções disponíveis,
                 montar sua grade de horários e conectar-se com outros estudantes do curso.
               </p>
-              <Button asChild className="bg-cm-academic hover:bg-cm-academic/90 rounded-2xl px-8 py-4 text-lg">
+              <button className="primary-btn-academic">
                 <Link to="/academico/faq">Saiba mais</Link>
-              </Button>
+              </button>
             </div>
             <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-white">
               <img 
@@ -291,7 +301,9 @@ const AcademicIndexPage = () => {
         <div className="absolute bottom-0 right-0 w-full h-24 bg-gray-100 transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-5xl text-cm-bg mb-4">O Ciclo Avançado em números</h2>
+            <h2 className="text-cm-bg">
+              O Ciclo Avançado em números
+            </h2>
           </div>
           {loadingStats ? (
             <div className="text-center text-cm-bg text-xl">Carregando...</div>
@@ -306,67 +318,75 @@ const AcademicIndexPage = () => {
       {/* Features Section */}
       <div className="py-40 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-5xl text-center mb-16">Recursos disponíveis</h2>
+          <h2 className="text-center mb-16">Recursos disponíveis</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Card 1 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-cm-bg">
                 <Search className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Busque disciplinas</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>
+                Busque disciplinas
+              </h4>
+              <p className="smalltext">
                 Encontre disciplinas por área, instituto, horário ou palavras-chave.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-green hover:bg-cm-green/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-green hover:bg-cm-green/70">
                 <Link to="/academico/buscar">Buscar Disciplinas</Link>
-              </Button>
+              </button>
             </div>
             {/* Card 2 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
                 <Calendar className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Monte sua grade</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>
+                Monte sua grade
+              </h4>
+              <p className="smalltext">
                 Organize suas disciplinas visualmente e evite conflitos de horário.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-blue hover:bg-cm-blue/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-blue hover:bg-cm-blue/70">
                 <Link to="/academico/grade">Montar Grade</Link>
-              </Button>
+              </button>
             </div>
             {/* Card 3 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-academic border-8 border-cm-bg">
                 <MessageSquare className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">MolecOverflow</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>
+                MolecOverflow
+              </h4>
+              <p className="smalltext">
                 Fórum de dúvidas sobre o curso, créditos, projetos e orientadores.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-academic hover:bg-cyan-600 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-academic hover:bg-cm-academic/70">
                 <Link to="/forum">Acessar Fórum</Link>
-              </Button>
+              </button>
             </div>
             {/* Card 4 */}
             <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
               <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
                 <GraduationCap className="h-10 w-10 text-cm-bg" />
               </div>
-              <h3 className="text-2xl mb-2">Tire suas dúvidas</h3>
-              <p className="text-gray-600 mb-4 text-base">
+              <h4>
+                Tire suas dúvidas
+              </h4>
+              <p className="smalltext">
                 Encontre respostas sobre o Ciclo Avançado no nosso FAQ.
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <Button asChild className="w-full bg-cm-red hover:bg-cm-red/80 text-cm-bg rounded-xl font-bold py-3 mt-auto">
+              <button className="wide-btn bg-cm-red hover:bg-cm-red/70">
                 <Link to="/academico/faq">Ver FAQ</Link>
-              </Button>
+              </button>
             </div>
           </div>
         </div>
