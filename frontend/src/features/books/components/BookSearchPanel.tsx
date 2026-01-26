@@ -201,7 +201,6 @@ const BookSearch: React.FC = () => {
 
         {/* Resultados */}
         <div className="mt-8">
-          <h3 className="text-xl font-bebas mb-4">Resultados da Busca</h3>
           {isLoading ? (
             <div className="text-center py-8">Carregando livros...</div>
           ) : groupedBooks.length > 0 ? (
@@ -241,39 +240,56 @@ const BookSearch: React.FC = () => {
                   })()}
 
                   {/* Card do livro */}
-                  <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow duration-200 min-h-64 flex flex-col justify-between">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow duration-200 min-h-72 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-semibold text-lg text-black line-clamp-2 tracking-wider">{book.title}</h4>
-                        <p className="text-gray-600 line-clamp-2">{book.authors}</p>
-                        <div className="flex space-x-4 mt-2">
-                          <span className="text-sm text-gray-500">
+                        <h4>
+                          {book.title}
+                          {book.volume && (
+                            <span className="ml-2 text-base text-gray-500">Vol. {book.volume}</span>
+                          )}
+                        </h4>
+                        <p className="mb-2">
+                          {book.authors}
+                        </p>
+                        <p className="smalltext">
+                          <span>
                             {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
                             {book.subarea ? ` / ${getResolvedSubarea(book.area, book.subarea, subareaCodes)}` : ""}
                           </span>
-                        </div>
+                        </p>
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      {book.totalExemplares > 1 && (
-                        <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
-                      )}
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm">
+                        {book.totalExemplares > 0 && (
+                          <>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</>
+                        )}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
+                          onClick={() => handleBookClick(book)}
+                          disabled={loadingBookDetails}
+                        >
+                          {loadingBookDetails ? 'Carregando...' : 'Detalhes'}
+                        </Button>
+                      </div>
                     </div>
-                    <div className="mt-4 flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
-                        onClick={() => handleBookClick(book)}
-                        disabled={loadingBookDetails}
-                      >
-                        {loadingBookDetails ? 'Carregando...' : 'Detalhes'}
-                      </Button>
-                      {/* Botão de nudge para livros atrasados ou na janela final ou estendidos */}
-                      {(book.overdue || book.due_in_window || book.is_extended) && (
+                    {/* Botão de nudge para livros atrasados ou na janela final ou estendidos*/}
+                    {(book.overdue || book.due_in_window || book.is_extended) ? (
+                      <div className="flex justify-end mt-2">
                         <NudgeButton book={book} />
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end mt-2" style={{ visibility: 'hidden', height: '40px' }}>
+                        {/* Placeholder invisível para alinhar o conteúdo */}
+                        <div style={{ width: '40px', height: '40px' }} />
+                      </div>
+                    )}
+                    
                   </div>
                 </div>
               ))}
