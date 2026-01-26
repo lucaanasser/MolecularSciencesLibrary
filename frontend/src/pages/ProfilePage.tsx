@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
 const PROFILE_IMAGES = [
-  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png", "test_qui.png", "test_mat.png"].map(img => `/images/user-images/${img}`)
+  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png", "test_qui.png", "test_mat.png"].map(img => `/images/avatars/${img}`)
 ];
 
 // Mock de doações do usuário
@@ -130,7 +130,12 @@ const ProfilePage = () => {
               <div className="relative">
                 <Avatar className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-cm-purple/20">
                   {user.profile_image ? (
-                    <AvatarImage src={user.profile_image} alt="Foto de perfil" />
+                    <AvatarImage 
+                      src={user.profile_image.includes('/images/user-images/') 
+                        ? `${user.profile_image}?t=${Date.now()}` 
+                        : user.profile_image} 
+                      alt="Foto de perfil" 
+                    />
                   ) : null}
                   <AvatarFallback className="bg-cm-purple text-white text-2xl sm:text-3xl font-bebas">
                     {user.name?.charAt(0)}

@@ -1,22 +1,17 @@
-import { Plus, Trash2, BookMarked, User, Calendar } from "lucide-react";
+import { Plus, Trash2, BookMarked, User, Calendar, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DisciplinaAvancado, AdvancedCycleInfo } from "@/types/publicProfile";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { DisciplineModal } from "../modals";
 
 interface DisciplinesTabProps {
   disciplinas: DisciplinaAvancado[];
   ciclosAvancados: (AdvancedCycleInfo & { cor?: string })[];
   isEditing: boolean;
-  onAdd: () => void;
+  onAdd: () => string; // Returns temp ID
+  onSave: (data: Partial<DisciplinaAvancado>) => Promise<any>;
   onRemove: (id: string) => void;
   onUpdate: (id: string, field: keyof DisciplinaAvancado, value: any) => void;
 }
@@ -33,9 +28,38 @@ export const DisciplinesTab = ({
   ciclosAvancados,
   isEditing,
   onAdd,
+  onSave,
   onRemove,
   onUpdate,
 }: DisciplinesTabProps) => {
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    mode: "create" | "edit";
+    data?: Partial<DisciplinaAvancado>;
+  }>({ isOpen: false, mode: "create" });
+
+  const handleAddClick = () => {
+    setModalState({ isOpen: true, mode: "create" });
+  };
+
+  const handleEditClick = (discipline: DisciplinaAvancado) => {
+    setModalState({ isOpen: true, mode: "edit", data: discipline });
+  };
+
+  const handleModalClose = () => {
+    setModalState({ isOpen: false, mode: "create", data: undefined });
+  };
+
+  const handleModalSave = async (data: Partial<DisciplinaAvancado>) => {
+    // Both create and edit use the same save function
+    // For edit, we pass the ID in the data
+    if (modalState.mode === "edit" && modalState.data?.id) {
+      await onSave({ ...data, id: modalState.data.id });
+    } else {
+      await onSave(data);
+    }
+    // Modal will close itself after save
+  };
 
   // Agrupar por ano e semestre
   const groupedDisciplinas = disciplinas.reduce((acc, disc) => {
@@ -65,7 +89,7 @@ export const DisciplinesTab = ({
           <span className="text-sm text-gray-500">({disciplinas.length} disciplinas)</span>
         </div>
         {isEditing && (
-          <Button onClick={onAdd} className="rounded-full bg-cm-academic hover:bg-cm-academic/90">
+          <Button onClick={handleAddClick} className="rounded-full bg-cm-academic hover:bg-cm-academic/90">
             <Plus className="w-4 h-4 mr-2" />
             Nova Disciplina
           </Button>
@@ -79,66 +103,11 @@ export const DisciplinesTab = ({
           </div>
           <p className="text-gray-400 text-lg">Nenhuma disciplina adicionada.</p>
           {isEditing && (
-            <Button onClick={onAdd} variant="outline" className="mt-6 rounded-full">
+            <Button onClick={handleAddClick} variant="outline" className="mt-6 rounded-full">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar primeira disciplina
             </Button>
           )}
-        </div>
-      ) : isEditing ? (
-        <div className="space-y-3">
-          {disciplinas.map((disc) => (
-            <div key={disc.id} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
-                <Input
-                  placeholder="Código"
-                  value={disc.codigo}
-                  onChange={(e) => onUpdate(disc.id, "codigo", e.target.value)}
-                  className="sm:col-span-1"
-                />
-                <Input
-                  placeholder="Nome da disciplina"
-                  value={disc.nome}
-                  onChange={(e) => onUpdate(disc.id, "nome", e.target.value)}
-                  className="sm:col-span-2"
-                />
-                <Input
-                  type="number"
-                  placeholder="Ano (ex: 2024)"
-                  value={disc.ano || ""}
-                  onChange={(e) => onUpdate(disc.id, "ano", parseInt(e.target.value) || 0)}
-                  className="sm:col-span-1"
-                  min={2000}
-                  max={2100}
-                />
-                <Select
-                  value={disc.semestre ? String(disc.semestre) : ""}
-                  onValueChange={(v) => onUpdate(disc.id, "semestre", parseInt(v) as 1 | 2)}
-                >
-                  <SelectTrigger className="sm:col-span-1">
-                    <SelectValue placeholder="Semestre" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                  </SelectContent>
-                </Select>
-                <button
-                  onClick={() => onRemove(disc.id)}
-                  className="flex items-center justify-center px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors sm:col-span-1"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="mt-3">
-                <Input
-                  placeholder="Professor (opcional)"
-                  value={disc.professor || ""}
-                  onChange={(e) => onUpdate(disc.id, "professor", e.target.value)}
-                />
-              </div>
-            </div>
-          ))}
         </div>
       ) : (
         <div className="space-y-6">
@@ -164,7 +133,7 @@ export const DisciplinesTab = ({
                     <div 
                       key={disc.id} 
                       className={cn(
-                        "p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all",
+                        "p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all relative group",
                         !disc.avancadoId && "border-l-gray-300",
                         disc.avancadoId && avancadoIndex === 0 && "border-l-cm-purple",
                         disc.avancadoId && avancadoIndex === 1 && "border-l-cm-blue",
@@ -172,6 +141,22 @@ export const DisciplinesTab = ({
                         disc.avancadoId && avancadoIndex >= 3 && "border-l-cm-orange"
                       )}
                     >
+                      {isEditing && (
+                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleEditClick(disc)}
+                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onRemove(disc.id)}
+                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                       <div className="flex items-start gap-2 mb-2">
                         <span className="text-xs font-mono font-bold text-cm-purple bg-cm-purple/10 px-2 py-1 rounded">
                           {disc.codigo}
@@ -205,6 +190,14 @@ export const DisciplinesTab = ({
           ))}
         </div>
       )}
+
+      <DisciplineModal
+        isOpen={modalState.isOpen}
+        onClose={handleModalClose}
+        onSave={handleModalSave}
+        initialData={modalState.data}
+        mode={modalState.mode}
+      />
     </div>
   );
 };

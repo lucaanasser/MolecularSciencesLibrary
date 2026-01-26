@@ -179,12 +179,16 @@ class UsersController {
 
     /**
      * Atualiza a imagem de perfil do usuário autenticado
+     * ⚠️ DEPRECATED: Esta rota apenas atualiza o caminho no DB, não faz upload.
+     * Use PUT /api/profiles/:userId/avatar para fazer upload de imagens customizadas.
      */
     async updateProfileImage(req, res) {
         try {
             const userId = req.user.id;
             const { profile_image } = req.body;
-            console.log("🔵 [UsersController] updateProfileImage chamada com:", { userId, profile_image });
+            console.log("🟡 [UsersController] updateProfileImage (DEPRECATED) chamada com:", { userId, profile_image });
+            console.log("⚠️  Use PUT /api/profiles/:userId/avatar para upload de arquivos");
+            
             if (!profile_image) {
                 return res.status(400).json({ error: 'Imagem de perfil é obrigatória.' });
             }

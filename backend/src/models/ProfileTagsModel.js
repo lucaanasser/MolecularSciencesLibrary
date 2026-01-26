@@ -1,5 +1,4 @@
-const { executeQuery, getQuery, allQuery } = require('../database/db');
-const { snakeToCamel } = require('../utils/caseConverter');
+const areaTagsModel = require('./AreaTagsModel');
 
 class ProfileTagsModel {
     /**
@@ -11,14 +10,7 @@ class ProfileTagsModel {
      */
     async add(userId, label, category) {
         console.log(`🔵 [ProfileTagsModel] Adicionando tag ao perfil de user: ${userId}`);
-
-        const result = await executeQuery(
-            `INSERT INTO profile_tags (user_id, label, category) VALUES (?, ?, ?)`,
-            [userId, label, category]
-        );
-
-        console.log(`🟢 [ProfileTagsModel] Tag adicionada com ID: ${result.lastID}`);
-        return snakeToCamel({ id: result.lastID, user_id: userId, label, category });
+        return await areaTagsModel.addTag('profile', userId, label, category);
     }
 
     /**
@@ -28,13 +20,7 @@ class ProfileTagsModel {
      */
     async remove(tagId) {
         console.log(`🔵 [ProfileTagsModel] Removendo tag: ${tagId}`);
-        
-        await executeQuery(
-            `DELETE FROM profile_tags WHERE id = ?`,
-            [tagId]
-        );
-
-        console.log(`🟢 [ProfileTagsModel] Tag removida`);
+        return await areaTagsModel.removeTag(tagId);
     }
 
     /**
@@ -44,12 +30,7 @@ class ProfileTagsModel {
      */
     async getByUserId(userId) {
         console.log(`🔵 [ProfileTagsModel] Buscando tags de user: ${userId}`);
-        
-        const tags = await allQuery(
-            `SELECT * FROM profile_tags WHERE user_id = ? ORDER BY created_at ASC`,
-            [userId]
-        );
-
+        const tags = await areaTagsModel.getByEntity('profile', userId);
         console.log(`🟢 [ProfileTagsModel] ${tags.length} tags encontradas`);
         return tags;
     }
@@ -62,14 +43,7 @@ class ProfileTagsModel {
      */
     async getByUserIdAndCategory(userId, category) {
         console.log(`🔵 [ProfileTagsModel] Buscando tags (${category}) de user: ${userId}`);
-        
-        const tags = await allQuery(
-            `SELECT * FROM profile_tags WHERE user_id = ? AND category = ? ORDER BY created_at ASC`,
-            [userId, category]
-        );
-
-        console.log(`🟢 [ProfileTagsModel] ${tags.length} tags encontradas`);
-        return snakeToCamel(tags);
+        return await areaTagsModel.getByCategory('profile', userId, category);
     }
 
     /**
@@ -82,12 +56,8 @@ class ProfileTagsModel {
     async exists(userId, label, category) {
         console.log(`🔵 [ProfileTagsModel] Verificando existência de tag`);
         
-        const tag = await getQuery(
-            `SELECT * FROM profile_tags WHERE user_id = ? AND label = ? AND category = ?`,
-            [userId, label, category]
-        );
-
-        return !!tag;
+        const tags = await this.getByUserIdAndCategory(userId, category);
+        return tags.some(t => t.label === label);
     }
 }
 

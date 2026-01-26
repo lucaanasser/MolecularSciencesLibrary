@@ -526,7 +526,8 @@ db.serialize(() => {
             linkedin TEXT,
             lattes TEXT,
             github TEXT,
-            site TEXT,
+            site_pessoal TEXT,
+            is_public INTEGER DEFAULT 1,
             banner_choice TEXT DEFAULT 'purple' CHECK(banner_choice IN ('purple', 'blue', 'green', 'red', 'orange', 'yellow')),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -540,22 +541,34 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela public_profiles criada com sucesso');
     });
 
-    // PROFILE_TAGS TABLE - Tags do perfil (grande-área, área, subárea, custom)
+    // AREA_TAGS TABLE - Tags unificadas para perfil, ciclos avançados e pós-CM
     db.run(`
-        CREATE TABLE IF NOT EXISTS profile_tags (
+        CREATE TABLE IF NOT EXISTS area_tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
+            entity_type TEXT NOT NULL CHECK(entity_type IN ('profile', 'advanced_cycle', 'post_cm')),
+            entity_id INTEGER NOT NULL,
             label TEXT NOT NULL,
             category TEXT NOT NULL CHECK(category IN ('grande-area', 'area', 'subarea', 'custom')),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `, (err) => {
         if (err) {
-            console.error('🔴 [initDb] Erro ao criar tabela profile_tags:', err.message);
+            console.error('🔴 [initDb] Erro ao criar tabela area_tags:', err.message);
             process.exit(1);
         }
-        console.log('🟢 [initDb] Tabela profile_tags criada com sucesso');
+        console.log('🟢 [initDb] Tabela area_tags criada com sucesso');
+    });
+
+    // Criar índice para performance
+    db.run(`
+        CREATE INDEX IF NOT EXISTS idx_area_tags_entity 
+        ON area_tags(entity_type, entity_id)
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar índice area_tags:', err.message);
+        } else {
+            console.log('🟢 [initDb] Índice area_tags criado com sucesso');
+        }
     });
 
     // ADVANCED_CYCLES TABLE - Ciclos avançados
@@ -583,24 +596,6 @@ db.serialize(() => {
             process.exit(1);
         }
         console.log('🟢 [initDb] Tabela advanced_cycles criada com sucesso');
-    });
-
-    // ADVANCED_CYCLE_TAGS TABLE - Tags dos ciclos avançados (max 5: 2 área + 3 subárea)
-    db.run(`
-        CREATE TABLE IF NOT EXISTS advanced_cycle_tags (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cycle_id INTEGER NOT NULL,
-            label TEXT NOT NULL,
-            category TEXT NOT NULL CHECK(category IN ('area', 'subarea')),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(cycle_id) REFERENCES advanced_cycles(id) ON DELETE CASCADE
-        )
-    `, (err) => {
-        if (err) {
-            console.error('🔴 [initDb] Erro ao criar tabela advanced_cycle_tags:', err.message);
-            process.exit(1);
-        }
-        console.log('🟢 [initDb] Tabela advanced_cycle_tags criada com sucesso');
     });
 
     // PROFILE_DISCIPLINES TABLE - Disciplinas cursadas
@@ -677,23 +672,6 @@ db.serialize(() => {
             process.exit(1);
         }
         console.log('🟢 [initDb] Tabela post_cm_info criada com sucesso');
-    });
-
-    // POST_CM_AREAS TABLE - Áreas do pós-CM
-    db.run(`
-        CREATE TABLE IF NOT EXISTS post_cm_areas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_cm_id INTEGER NOT NULL,
-            label TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(post_cm_id) REFERENCES post_cm_info(id) ON DELETE CASCADE
-        )
-    `, (err) => {
-        if (err) {
-            console.error('🔴 [initDb] Erro ao criar tabela post_cm_areas:', err.message);
-            process.exit(1);
-        }
-        console.log('🟢 [initDb] Tabela post_cm_areas criada com sucesso');
     });
 
     // PROFILE_FOLLOWS TABLE - Sistema de seguir usuários

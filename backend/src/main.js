@@ -44,6 +44,9 @@ app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json());
 
+// Servir arquivos estáticos (imagens de usuários, etc.)
+app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')));
+console.log('🟢 [main] Arquivos estáticos configurados em /images -> public/images');
 
 // Rotas da API
 app.use('/api/books', booksRouter);

@@ -1,5 +1,6 @@
 const { executeQuery, getQuery, allQuery } = require('../database/db');
 const { snakeToCamel } = require('../utils/caseConverter');
+const areaTagsModel = require('./AreaTagsModel');
 
 class PostCMModel {
     /**
@@ -130,14 +131,8 @@ class PostCMModel {
      */
     async addArea(postId, label) {
         console.log(`🔵 [PostCMModel] Adicionando área ao pós-CM: ${postId}`);
-
-        const result = await executeQuery(
-            `INSERT INTO post_cm_areas (post_cm_id, label) VALUES (?, ?)`,
-            [postId, label]
-        );
-
-        console.log(`🟢 [PostCMModel] Área adicionada`);
-        return snakeToCamel({ id: result.lastID, post_cm_id: postId, label });
+        // Sempre usa categoria 'area' para pós-CM
+        return await areaTagsModel.addTag('post_cm', postId, label, 'area');
     }
 
     /**
@@ -147,13 +142,7 @@ class PostCMModel {
      */
     async removeArea(areaId) {
         console.log(`🔵 [PostCMModel] Removendo área: ${areaId}`);
-        
-        await executeQuery(
-            `DELETE FROM post_cm_areas WHERE id = ?`,
-            [areaId]
-        );
-
-        console.log(`🟢 [PostCMModel] Área removida`);
+        return await areaTagsModel.removeTag(areaId);
     }
 
     /**
@@ -163,13 +152,7 @@ class PostCMModel {
      */
     async getAreas(postId) {
         console.log(`🔵 [PostCMModel] Buscando áreas do pós-CM: ${postId}`);
-        
-        const areas = await allQuery(
-            `SELECT * FROM post_cm_areas WHERE post_cm_id = ?`,
-            [postId]
-        );
-
-        return snakeToCamel(areas);
+        return await areaTagsModel.getByEntity('post_cm', postId);
     }
 }
 
