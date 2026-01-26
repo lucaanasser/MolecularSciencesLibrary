@@ -61,7 +61,8 @@ export interface InternationalExperience {
   descricao?: string;
   anoInicio: number;
   anoFim?: number; // Se não preenchido, ainda está em andamento
-  duracao?: string; // Ex: "6 meses", "1 ano"
+  duracaoNumero?: number; // Quantidade de tempo
+  duracaoUnidade?: "dias" | "semanas" | "meses" | "anos"; // Unidade de tempo
 }
 
 // Perfil público completo

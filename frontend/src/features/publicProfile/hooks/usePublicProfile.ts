@@ -104,7 +104,8 @@ Acredito que a ciência é mais poderosa quando quebramos as barreiras entre dis
       descricao: "Pesquisa em neurociência computacional, desenvolvendo modelos de aprendizado por reforço para entender tomada de decisão em mamíferos.",
       anoInicio: 2024,
       anoFim: 2024,
-      duracao: "3 meses",
+      duracaoNumero: 3,
+      duracaoUnidade: "meses" as const,
     },
     {
       id: "int-2",
@@ -114,7 +115,8 @@ Acredito que a ciência é mais poderosa quando quebramos as barreiras entre dis
       programa: "Summer School in Computational Biology",
       descricao: "Curso intensivo sobre técnicas modernas de biologia computacional e análise de dados genômicos.",
       anoInicio: 2025,
-      duracao: "6 semanas",
+      duracaoNumero: 6,
+      duracaoUnidade: "semanas" as const,
     },
   ] as InternationalExperience[],
   

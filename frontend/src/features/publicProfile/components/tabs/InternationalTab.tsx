@@ -28,6 +28,13 @@ const EXPERIENCE_TYPES = [
   { value: "outro", label: "Outro", color: "bg-gray-500" },
 ];
 
+const DURATION_UNITS = [
+  { value: "dias", label: "Dias" },
+  { value: "semanas", label: "Semanas" },
+  { value: "meses", label: "Meses" },
+  { value: "anos", label: "Anos" },
+];
+
 export const InternationalTab = ({
   experiencias,
   isEditing,
@@ -37,6 +44,11 @@ export const InternationalTab = ({
 }: InternationalTabProps) => {
   const getTypeConfig = (tipo: string) => {
     return EXPERIENCE_TYPES.find((t) => t.value === tipo) || EXPERIENCE_TYPES[4];
+  };
+
+  const formatDuration = (numero?: number, unidade?: string) => {
+    if (!numero || !unidade) return null;
+    return `${numero} ${unidade}`;
   };
 
   return (
@@ -129,7 +141,7 @@ export const InternationalTab = ({
                       onChange={(e) => onUpdate(exp.id, "orientador", e.target.value)}
                     />
 
-                    <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
                       <Input
                         type="number"
                         placeholder="Ano de início"
@@ -142,12 +154,36 @@ export const InternationalTab = ({
                         value={exp.anoFim || ""}
                         onChange={(e) => onUpdate(exp.id, "anoFim", e.target.value ? parseInt(e.target.value) : undefined)}
                       />
-                      <Input
-                        placeholder="Duração (ex: 6 meses)"
-                        value={exp.duracao || ""}
-                        onChange={(e) => onUpdate(exp.id, "duracao", e.target.value)}
-                      />
                     </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">Duração (opcional)</label>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <Input
+                          type="number"
+                          placeholder="Quantidade"
+                          value={exp.duracaoNumero || ""}
+                          onChange={(e) => onUpdate(exp.id, "duracaoNumero", e.target.value ? parseInt(e.target.value) : undefined)}
+                          min={1}
+                        />
+                        <Select
+                          value={exp.duracaoUnidade || ""}
+                          onValueChange={(v) => onUpdate(exp.id, "duracaoUnidade", v as any)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Unidade" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DURATION_UNITS.map((unit) => (
+                              <SelectItem key={unit.value} value={unit.value}>
+                                {unit.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
                     <p className="text-xs text-gray-500 -mt-2">
                       💡 Se não preencher o ano de término, será exibido "em andamento"
                     </p>
@@ -191,10 +227,10 @@ export const InternationalTab = ({
                           {exp.orientador}
                         </span>
                       )}
-                      {exp.duracao && (
+                      {formatDuration(exp.duracaoNumero, exp.duracaoUnidade) && (
                         <span className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-cm-purple" />
-                          {exp.duracao}
+                          {formatDuration(exp.duracaoNumero, exp.duracaoUnidade)}
                         </span>
                       )}
                       <span className="flex items-center gap-2">
