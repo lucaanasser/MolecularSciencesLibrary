@@ -30,6 +30,9 @@ import NewQuestionPage from "./pages/NewQuestionPage";
 import AdminPendingTagsPage from "./pages/AdminPendingTagsPage";
 import TransparencyPortalPage from "./pages/TransparencyPortalPage";
 
+import FAQTestPage from "./pages/FAQTestPage";
+
+
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
 
@@ -44,6 +47,8 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
+            <Route path="/faq-teste" element={<FAQTestPage />} />
+            
             <Route path="/" element={<Index />} />
             <Route path="/buscar" element={<SearchPage />} />
             <Route path="/estante-virtual" element={<VirtualShelfPage />} />
