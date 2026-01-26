@@ -91,13 +91,13 @@ export const ProfileHeader = ({
       {/* Banner */}
       <div className="h-48 sm:h-56 bg-cm-bg relative overflow-hidden">
         <img
-          src="/images/background-images/red_background.png"
+          src="/images/background-images/purple_background.png"
           alt="Banner mockado"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-cm-bg" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
         {isOwnProfile && isEditing && (
-          <button className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-cm-bg/20 hover:bg-cm-bg/30 text-cm-bg rounded-lg text-sm backdrop-blur-sm transition-colors">
+          <button className="absolute top-8 right-10 flex items-center gap-2 px-3 py-2 bg-cm-bg/50 hover:bg-cm-bg/70 text-black rounded-lg text-sm backdrop-blur-sm transition-colors">
             <Camera className="w-4 h-4" />
             Alterar banner
           </button>
@@ -113,7 +113,7 @@ export const ProfileHeader = ({
               {user.profile_image ? (
                 <AvatarImage src={user.profile_image} alt={user.name} />
               ) : null}
-              <AvatarFallback className="bg-cm-blue text-white text-5xl font-bebas">
+              <AvatarFallback className="bg-cm-academic text-white text-5xl font-bebas">
                 {user.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
@@ -125,43 +125,40 @@ export const ProfileHeader = ({
           </div>
 
           {/* Info */}
-          <div className="flex-1 pt-4 sm:pt-12">
+          <div className="flex-1 pt-8 sm:pt-12">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bebas text-gray-900">{user.name}</h1>
+                <h1 className="text-3xl sm:text-4xl font-bebas text-gray-900 mt-4">{user.name}</h1>
                 <div className="flex items-center gap-3 mt-1 text-gray-600">
                   {user.class && (
                     <span className="text-sm">Turma {user.class}</span>
                   )}
-                  <span className="text-gray-300">•</span>
-                  <span className="text-sm">Ciências Moleculares - USP</span>
                 </div>
                 
                 {/* Social Links */}
                 <div className="flex items-center gap-2 mt-3">
                   {emailPublico && (
-                    <a href={`mailto:${emailPublico}`} className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-purple hover:text-white transition-colors">
+                    <a href={`mailto:${emailPublico}`} className="relative group p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-red hover:text-white transition-colors">
                       <Mail className="w-4 h-4" />
+                      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs rounded bg-gray-800 text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">Email</span>
                     </a>
                   )}
                   {linkedIn && (
-                    <a href={linkedIn} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-blue hover:text-white transition-colors">
+                    <a href={linkedIn} target="_blank" rel="noopener noreferrer" className="relative group p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-blue hover:text-white transition-colors">
                       <Linkedin className="w-4 h-4" />
+                      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs rounded bg-gray-800 text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">LinkedIn</span>
                     </a>
                   )}
                   {lattes && (
-                    <a href={lattes} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-green hover:text-white transition-colors">
+                    <a href={lattes} target="_blank" rel="noopener noreferrer" className="relative group p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-green hover:text-white transition-colors">
                       <FileText className="w-4 h-4" />
+                      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs rounded bg-gray-800 text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">Lattes</span>
                     </a>
                   )}
                   {github && (
-                    <a href={github} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-colors">
+                    <a href={github} target="_blank" rel="noopener noreferrer" className="relative group p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-colors">
                       <Github className="w-4 h-4" />
-                    </a>
-                  )}
-                  {site && (
-                    <a href={site} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-orange hover:text-white transition-colors">
-                      <Globe className="w-4 h-4" />
+                      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs rounded bg-gray-800 text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">GitHub</span>
                     </a>
                   )}
                   

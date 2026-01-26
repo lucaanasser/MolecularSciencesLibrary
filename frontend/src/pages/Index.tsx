@@ -239,7 +239,7 @@ const Index = () => {
         {/* Top Diagonal Cut */}
         <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
         {/* Bottom Diagonal Cut */}
-        <div className="absolute bottom-0 right-0 w-full h-24 bg-gray-100 transform -skew-y-3 origin-bottom-right"></div>
+        <div className="absolute bottom-0 right-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
             <h2 className="text-5xl text-cm-bg mb-4">A biblioteca em números</h2>

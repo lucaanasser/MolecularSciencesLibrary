@@ -93,7 +93,8 @@ const Navigation: React.FC = () => {
 
   // Só permite transição de cor na home padrão e na home acadêmica
   const isMainPage = location.pathname === "/" || location.pathname === "/academico";
-  const alwaysPurple = !isMainPage;
+  const isPublicProfilePage = location.pathname === "/minha-pagina";
+  const alwaysPurple = !(isMainPage || isPublicProfilePage);
 
   // Cores baseadas no modo
   const primaryColor = isAcademico ? "cm-academic" : "cm-purple";
@@ -101,11 +102,31 @@ const Navigation: React.FC = () => {
   const drawerBgClass = isAcademico ? "bg-cm-academic" : "bg-cm-purple";
 
   // Navbar branca ao scrollar na home e home acadêmica
-  const navbarBg = alwaysPurple ? primaryColorClass : (isScrolled ? "bg-white" : primaryColorClass);
-  const textColor = alwaysPurple ? "text-black" : (isScrolled ? "text-gray-900" : "text-black");
-  const brandColor = alwaysPurple ? "text-black" : (isScrolled ? `text-${primaryColor}` : "text-black");
-  const hoverBg = alwaysPurple ? "hover:bg-white/20" : (isScrolled ? "hover:bg-gray-100" : "hover:bg-white/20");
-  const buttonVariant = alwaysPurple ? "ghost" : (isScrolled ? "outline" : "ghost");
+  const navbarBg = alwaysPurple 
+    ? primaryColorClass : 
+    (isScrolled || isPublicProfilePage 
+      ? "bg-white" 
+      : primaryColorClass);
+  const textColor = alwaysPurple 
+    ? "text-black" 
+    : (isScrolled 
+      ? "text-gray-900" 
+      : "text-black");
+  const brandColor = alwaysPurple 
+    ? "text-black" 
+    : (isScrolled 
+      ? `text-${primaryColor}` 
+      : "text-black");
+  const hoverBg = alwaysPurple 
+    ? "hover:bg-white/20" 
+    : (isScrolled 
+      ? "hover:bg-gray-100" 
+      : "hover:bg-white/20");
+  const buttonVariant = alwaysPurple 
+    ? "ghost" 
+    : (isScrolled 
+      ? "outline" 
+      : "ghost");
   const buttonColors = alwaysPurple
     ? `border-black text-black hover:bg-${primaryColor} hover:text-white`
     : (isScrolled 
@@ -142,13 +163,6 @@ const Navigation: React.FC = () => {
 
   return (
     <nav className={`relative ${effectiveNavbarBg} ${effectiveTextColor} sticky top-0 z-50 w-full transition-colors duration-300`}>
-      {/* Fundo branco + camada colorida translúcida apenas se NÃO for index e NÃO for home acadêmica */}
-      {(!isMainPage) && (
-        <>
-          <div className="absolute inset-0 w-full h-full bg-white z-0" />
-          <div className={`absolute inset-0 w-full h-full ${primaryColorClass} z-10`} />
-        </>
-      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="flex justify-between h-24">
           <div className="flex items-center gap-4">

@@ -215,10 +215,9 @@ export const usePublicProfile = () => {
 
   // Estatísticas do perfil (mock data)
   const stats = {
-    fraseMotivacional: "Acredito que a ciência transforma vidas",
-    humor: "Animado com os projetos! 😊",
+    turma: "2026",
+    cursoOrigem: "Ciências Moleculares",
     areaInteresse: "Neurociência e IA",
-    anoFormatura: 2026,
   };
 
   return {

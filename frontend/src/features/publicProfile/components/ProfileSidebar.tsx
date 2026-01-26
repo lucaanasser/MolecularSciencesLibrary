@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ProfileTag } from "@/types/publicProfile";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { ProfileActions } from "./ProfileActions";
-import { ProfileBasicInfo } from "./ProfileBasicInfo";
 import { TagSection } from "./TagSection";
 import { FollowingList } from "./FollowingList";
 import { ContactSection } from "./ContactSection";
@@ -92,8 +91,6 @@ export const ProfileSidebar = ({
           onFollow={onFollow}
           onPublicToggle={onPublicToggle}
         />
-
-        <ProfileBasicInfo userClass={user.class} />
 
         <TagSection
           category="grande-area"

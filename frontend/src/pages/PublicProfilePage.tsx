@@ -29,8 +29,7 @@ const PublicProfilePage = () => {
 
   // Tabs definition
   const tabs = [
-    { id: "sobre" as const, label: "Sobre", icon: Sparkles },
-    { id: "avancados" as const, label: "Ciclos Avançados", icon: GraduationCap },
+    { id: "avancados" as const, label: "Ciclo Avançado", icon: GraduationCap },
     { id: "disciplinas" as const, label: "Disciplinas", icon: BookMarked },
     { id: "internacional" as const, label: "Internacional", icon: Globe },
     { id: "pos-cm" as const, label: "Pós-CM", icon: Briefcase },
@@ -42,7 +41,7 @@ const PublicProfilePage = () => {
 
   if (userLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-cm-bg">
         <Navigation />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando...</div>
@@ -54,7 +53,7 @@ const PublicProfilePage = () => {
 
   if (userError || !user) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-cm-bg">
         <Navigation />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError || "Usuário não encontrado"}</div>
@@ -65,7 +64,7 @@ const PublicProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-cm-bg">
       <Navigation />
 
       <main className="flex-grow">
@@ -101,10 +100,9 @@ const PublicProfilePage = () => {
             {/* Stats Cards - Left Side */}
             <div className="lg:w-64 flex-shrink-0">
               <ProfileStatsCards
-                fraseMotivacional={profile.stats.fraseMotivacional}
-                humor={profile.stats.humor}
+                turma={profile.stats.turma}
+                cursoOrigem={profile.stats.cursoOrigem}
                 areaInteresse={profile.stats.areaInteresse}
-                anoFormatura={profile.stats.anoFormatura}
               />
             </div>
 

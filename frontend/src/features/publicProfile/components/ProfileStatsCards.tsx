@@ -1,36 +1,35 @@
 import { Heart, Smile, Sparkles, Calendar } from "lucide-react";
 
+
 interface ProfileStatsCardsProps {
-  fraseMotivacional: string;
-  humor: string;
+  turma: string;
+  cursoOrigem: string;
   areaInteresse: string;
-  anoFormatura: number;
 }
 
 export const ProfileStatsCards = ({
-  fraseMotivacional,
-  humor,
+  turma,
+  cursoOrigem,
   areaInteresse,
-  anoFormatura,
 }: ProfileStatsCardsProps) => {
   const stats = [
     {
-      value: fraseMotivacional,
-      label: "Frase motivacional",
+      value: turma,
+      label: "Turma",
+      icon: Calendar,
+      bgColor: "bg-cm-blue/20",
+      iconBg: "bg-cm-blue/50",
+      iconColor: "text-white",
+      textColor: "text-cm-blue",
+    },
+    {
+      value: cursoOrigem,
+      label: "Curso de origem",
       icon: Heart,
       bgColor: "bg-cm-red/20",
       iconBg: "bg-cm-red/50",
       iconColor: "text-white",
       textColor: "text-cm-red",
-    },
-    {
-      value: humor,
-      label: "Como estou me sentindo",
-      icon: Smile,
-      bgColor: "bg-cm-blue/20",
-      iconBg: "bg-cm-blue/50",
-      iconColor: "text-white",
-      textColor: "text-cm-blue",
     },
     {
       value: areaInteresse,
@@ -40,15 +39,6 @@ export const ProfileStatsCards = ({
       iconBg: "bg-cm-green/50",
       iconColor: "text-white",
       textColor: "text-cm-green",
-    },
-    {
-      value: `${anoFormatura}`,
-      label: "Ano de formatura",
-      icon: Calendar,
-      bgColor: "bg-cm-orange/20",
-      iconBg: "bg-cm-orange/50",
-      iconColor: "text-white",
-      textColor: "text-cm-orange",
     },
   ];
 
