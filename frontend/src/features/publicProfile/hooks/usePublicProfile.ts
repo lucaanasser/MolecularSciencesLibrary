@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ProfileTag,
   AdvancedCycleInfo,
@@ -6,239 +6,396 @@ import {
   PostCMInfo,
   InternationalExperience,
 } from "@/types/publicProfile";
-
-// Dados mockados para visualização
-const MOCK_DATA = {
-  bio: `Sou estudante do Curso de Ciências Moleculares da USP, apaixonado por entender os mecanismos fundamentais da vida através de uma perspectiva interdisciplinar.
-
-Meu interesse principal está na interface entre biologia computacional e neurociência, buscando desenvolver modelos que nos ajudem a compreender melhor o funcionamento do cérebro.
-
-Acredito que a ciência é mais poderosa quando quebramos as barreiras entre disciplinas tradicionais. O CCM me proporcionou exatamente essa visão integrada do conhecimento científico.`,
-  
-  citacao: "A ciência não é apenas uma coleção de fatos, mas uma forma de pensar sobre o mundo.",
-  citacaoAutor: "Carl Sagan",
-  
-  ciclosAvancados: [
-    {
-      id: "av-1",
-      tema: "Modelagem Computacional de Redes Neurais Biológicas",
-      orientador: "Prof. Dr. Antonio Carlos Roque da Silva Filho",
-      descricao: "Desenvolvimento de modelos computacionais para simular o comportamento de redes neurais biológicas, com foco em circuitos do hipocampo envolvidos em memória espacial. Utilizamos o simulador NEURON e análise de dados eletrofisiológicos.",
-      semestres: 4,
-      anoInicio: 2024,
-      anoConclusao: 2025,
-      disciplinas: ["disc-1", "disc-2", "disc-3", "disc-4"],
-      cor: "cm-blue",
-    },
-    {
-      id: "av-2",
-      tema: "Bioinformática Estrutural de Proteínas",
-      orientador: "Profa. Dra. Heloisa Ferreira Benedetti",
-      descricao: "Análise estrutural e funcional de proteínas utilizando ferramentas de bioinformática. Foco em predição de estruturas 3D e docking molecular para descoberta de novos fármacos.",
-      semestres: 2,
-      anoInicio: 2025,
-      disciplinas: ["disc-5", "disc-6"],
-      cor: "cm-green",
-    },
-  ] as (AdvancedCycleInfo & { cor?: string })[],
-  
-  disciplinas: [
-    { id: "disc-1", codigo: "MAC0110", nome: "Introdução à Computação", professor: "Yoshiko Wakabayashi", ano: 2024, semestre: 1, avancadoId: "av-1" },
-    { id: "disc-2", codigo: "BMM0220", nome: "Neurociência Celular", professor: "Koichi Sameshima", ano: 2024, semestre: 1, avancadoId: "av-1" },
-    { id: "disc-3", codigo: "MAP2210", nome: "Métodos Numéricos", professor: "Junior Barrera", ano: 2024, semestre: 2, avancadoId: "av-1" },
-    { id: "disc-4", codigo: "FFI0421", nome: "Física Computacional", professor: "Ricardo Galvão", ano: 2024, semestre: 2, avancadoId: "av-1" },
-    { id: "disc-5", codigo: "QBQ0315", nome: "Bioquímica Estrutural", professor: "Shaker Chuck Farah", ano: 2025, semestre: 1, avancadoId: "av-2" },
-    { id: "disc-6", codigo: "BIO0301", nome: "Biologia Molecular", professor: "Carlos Menck", ano: 2025, semestre: 1, avancadoId: "av-2" },
-    { id: "disc-7", codigo: "MAT0120", nome: "Cálculo I", professor: "Oscar João Abdounur", ano: 2023, semestre: 1 },
-    { id: "disc-8", codigo: "FIS0131", nome: "Mecânica Clássica", professor: "Henrique Fleming", ano: 2023, semestre: 1 },
-    { id: "disc-9", codigo: "QFL0343", nome: "Química Orgânica", professor: "Luiz Humberto Catalani", ano: 2023, semestre: 2 },
-  ] as DisciplinaAvancado[],
-  
-  tags: [
-    { id: "t1", label: "Ciências Exatas e da Terra", category: "grande-area" as const },
-    { id: "t2", label: "Ciências Biológicas", category: "grande-area" as const },
-    { id: "t3", label: "Neurociência", category: "area" as const },
-    { id: "t4", label: "Bioinformática", category: "area" as const },
-    { id: "t5", label: "Ciência da Computação", category: "area" as const },
-    { id: "t6", label: "Modelagem Computacional", category: "subarea" as const },
-    { id: "t7", label: "Redes Neurais", category: "subarea" as const },
-    { id: "t8", label: "Machine Learning", category: "subarea" as const },
-    { id: "t9", label: "Biologia Estrutural", category: "subarea" as const },
-  ],
-  
-  posCM: [
-    {
-      id: "poscm-1",
-      tipo: "pos-graduacao",
-      instituicao: "Instituto de Matemática e Estatística - USP",
-      cargo: "Mestrado em Ciência da Computação",
-      orientador: "Prof. Dr. Fulano de Tal",
-      areas: [
-        { id: "t10", label: "Inteligência Artificial", category: "area" },
-        { id: "t11", label: "Biologia Computacional", category: "area" }
-      ],
-      anoInicio: 2026,
-      descricao: "Continuação da pesquisa em modelagem computacional de sistemas biológicos, agora com foco em aplicações de deep learning para análise de dados de neuroimagem."
-    },
-    {
-      id: "poscm-2",
-      tipo: "trabalho",
-      instituicao: "Empresa X",
-      cargo: "Cientista de Dados",
-      areas: [
-        { id: "t12", label: "Data Science", category: "area" }
-      ],
-      anoInicio: 2027,
-      anoFim: 2028,
-      descricao: "Atuação em projetos de análise de dados biomédicos."
-    }
-  ],
-
-  experienciasInternacionais: [
-    {
-      id: "int-1",
-      tipo: "intercambio" as const,
-      pais: "Alemanha",
-      instituicao: "Max Planck Institute for Brain Research",
-      programa: "DAAD RISE Program",
-      descricao: "Pesquisa em neurociência computacional, desenvolvendo modelos de aprendizado por reforço para entender tomada de decisão em mamíferos.",
-      anoInicio: 2024,
-      anoFim: 2024,
-      duracaoNumero: 3,
-      duracaoUnidade: "meses" as const,
-    },
-    {
-      id: "int-2",
-      tipo: "curso" as const,
-      pais: "Estados Unidos",
-      instituicao: "MIT",
-      programa: "Summer School in Computational Biology",
-      descricao: "Curso intensivo sobre técnicas modernas de biologia computacional e análise de dados genômicos.",
-      anoInicio: 2025,
-      duracaoNumero: 6,
-      duracaoUnidade: "semanas" as const,
-    },
-  ] as InternationalExperience[],
-  
-  seguindo: [
-    { id: 1, nome: "Maria Silva", turma: "2023A", avatar: null },
-    { id: 2, nome: "João Santos", turma: "2024A", avatar: null },
-    { id: 3, nome: "Ana Costa", turma: "2022B", avatar: null },
-    { id: 4, nome: "Pedro Lima", turma: "2024A", avatar: null },
-    { id: 5, nome: "Julia Ferreira", turma: "2023B", avatar: null },
-  ],
-  
-  links: {
-    email: "teste.aluno@usp.br",
-    linkedin: "https://linkedin.com/in/testealuno",
-    lattes: "http://lattes.cnpq.br/1234567890",
-    github: "https://github.com/testealuno",
-    site: "https://testealuno.github.io",
-  },
-};
+import ProfileService from "@/services/ProfileService";
 
 const AVANCADO_COLORS = ["cm-blue", "cm-green", "cm-orange", "cm-purple", "cm-academic"];
 
-export const usePublicProfile = () => {
-  const [bio, setBio] = useState(MOCK_DATA.bio);
-  const [citacao, setCitacao] = useState(MOCK_DATA.citacao);
-  const [citacaoAutor, setCitacaoAutor] = useState(MOCK_DATA.citacaoAutor);
-  const [ciclosAvancados, setCiclosAvancados] = useState<(AdvancedCycleInfo & { cor?: string })[]>(MOCK_DATA.ciclosAvancados);
-  const [disciplinas, setDisciplinas] = useState<DisciplinaAvancado[]>(MOCK_DATA.disciplinas);
-  const [experienciasInternacionais, setExperienciasInternacionais] = useState<InternationalExperience[]>(MOCK_DATA.experienciasInternacionais);
-  const [posCM, setPosCM] = useState<PostCMInfo[]>(MOCK_DATA.posCM);
-  const [tags, setTags] = useState<ProfileTag[]>(MOCK_DATA.tags);
-  const [isPublic, setIsPublic] = useState(true);
-  const [emailPublico, setEmailPublico] = useState(MOCK_DATA.links.email);
-  const [linkedIn, setLinkedIn] = useState(MOCK_DATA.links.linkedin);
-  const [lattes, setLattes] = useState(MOCK_DATA.links.lattes);
-  const [github, setGithub] = useState(MOCK_DATA.links.github);
-  const [site, setSite] = useState(MOCK_DATA.links.site);
-  const [seguindo, setSeguindo] = useState(MOCK_DATA.seguindo);
-  const [isFollowing, setIsFollowing] = useState(false);
+export const usePublicProfile = (userId: number) => {
+  // Loading and error states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  // Tag operations
-  const addTag = (label: string, category: ProfileTag["category"]) => {
-    if (!tags.find((t) => t.label.toLowerCase() === label.toLowerCase())) {
-      setTags([...tags, { id: `tag-${Date.now()}`, label, category }]);
+  // Profile data states
+  const [bio, setBio] = useState("");
+  const [citacao, setCitacao] = useState("");
+  const [citacaoAutor, setCitacaoAutor] = useState("");
+  const [ciclosAvancados, setCiclosAvancados] = useState<(AdvancedCycleInfo & { cor?: string })[]>([]);
+  const [disciplinas, setDisciplinas] = useState<DisciplinaAvancado[]>([]);
+  const [experienciasInternacionais, setExperienciasInternacionais] = useState<InternationalExperience[]>([]);
+  const [posCM, setPosCM] = useState<PostCMInfo[]>([]);
+  const [tags, setTags] = useState<ProfileTag[]>([]);
+  const [isPublic, setIsPublic] = useState(true);
+  const [emailPublico, setEmailPublico] = useState("");
+  const [linkedIn, setLinkedIn] = useState("");
+  const [lattes, setLattes] = useState("");
+  const [github, setGithub] = useState("");
+  const [site, setSite] = useState("");
+  const [seguindo, setSeguindo] = useState<any[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [stats, setStats] = useState({
+    turma: "",
+    cursoOrigem: "",
+    areaInteresse: "",
+  });
+
+  // Fetch profile data on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const profile = await ProfileService.getProfile(userId);
+        
+        // Set basic profile data
+        setBio(profile.bio || "");
+        setCitacao(profile.citacao || "");
+        setCitacaoAutor(profile.citacao_autor || "");
+        setIsPublic(profile.is_public ?? true);
+        setEmailPublico(profile.email_publico || "");
+        setLinkedIn(profile.linkedin || "");
+        setLattes(profile.lattes || "");
+        setGithub(profile.github || "");
+        setSite(profile.site_pessoal || "");
+        
+        // Set stats
+        setStats({
+          turma: profile.turma || "",
+          cursoOrigem: profile.curso_origem || "",
+          areaInteresse: profile.area_interesse || "",
+        });
+        
+        // Set arrays from backend
+        setCiclosAvancados(profile.advanced_cycles || []);
+        setDisciplinas(profile.disciplines || []);
+        setExperienciasInternacionais(profile.international_experiences || []);
+        setPosCM(profile.post_cm || []);
+        setTags(profile.tags || []);
+        setIsFollowing(profile.is_following || false);
+        
+        // Fetch following list
+        const following = await ProfileService.getFollowing(userId);
+        setSeguindo(following);
+        
+      } catch (err) {
+        console.error('Erro ao carregar perfil:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar perfil');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [userId]);
+
+  // Refetch function to reload profile
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      const profile = await ProfileService.getProfile(userId);
+      
+      setBio(profile.bio || "");
+      setCitacao(profile.citacao || "");
+      setCitacaoAutor(profile.citacao_autor || "");
+      setIsPublic(profile.is_public ?? true);
+      setEmailPublico(profile.email_publico || "");
+      setLinkedIn(profile.linkedin || "");
+      setLattes(profile.lattes || "");
+      setGithub(profile.github || "");
+      setSite(profile.site_pessoal || "");
+      setStats({
+        turma: profile.turma || "",
+        cursoOrigem: profile.curso_origem || "",
+        areaInteresse: profile.area_interesse || "",
+      });
+      setCiclosAvancados(profile.advanced_cycles || []);
+      setDisciplinas(profile.disciplines || []);
+      setExperienciasInternacionais(profile.international_experiences || []);
+      setPosCM(profile.post_cm || []);
+      setTags(profile.tags || []);
+      setIsFollowing(profile.is_following || false);
+      
+      const following = await ProfileService.getFollowing(userId);
+      setSeguindo(following);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Erro ao recarregar perfil:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao recarregar perfil');
+      setLoading(false);
     }
   };
 
-  const removeTag = (tagId: string) => {
-    setTags(tags.filter((t) => t.id !== tagId));
+  // Tag operations
+  const addTag = async (label: string, category: ProfileTag["category"]) => {
+    try {
+      if (tags.find((t) => t.label.toLowerCase() === label.toLowerCase())) {
+        return; // Tag already exists
+      }
+      
+      await ProfileService.addProfileTag(userId, label, category);
+      
+      // Optimistic update
+      const newTag = { id: `temp-${Date.now()}`, label, category };
+      setTags([...tags, newTag]);
+      
+      // Refetch to get real ID
+      await refetch();
+    } catch (err) {
+      console.error('Erro ao adicionar tag:', err);
+      throw err;
+    }
+  };
+
+  const removeTag = async (tagId: string) => {
+    try {
+      const tagIdNum = parseInt(tagId);
+      if (isNaN(tagIdNum)) return;
+      
+      await ProfileService.removeProfileTag(userId, tagIdNum);
+      
+      // Optimistic update
+      setTags(tags.filter((t) => t.id !== tagId));
+    } catch (err) {
+      console.error('Erro ao remover tag:', err);
+      // Revert on error
+      await refetch();
+      throw err;
+    }
   };
 
   // Advanced cycle operations
-  const addAvancado = () => {
-    const newColor = AVANCADO_COLORS[ciclosAvancados.length % AVANCADO_COLORS.length];
-    setCiclosAvancados([...ciclosAvancados, {
-      id: `av-${Date.now()}`,
-      tema: "",
-      orientador: "",
-      descricao: "",
-      semestres: 4,
-      disciplinas: [],
-      cor: newColor,
-    }]);
+  const addAvancado = async () => {
+    try {
+      const newColor = AVANCADO_COLORS[ciclosAvancados.length % AVANCADO_COLORS.length];
+      const newCycle = await ProfileService.createAdvancedCycle(userId, {
+        tema: "Novo Ciclo Avançado",
+        orientador: "Nome do Orientador",
+        descricao: "",
+        semestres: 4,
+        disciplinas: [],
+      });
+      
+      console.log('✅ Novo ciclo criado:', newCycle);
+      setCiclosAvancados([...ciclosAvancados, { ...newCycle, cor: newColor, id: String(newCycle.id) }]);
+    } catch (err) {
+      console.error('Erro ao adicionar ciclo:', err);
+      throw err;
+    }
   };
 
-  const removeAvancado = (id: string) => {
-    setCiclosAvancados(ciclosAvancados.filter((a) => a.id !== id));
-    setDisciplinas(disciplinas.map((d) => ({ ...d, avancadoId: d.avancadoId === id ? undefined : d.avancadoId })));
+  const removeAvancado = async (id: string) => {
+    try {
+      const cycleId = parseInt(id);
+      if (isNaN(cycleId)) return;
+      
+      await ProfileService.deleteAdvancedCycle(userId, cycleId);
+      
+      // Optimistic update
+      setCiclosAvancados(ciclosAvancados.filter((a) => a.id !== id));
+      setDisciplinas(disciplinas.map((d) => ({ ...d, avancadoId: d.avancadoId === id ? undefined : d.avancadoId })));
+    } catch (err) {
+      console.error('Erro ao remover ciclo:', err);
+      await refetch();
+      throw err;
+    }
   };
 
-  const updateAvancado = (id: string, field: keyof AdvancedCycleInfo | "cor", value: any) => {
-    setCiclosAvancados(ciclosAvancados.map((a) => (a.id === id ? { ...a, [field]: value } : a)));
+  const updateAvancado = async (id: string, field: keyof AdvancedCycleInfo | "cor", value: any) => {
+    try {
+      // Optimistic update
+      setCiclosAvancados(ciclosAvancados.map((a) => (a.id === id ? { ...a, [field]: value } : a)));
+      
+      // If it's just color, don't send to backend (frontend only)
+      if (field === "cor") return;
+      
+      const cycleId = parseInt(id);
+      if (isNaN(cycleId)) return;
+      
+      await ProfileService.updateAdvancedCycle(userId, cycleId, { [field]: value });
+    } catch (err) {
+      console.error('Erro ao atualizar ciclo:', err);
+      await refetch();
+      throw err;
+    }
   };
 
   // Discipline operations
-  const addDisciplina = () => {
-    setDisciplinas([...disciplinas, {
-      id: `disc-${Date.now()}`,
-      codigo: "",
-      nome: "",
-      semestre: "",
-    }]);
+  const addDisciplina = async () => {
+    try {
+      const newDiscipline = await ProfileService.createDiscipline(userId, {
+        codigo: "Nova Disciplina",
+        nome: "Nova Disciplina",
+        ano: new Date().getFullYear(),
+        semestre: 1,
+      });
+      
+      console.log('✅ Nova disciplina criada:', newDiscipline);
+      setDisciplinas([...disciplinas, { ...newDiscipline, id: String(newDiscipline.id) }]);
+    } catch (err) {
+      console.error('Erro ao adicionar disciplina:', err);
+      throw err;
+    }
   };
 
-  const removeDisciplina = (id: string) => {
-    setDisciplinas(disciplinas.filter((d) => d.id !== id));
+  const removeDisciplina = async (id: string) => {
+    try {
+      const disciplineId = parseInt(id);
+      if (isNaN(disciplineId)) return;
+      
+      await ProfileService.deleteDiscipline(userId, disciplineId);
+      
+      // Optimistic update
+      setDisciplinas(disciplinas.filter((d) => d.id !== id));
+    } catch (err) {
+      console.error('Erro ao remover disciplina:', err);
+      await refetch();
+      throw err;
+    }
   };
 
-  const updateDisciplina = (id: string, field: keyof DisciplinaAvancado, value: any) => {
-    setDisciplinas(disciplinas.map((d) => (d.id === id ? { ...d, [field]: value } : d)));
+  const updateDisciplina = async (id: string, field: keyof DisciplinaAvancado, value: any) => {
+    try {
+      // Optimistic update
+      setDisciplinas(disciplinas.map((d) => (d.id === id ? { ...d, [field]: value } : d)));
+      
+      const disciplineId = parseInt(id);
+      if (isNaN(disciplineId)) return;
+      
+      await ProfileService.updateDiscipline(userId, disciplineId, { [field]: value });
+    } catch (err) {
+      console.error('Erro ao atualizar disciplina:', err);
+      await refetch();
+      throw err;
+    }
   };
 
   // International experience operations
-  const addExperienciaInternacional = () => {
-    setExperienciasInternacionais([...experienciasInternacionais, {
-      id: `int-${Date.now()}`,
-      tipo: "intercambio",
-      pais: "",
-      instituicao: "",
-      anoInicio: new Date().getFullYear(),
-    }]);
+  const addExperienciaInternacional = async () => {
+    try {
+      const newExperience = await ProfileService.createInternationalExperience(userId, {
+        tipo: "intercambio",
+        pais: "País",
+        instituicao: "Instituição",
+        anoInicio: new Date().getFullYear(),
+      });
+      
+      console.log('✅ Nova experiência criada:', newExperience);
+      setExperienciasInternacionais([...experienciasInternacionais, { ...newExperience, id: String(newExperience.id) }]);
+    } catch (err) {
+      console.error('Erro ao adicionar experiência:', err);
+      throw err;
+    }
   };
 
-  const removeExperienciaInternacional = (id: string) => {
-    setExperienciasInternacionais(experienciasInternacionais.filter((e) => e.id !== id));
+  const removeExperienciaInternacional = async (id: string) => {
+    try {
+      const experienceId = parseInt(id);
+      if (isNaN(experienceId)) return;
+      
+      await ProfileService.deleteInternationalExperience(userId, experienceId);
+      
+      // Optimistic update
+      setExperienciasInternacionais(experienciasInternacionais.filter((e) => e.id !== id));
+    } catch (err) {
+      console.error('Erro ao remover experiência:', err);
+      await refetch();
+      throw err;
+    }
   };
 
-  const updateExperienciaInternacional = (id: string, field: keyof InternationalExperience, value: any) => {
-    setExperienciasInternacionais(experienciasInternacionais.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
+  const updateExperienciaInternacional = async (id: string, field: keyof InternationalExperience, value: any) => {
+    try {
+      // Optimistic update
+      setExperienciasInternacionais(experienciasInternacionais.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
+      
+      const experienceId = parseInt(id);
+      if (isNaN(experienceId)) return;
+      
+      await ProfileService.updateInternationalExperience(userId, experienceId, { [field]: value });
+    } catch (err) {
+      console.error('Erro ao atualizar experiência:', err);
+      await refetch();
+      throw err;
+    }
   };
 
-  // Save profile
+  // PostCM operations
+  const addPosCM = async () => {
+    try {
+      const newPostCM = await ProfileService.createPostCM(userId, {
+        tipo: "pos-graduacao",
+        instituicao: "Instituição",
+        cargo: "",
+        anoInicio: new Date().getFullYear(),
+      });
+      
+      console.log('✅ Novo pós-CM criado:', newPostCM);
+      setPosCM([...posCM, { ...newPostCM, id: String(newPostCM.id) }]);
+    } catch (err) {
+      console.error('Erro ao adicionar pós-CM:', err);
+      throw err;
+    }
+  };
+
+  const removePosCM = async (id: string) => {
+    try {
+      const postCmId = parseInt(id);
+      if (isNaN(postCmId)) return;
+      
+      await ProfileService.deletePostCM(userId, postCmId);
+      
+      // Optimistic update
+      setPosCM(posCM.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error('Erro ao remover pós-CM:', err);
+      await refetch();
+      throw err;
+    }
+  };
+
+  const updatePosCM = async (id: string, field: keyof PostCMInfo, value: any) => {
+    try {
+      // Optimistic update
+      setPosCM(posCM.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+      
+      const postCmId = parseInt(id);
+      if (isNaN(postCmId)) return;
+      
+      await ProfileService.updatePostCM(userId, postCmId, { [field]: value });
+    } catch (err) {
+      console.error('Erro ao atualizar pós-CM:', err);
+      await refetch();
+      throw err;
+    }
+  };
+
+  // Save profile (basic info)
   const saveProfile = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    // TODO: Implement API call
-  };
-
-  // Estatísticas do perfil (mock data)
-  const stats = {
-    turma: "2026",
-    cursoOrigem: "Ciências Moleculares",
-    areaInteresse: "Neurociência e IA",
+    try {
+      setSaving(true);
+      await ProfileService.updateProfile(userId, {
+        bio,
+        citacao,
+        citacao_autor: citacaoAutor,
+        turma: stats.turma,
+        curso_origem: stats.cursoOrigem,
+        area_interesse: stats.areaInteresse,
+        email_publico: emailPublico,
+        linkedin: linkedIn,
+        lattes,
+        github,
+        site_pessoal: site,
+        is_public: isPublic,
+      });
+      
+      console.log('✅ Perfil salvo com sucesso');
+    } catch (err) {
+      console.error('Erro ao salvar perfil:', err);
+      throw err;
+    } finally {
+      setSaving(false);
+    }
   };
 
   return {
@@ -260,6 +417,9 @@ export const usePublicProfile = () => {
     seguindo,
     isFollowing,
     stats,
+    loading,
+    error,
+    saving,
     
     // Setters
     setBio,
@@ -286,6 +446,10 @@ export const usePublicProfile = () => {
     addExperienciaInternacional,
     removeExperienciaInternacional,
     updateExperienciaInternacional,
+    addPosCM,
+    removePosCM,
+    updatePosCM,
     saveProfile,
+    refetch,
   };
 };
