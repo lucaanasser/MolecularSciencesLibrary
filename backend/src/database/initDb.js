@@ -507,6 +507,214 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela forum_votes criada com sucesso');
     });
 
+    // =====================================================
+    // PUBLIC PROFILE TABLES - Sistema de perfis públicos
+    // =====================================================
+
+    // PUBLIC_PROFILES TABLE - Perfil público principal
+    db.run(`
+        CREATE TABLE IF NOT EXISTS public_profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL UNIQUE,
+            turma TEXT,
+            curso_origem TEXT,
+            area_interesse TEXT,
+            bio TEXT,
+            citacao TEXT,
+            citacao_autor TEXT,
+            email_publico TEXT,
+            linkedin TEXT,
+            lattes TEXT,
+            github TEXT,
+            site TEXT,
+            banner_choice TEXT DEFAULT 'purple' CHECK(banner_choice IN ('purple', 'blue', 'green', 'red', 'orange', 'yellow')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela public_profiles:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela public_profiles criada com sucesso');
+    });
+
+    // PROFILE_TAGS TABLE - Tags do perfil (grande-área, área, subárea, custom)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS profile_tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            label TEXT NOT NULL,
+            category TEXT NOT NULL CHECK(category IN ('grande-area', 'area', 'subarea', 'custom')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela profile_tags:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela profile_tags criada com sucesso');
+    });
+
+    // ADVANCED_CYCLES TABLE - Ciclos avançados
+    db.run(`
+        CREATE TABLE IF NOT EXISTS advanced_cycles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            tema TEXT NOT NULL,
+            orientador TEXT NOT NULL,
+            coorientadores TEXT,
+            instituto TEXT,
+            universidade TEXT,
+            semestres INTEGER DEFAULT 4,
+            ano_inicio INTEGER,
+            ano_conclusao INTEGER,
+            descricao TEXT,
+            color TEXT DEFAULT '#14b8a6',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela advanced_cycles:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela advanced_cycles criada com sucesso');
+    });
+
+    // ADVANCED_CYCLE_TAGS TABLE - Tags dos ciclos avançados (max 5: 2 área + 3 subárea)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS advanced_cycle_tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cycle_id INTEGER NOT NULL,
+            label TEXT NOT NULL,
+            category TEXT NOT NULL CHECK(category IN ('area', 'subarea')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(cycle_id) REFERENCES advanced_cycles(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela advanced_cycle_tags:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela advanced_cycle_tags criada com sucesso');
+    });
+
+    // PROFILE_DISCIPLINES TABLE - Disciplinas cursadas
+    db.run(`
+        CREATE TABLE IF NOT EXISTS profile_disciplines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            codigo TEXT NOT NULL,
+            nome TEXT NOT NULL,
+            professor TEXT,
+            ano INTEGER NOT NULL,
+            semestre INTEGER NOT NULL CHECK(semestre IN (1, 2)),
+            nota TEXT,
+            avancado_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(avancado_id) REFERENCES advanced_cycles(id) ON DELETE SET NULL
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela profile_disciplines:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela profile_disciplines criada com sucesso');
+    });
+
+    // INTERNATIONAL_EXPERIENCES TABLE - Experiências internacionais
+    db.run(`
+        CREATE TABLE IF NOT EXISTS international_experiences (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            tipo TEXT NOT NULL CHECK(tipo IN ('intercambio', 'estagio', 'pesquisa', 'curso', 'outro')),
+            pais TEXT NOT NULL,
+            instituicao TEXT NOT NULL,
+            programa TEXT,
+            orientador TEXT,
+            descricao TEXT,
+            ano_inicio INTEGER NOT NULL,
+            ano_fim INTEGER,
+            duracao_numero INTEGER,
+            duracao_unidade TEXT CHECK(duracao_unidade IN ('dias', 'semanas', 'meses', 'anos')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela international_experiences:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela international_experiences criada com sucesso');
+    });
+
+    // POST_CM_INFO TABLE - Informações pós-CM
+    db.run(`
+        CREATE TABLE IF NOT EXISTS post_cm_info (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            tipo TEXT NOT NULL CHECK(tipo IN ('trabalho', 'pos-graduacao', 'nova-graduacao', 'retorno-curso-origem', 'outro')),
+            instituicao TEXT NOT NULL,
+            cargo TEXT,
+            orientador TEXT,
+            descricao TEXT,
+            ano_inicio INTEGER,
+            ano_fim INTEGER,
+            github TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela post_cm_info:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela post_cm_info criada com sucesso');
+    });
+
+    // POST_CM_AREAS TABLE - Áreas do pós-CM
+    db.run(`
+        CREATE TABLE IF NOT EXISTS post_cm_areas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_cm_id INTEGER NOT NULL,
+            label TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(post_cm_id) REFERENCES post_cm_info(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela post_cm_areas:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela post_cm_areas criada com sucesso');
+    });
+
+    // PROFILE_FOLLOWS TABLE - Sistema de seguir usuários
+    db.run(`
+        CREATE TABLE IF NOT EXISTS profile_follows (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            follower_id INTEGER NOT NULL,
+            following_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(follower_id, following_id),
+            FOREIGN KEY(follower_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(following_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela profile_follows:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela profile_follows criada com sucesso');
+    });
+
     // Criar índices para melhor performance do fórum
     db.run(`CREATE INDEX IF NOT EXISTS idx_forum_questions_autor ON forum_questions(autor_id)`, (err) => {
         if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_questions_autor:', err.message);

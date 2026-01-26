@@ -1,4 +1,5 @@
 const usersModel = require('../models/UsersModel');
+const publicProfilesModel = require('../models/PublicProfilesModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const SALT_ROUNDS = 10;
@@ -24,6 +25,15 @@ class UsersService {
         const password_hash = null;
         const userId = await usersModel.createUser({ name, email, phone, password_hash, role, NUSP, profile_image, class: userClass });
         console.log("🟢 [createUser] Usuário criado com id:", userId);
+
+        // Auto-criar perfil público para o usuário
+        try {
+            await publicProfilesModel.createProfile(userId.lastID || userId);
+            console.log("🟢 [createUser] Perfil público auto-criado para user:", userId.lastID || userId);
+        } catch (error) {
+            console.error("🔴 [createUser] Erro ao criar perfil público:", error.message);
+            // Não falha a criação do usuário se o perfil público falhar
+        }
 
         // Busca o usuário recém-criado para incluir created_at e demais campos padrão
         const created = await usersModel.getUserById(userId);

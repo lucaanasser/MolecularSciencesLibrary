@@ -24,6 +24,7 @@ const disciplineEvaluationsRouter = require('./routes/DisciplineEvaluationsRoute
 const reportsRouter = require('./routes/ReportsRoutes');
 const userSchedulesRouter = require('./routes/UserSchedulesRoutes');
 const forumRouter = require('./routes/ForumRoutes');
+const publicProfilesRouter = require('./routes/PublicProfilesRoutes');
 require('dotenv').config();
 
 /**
@@ -59,6 +60,7 @@ app.use('/api/evaluations', disciplineEvaluationsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/user-schedules', userSchedulesRouter);
 app.use('/api/forum', forumRouter);
+app.use('/api/profiles', publicProfilesRouter);
 
 // Rota de teste
 app.get('/api/ping', (req, res) => {

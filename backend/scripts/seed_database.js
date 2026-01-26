@@ -880,6 +880,404 @@ async function seedForum() {
     };
 }
 
+// ============ PUBLIC PROFILES SEED ============
+async function seedPublicProfiles() {
+    console.log('📝 Criando perfis públicos...');
+
+    // Os perfis são auto-criados quando os usuários são criados, agora vamos popular com dados
+    const publicProfilesData = [
+        {
+            nusp: 3,
+            turma: '2024A',
+            curso_origem: 'Ciências Moleculares',
+            area_interesse: 'Neurociência e IA',
+            bio: 'Apaixonado por neurociência computacional e aprendizado de máquina. Trabalhando com modelos preditivos para análise de sinais cerebrais.',
+            citacao: 'A mente que se abre a uma nova ideia jamais voltará ao seu tamanho original',
+            citacao_autor: 'Albert Einstein',
+            email_publico: 'aluno3@usp.br',
+            linkedin: 'https://linkedin.com/in/aluno3',
+            lattes: 'http://lattes.cnpq.br/1234567890',
+            github: 'https://github.com/aluno3',
+            banner_choice: 'purple'
+        },
+        {
+            nusp: 4,
+            turma: '2024B',
+            curso_origem: 'Física',
+            area_interesse: 'Física de Partículas',
+            bio: 'Estudante de física interessado em física de altas energias e cosmologia. Participante ativo de grupos de pesquisa em física teórica.',
+            citacao: 'A física é como o sexo: certamente pode dar alguns resultados práticos, mas não é por isso que fazemos',
+            citacao_autor: 'Richard Feynman',
+            email_publico: 'aluno4@usp.br',
+            linkedin: 'https://linkedin.com/in/aluno4',
+            github: 'https://github.com/aluno4',
+            banner_choice: 'blue'
+        },
+        {
+            nusp: 5,
+            turma: '2023A',
+            curso_origem: 'Química',
+            area_interesse: 'Química Orgânica e Síntese',
+            bio: 'Entusiasta de síntese orgânica e química medicinal. Desenvolvendo pesquisa em novos compostos bioativos.',
+            citacao: 'A química é a melodia que você pode tocar na matéria',
+            citacao_autor: 'Michio Kaku',
+            lattes: 'http://lattes.cnpq.br/9876543210',
+            banner_choice: 'green'
+        },
+        {
+            nusp: 6,
+            turma: '2023B',
+            curso_origem: 'Biologia',
+            area_interesse: 'Biologia Molecular',
+            bio: 'Focado em biologia molecular e genética. Trabalho com CRISPR e edição genômica.',
+            citacao: 'Nada em biologia faz sentido exceto à luz da evolução',
+            citacao_autor: 'Theodosius Dobzhansky',
+            email_publico: 'aluno6@usp.br',
+            site: 'https://aluno6.bio',
+            banner_choice: 'red'
+        },
+        {
+            nusp: 7,
+            turma: '2024A',
+            curso_origem: 'Matemática',
+            area_interesse: 'Matemática Aplicada',
+            bio: 'Matemático aplicado trabalhando com modelagem e simulação computacional.',
+            citacao: 'A matemática é a linguagem com a qual Deus escreveu o universo',
+            citacao_autor: 'Galileu Galilei',
+            linkedin: 'https://linkedin.com/in/aluno7',
+            banner_choice: 'orange'
+        }
+    ];
+
+    const userMap = {};
+    for (const user of USERS) {
+        const row = await getQuery('SELECT id FROM users WHERE NUSP = ?', [user.nusp]);
+        if (row) userMap[user.nusp] = row.id;
+    }
+
+    for (const profileData of publicProfilesData) {
+        const userId = userMap[profileData.nusp];
+        if (!userId) continue;
+
+        try {
+            await runQuery(
+                `UPDATE public_profiles 
+                 SET turma = ?, curso_origem = ?, area_interesse = ?, bio = ?, 
+                     citacao = ?, citacao_autor = ?, email_publico = ?, 
+                     linkedin = ?, lattes = ?, github = ?, site = ?, banner_choice = ?
+                 WHERE user_id = ?`,
+                [
+                    profileData.turma, profileData.curso_origem, profileData.area_interesse,
+                    profileData.bio, profileData.citacao, profileData.citacao_autor,
+                    profileData.email_publico || null, profileData.linkedin || null,
+                    profileData.lattes || null, profileData.github || null,
+                    profileData.site || null, profileData.banner_choice, userId
+                ]
+            );
+        } catch (err) {
+            console.error(`     ❌ Erro ao atualizar perfil de NUSP ${profileData.nusp}:`, err.message);
+        }
+    }
+    
+    console.log(`     ✅ ${publicProfilesData.length} perfis públicos atualizados`);
+
+    // Profile Tags
+    console.log('   🏷️  Criando tags de perfil...');
+    const profileTags = [
+        { nusp: 3, tags: [
+            { label: 'Ciências Exatas e da Terra', category: 'grande-area' },
+            { label: 'Neurociência', category: 'area' },
+            { label: 'Machine Learning', category: 'subarea' }
+        ]},
+        { nusp: 4, tags: [
+            { label: 'Ciências Exatas e da Terra', category: 'grande-area' },
+            { label: 'Física', category: 'area' },
+            { label: 'Física Teórica', category: 'subarea' }
+        ]},
+        { nusp: 5, tags: [
+            { label: 'Ciências Exatas e da Terra', category: 'grande-area' },
+            { label: 'Química', category: 'area' },
+            { label: 'Química Orgânica', category: 'subarea' }
+        ]},
+    ];
+
+    let tagsCreated = 0;
+    for (const { nusp, tags } of profileTags) {
+        const userId = userMap[nusp];
+        if (!userId) continue;
+
+        for (const tag of tags) {
+            try {
+                await runQuery(
+                    'INSERT INTO profile_tags (user_id, label, category) VALUES (?, ?, ?)',
+                    [userId, tag.label, tag.category]
+                );
+                tagsCreated++;
+            } catch (err) {
+                // Ignore duplicates
+            }
+        }
+    }
+    console.log(`     ✅ ${tagsCreated} tags de perfil criadas`);
+
+    // Advanced Cycles
+    console.log('   🔬 Criando ciclos avançados...');
+    const advancedCycles = [
+        {
+            nusp: 3,
+            tema: 'Redes Neurais Artificiais para Análise de EEG',
+            orientador: 'Prof. Dr. João Silva',
+            coorientadores: ['Dra. Maria Santos'],
+            instituto: 'IF',
+            universidade: 'USP',
+            semestres: 4,
+            ano_inicio: 2023,
+            ano_conclusao: 2024,
+            descricao: 'Desenvolvimento de modelos de deep learning para classificação de estados cognitivos através de sinais de EEG.',
+            color: '#8B5CF6',
+            tags: [
+                { label: 'Neurociência', category: 'area' },
+                { label: 'Computação', category: 'area' },
+                { label: 'Machine Learning', category: 'subarea' },
+                { label: 'Processamento de Sinais', category: 'subarea' }
+            ]
+        },
+        {
+            nusp: 4,
+            tema: 'Teoria Quântica de Campos',
+            orientador: 'Prof. Dr. Carlos Oliveira',
+            instituto: 'IF',
+            semestres: 4,
+            ano_inicio: 2023,
+            descricao: 'Estudo teórico de interações fundamentais e aplicações em física de altas energias.',
+            color: '#3B82F6',
+            tags: [
+                { label: 'Física', category: 'area' },
+                { label: 'Física Teórica', category: 'subarea' },
+                { label: 'Partículas', category: 'subarea' }
+            ]
+        }
+    ];
+
+    let cyclesCreated = 0;
+    for (const cycle of advancedCycles) {
+        const userId = userMap[cycle.nusp];
+        if (!userId) continue;
+
+        try {
+            const result = await runQuery(
+                `INSERT INTO advanced_cycles 
+                 (user_id, tema, orientador, coorientadores, instituto, universidade, 
+                  semestres, ano_inicio, ano_conclusao, descricao, color)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    userId, cycle.tema, cycle.orientador,
+                    cycle.coorientadores ? JSON.stringify(cycle.coorientadores) : null,
+                    cycle.instituto, cycle.universidade, cycle.semestres,
+                    cycle.ano_inicio, cycle.ano_conclusao, cycle.descricao, cycle.color
+                ]
+            );
+
+            const cycleId = result.lastID;
+            
+            // Add tags to cycle
+            for (const tag of cycle.tags) {
+                await runQuery(
+                    'INSERT INTO advanced_cycle_tags (cycle_id, label, category) VALUES (?, ?, ?)',
+                    [cycleId, tag.label, tag.category]
+                );
+            }
+            
+            cyclesCreated++;
+        } catch (err) {
+            console.error(`     ❌ Erro ao criar ciclo:`, err.message);
+        }
+    }
+    console.log(`     ✅ ${cyclesCreated} ciclos avançados criados`);
+
+    // Profile Disciplines
+    console.log('   📚 Criando disciplinas cursadas...');
+    const profileDisciplines = [
+        // NUSP 3 - Neurociência
+        { nusp: 3, codigo: 'BMM0220', nome: 'Neurobiologia Celular', professor: 'Prof. Ana Costa', ano: 2023, semestre: 1, nota: 'A', avancado_id: 1 },
+        { nusp: 3, codigo: 'MAC0460', nome: 'Inteligência Artificial', professor: 'Prof. Roberto Lima', ano: 2023, semestre: 2, nota: 'A', avancado_id: 1 },
+        { nusp: 3, codigo: 'MAC0425', nome: 'Redes Neurais', professor: 'Prof. Carlos Tech', ano: 2024, semestre: 1, nota: 'A+', avancado_id: 1 },
+        
+        // NUSP 4 - Física
+        { nusp: 4, codigo: 'FGE0270', nome: 'Mecânica Quântica II', professor: 'Prof. Pedro Quantum', ano: 2023, semestre: 1, nota: 'A' },
+        { nusp: 4, codigo: 'FGE0280', nome: 'Teoria Quântica de Campos', professor: 'Prof. Carlos Oliveira', ano: 2023, semestre: 2, nota: 'A+', avancado_id: 2 },
+        { nusp: 4, codigo: 'FGE0290', nome: 'Física de Partículas', professor: 'Prof. Laura Field', ano: 2024, semestre: 1, nota: 'A', avancado_id: 2 },
+    ];
+
+    let disciplinesCreated = 0;
+    for (const disc of profileDisciplines) {
+        const userId = userMap[disc.nusp];
+        if (!userId) continue;
+
+        try {
+            await runQuery(
+                `INSERT INTO profile_disciplines 
+                 (user_id, codigo, nome, professor, ano, semestre, nota, avancado_id)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [userId, disc.codigo, disc.nome, disc.professor, disc.ano, disc.semestre, disc.nota, disc.avancado_id]
+            );
+            disciplinesCreated++;
+        } catch (err) {
+            // Ignore duplicates
+        }
+    }
+    console.log(`     ✅ ${disciplinesCreated} disciplinas criadas`);
+
+    // International Experiences
+    console.log('   🌍 Criando experiências internacionais...');
+    const internationalExperiences = [
+        {
+            nusp: 3,
+            tipo: 'intercambio',
+            pais: 'Estados Unidos',
+            instituicao: 'MIT',
+            programa: 'Ciência sem Fronteiras',
+            orientador: 'Prof. John Smith',
+            descricao: 'Intercâmbio acadêmico com foco em neurociência computacional e aprendizado profundo.',
+            ano_inicio: 2023,
+            ano_fim: 2024,
+            duracao_numero: 12,
+            duracao_unidade: 'meses'
+        },
+        {
+            nusp: 4,
+            tipo: 'pesquisa',
+            pais: 'Suíça',
+            instituicao: 'CERN',
+            descricao: 'Estágio de pesquisa em física de partículas no Large Hadron Collider.',
+            ano_inicio: 2024,
+            duracao_numero: 6,
+            duracao_unidade: 'meses'
+        }
+    ];
+
+    let intExpCreated = 0;
+    for (const exp of internationalExperiences) {
+        const userId = userMap[exp.nusp];
+        if (!userId) continue;
+
+        try {
+            await runQuery(
+                `INSERT INTO international_experiences 
+                 (user_id, tipo, pais, instituicao, programa, orientador, descricao,
+                  ano_inicio, ano_fim, duracao_numero, duracao_unidade)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [userId, exp.tipo, exp.pais, exp.instituicao, exp.programa, exp.orientador,
+                 exp.descricao, exp.ano_inicio, exp.ano_fim, exp.duracao_numero, exp.duracao_unidade]
+            );
+            intExpCreated++;
+        } catch (err) {
+            console.error(`     ❌ Erro:`, err.message);
+        }
+    }
+    console.log(`     ✅ ${intExpCreated} experiências internacionais criadas`);
+
+    // Post-CM Info
+    console.log('   🎓 Criando informações pós-CM...');
+    const postCMEntries = [
+        {
+            nusp: 5,
+            tipo: 'pos-graduacao',
+            instituicao: 'USP - Instituto de Química',
+            cargo: 'Mestrando',
+            orientador: 'Prof. Dr. Fernando Química',
+            descricao: 'Mestrado em química orgânica com foco em síntese de compostos bioativos.',
+            ano_inicio: 2024,
+            areas: ['Química', 'Química Orgânica', 'Química Medicinal']
+        },
+        {
+            nusp: 6,
+            tipo: 'trabalho',
+            instituicao: 'Biotech Startup Inc.',
+            cargo: 'Cientista de Dados',
+            descricao: 'Desenvolvendo modelos de ML para descoberta de novos fármacos.',
+            ano_inicio: 2024,
+            github: 'https://github.com/aluno6-biotech',
+            areas: ['Bioinformática', 'Machine Learning']
+        }
+    ];
+
+    let postCMCreated = 0;
+    for (const entry of postCMEntries) {
+        const userId = userMap[entry.nusp];
+        if (!userId) continue;
+
+        try {
+            const result = await runQuery(
+                `INSERT INTO post_cm_info 
+                 (user_id, tipo, instituicao, cargo, orientador, descricao, ano_inicio, ano_fim, github)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [userId, entry.tipo, entry.instituicao, entry.cargo, entry.orientador,
+                 entry.descricao, entry.ano_inicio, entry.ano_fim || null, entry.github || null]
+            );
+
+            const postCMId = result.lastID;
+            
+            // Add areas
+            if (entry.areas) {
+                for (const area of entry.areas) {
+                    await runQuery(
+                        'INSERT INTO post_cm_areas (post_cm_id, label) VALUES (?, ?)',
+                        [postCMId, area]
+                    );
+                }
+            }
+            
+            postCMCreated++;
+        } catch (err) {
+            console.error(`     ❌ Erro:`, err.message);
+        }
+    }
+    console.log(`     ✅ ${postCMCreated} entradas pós-CM criadas`);
+
+    // Profile Follows
+    console.log('   👥 Criando relacionamentos de seguir...');
+    const followRelationships = [
+        { follower: 3, following: 4 },
+        { follower: 3, following: 5 },
+        { follower: 4, following: 3 },
+        { follower: 4, following: 6 },
+        { follower: 5, following: 3 },
+        { follower: 5, following: 4 },
+        { follower: 6, following: 3 },
+        { follower: 7, following: 3 },
+        { follower: 7, following: 4 },
+    ];
+
+    let followsCreated = 0;
+    for (const follow of followRelationships) {
+        const followerId = userMap[follow.follower];
+        const followingId = userMap[follow.following];
+        if (!followerId || !followingId) continue;
+
+        try {
+            await runQuery(
+                'INSERT OR IGNORE INTO profile_follows (follower_id, following_id) VALUES (?, ?)',
+                [followerId, followingId]
+            );
+            followsCreated++;
+        } catch (err) {
+            // Ignore errors
+        }
+    }
+    console.log(`     ✅ ${followsCreated} relacionamentos de seguir criados`);
+
+    return {
+        profiles: publicProfilesData.length,
+        tags: tagsCreated,
+        cycles: cyclesCreated,
+        disciplines: disciplinesCreated,
+        international: intExpCreated,
+        postCM: postCMCreated,
+        follows: followsCreated
+    };
+}
+
 // Execução Principal
 async function main() {
     console.log('🚀 Iniciando seed do banco de dados...\n');
@@ -893,6 +1291,7 @@ async function main() {
         await seedLoans();
         await seedBadges();
         const forumStats = await seedForum();
+        const profileStats = await seedPublicProfiles();
         
         console.log('\n✅ Seed concluído com sucesso!');
         console.log('\n📋 Resumo:');
@@ -903,6 +1302,7 @@ async function main() {
         console.log(`   - ${DONATORS.length} doadores`);
         console.log(`   - Empréstimos e badges criados`);
         console.log(`   - Fórum: ${forumStats.questions} perguntas, ${forumStats.answers} respostas, ${forumStats.tags} tags`);
+        console.log(`   - Perfis: ${profileStats.profiles} atualizados, ${profileStats.cycles} ciclos, ${profileStats.disciplines} disciplinas, ${profileStats.international} exp. internacionais, ${profileStats.postCM} pós-CM, ${profileStats.follows} follows`);
         console.log('\n💡 Credenciais de acesso:');
         console.log('   NUSP 1 = Admin (senha: 1) - MODERADOR DO FÓRUM');
         console.log('   NUSP 2 = ProAluno (senha: 1)');
