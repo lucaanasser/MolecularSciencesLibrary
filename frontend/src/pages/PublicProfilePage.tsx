@@ -2,14 +2,13 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { GraduationCap, Briefcase, BookMarked, Sparkles, Globe } from "lucide-react";
+import { GraduationCap, Briefcase, BookMarked, Globe } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import { usePublicProfile } from "@/features/publicProfile/hooks/usePublicProfile";
 import { useProfileEdit } from "@/features/publicProfile/hooks/useProfileEdit";
 import { ProfileHeader } from "@/features/publicProfile/components/ProfileHeader";
 import { ProfileTabs, TabId } from "@/features/publicProfile/components/ProfileTabs";
 import { ProfileStatsCards } from "@/features/publicProfile/components/ProfileStatsCards";
-import { AboutTab } from "@/features/publicProfile/components/tabs/AboutTab";
 import { AdvancedCyclesTab } from "@/features/publicProfile/components/tabs/AdvancedCyclesTab";
 import { DisciplinesTab } from "@/features/publicProfile/components/tabs/DisciplinesTab";
 import { InternationalTab } from "@/features/publicProfile/components/tabs/InternationalTab";
@@ -113,14 +112,6 @@ const PublicProfilePage = () => {
 
                 {/* Tab Content */}
                 <div className="p-6">
-                  {activeTab === "sobre" && (
-                    <AboutTab
-                      bio={profile.bio}
-                      isEditing={isEditing}
-                      onBioChange={profile.setBio}
-                    />
-                  )}
-
                   {activeTab === "avancados" && (
                     <AdvancedCyclesTab
                       ciclosAvancados={profile.ciclosAvancados}

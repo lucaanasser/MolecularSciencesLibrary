@@ -17,7 +17,6 @@ interface ProfileTabsProps {
 
 const getTabColor = (tabId: TabId) => {
   switch (tabId) {
-    case "sobre": return "cm-purple";
     case "avancados": return "cm-red";
     case "disciplinas": return "cm-blue";
     case "internacional": return "cm-green";
