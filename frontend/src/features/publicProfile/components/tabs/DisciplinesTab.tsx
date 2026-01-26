@@ -36,15 +36,25 @@ export const DisciplinesTab = ({
   onRemove,
   onUpdate,
 }: DisciplinesTabProps) => {
-  // Group disciplines by semester
+
+  // Agrupar por ano e semestre
   const groupedDisciplinas = disciplinas.reduce((acc, disc) => {
-    const semester = disc.semestre || "Sem semestre";
-    if (!acc[semester]) acc[semester] = [];
-    acc[semester].push(disc);
+    const key = disc.ano && disc.semestre ? `${disc.ano}.${disc.semestre}` : "Sem semestre";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(disc);
     return acc;
   }, {} as Record<string, DisciplinaAvancado[]>);
 
-  const sortedSemesters = Object.keys(groupedDisciplinas).sort().reverse();
+  // Ordenar por ano e semestre decrescente
+  const sortedSemesters = Object.keys(groupedDisciplinas)
+    .sort((a, b) => {
+      if (a === "Sem semestre") return 1;
+      if (b === "Sem semestre") return -1;
+      const [aAno, aSem] = a.split(".").map(Number);
+      const [bAno, bSem] = b.split(".").map(Number);
+      if (aAno !== bAno) return bAno - aAno;
+      return bSem - aSem;
+    });
 
   return (
     <div className="space-y-8">
@@ -93,25 +103,24 @@ export const DisciplinesTab = ({
                   className="sm:col-span-2"
                 />
                 <Input
-                  placeholder="Semestre (ex: 2024.1)"
-                  value={disc.semestre}
-                  onChange={(e) => onUpdate(disc.id, "semestre", e.target.value)}
+                  type="number"
+                  placeholder="Ano (ex: 2024)"
+                  value={disc.ano || ""}
+                  onChange={(e) => onUpdate(disc.id, "ano", parseInt(e.target.value) || 0)}
                   className="sm:col-span-1"
+                  min={2000}
+                  max={2100}
                 />
                 <Select
-                  value={disc.avancadoId || "none"}
-                  onValueChange={(v) => onUpdate(disc.id, "avancadoId", v === "none" ? undefined : v)}
+                  value={disc.semestre ? String(disc.semestre) : ""}
+                  onValueChange={(v) => onUpdate(disc.id, "semestre", parseInt(v) as 1 | 2)}
                 >
                   <SelectTrigger className="sm:col-span-1">
-                    <SelectValue placeholder="Avançado" />
+                    <SelectValue placeholder="Semestre" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Nenhum</SelectItem>
-                    {ciclosAvancados.map((av, idx) => (
-                      <SelectItem key={av.id} value={av.id}>
-                        Avançado {idx + 1}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
                   </SelectContent>
                 </Select>
                 <button
@@ -166,6 +175,9 @@ export const DisciplinesTab = ({
                       <div className="flex items-start gap-2 mb-2">
                         <span className="text-xs font-mono font-bold text-cm-purple bg-cm-purple/10 px-2 py-1 rounded">
                           {disc.codigo}
+                        </span>
+                        <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                          {disc.ano}.{disc.semestre}
                         </span>
                         {disc.avancadoId && (
                           <Badge 

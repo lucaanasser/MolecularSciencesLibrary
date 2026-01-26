@@ -171,6 +171,13 @@ export const AdvancedCyclesTab = ({
                         />
                       </div>
 
+                      <Input
+                        placeholder="Universidade (opcional)"
+                        value={av.universidade || ""}
+                        onChange={(e) => onUpdate(av.id, "universidade", e.target.value)}
+                        className="bg-white"
+                      />
+
                       {/* Coorientadores */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">Coorientadores (opcional)</label>
@@ -346,6 +353,16 @@ export const AdvancedCyclesTab = ({
                           </div>
                         )}
                       </div>
+
+                      {av.universidade && (
+                        <div className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                          <Building2 className="w-5 h-5 text-cm-green mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium text-gray-500">Universidade</p>
+                            <p className="text-sm font-semibold text-gray-900">{av.universidade}</p>
+                          </div>
+                        </div>
+                      )}
 
                       {av.coorientadores && av.coorientadores.length > 0 && (
                         <div className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">

@@ -17,6 +17,7 @@ export interface AdvancedCycleInfo {
   tema: string;
   descricao: string;
   instituto?: string; // Instituto/Unidade/Faculdade
+  universidade?: string; // Universidade (opcional, além do instituto)
   semestres: number; // Quantos semestres durou
   anoInicio?: number;
   anoConclusao?: number;
@@ -30,19 +31,23 @@ export interface DisciplinaAvancado {
   codigo: string;
   nome: string;
   professor?: string;
-  semestre: string; // Ex: "2024.1", "2024.2"
+  ano: number; // Ex: 2024
+  semestre: 1 | 2; // 1 ou 2
   nota?: string;
   avancadoId?: string; // ID do avançado ao qual pertence
 }
 
 // Informações pós-CM
 export interface PostCMInfo {
-  tipo: "trabalho" | "pos-graduacao" | "outro";
+  id: string;
+  tipo: "trabalho" | "pos-graduacao" | "nova-graduacao" | "retorno-curso-origem" | "outro";
   instituicao: string;
   cargo?: string;
-  area?: string;
+  orientador?: string;
+  areas?: ProfileTag[];
   descricao?: string;
   anoInicio?: number;
+  anoFim?: number;
 }
 
 // Experiência Internacional durante o CM
@@ -52,6 +57,7 @@ export interface InternationalExperience {
   pais: string;
   instituicao: string;
   programa?: string; // Nome do programa (ex: "Ciência sem Fronteiras", "Erasmus+")
+  orientador?: string; // Orientador durante a experiência (opcional)
   descricao?: string;
   anoInicio: number;
   anoFim?: number; // Se não preenchido, ainda está em andamento
@@ -70,7 +76,7 @@ export interface PublicProfile {
   ciclosAvancados: AdvancedCycleInfo[]; // Array de avançados
   disciplinas: DisciplinaAvancado[]; // Disciplinas do(s) avançado(s)
   experienciasInternacionais?: InternationalExperience[]; // Experiências internacionais
-  posCM?: PostCMInfo;
+  posCM?: PostCMInfo[]; // Agora é array
   isPublic: boolean;
   emailPublico?: string;
   linkedIn?: string;

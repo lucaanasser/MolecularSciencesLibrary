@@ -123,6 +123,12 @@ export const InternationalTab = ({
                       />
                     </div>
 
+                    <Input
+                      placeholder="Orientador (opcional)"
+                      value={exp.orientador || ""}
+                      onChange={(e) => onUpdate(exp.id, "orientador", e.target.value)}
+                    />
+
                     <div className="grid sm:grid-cols-3 gap-4">
                       <Input
                         type="number"
@@ -179,6 +185,12 @@ export const InternationalTab = ({
                         <MapPin className="w-4 h-4 text-cm-orange" />
                         {exp.pais}
                       </span>
+                      {exp.orientador && (
+                        <span className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-cm-blue" />
+                          {exp.orientador}
+                        </span>
+                      )}
                       {exp.duracao && (
                         <span className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-cm-purple" />

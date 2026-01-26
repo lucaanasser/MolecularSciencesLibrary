@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Edit3, Camera, UserPlus, UserCheck, Save, Mail, Linkedin, FileText, Github, Globe, X, Plus, Users } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Edit3, Camera, UserPlus, UserCheck, Save, Mail, Linkedin, FileText, Github, Globe, X, Plus, Users, Upload, ZoomIn, ZoomOut } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +79,138 @@ export const ProfileHeader = ({
   const [newTag, setNewTag] = useState("");
   const [tagCategory, setTagCategory] = useState<ProfileTag["category"]>("area");
 
+  // Avatar upload/crop
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const inputRef = useRef<HTMLInputElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleAvatarClick = () => setShowAvatarModal(true);
+  
+  const processFile = (file: File) => {
+    if (file && file.size <= 5 * 1024 * 1024 && file.type.startsWith("image/")) {
+      setAvatarUrl(URL.createObjectURL(file));
+      setZoom(1);
+      setPosition({ x: 0, y: 0 });
+    } else {
+      alert("Selecione uma imagem de até 5MB (PNG ou JPG).");
+    }
+  };
+
+  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  }, []);
+
+  // Funções para arrastar a imagem dentro do preview
+  const handleImageMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(true);
+    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  const handleImageMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDraggingImage) return;
+    const maxOffset = 100 * (zoom - 1);
+    const newX = Math.max(-maxOffset, Math.min(maxOffset, e.clientX - dragStart.x));
+    const newY = Math.max(-maxOffset, Math.min(maxOffset, e.clientY - dragStart.y));
+    setPosition({ x: newX, y: newY });
+  }, [isDraggingImage, dragStart, zoom]);
+
+  const handleImageMouseUp = useCallback(() => {
+    setIsDraggingImage(false);
+  }, []);
+
+  // Touch events para mobile
+  const handleImageTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setIsDraggingImage(true);
+    setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+  };
+
+  const handleImageTouchMove = useCallback((e: TouchEvent) => {
+    if (!isDraggingImage) return;
+    const touch = e.touches[0];
+    const maxOffset = 100 * (zoom - 1);
+    const newX = Math.max(-maxOffset, Math.min(maxOffset, touch.clientX - dragStart.x));
+    const newY = Math.max(-maxOffset, Math.min(maxOffset, touch.clientY - dragStart.y));
+    setPosition({ x: newX, y: newY });
+  }, [isDraggingImage, dragStart, zoom]);
+
+  // Efeito para adicionar/remover listeners globais
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDraggingImage) return;
+      const maxOffset = 100 * (zoom - 1);
+      const newX = Math.max(-maxOffset, Math.min(maxOffset, e.clientX - dragStart.x));
+      const newY = Math.max(-maxOffset, Math.min(maxOffset, e.clientY - dragStart.y));
+      setPosition({ x: newX, y: newY });
+    };
+    const handleGlobalMouseUp = () => setIsDraggingImage(false);
+    const handleGlobalTouchMove = (e: TouchEvent) => {
+      if (!isDraggingImage) return;
+      const touch = e.touches[0];
+      const maxOffset = 100 * (zoom - 1);
+      const newX = Math.max(-maxOffset, Math.min(maxOffset, touch.clientX - dragStart.x));
+      const newY = Math.max(-maxOffset, Math.min(maxOffset, touch.clientY - dragStart.y));
+      setPosition({ x: newX, y: newY });
+    };
+    const handleGlobalTouchEnd = () => setIsDraggingImage(false);
+
+    if (isDraggingImage) {
+      window.addEventListener("mousemove", handleGlobalMouseMove);
+      window.addEventListener("mouseup", handleGlobalMouseUp);
+      window.addEventListener("touchmove", handleGlobalTouchMove);
+      window.addEventListener("touchend", handleGlobalTouchEnd);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleGlobalMouseMove);
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
+      window.removeEventListener("touchmove", handleGlobalTouchMove);
+      window.removeEventListener("touchend", handleGlobalTouchEnd);
+    };
+  }, [isDraggingImage, dragStart, zoom]);
+
+  const handleAvatarSave = () => {
+    // Aqui você pode exportar a imagem e atualizar o avatar (integração backend)
+    setShowAvatarModal(false);
+    setAvatarUrl(null);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleCloseModal = () => {
+    setShowAvatarModal(false);
+    setAvatarUrl(null);
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
   const handleAddTag = () => {
     if (newTag.trim()) {
       onAddTag(newTag.trim(), tagCategory);
@@ -118,9 +250,102 @@ export const ProfileHeader = ({
               </AvatarFallback>
             </Avatar>
             {isOwnProfile && isEditing && (
-              <button className="absolute bottom-2 right-2 w-10 h-10 bg-cm-purple text-white rounded-full shadow-lg hover:bg-cm-purple/90 flex items-center justify-center">
-                <Camera className="w-5 h-5" />
+              <button
+                className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-cm-purple text-white rounded-full shadow-lg hover:bg-cm-purple/90 flex items-center justify-center z-10"
+                style={{ marginTop: "-16px" }}
+                onClick={handleAvatarClick}
+              >
+                <Camera className="w-6 h-6" />
               </button>
+            )}
+            {/* Modal de upload/crop */}
+            {showAvatarModal && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative">
+                  <button className="absolute top-3 right-3 text-gray-400 hover:text-red-600 transition-colors" onClick={handleCloseModal}>
+                    <X className="w-6 h-6" />
+                  </button>
+                  <h3 className="text-xl font-bold mb-4 text-gray-900">Alterar foto de perfil</h3>
+                  
+                  {!avatarUrl ? (
+                    <div
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-xl transition-colors cursor-pointer",
+                        isDragging ? "border-cm-purple bg-cm-purple/10" : "border-gray-300 hover:border-cm-purple/50"
+                      )}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => inputRef.current?.click()}
+                    >
+                      <input
+                        ref={inputRef}
+                        type="file"
+                        accept="image/png, image/jpeg, image/jpg"
+                        className="hidden"
+                        onChange={handleAvatarFile}
+                      />
+                      <div className="w-16 h-16 rounded-full bg-cm-purple/10 flex items-center justify-center">
+                        <Upload className="w-8 h-8 text-cm-purple" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-gray-700">
+                          {isDragging ? "Solte a imagem aqui" : "Arraste uma imagem ou clique para selecionar"}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">PNG ou JPG, máximo 5MB</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4">
+                      {/* Preview com zoom e drag */}
+                      <div 
+                        ref={imageContainerRef}
+                        className="relative w-64 h-64 bg-gray-100 rounded-xl overflow-hidden border-4 border-gray-200 cursor-grab active:cursor-grabbing select-none"
+                        onMouseDown={handleImageMouseDown}
+                        onTouchStart={handleImageTouchStart}
+                      >
+                        <img
+                          src={avatarUrl}
+                          alt="Preview"
+                          draggable={false}
+                          className="absolute w-full h-full object-cover pointer-events-none"
+                          style={{
+                            transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                            transformOrigin: "center center",
+                          }}
+                        />
+                        {/* Guia visual de área de corte */}
+                        <div className="absolute inset-0 pointer-events-none border-2 border-white/50 rounded-xl" />
+                      </div>
+                      <p className="text-xs text-gray-500">Arraste para posicionar a imagem</p>
+                      
+                      {/* Controle de Zoom */}
+                      <div className="flex items-center gap-3 w-full max-w-xs">
+                        <ZoomOut className="w-4 h-4 text-gray-500" />
+                        <input
+                          type="range"
+                          min={1}
+                          max={3}
+                          step={0.05}
+                          value={zoom}
+                          onChange={(e) => setZoom(Number(e.target.value))}
+                          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cm-purple"
+                        />
+                        <ZoomIn className="w-4 h-4 text-gray-500" />
+                      </div>
+                      
+                      <div className="flex gap-3 mt-2 w-full">
+                        <Button onClick={handleAvatarSave} className="flex-1 bg-cm-green hover:bg-cm-green/90 text-white">
+                          Salvar
+                        </Button>
+                        <Button onClick={() => setAvatarUrl(null)} variant="outline" className="flex-1">
+                          Trocar imagem
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 
@@ -248,10 +473,6 @@ export const ProfileHeader = ({
                         Editar perfil
                       </Button>
                     )}
-                    <div className="flex items-center gap-2">
-                      <Switch id="public" checked={isPublic} onCheckedChange={onPublicToggle} />
-                      <Label htmlFor="public" className="text-sm text-gray-600 cursor-pointer">Público</Label>
-                    </div>
                   </>
                 )}
               </div>
@@ -354,7 +575,7 @@ export const ProfileHeader = ({
             {isEditing && (
               <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <h4 className="text-sm font-semibold text-gray-900 mb-3">Links de contato</h4>
-                <div className="grid sm:grid-cols-3 gap-3">
+                <div className="grid sm:grid-cols-4 gap-3">
                   <div>
                     <Label className="text-xs text-gray-600">Email público</Label>
                     <Input
@@ -380,6 +601,22 @@ export const ProfileHeader = ({
                       placeholder="URL do Lattes"
                       value={lattes}
                       onChange={(e) => onLattesChange(e.target.value)}
+                      className="text-sm mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600">GitHub</Label>
+                    <Input
+                      placeholder="URL do GitHub"
+                      value={github || ""}
+                      onChange={(e) => {
+                        if (typeof window !== "undefined" && window.onGithubChange) {
+                          window.onGithubChange(e.target.value);
+                        }
+                        if (typeof onGithubChange === "function") {
+                          onGithubChange(e.target.value);
+                        }
+                      }}
                       className="text-sm mt-1"
                     />
                   </div>

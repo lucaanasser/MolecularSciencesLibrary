@@ -43,15 +43,15 @@ Acredito que a ciência é mais poderosa quando quebramos as barreiras entre dis
   ] as (AdvancedCycleInfo & { cor?: string })[],
   
   disciplinas: [
-    { id: "disc-1", codigo: "MAC0110", nome: "Introdução à Computação", professor: "Yoshiko Wakabayashi", semestre: "2024.1", avancadoId: "av-1" },
-    { id: "disc-2", codigo: "BMM0220", nome: "Neurociência Celular", professor: "Koichi Sameshima", semestre: "2024.1", avancadoId: "av-1" },
-    { id: "disc-3", codigo: "MAP2210", nome: "Métodos Numéricos", professor: "Junior Barrera", semestre: "2024.2", avancadoId: "av-1" },
-    { id: "disc-4", codigo: "FFI0421", nome: "Física Computacional", professor: "Ricardo Galvão", semestre: "2024.2", avancadoId: "av-1" },
-    { id: "disc-5", codigo: "QBQ0315", nome: "Bioquímica Estrutural", professor: "Shaker Chuck Farah", semestre: "2025.1", avancadoId: "av-2" },
-    { id: "disc-6", codigo: "BIO0301", nome: "Biologia Molecular", professor: "Carlos Menck", semestre: "2025.1", avancadoId: "av-2" },
-    { id: "disc-7", codigo: "MAT0120", nome: "Cálculo I", professor: "Oscar João Abdounur", semestre: "2023.1" },
-    { id: "disc-8", codigo: "FIS0131", nome: "Mecânica Clássica", professor: "Henrique Fleming", semestre: "2023.1" },
-    { id: "disc-9", codigo: "QFL0343", nome: "Química Orgânica", professor: "Luiz Humberto Catalani", semestre: "2023.2" },
+    { id: "disc-1", codigo: "MAC0110", nome: "Introdução à Computação", professor: "Yoshiko Wakabayashi", ano: 2024, semestre: 1, avancadoId: "av-1" },
+    { id: "disc-2", codigo: "BMM0220", nome: "Neurociência Celular", professor: "Koichi Sameshima", ano: 2024, semestre: 1, avancadoId: "av-1" },
+    { id: "disc-3", codigo: "MAP2210", nome: "Métodos Numéricos", professor: "Junior Barrera", ano: 2024, semestre: 2, avancadoId: "av-1" },
+    { id: "disc-4", codigo: "FFI0421", nome: "Física Computacional", professor: "Ricardo Galvão", ano: 2024, semestre: 2, avancadoId: "av-1" },
+    { id: "disc-5", codigo: "QBQ0315", nome: "Bioquímica Estrutural", professor: "Shaker Chuck Farah", ano: 2025, semestre: 1, avancadoId: "av-2" },
+    { id: "disc-6", codigo: "BIO0301", nome: "Biologia Molecular", professor: "Carlos Menck", ano: 2025, semestre: 1, avancadoId: "av-2" },
+    { id: "disc-7", codigo: "MAT0120", nome: "Cálculo I", professor: "Oscar João Abdounur", ano: 2023, semestre: 1 },
+    { id: "disc-8", codigo: "FIS0131", nome: "Mecânica Clássica", professor: "Henrique Fleming", ano: 2023, semestre: 1 },
+    { id: "disc-9", codigo: "QFL0343", nome: "Química Orgânica", professor: "Luiz Humberto Catalani", ano: 2023, semestre: 2 },
   ] as DisciplinaAvancado[],
   
   tags: [
@@ -66,14 +66,33 @@ Acredito que a ciência é mais poderosa quando quebramos as barreiras entre dis
     { id: "t9", label: "Biologia Estrutural", category: "subarea" as const },
   ],
   
-  posCM: {
-    tipo: "pos-graduacao" as const,
-    instituicao: "Instituto de Matemática e Estatística - USP",
-    cargo: "Mestrado em Ciência da Computação",
-    area: "Inteligência Artificial aplicada à Biologia",
-    anoInicio: 2026,
-    descricao: "Continuação da pesquisa em modelagem computacional de sistemas biológicos, agora com foco em aplicações de deep learning para análise de dados de neuroimagem.",
-  },
+  posCM: [
+    {
+      id: "poscm-1",
+      tipo: "pos-graduacao",
+      instituicao: "Instituto de Matemática e Estatística - USP",
+      cargo: "Mestrado em Ciência da Computação",
+      orientador: "Prof. Dr. Fulano de Tal",
+      areas: [
+        { id: "t10", label: "Inteligência Artificial", category: "area" },
+        { id: "t11", label: "Biologia Computacional", category: "area" }
+      ],
+      anoInicio: 2026,
+      descricao: "Continuação da pesquisa em modelagem computacional de sistemas biológicos, agora com foco em aplicações de deep learning para análise de dados de neuroimagem."
+    },
+    {
+      id: "poscm-2",
+      tipo: "trabalho",
+      instituicao: "Empresa X",
+      cargo: "Cientista de Dados",
+      areas: [
+        { id: "t12", label: "Data Science", category: "area" }
+      ],
+      anoInicio: 2027,
+      anoFim: 2028,
+      descricao: "Atuação em projetos de análise de dados biomédicos."
+    }
+  ],
 
   experienciasInternacionais: [
     {
@@ -125,7 +144,7 @@ export const usePublicProfile = () => {
   const [ciclosAvancados, setCiclosAvancados] = useState<(AdvancedCycleInfo & { cor?: string })[]>(MOCK_DATA.ciclosAvancados);
   const [disciplinas, setDisciplinas] = useState<DisciplinaAvancado[]>(MOCK_DATA.disciplinas);
   const [experienciasInternacionais, setExperienciasInternacionais] = useState<InternationalExperience[]>(MOCK_DATA.experienciasInternacionais);
-  const [posCM, setPosCM] = useState<Partial<PostCMInfo>>(MOCK_DATA.posCM);
+  const [posCM, setPosCM] = useState<PostCMInfo[]>(MOCK_DATA.posCM);
   const [tags, setTags] = useState<ProfileTag[]>(MOCK_DATA.tags);
   const [isPublic, setIsPublic] = useState(true);
   const [emailPublico, setEmailPublico] = useState(MOCK_DATA.links.email);

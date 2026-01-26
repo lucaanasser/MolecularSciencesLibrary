@@ -145,9 +145,9 @@ const PublicProfilePage = () => {
 
                   {activeTab === "pos-cm" && (
                     <PostCMTab
-                      posCM={profile.posCM}
+                      posCM={Array.isArray(profile.posCM) ? profile.posCM : []}
                       isEditing={isEditing}
-                      onUpdate={profile.setPosCM}
+                      onUpdate={(arr) => profile.setPosCM(arr)}
                     />
                   )}
                 </div>
