@@ -42,6 +42,8 @@ interface ProfileHeaderProps {
   onLinkedInChange: (value: string) => void;
   onLattesChange: (value: string) => void;
   onGithubChange: (value: string) => void;
+  onAvatarUpload?: (file: File) => Promise<void>;
+  onBannerChange?: (bannerChoice: string) => Promise<void>;
 }
 
 const TAG_STYLES = {
@@ -75,11 +77,14 @@ export const ProfileHeader = ({
   onLinkedInChange,
   onLattesChange,
   onGithubChange,
+  onAvatarUpload,
+  onBannerChange,
 }: ProfileHeaderProps) => {
   const [showFollowing, setShowFollowing] = useState(false);
   const [showTagEditor, setShowTagEditor] = useState(false);
   const [newTag, setNewTag] = useState("");
   const [tagCategory, setTagCategory] = useState<ProfileTag["category"]>("area");
+  const [showBannerSelector, setShowBannerSelector] = useState(false);
 
   // Avatar upload/crop
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -199,11 +204,26 @@ export const ProfileHeader = ({
     };
   }, [isDraggingImage, dragStart, zoom]);
 
-  const handleAvatarSave = () => {
-    // Aqui você pode exportar a imagem e atualizar o avatar (integração backend)
-    setShowAvatarModal(false);
-    setAvatarUrl(null);
-    setPosition({ x: 0, y: 0 });
+  const handleAvatarSave = async () => {
+    if (!avatarUrl || !onAvatarUpload) return;
+
+    try {
+      // Convert data URL to File
+      const response = await fetch(avatarUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "avatar.png", { type: "image/png" });
+      
+      await onAvatarUpload(file);
+      
+      // Close modal and reset
+      setShowAvatarModal(false);
+      setAvatarUrl(null);
+      setPosition({ x: 0, y: 0 });
+      setZoom(1);
+    } catch (err) {
+      console.error('Erro ao salvar avatar:', err);
+      alert('Erro ao salvar avatar');
+    }
   };
 
   const handleCloseModal = () => {
@@ -220,6 +240,26 @@ export const ProfileHeader = ({
     }
   };
 
+  const handleBannerSelect = async (bannerChoice: string) => {
+    if (onBannerChange) {
+      try {
+        await onBannerChange(bannerChoice);
+        setShowBannerSelector(false);
+      } catch (err) {
+        console.error('Erro ao alterar banner:', err);
+      }
+    }
+  };
+
+  const BANNER_OPTIONS = [
+    { name: "purple", color: "#7C3AED", label: "Roxo" },
+    { name: "blue", color: "#3B82F6", label: "Azul" },
+    { name: "green", color: "#10B981", label: "Verde" },
+    { name: "red", color: "#EF4444", label: "Vermelho" },
+    { name: "orange", color: "#F97316", label: "Laranja" },
+    { name: "yellow", color: "#EAB308", label: "Amarelo" },
+  ];
+
   return (
     <div className="relative">
       {/* Banner */}
@@ -231,10 +271,34 @@ export const ProfileHeader = ({
         />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-cm-bg" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
         {isOwnProfile && isEditing && (
-          <button className="absolute top-8 right-10 flex items-center gap-2 px-3 py-2 bg-cm-bg/50 hover:bg-cm-bg/70 text-black rounded-lg text-sm backdrop-blur-sm transition-colors">
-            <Camera className="w-4 h-4" />
-            Alterar banner
-          </button>
+          <Popover open={showBannerSelector} onOpenChange={setShowBannerSelector}>
+            <PopoverTrigger asChild>
+              <button className="absolute top-8 right-10 flex items-center gap-2 px-3 py-2 bg-cm-bg/50 hover:bg-cm-bg/70 text-black rounded-lg text-sm backdrop-blur-sm transition-colors">
+                <Camera className="w-4 h-4" />
+                Alterar banner
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm text-gray-700">Escolha uma cor para o banner</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  {BANNER_OPTIONS.map((banner) => (
+                    <button
+                      key={banner.name}
+                      onClick={() => handleBannerSelect(banner.name)}
+                      className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
+                    >
+                      <div 
+                        className="w-full h-12 rounded-md"
+                        style={{ backgroundColor: banner.color }}
+                      />
+                      <span className="text-xs text-gray-600">{banner.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
 

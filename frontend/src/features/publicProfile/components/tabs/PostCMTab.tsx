@@ -9,10 +9,12 @@ import { PostCMInfo } from "@/types/publicProfile";
 interface PostCMTabProps {
   posCM: PostCMInfo[];
   isEditing: boolean;
-  onUpdate: (updates: PostCMInfo[]) => void;
+  onAdd: () => void;
+  onRemove: (id: string) => void;
+  onUpdate: (id: string, field: keyof PostCMInfo, value: any) => void;
 }
 
-export const PostCMTab = ({ posCM, isEditing, onUpdate }: PostCMTabProps) => {
+export const PostCMTab = ({ posCM, isEditing, onAdd, onRemove, onUpdate }: PostCMTabProps) => {
   // Opções de tipo
   const POST_CM_TYPES = [
     { value: "trabalho", label: "Trabalho" },
@@ -22,46 +24,30 @@ export const PostCMTab = ({ posCM, isEditing, onUpdate }: PostCMTabProps) => {
     { value: "outro", label: "Outro" },
   ];
 
-  // Funções para tags de área
+  // Funções para tags de área - mantidas por enquanto mas precisarão de backend integration
   const addAreaTag = (idx: number, label: string) => {
+    const entry = posCM[idx];
     const tag: any = { id: `${Date.now()}`, label, category: "area" };
-    const newArr = [...posCM];
-    newArr[idx].areas = [...(newArr[idx].areas || []), tag];
-    onUpdate(newArr);
+    const updatedAreas = [...(entry.areas || []), tag];
+    onUpdate(entry.id!, "areas" as any, updatedAreas);
   };
+  
   const removeAreaTag = (idx: number, tagId: string) => {
-    const newArr = [...posCM];
-    newArr[idx].areas = (newArr[idx].areas || []).filter((t) => t.id !== tagId);
-    onUpdate(newArr);
+    const entry = posCM[idx];
+    const updatedAreas = (entry.areas || []).filter((t) => t.id !== tagId);
+    onUpdate(entry.id!, "areas" as any, updatedAreas);
   };
 
   const handleUpdate = (idx: number, updates: Partial<PostCMInfo>) => {
-    const newArr = [...posCM];
-    newArr[idx] = { ...newArr[idx], ...updates };
-    onUpdate(newArr);
-  };
-
-  const handleAdd = () => {
-    onUpdate([
-      ...posCM,
-      {
-        id: `poscm-${Date.now()}`,
-        tipo: "trabalho",
-        instituicao: "",
-        cargo: "",
-        areas: [],
-        descricao: "",
-        anoInicio: undefined,
-        anoFim: undefined,
-        github: "",
-      },
-    ]);
+    const entry = posCM[idx];
+    Object.entries(updates).forEach(([field, value]) => {
+      onUpdate(entry.id!, field as keyof PostCMInfo, value);
+    });
   };
 
   const handleRemove = (idx: number) => {
-    const newArr = [...posCM];
-    newArr.splice(idx, 1);
-    onUpdate(newArr);
+    const entry = posCM[idx];
+    onRemove(entry.id!);
   };
 
   return (
@@ -70,7 +56,7 @@ export const PostCMTab = ({ posCM, isEditing, onUpdate }: PostCMTabProps) => {
         <div className="w-1 h-8 bg-cm-orange rounded-full" />
         <h2 className="text-2xl font-bebas text-gray-900">Pós-CM</h2>
         {isEditing && (
-          <button onClick={handleAdd} className="ml-4 flex items-center gap-2 px-3 py-1 rounded-full bg-cm-orange/80 text-white hover:bg-cm-orange">
+          <button onClick={onAdd} className="ml-4 flex items-center gap-2 px-3 py-1 rounded-full bg-cm-orange/80 text-white hover:bg-cm-orange">
             <Plus className="w-4 h-4" /> Adicionar Pós-CM
           </button>
         )}
