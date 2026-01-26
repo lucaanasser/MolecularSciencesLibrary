@@ -129,23 +129,27 @@
 @layer components {
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 bg-cm-purple hover:bg-cm-purple/70 text-cm-bg rounded-2xl
+    @apply inline-flex items-center justify-center whitespace-nowrap h-10 rounded-2xl font-semibold text-base md:text-lg
+  }
+
+  .btn:hover {
+    opacity: 0.8;
   }
   
   .primary-btn {
-    @apply btn px-7 py-5 text-base md:text-lg font-semibold;
+    @apply btn bg-cm-purple text-cm-bg px-7 py-5 text-base md:text-lg;
   }
 
   .primary-btn-academic {
-    @apply primary-btn bg-cm-academic hover:bg-cm-academic/70;
-  }
-
-  .big-btn {
-    @apply btn px-10 py-5 text-xl md:text-2xl font-bold shadow-lg;
+    @apply btn bg-cm-academic   text-cm-bg px-7 py-5;
   }
 
   .wide-btn {
-    @apply primary-btn rounded-xl w-full;
+    @apply btn text-cm-bg rounded-xl w-full;
+  }
+
+  .nav-link {
+    @apply wide-btn font-normal items-start;
   }
 }
 

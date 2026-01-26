@@ -206,7 +206,7 @@ const Index = () => {
             <p className="bigtext">
               Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
             </p>
-            <button className="big-btn">
+            <button className="primary-btn text-2xl">
               <Link to="/buscar">Explorar Acervo</Link>
             </button>
           </div>
