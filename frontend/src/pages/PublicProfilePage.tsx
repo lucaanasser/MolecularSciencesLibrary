@@ -91,6 +91,7 @@ const PublicProfilePage = () => {
           onEmailChange={profile.setEmailPublico}
           onLinkedInChange={profile.setLinkedIn}
           onLattesChange={profile.setLattes}
+          onGithubChange={profile.setGithub}
         />
 
         {/* Content Section */}

@@ -41,6 +41,7 @@ interface ProfileHeaderProps {
   onEmailChange: (value: string) => void;
   onLinkedInChange: (value: string) => void;
   onLattesChange: (value: string) => void;
+  onGithubChange: (value: string) => void;
 }
 
 const TAG_STYLES = {
@@ -73,6 +74,7 @@ export const ProfileHeader = ({
   onEmailChange,
   onLinkedInChange,
   onLattesChange,
+  onGithubChange,
 }: ProfileHeaderProps) => {
   const [showFollowing, setShowFollowing] = useState(false);
   const [showTagEditor, setShowTagEditor] = useState(false);
@@ -609,14 +611,7 @@ export const ProfileHeader = ({
                     <Input
                       placeholder="URL do GitHub"
                       value={github || ""}
-                      onChange={(e) => {
-                        if (typeof window !== "undefined" && window.onGithubChange) {
-                          window.onGithubChange(e.target.value);
-                        }
-                        if (typeof onGithubChange === "function") {
-                          onGithubChange(e.target.value);
-                        }
-                      }}
+                      onChange={(e) => onGithubChange && onGithubChange(e.target.value)}
                       className="text-sm mt-1"
                     />
                   </div>
