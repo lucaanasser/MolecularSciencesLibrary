@@ -11,8 +11,8 @@ class PublicProfilesModel {
         console.log(`🔵 [PublicProfilesModel] Criando perfil público para user: ${userId}`);
         
         const result = await executeQuery(
-            `INSERT INTO public_profiles (user_id) VALUES (?)`,
-            [userId]
+            `INSERT INTO public_profiles (user_id, banner_choice) VALUES (?, ?)`,
+            [userId, 'purple']
         );
 
         console.log(`🟢 [PublicProfilesModel] Perfil criado com ID: ${result.lastID}`);
