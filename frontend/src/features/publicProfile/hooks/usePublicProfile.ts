@@ -25,7 +25,6 @@ export const usePublicProfile = (userId: number) => {
   const [experienciasInternacionais, setExperienciasInternacionais] = useState<InternationalExperience[]>([]);
   const [posCM, setPosCM] = useState<PostCMInfo[]>([]);
   const [tags, setTags] = useState<ProfileTag[]>([]);
-  const [isPublic, setIsPublic] = useState(true);
   const [emailPublico, setEmailPublico] = useState("");
   const [linkedIn, setLinkedIn] = useState("");
   const [lattes, setLattes] = useState("");
@@ -57,12 +56,11 @@ export const usePublicProfile = (userId: number) => {
         setBio(profile.bio || "");
         setCitacao(profile.citacao || "");
         setCitacaoAutor(profile.citacao_autor || "");
-        setIsPublic(profile.is_public ?? true);
         setEmailPublico(profile.email_publico || "");
         setLinkedIn(profile.linkedin || "");
         setLattes(profile.lattes || "");
         setGithub(profile.github || "");
-        setSite(profile.site_pessoal || "");
+        setSite(profile.site || "");
         setBannerChoice(profile.banner_choice || "purple");
         setNome(profile.nome || "");
         setTurma(profile.turma || "");
@@ -108,7 +106,6 @@ export const usePublicProfile = (userId: number) => {
       setBio(profile.bio || "");
       setCitacao(profile.citacao || "");
       setCitacaoAutor(profile.citacao_autor || "");
-      setIsPublic(profile.is_public ?? true);
       setEmailPublico(profile.email_publico || "");
       setLinkedIn(profile.linkedin || "");
       setLattes(profile.lattes || "");
@@ -520,7 +517,7 @@ export const usePublicProfile = (userId: number) => {
         lattes,
         github,
         site_pessoal: site,
-        is_public: isPublic,
+
       });
       
       console.log('✅ Perfil salvo com sucesso');
@@ -542,7 +539,6 @@ export const usePublicProfile = (userId: number) => {
     experienciasInternacionais,
     posCM,
     tags,
-    isPublic,
     emailPublico,
     linkedIn,
     lattes,
@@ -564,7 +560,6 @@ export const usePublicProfile = (userId: number) => {
     setCitacao,
     setCitacaoAutor,
     setPosCM,
-    setIsPublic,
     setEmailPublico,
     setLinkedIn,
     setLattes,
@@ -595,7 +590,7 @@ export const usePublicProfile = (userId: number) => {
     refetch,
   }), [
     bio, citacao, citacaoAutor, ciclosAvancados, disciplinas, 
-    experienciasInternacionais, posCM, tags, isPublic, emailPublico,
+    experienciasInternacionais, posCM, tags, emailPublico,
     linkedIn, lattes, github, site, seguindo, isFollowing, stats,
     loading, error, saving,
     bannerChoice, nome, turma, profileImage
