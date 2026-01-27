@@ -2,143 +2,17 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
+import MolecoogleWindow from "@/features/index/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";
-
-// Hook para animar contagem de números
-function useCountUp(target: number | null, duration = 1200) {
-  const [value, setValue] = useState(0);
-  const raf = useRef<number | null>(null);
-  useEffect(() => {
-    if (typeof target !== 'number' || isNaN(target)) return;
-    let start = 0;
-    let startTime: number | null = null;
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const current = Math.floor(progress * (target - start) + start);
-      setValue(current);
-      if (progress < 1) {
-        raf.current = requestAnimationFrame(animate);
-      } else {
-        setValue(target);
-      }
-    };
-    raf.current = requestAnimationFrame(animate);
-    return () => {
-      if (raf.current !== null) cancelAnimationFrame(raf.current);
-    };
-  }, [target, duration]);
-  return value;
-}
-
-// Componente separado para animar os números
-type StatsType = { users: number | null, disciplines: number | null, areas: number | null };
-function StatsGrid({ stats }: { stats: StatsType }) {
-  const users = useCountUp(stats.users, 1200);
-  const disciplines = useCountUp(stats.disciplines, 1200);
-  const areas = useCountUp(stats.areas, 1200);
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-      <div className="text-center">
-        <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
-            <Users className="h-8 w-8 text-default-bg" />
-          </div>
-        </div>
-        <p className="bigtext mb-2 font-bold text-default-bg">
-          {stats.users == null ? '-' : users}
-        </p>
-        <p className="bigtext text-default-bg">
-          Alunos cadastrados
-        </p>
-        <p className="text-default-bg leading-tight">
-          Conectando estudantes e promovendo colaboração acadêmica.
-        </p>
-      </div>
-      <div className="text-center">
-        <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
-            <BookOpen className="h-8 w-8 text-default-bg" />
-          </div>
-        </div>
-        <p className="bigtext mb-2 font-bold text-default-bg">
-          {stats.disciplines == null ? '-' : disciplines}
-        </p>
-        <p className="bigtext text-default-bg">
-          Disciplinas disponíveis
-        </p>
-        <p className="text-default-bg leading-tight">
-          Catálogo completo de disciplinas para seu planejamento.
-        </p>
-      </div>
-      <div className="text-center">
-        <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
-            <Lightbulb className="h-8 w-8 text-default-bg" />
-          </div>
-        </div>
-        <p className="bigtext mb-2 font-bold text-default-bg">
-          {stats.areas == null ? '-' : areas}
-        </p>
-        <p className="bigtext text-default-bg">
-          Áreas de concentração
-        </p>
-        <p className="text-default-bg leading-tight">
-          Escolha sua especialização e trace seu caminho.
-        </p>
-      </div>
-    </div>
-  );
-}
+import { AboutSection } from "@/features/index/AboutSection";
+import { StatsGrid, StatsType } from "@/features/index/StatsGrid";
+import { FeatureCards, FeatureCardType } from "@/features/index/FeatureCards";
 
 // Log de início de renderização da página inicial acadêmica
 console.log("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
 
-// Perguntas ilustrativas
-const SUGGESTIONS = [
-  "como faço para encontrar um orientador?",
-  "como faço para montar minha grade?",
-  "como faço para cursar disciplinas da pós?",
-  "onde encontro os horários das disciplinas?",
-  "onde encontro os contatos dos professores?",
-  "é possível me formar ou estou fadado a virar uma capivara da raia?"
-];
-
-// Sequência de digitação simulada
-const TYPED_SEQUENCES = [
-  { text: "como faço para", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("como faço para")).slice(0, 3) },
-  { text: "onde encontro", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("onde encontro")).slice(0, 3) },
-  { text: "é possível", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("é possível")).slice(0, 3) }
-];
 
 const AcademicIndexPage = () => {
-  // Estados para digitação simulada
-  const [typed, setTyped] = useState("");
-  const [phase, setPhase] = useState(0); // 0: "como", 1: "onde encontrar", 2: "é possível"
-  const [showOptions, setShowOptions] = useState(false);
-
-  // Efeito de digitação automática para cada sequência
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    const currentSeq = TYPED_SEQUENCES[phase];
-    if (typed.length < currentSeq.text.length) {
-      // Mostra sugestões apenas após 2 letras digitadas
-      if (typed.length >= 2) setShowOptions(true);
-      else setShowOptions(false);
-      timeout = setTimeout(() => {
-        setTyped(currentSeq.text.slice(0, typed.length + 1));
-      }, 140);
-    } else {
-      setShowOptions(true);
-      timeout = setTimeout(() => {
-        setShowOptions(false);
-        setTyped("");
-        setPhase((prev) => (prev + 1) % TYPED_SEQUENCES.length);
-      }, 2200);
-    }
-    return () => clearTimeout(timeout);
-  }, [typed, phase]);
-
   // Estados para estatísticas (placeholder por enquanto)
   const [stats, setStats] = useState<StatsType>({ users: 45, disciplines: 120, areas: 6 });
   const [loadingStats, setLoadingStats] = useState(false);
@@ -149,149 +23,35 @@ const AcademicIndexPage = () => {
       <Navigation />
       {/* Hero Section - Academic */}
       <section className="relative min-h-screen flex items-center bg-gradient-to-b from-academic-blue-muted via-academic-blue/10 to-default-bg">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
+        <div className="container mx-auto px-1 flex flex-col md:flex-row items-center gap-2 md:gap-4 flex-1">
           {/* Content - Janela de busca estilo Google com aba CM */}
           <div className="flex-1 flex flex-col items-center justify-center order-2 md:order-1">
-            <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-2xl py-24 px-8 flex flex-col items-center border border-gray-200 relative">
-              {/* Falsa abinha superior à esquerda */}
-              <div className="absolute left-5 -top-8 z-0">
-                <svg width="180" height="60" viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M0 30 Q15 12 30 10 H145 Q160 10 175 30 V60 H0 Z"
-                    fill="#e5e7eb"
-                    stroke="#d1d5db"
-                    strokeWidth="1"
-                  />
-                </svg>
-                <div className="absolute top-3 right-6 text-sm font-semibold text-gray-400 select-none">x</div>
-              </div>
-              {/* Falsa barra superior */}
-              <div className="absolute left-0 top-0 w-full h-12 flex items-center px-6 rounded-t-2xl bg-gray-100 border-b border-gray-300 z-10"
-                   style={{ borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem' }}>
-                {/* Setinhas fake */}
-                <div className="flex items-center gap-2">
-                  <span className="inline-block text-gray-400 text-lg font-bold select-none">&larr;</span>
-                  <span className="inline-block px-2 text-gray-400 text-lg font-bold select-none">&rarr;</span>
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <span className="bg-white w-full px-4 py-1 rounded text-gray-400 text-sm select-none shadow-sm border border-gray-200 text-center">
-                    https://molecoogle.com
-                  </span>
-                </div>
-              </div>
-              {/* Espaço para aba */}
-              <div style={{ height: "1rem" }} />
-              {/* Logo fake Molecoogle */}
-              <div className="flex items-center gap-1 mb-8 mt-2">
-                <span className="text-3xl font-bold text-[#4285F4]">M</span>
-                <span className="text-3xl font-bold text-[#EA4335]">o</span>
-                <span className="text-3xl font-bold text-[#FBBC05]">l</span>
-                <span className="text-3xl font-bold text-[#4285F4]">e</span>
-                <span className="text-3xl font-bold text-[#34A853]">c</span>
-                <span className="text-3xl font-bold text-[#EA4335]">o</span>
-                <span className="text-3xl font-bold text-[#4285F4]">o</span>
-                <span className="text-3xl font-bold text-[#FBBC05]">g</span>
-                <span className="text-3xl font-bold text-[#34A853]">l</span>
-                <span className="text-3xl font-bold text-[#EA4335]">e</span>
-              </div>
-              <div className="w-full flex flex-col items-center">
-                <div className="relative w-full">
-                  <input
-                    type="text"
-                    className="w-full px-6 py-4 rounded-full border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-academic-blue text-xl bg-gray-50"
-                    value={typed}
-                    readOnly
-                    placeholder="Faça uma pergunta..."
-                    autoComplete="off"
-                  />
-                  <span className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400">
-                    <Search className="w-6 h-6" />
-                  </span>
-                  {/* Autocomplete options */}
-                  {showOptions && (
-                    <ul className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
-                      {TYPED_SEQUENCES[phase].suggestions.map((option) => {
-                        const typedLower = typed.toLowerCase();
-                        const optionLower = option.toLowerCase();
-                        const startIdx = optionLower.indexOf(typedLower);
-                        let before = startIdx >= 0 ? option.slice(0, startIdx) : "";
-                        let match = startIdx >= 0 ? option.slice(startIdx, startIdx + typed.length) : "";
-                        let after = startIdx >= 0 ? option.slice(startIdx + typed.length) : option;
-
-                        // Remove espaço extra entre bold e o restante
-                        let afterWithSpace = after;
-                        if (
-                          afterWithSpace &&
-                          match &&
-                          match.length > 0 &&
-                          match[match.length - 1] === " " &&
-                          afterWithSpace[0] === " "
-                        ) {
-                          afterWithSpace = afterWithSpace.slice(1);
-                        }
-
-                        return (
-                          <li key={option} className="px-6 py-3 text-gray-700">
-                            {startIdx >= 0 ? (
-                              <>
-                                {before}
-                                <span className="font-bold whitespace-nowrap">{match}</span>
-                                {afterWithSpace}
-                              </>
-                            ) : (
-                              option
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            </div>
+            <MolecoogleWindow />
           </div>
-          {/* Logo */}
-          <div className="flex-1 flex justify-center order-1 md:order-2 md:mb-0">
+          {/* Foto Carlos Magno */}
+          <div className="flex-[0_0_35%] max-w-[40%] min-w-[180px] flex justify-center order-1 md:order-2 md:mb-0">
             <img
-              src="/images/home.png"
-              alt="Ciências Moleculares"
-              className="w-80 md:w-[34rem] lg:w-[40rem] h-auto"
+              src="/images/academic1.png"
+              alt="Foto Carlos Magno"
+              className="w-full h-auto object-contain max-h-[420px]"
             />
           </div>
         </div>
       </section>
-      {/* Fim Hero Section customizada */}
-
+      
       {/* About Section */}
-      <div className="py-24 bg-default-bg">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-            <div>
-              <h3>
-                Ciclo Avançado: sua jornada de especialização
-              </h3>
-              <p>
-                O Ciclo Avançado do Ciências Moleculares é o momento de escolher sua área de concentração
-                e aprofundar seus conhecimentos em disciplinas específicas de diferentes institutos da USP.
-              </p>
-              <p>
-                Esta plataforma foi criada para ajudar você a navegar pelas opções disponíveis,
-                montar sua grade de horários e conectar-se com outros estudantes do curso.
-              </p>
-              <button className="primary-btn-academic">
-                <Link to="/academico/faq">Saiba mais</Link>
-              </button>
-            </div>
-            <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-white">
-              <img 
-                src="/images/prateleira.png" 
-                alt="Ciências Moleculares" 
-                className="object-contain w-full h-auto max-h-[28rem] md:max-h-[36rem]"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <AboutSection
+        title="Ciclo Avançado: sua jornada de especialização"
+        paragraphs={[
+          "O Ciclo Avançado do Ciências Moleculares é o momento de escolher sua área de concentração e aprofundar seus conhecimentos em disciplinas específicas de diferentes institutos da USP.",
+          "Esta plataforma foi criada para ajudar você a navegar pelas opções disponíveis, montar sua grade de horários e conectar-se com outros estudantes do curso."
+        ]}
+        buttonText="Saiba mais"
+        buttonLink="/academico/faq"
+        buttonClass="primary-btn-academic"
+        imageSrc="/images/prateleira.png"
+        imageAlt="Ciências Moleculares"
+      />
 
       {/* Statistics Section with Diagonal Design */}
       <section className="relative py-40 bg-academic-blue">
@@ -310,7 +70,7 @@ const AcademicIndexPage = () => {
           ) : statsError ? (
             <div className="text-center text-red-200 text-xl">{statsError}</div>
           ) : (
-            <StatsGrid stats={stats} />
+            <StatsGrid stats={stats} order={["users", "disciplines", "areas"]} />
           )}
         </div>
       </section>
@@ -319,76 +79,47 @@ const AcademicIndexPage = () => {
       <div className="py-40 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-center mb-16">Recursos disponíveis</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            {/* Card 1 */}
-            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-default-bg">
-                <Search className="h-10 w-10 text-default-bg" />
-              </div>
-              <h4>
-                Busque disciplinas
-              </h4>
-              <p className="smalltext">
-                Encontre disciplinas por área, instituto, horário ou palavras-chave.
-              </p>
-              <div className="flex flex-col items-center mb-4">
-              </div>
-              <button className="wide-btn bg-cm-green hover:bg-cm-green/70">
-                <Link to="/academico/buscar">Buscar Disciplinas</Link>
-              </button>
-            </div>
-            {/* Card 2 */}
-            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-default-bg">
-                <Calendar className="h-10 w-10 text-default-bg" />
-              </div>
-              <h4>
-                Monte sua grade
-              </h4>
-              <p className="smalltext">
-                Organize suas disciplinas visualmente e evite conflitos de horário.
-              </p>
-              <div className="flex flex-col items-center mb-4">
-              </div>
-              <button className="wide-btn bg-cm-blue hover:bg-cm-blue/70">
-                <Link to="/academico/grade">Montar Grade</Link>
-              </button>
-            </div>
-            {/* Card 3 */}
-            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-academic-blue border-8 border-default-bg">
-                <MessageSquare className="h-10 w-10 text-default-bg" />
-              </div>
-              <h4>
-                MolecOverflow
-              </h4>
-              <p className="smalltext">
-                Fórum de dúvidas sobre o curso, créditos, projetos e orientadores.
-              </p>
-              <div className="flex flex-col items-center mb-4">
-              </div>
-              <button className="wide-btn bg-academic-blue hover:bg-academic-blue/70">
-                <Link to="/forum">Acessar Fórum</Link>
-              </button>
-            </div>
-            {/* Card 4 */}
-            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-default-bg">
-                <GraduationCap className="h-10 w-10 text-default-bg" />
-              </div>
-              <h4>
-                Tire suas dúvidas
-              </h4>
-              <p className="smalltext">
-                Encontre respostas sobre o Ciclo Avançado no nosso FAQ.
-              </p>
-              <div className="flex flex-col items-center mb-4">
-              </div>
-              <button className="wide-btn bg-cm-red hover:bg-cm-red/70">
-                <Link to="/academico/faq">Ver FAQ</Link>
-              </button>
-            </div>
-          </div>
+          <FeatureCards
+            columns={4}
+            cards={[
+              {
+                icon: <Search className="h-10 w-10 text-default-bg" />,
+                title: "Busque disciplinas",
+                description: "Encontre disciplinas por área, instituto, horário ou palavras-chave.",
+                buttonText: "Buscar Disciplinas",
+                buttonLink: "/academico/buscar",
+                colorClass: "bg-cm-green",
+                buttonClass: "bg-cm-green hover:bg-cm-green/70"
+              },
+              {
+                icon: <Calendar className="h-10 w-10 text-default-bg" />,
+                title: "Monte sua grade",
+                description: "Organize suas disciplinas visualmente e evite conflitos de horário.",
+                buttonText: "Montar Grade",
+                buttonLink: "/academico/grade",
+                colorClass: "bg-cm-blue",
+                buttonClass: "bg-cm-blue hover:bg-cm-blue/70"
+              },
+              {
+                icon: <MessageSquare className="h-10 w-10 text-default-bg" />,
+                title: "MolecOverflow",
+                description: "Fórum de dúvidas sobre o curso, créditos, projetos e orientadores.",
+                buttonText: "Acessar Fórum",
+                buttonLink: "/forum",
+                colorClass: "bg-academic-blue",
+                buttonClass: "bg-academic-blue hover:bg-academic-blue/70"
+              },
+              {
+                icon: <GraduationCap className="h-10 w-10 text-default-bg" />,
+                title: "Tire suas dúvidas",
+                description: "Encontre respostas sobre o Ciclo Avançado no nosso FAQ.",
+                buttonText: "Ver FAQ",
+                buttonLink: "/academico/faq",
+                colorClass: "bg-cm-red",
+                buttonClass: "bg-cm-red hover:bg-cm-red/70"
+              }
+            ]}
+          />
         </div>
       </div>
       
