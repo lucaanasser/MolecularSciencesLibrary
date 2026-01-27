@@ -148,7 +148,7 @@ const AcademicIndexPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       {/* Hero Section - Academic */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-academic-blue/80 via-academic-blue/10 to-default-bg">
+      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-academic-blue-muted via-academic-blue/10 to-default-bg">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
           {/* Content - Janela de busca estilo Google com aba CM */}
           <div className="flex-1 flex flex-col items-center justify-center order-2 md:order-1">

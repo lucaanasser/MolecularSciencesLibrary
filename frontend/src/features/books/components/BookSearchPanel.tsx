@@ -222,7 +222,7 @@ const BookSearch: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="rounded-xl bg-white text-library-purple border-library-purple hover:bg-library-purple/80 hover:text-white"
+                          className="rounded-xl bg-white text-library-purple border-library-purple hover:bg-library-purple-muted hover:text-white"
                           onClick={() => handleBookClick(book)}
                           disabled={loadingBookDetails}
                         >

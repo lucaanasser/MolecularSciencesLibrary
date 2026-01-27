@@ -171,7 +171,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 <div className="flex flex-col gap-1 items-center sm:items-end w-full mt-2">
                   {showRenew && (
                     <button
-                      className="flex items-center gap-2 bg-library-purple text-white px-3 py-1 rounded-full hover:bg-library-purple/80 disabled:opacity-50"
+                      className="flex items-center gap-2 bg-library-purple text-white px-3 py-1 rounded-full hover:bg-library-purple-muted disabled:opacity-50"
                       onClick={() => handlePreviewRenew(loan)}
                       disabled={renewLoading === loan.loan_id}
                     >

@@ -19,7 +19,7 @@ export const useNavigationStyles = (
   const { isAcademico } = useSiteMode();
 
   const primaryColor = isAcademico ? "academic-blue" : "library-purple";
-  const primaryColorClass = isAcademico ? "bg-academic-blue/80" : "bg-library-purple/80";
+  const primaryColorClass = isAcademico ? "bg-academic-blue-muted" : "bg-library-purple-muted";
   const drawerBgClass = isAcademico ? "bg-academic-blue" : "bg-library-purple";
 
   const whiteBackground = (isMainPage && isScrolled) || isPublicProfilePage;

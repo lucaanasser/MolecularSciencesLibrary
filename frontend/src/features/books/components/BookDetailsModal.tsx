@@ -93,7 +93,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
               onClick={() => {
                 navigate(`/estante-virtual?highlight=${encodeURIComponent(book.code)}`);
               }}
-              className="bg-library-purple text-white px-4 py-2 rounded-xl hover:bg-library-purple/80"
+              className="bg-library-purple text-white px-4 py-2 rounded-xl hover:bg-library-purple-muted"
             >
               Ver na Estante
             </button>
