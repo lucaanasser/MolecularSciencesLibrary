@@ -14,10 +14,12 @@
     "troubleshoot": "bash scripts/troubleshoot.sh"
   },
   "dependencies": {
+    "cropperjs": "^2.1.0",
     "csv-parser": "^3.2.0",
     "formdata-node": "^6.0.3",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.562.0",
+    "react-cropper": "^2.3.3",
     "react-easy-crop": "^5.5.6",
     "undici": "^7.18.2",
     "web-file-polyfill": "^1.0.4"

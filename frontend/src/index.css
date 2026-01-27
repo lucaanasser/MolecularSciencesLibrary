@@ -147,10 +147,6 @@
   .wide-btn {
     @apply btn text-cm-bg rounded-xl w-full;
   }
-
-  .nav-link {
-    @apply wide-btn font-normal items-start;
-  }
 }
 
 @keyframes pulse-highlight {
