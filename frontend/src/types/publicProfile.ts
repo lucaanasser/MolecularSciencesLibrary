@@ -78,7 +78,6 @@ export interface PublicProfile {
   disciplinas: DisciplinaAvancado[]; // Disciplinas do(s) avançado(s)
   experienciasInternacionais?: InternationalExperience[]; // Experiências internacionais
   posCM?: PostCMInfo[]; // Agora é array
-  isPublic: boolean;
   emailPublico?: string;
   linkedIn?: string;
   lattes?: string;
