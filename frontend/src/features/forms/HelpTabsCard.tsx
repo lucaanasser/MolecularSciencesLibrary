@@ -4,7 +4,7 @@ import { tabs, cardContent } from "./formsConfig";
 
 const HelpTabsCard: React.FC = () => {
    
-    const imageSize = "relative flex flex-col justify-center items-center w-full md:w-[30%] h-full min-h-[400px]";
+    const imageSize = "relative flex flex-col justify-center items-center w-full md:w-[30%] h-full min-h-[400px] md:sticky md:top-8 md:self-start";
     const imageFormatting = "absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full object-contain";
 
     return (
