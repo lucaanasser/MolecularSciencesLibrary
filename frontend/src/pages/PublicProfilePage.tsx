@@ -175,7 +175,6 @@ const PublicProfilePage = () => {
           isEditing={isEditing}
           isSaving={isSaving}
           isFollowing={profile.isFollowing}
-          isPublic={profile.isPublic}
           tags={profile.tags}
           seguindo={profile.seguindo}
           emailPublico={profile.emailPublico}
@@ -189,7 +188,6 @@ const PublicProfilePage = () => {
           onEdit={startEditing}
           onSave={handleSave}
           onFollow={handleFollowToggle}
-          onPublicToggle={profile.setIsPublic}
           onAddTag={profile.addTag}
           onRemoveTag={profile.removeTag}
           onEmailChange={profile.setEmailPublico}

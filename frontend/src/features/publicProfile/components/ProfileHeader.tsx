@@ -25,7 +25,6 @@ interface ProfileHeaderProps {
   isEditing: boolean;
   isSaving: boolean;
   isFollowing: boolean;
-  isPublic: boolean;
   tags: ProfileTag[];
   seguindo: Array<{ id: number; nome: string; turma: string; avatar: string | null }>;
   emailPublico: string;
@@ -39,7 +38,6 @@ interface ProfileHeaderProps {
   onEdit: () => void;
   onSave: () => void;
   onFollow: () => void;
-  onPublicToggle: (value: boolean) => void;
   onAddTag: (label: string, category: ProfileTag["category"]) => void;
   onRemoveTag: (tagId: string) => void;
   onEmailChange: (value: string) => void;
@@ -64,7 +62,6 @@ export const ProfileHeader = ({
   isEditing,
   isSaving,
   isFollowing,
-  isPublic,
   tags,
   seguindo,
   emailPublico,
@@ -78,7 +75,6 @@ export const ProfileHeader = ({
   onEdit,
   onSave,
   onFollow,
-  onPublicToggle,
   onAddTag,
   onRemoveTag,
   onEmailChange,
