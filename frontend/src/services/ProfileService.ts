@@ -29,12 +29,13 @@ export interface ProfileData {
   lattes?: string;
   github?: string;
   site_pessoal?: string;
-  is_public?: boolean;
+  site?: string;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface CompleteProfile extends ProfileData {
+    site?: string;
   nome?: string;
   profileImage?: string;
   advanced_cycles?: AdvancedCycleWithTags[];
