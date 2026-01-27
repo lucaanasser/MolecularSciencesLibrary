@@ -98,11 +98,11 @@ export default function AcademicFAQPage() {
                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                     aria-expanded={openIndex === idx}
                   >
-                    <span className={`font-semibold text-lg flex items-center gap-2 ${openIndex === idx ? 'text-academic-blue' : 'text-default-bg'} group-hover:text-academic-blue`}>
+                    <span className={`font-semibold text-lg flex items-center gap-2 ${openIndex === idx ? 'text-academic-blue' : 'text-white'} group-hover:text-academic-blue`}>
                       <span className="inline-block w-2 h-2 text-academic-blue rounded-full bg-academic-blue/60" />
                       {faq.question}
                     </span>
-                    <span className={`text-2xl font-bold ${openIndex === idx ? 'text-academic-blue' : 'text-default-bg'} group-hover:text-academic-blue`}>{openIndex === idx ? "−" : "+"}</span>
+                    <span className={`text-2xl font-bold ${openIndex === idx ? 'text-academic-blue' : 'text-white'} group-hover:text-academic-blue`}>{openIndex === idx ? "−" : "+"}</span>
                   </button>
                   {openIndex === idx && (
                     <div className="px-6 pb-5 text-gray-700">

@@ -18,8 +18,8 @@ export const NavigationLinks: React.FC<NavigationLinksProps> = ({
   onLinkClick 
 }) => {
   const commonLinkClasses = isMobile 
-    ? `block px-3 py-2 rounded-md text-white ${hoverBg}`
-    : `px-3 py-2 rounded-md ${textColor} ${hoverBg}`;
+    ? `inline-block p-2 rounded-md text-white ${hoverBg}`
+    : `text-nowrap p-2 rounded-md ${textColor} ${hoverBg}`;
 
   return (
     <>
@@ -36,7 +36,7 @@ export const NavigationLinks: React.FC<NavigationLinksProps> = ({
       {showProAlunoHeader && (
         <Link 
           to="/proaluno" 
-          className={isMobile ? `block px-3 py-2 rounded-md font-bold text-white ${hoverBg}` : commonLinkClasses}
+          className = {commonLinkClasses}
           onClick={onLinkClick}
         >
           Portal Pró-Aluno

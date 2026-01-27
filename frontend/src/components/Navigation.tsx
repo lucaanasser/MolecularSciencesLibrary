@@ -59,18 +59,26 @@ const Navigation: React.FC = () => {
         {/* Logo e Mode Switcher */}
         <div className="flex items-center gap-4">
           <Link to={navLinks[0].to} className="flex items-center">
-            <img 
-              src="/images/logos/logoHorizontal.png" 
-              alt="Logo da Biblioteca" 
-              className="h-20" 
-              onError={(e) => { e.currentTarget.src = "/images/logos/logoHorizontal.png"; }} 
+            {/* Logo horizontal para telas grandes*/}
+            <img
+              src="/images/logos/logoHorizontal.png"
+              alt="Logo da Biblioteca"
+              className="h-20 hidden lg:block"
+              onError={(e) => { e.currentTarget.src = "/images/logos/logoHorizontal.png"; }}
+            />
+            {/* Logo compacto para telas pequenas e médias*/}
+            <img
+              src="/images/logos/logoCompacto.png"
+              alt="Logo da Biblioteca"
+              className="h-20 block lg:hidden"
+              onError={(e) => { e.currentTarget.src = "/images/logos/logoCompacto.png"; }}
             />
           </Link>
           <ModeSwitcher />
         </div>
 
         {/* Versão desktop */}
-        <div className="hidden lg:flex lg:items-center lg:space-x-4">
+        <div className="hidden md:flex md:items-center md:space-x-4">
           <NavigationLinks 
             navLinks={navLinks}
             showProAlunoHeader={showProAlunoHeader}
@@ -91,7 +99,7 @@ const Navigation: React.FC = () => {
         </div>
 
         {/* Botão menu mobile */}
-        <div className="flex items-center lg:hidden">
+        <div className="flex items-center md:hidden">
           <Button
             variant="ghost"
             size="icon"

@@ -24,7 +24,7 @@ export default {
         "cm-yellow": "#ffcf00",
         "cm-green": "#00c80e",
         "cm-blue": "#008cff",
-        "default-bg": "#ffffff",
+        "default-bg": "#fcfcf8",
         "library-purple": "#b657b3",
         "library-purple-muted": "#c579c2",
         "academic-blue": "#01aad0",

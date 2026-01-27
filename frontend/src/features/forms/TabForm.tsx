@@ -191,7 +191,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
       </div>
       <Button
         type="submit"
-        className="w-full bg-library-purple hover:bg-library-purple-muted text-default-bg rounded-xl font-bold py-3 flex items-center justify-center gap-2"
+        className="w-full bg-library-purple hover:bg-library-purple-muted text-white rounded-xl font-bold py-3 flex items-center justify-center gap-2"
         disabled={loading}
       >
         <Send className="h-4 w-4" />

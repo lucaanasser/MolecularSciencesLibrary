@@ -43,31 +43,18 @@ export const MobileDrawer: React.FC<MobileDrawerProps & { children: React.ReactN
 
         {/* Conteúdo do menu */}
         <div className="pt-2 pb-3 px-4 space-y-1 flex-1 flex flex-col">
-          {children}
-        </div>
-
-        {/* Footer */}
-        <div className="absolute left-0 right-0 bottom-0 flex flex-col items-end">
-          <hr className="w-[90%] mx-auto border-t border-white/30 mb-2 rounded" />
-          <div className="w-[90%] flex justify-center items-center gap-3 mx-auto pb-4">
-            <img
-              src="/images/logos/logo.png"
-              alt="Logo da Biblioteca"
-              className="h-16 cursor-pointer"
-              style={{ maxWidth: '160px', width: 'auto' }}
-              onClick={() => {
-                onClose();
-                navigate('/404');
-              }}
-            />
-            <a
-              href="mailto:bibliotecamoleculares@gmail.com"
-              className="text-gray-100 font-medium underline-offset-2 cursor-pointer"
-              onClick={onClose}
-            >
-              Fale Conosco
-            </a>
-          </div>
+          {/* Links principais */}
+          {Array.isArray(children) ? (
+            <>
+              {/* Renderiza todos os links exceto UserMenu (assumindo UserMenu é o último ou penúltimo children) */}
+              {children.slice(0, -1)}
+              <hr className="mt-2 border-t border-white/30" />
+              {/* Renderiza UserMenu (botões pessoais, conta, sair) */}
+              {children.slice(-1)}
+            </>
+          ) : (
+            children
+          )}
         </div>
       </div>
     </div>

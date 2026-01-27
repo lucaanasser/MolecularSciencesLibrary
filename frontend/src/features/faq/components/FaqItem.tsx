@@ -34,7 +34,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
       >
         <span
           className={`font-semibold text-lg flex items-center gap-2 ${
-            isOpen ? textColor : "text-default-bg"
+            isOpen ? textColor : "text-white"
           } group-hover:${textColor}`}
         >
           <span className={`inline-block w-2 h-2 ${textColor} rounded-full ${bgColor}/60`} />
@@ -42,7 +42,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
         </span>
         <span
           className={`text-2xl font-bold ${
-            isOpen ? textColor : "text-default-bg"
+            isOpen ? textColor : "text-white"
           } group-hover:${textColor}`}
         >
           {isOpen ? "−" : "+"}

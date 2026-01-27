@@ -98,11 +98,11 @@ export default function FAQ() {
                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                     aria-expanded={openIndex === idx}
                   >
-                    <span className={`font-semibold text-lg flex items-center gap-2 ${openIndex === idx ? 'text-library-purple' : 'text-default-bg'} group-hover:text-library-purple`}>
+                    <span className={`font-semibold text-lg flex items-center gap-2 ${openIndex === idx ? 'text-library-purple' : 'text-white'} group-hover:text-library-purple`}>
                       <span className="inline-block w-2 h-2 text-library-purple rounded-full bg-library-purple/60" />
                       {faq.question}
                     </span>
-                    <span className={`text-2xl font-bold ${openIndex === idx ? 'text-library-purple' : 'text-default-bg'} group-hover:text-library-purple`}>{openIndex === idx ? "−" : "+"}</span>
+                    <span className={`text-2xl font-bold ${openIndex === idx ? 'text-library-purple' : 'text-white'} group-hover:text-library-purple`}>{openIndex === idx ? "−" : "+"}</span>
                   </button>
                   {openIndex === idx && (
                     <div className="px-6 pb-5 text-gray-700">

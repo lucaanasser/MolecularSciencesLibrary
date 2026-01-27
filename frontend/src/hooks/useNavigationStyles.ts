@@ -22,21 +22,21 @@ export const useNavigationStyles = (
   const primaryColorClass = isAcademico ? "bg-academic-blue-muted" : "bg-library-purple-muted";
   const drawerBgClass = isAcademico ? "bg-academic-blue" : "bg-library-purple";
 
-  const whiteBackground = (isMainPage && isScrolled) || isPublicProfilePage;
+  const lightBackground = (isMainPage && isScrolled) || isPublicProfilePage;
 
   const navbarBg = isMobileMenuOpen 
     ? primaryColorClass 
-    : whiteBackground ? "bg-white" : primaryColorClass;
+    : lightBackground ? "bg-default-bg" : primaryColorClass;
 
   const textColor = isMobileMenuOpen 
     ? "text-black" 
-    : whiteBackground ? "text-gray-900" : "text-black";
+    : lightBackground ? "text-gray-900" : "text-black";
 
-  const hoverBg = whiteBackground ? "hover:bg-gray-200" : "hover:bg-white/20";
-  const buttonVariant = whiteBackground ? "outline" : "ghost";
+  const hoverBg = lightBackground ? "hover:bg-gray-200" : "hover:bg-white/20";
+  const buttonVariant = lightBackground ? "outline" : "ghost";
 
-  const buttonColors = whiteBackground || isMobileMenuOpen
-    ? `border-none bg-white text-${primaryColor} hover:bg-${primaryColor} hover:text-white`
+  const buttonColors = lightBackground || isMobileMenuOpen
+    ? `border-none bg-default-bg text-${primaryColor} hover:bg-${primaryColor} hover:text-white`
     : `text-black hover:bg-${primaryColor} hover:text-white`;
 
   return {

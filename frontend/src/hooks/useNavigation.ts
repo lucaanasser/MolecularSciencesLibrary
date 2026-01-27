@@ -18,7 +18,7 @@ export const useNavigation = () => {
         { to: "/academico", label: "Início" },
         { to: "/academico/buscar", label: "Buscar" },
         { to: "/academico/grade", label: "Montar Grade" },
-        { to: "/forum", label: "Fórum" },
+        { to: "/academico/forum", label: "Fórum" },
         { to: "/academico/faq", label: "FAQ" },
       ]
     : [

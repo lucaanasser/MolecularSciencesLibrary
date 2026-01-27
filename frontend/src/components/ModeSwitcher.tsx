@@ -65,7 +65,7 @@ const ModeSwitcher: React.FC = () => {
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="text-sm font-medium hidden sm:inline"
+        className="text-sm font-medium hidden lg:inline"
       >
         {isAcademico ? "Acadêmico" : "Biblioteca"}
       </motion.span>

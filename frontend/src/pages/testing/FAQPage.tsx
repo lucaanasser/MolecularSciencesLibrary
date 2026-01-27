@@ -39,16 +39,16 @@ const FAQPage = ({ faqs, color = "library-purple" }: FAQPageProps) => {
                                 >
                                     <span
                                         className={`font-semibold text-lg flex items-center gap-2
-                                            ${openIndex === idx ? textColor : 'text-default-bg'}
-                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-default-bg'}`}
+                                            ${openIndex === idx ? textColor : 'text-white'}
+                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-white'}`}
                                     >
                                         <span className={`inline-block w-2 h-2 ${textColor} rounded-full ${bgColor60}`} />
                                         {faq.question}
                                     </span>
                                     <span
                                         className={`text-2xl font-bold
-                                            ${openIndex === idx ? textColor : 'text-default-bg'}
-                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-default-bg'}`}
+                                            ${openIndex === idx ? textColor : 'text-white'}
+                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-white'}`}
                                     >
                                         {openIndex === idx ? "−" : "+"}
                                     </span>
