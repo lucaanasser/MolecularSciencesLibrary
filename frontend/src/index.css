@@ -85,7 +85,7 @@
   }
 
   .smalltext {
-    @apply text-base mb-4;
+    @apply text-base mb-4 leading-tight;
   }
 
   /* Virtual bookshelf specific styles */
@@ -118,9 +118,8 @@
     scale: 1.05;
     transition: all;
     animation-duration: 500;
-    @apply shadow-lg;
+    @apply shadow-md;
   }
-  
   
   .primary-btn {
     @apply btn bg-cm-purple text-cm-bg px-7 py-5 text-base md:text-lg;

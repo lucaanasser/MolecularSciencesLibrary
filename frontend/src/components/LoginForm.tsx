@@ -112,7 +112,7 @@ const LoginForm: React.FC = () => {
     <div className="flex justify-center items-center p-6">
       <Card className="w-full max-w-md p-6 rounded-2xl shadow-lg">
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bebas">Login</h2>
+          <h3>Login</h3>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -168,13 +168,13 @@ const LoginForm: React.FC = () => {
               {forgotLoading ? "Enviando..." : "Esqueci minha senha"}
             </Button>
           </div>
-          <Button
+          <button
             type="submit"
-            className="w-full mt-6 bg-cm-purple hover:bg-cm-purple/90 rounded-xl"
+            className="wide-btn bg-cm-purple"
             disabled={isLoading}
           >
             {isLoading ? "Entrando..." : "Entrar"}
-          </Button>
+          </button>
         </form>
       </Card>
     </div>

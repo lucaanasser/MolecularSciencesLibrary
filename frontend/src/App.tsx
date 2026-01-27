@@ -48,7 +48,7 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route path="/faq-teste" element={<FAQTestPage />} />
-            
+
             <Route path="/" element={<Index />} />
             <Route path="/buscar" element={<SearchPage />} />
             <Route path="/estante-virtual" element={<VirtualShelfPage />} />
@@ -89,6 +89,7 @@ const App = () => (
               }
             />
             <Route path="/faq" element={<FAQ />} />
+            
             {/* Rotas do modo acadêmico */}
             <Route path="/academico" element={<AcademicIndexPage />} />
             <Route path="/academico/buscar" element={<AcademicSearchPage />} />
@@ -97,9 +98,9 @@ const App = () => (
             <Route path="/academico/grade" element={<GradePage />} />
             <Route path="/academico/faq" element={<AcademicFAQPage />} />
             {/* Rotas do fórum */}
-            <Route path="/forum" element={<ForumPage />} />
-            <Route path="/forum/:id" element={<QuestionDetailPage />} />
-            <Route path="/forum/nova-pergunta" element={<NewQuestionPage />} />
+            <Route path="/academico/forum" element={<ForumPage />} />
+            <Route path="/academico/forum/:id" element={<QuestionDetailPage />} />
+            <Route path="/academico/forum/nova-pergunta" element={<NewQuestionPage />} />
             <Route 
               path="/admin/forum/tags/pending" 
               element={
