@@ -34,7 +34,7 @@ const ModeSwitcher: React.FC = () => {
         cursor-pointer
         ${isAcademico 
           ? "bg-academic-blue text-white" 
-          : "bg-gradient-to-r from-library-purple to-library-purple-muted text-white"
+          : "bg-library-purple text-white"
         }
         hover:scale-105 hover:shadow-lg
         focus:outline-none focus:ring-2 focus:ring-offset-2

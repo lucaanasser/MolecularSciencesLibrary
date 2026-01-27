@@ -11,7 +11,7 @@ import { ProfileTabsCard, TabType } from "@/features/personalProfile/ProfileTabs
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
 const PROFILE_IMAGES = [
-  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png", "test_qui.png", "test_mat.png"].map(img => `/images/avatars/${img}`)
+  ...["bio.png", "cmp.png", "fis.png", "mat.png", "qui.png", "def.png"].map(img => `/images/avatars/${img}`)
 ];
 
 // Mock de doações do usuário
