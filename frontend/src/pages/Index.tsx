@@ -310,7 +310,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <button className="wide-btn bg-cm-red hover:bg-cm-red/70">
+              <button className="wide-btn bg-cm-red">
                 <Link to="/buscar">Buscar Livros</Link>
               </button>
             </div>
@@ -325,7 +325,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <button className="wide-btn bg-cm-blue hover:bg-cm-blue/70">
+              <button className="wide-btn bg-cm-blue">
                 <Link to="/entrar">Fazer Login</Link>
               </button>
             </div>
@@ -340,7 +340,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <button className="wide-btn bg-cm-green hover:bg-cm-green/70">
+              <button className="wide-btn bg-cm-green">
                 <Link to="/estante-virtual">Explorar Estante</Link>
               </button>
             </div>

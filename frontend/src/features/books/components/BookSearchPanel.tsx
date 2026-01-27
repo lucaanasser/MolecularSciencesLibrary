@@ -1,18 +1,18 @@
 import { getResolvedSubarea } from "@/utils/bookUtils";
-import useBookSearchPage from "../hooks/useBookSearch";
+import useBookOptions from "../hooks/useBookOptions";
+import useBookList from "../hooks/useBookList";
+import { useEffect } from "react";
+import { BookOption } from "../types/book";
 import { Search, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useState, useMemo } from "react";
 import BookDetailsModal from "./BookDetailsModal";
 import NudgeButton from "./NudgeButton";
+import CategoryFilter from "./BookFilters/CategoryFilter";
+import SubareaFilter from "./BookFilters/SubareaFilter";
+import StatusFilter from "./BookFilters/StatusFilter";
+import LanguageFilter from "./BookFilters/LanguageFilter";
 
 /**
  * Painel de busca de livros.
@@ -25,21 +25,45 @@ import NudgeButton from "./NudgeButton";
 const BookSearch: React.FC = () => {
   // Log de início de renderização
   console.log("🔵 [BookSearchPanel] Renderizando painel de busca de livros");
-  const {
-    category,
-    setCategory,
-    subcategory,
-    setSubcategory,
-    areaCodes,
-    subareaCodes,
-    status,
-    setStatus,
+  // Estados dos filtros (agora arrays para múltipla seleção)
+  const [category, setCategory] = useState<string[]>([]);
+  const [subcategory, setSubcategory] = useState<string[]>([]);
+  const [status, setStatus] = useState<string[]>([]);
+  const [language, setLanguage] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  // Opções
+  const { areaCodes, subareaCodes } = useBookOptions();
+  const languageOptions = [
+    { value: "1", label: "Português" },
+    { value: "2", label: "Inglês" },
+    { value: "3", label: "Espanhol" },
+    { value: "4", label: "Outros Idiomas" },
+  ];
+  // Filtros para a busca principal (envia apenas o primeiro valor de cada filtro múltiplo)
+  const filters = {
+    category: category.length > 0 ? category[0] : "",
+    subcategory: subcategory.length > 0 ? subcategory[0] : "",
+    status: status.length > 0 ? status[0] : "",
+    language: language.length > 0 ? language[0] : "",
     search,
-    setSearch,
-    books,
-    isLoading,
-    resetFilters,
-  } = useBookSearchPage();
+  };
+  const { books: rawBooks, isLoading } = useBookList(filters, true);
+
+  // Filtragem manual para simular OU (união dos filtros múltiplos)
+  const books = useMemo(() => {
+    if (!rawBooks) return [];
+    return rawBooks.filter(book => {
+      // Área
+      if (category.length > 0 && !category.includes(book.area)) return false;
+      // Subárea
+      if (subcategory.length > 0 && !subcategory.includes(String(book.subarea))) return false;
+      // Idioma
+      if (language.length > 0 && !language.includes(String(book.language))) return false;
+      // Status (status é calculado no frontend/backend, pode ser string)
+      if (status.length > 0 && !status.includes(book.status)) return false;
+      return true;
+    });
+  }, [rawBooks, category, subcategory, language, status]);
 
   // State para detalhes do livro selecionado
   const [selectedBook, setSelectedBook] = useState<any | null>(null);
@@ -63,13 +87,11 @@ const BookSearch: React.FC = () => {
     }
   };
 
-  // Gera opções de categoria e subcategoria
-  const categoryOptions = Object.keys(areaCodes);
-  const subcategoryOptions = category ? Object.keys(subareaCodes[category] || {}) : [];
+
 
   // Detecta se algo foi modificado em relação aos padrões (Todos/sem busca)
   // ...existing code...
-  const isPristine = !search && !category && !subcategory && status === "";
+  const isPristine = !search && category.length === 0 && subcategory.length === 0 && status.length === 0 && language.length === 0;
 
   // Agrupa livros por código E idioma para exibir apenas um card por grupo
   const groupedBooks = useMemo(() => {
@@ -92,114 +114,44 @@ const BookSearch: React.FC = () => {
   }, [books]);
 
   return (
-    <div className="w-full">
-      <div className="mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-          <div className="col-span-2">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Digite título ou autor..."
-                value={search}
-                onChange={e => {
-                  console.log("🟢 [BookSearchPanel] Termo de busca alterado:", e.target.value);
-                  setSearch(e.target.value);
-                }}
-                className="pl-10 rounded-2xl"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            </div>
-          </div>
-          
+    <div className="w-full flex">
+      {/* Painel lateral de filtros */}
+      <aside className="w-72 min-w-[220px] max-w-xs p-4 bg-gray-50 border-r border-gray-200 rounded-2xl mr-6 h-fit sticky top-4 self-start">
+        <div className="space-y-4">
           <div>
-            <Select value={status} onValueChange={v => {
-              console.log("🟢 [BookSearchPanel] Filtro de status alterado:", v);
-              setStatus(v);
-            }}>
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="reserved">Reservado</SelectItem>
-                <SelectItem value="overdue">Atrasado</SelectItem>
-                <SelectItem value="borrowed">Emprestado</SelectItem>
-                <SelectItem value="extended">Estendido</SelectItem>
-                <SelectItem value="available">Disponível</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              type="text"
+              placeholder="Digite título ou autor..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-10 rounded-2xl"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           </div>
-
-          <div>
-            <Select value={category || "__ALL__"} onValueChange={value => {
-              console.log("🟢 [BookSearchPanel] Área selecionada:", value);
-              if (value === "__ALL__") {
-                setCategory("");
-                setSubcategory("");
-              } else {
-                setCategory(value);
-                setSubcategory("");
-              }
-            }}>
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Área" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__ALL__">Todos</SelectItem>
-                {categoryOptions
-                  .filter(cat => cat !== "" && cat !== undefined && cat !== null)
-                  .map(cat => (
-                    <SelectItem key={cat} value={cat}>
-                      {areaCodes[cat]}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Select
-              value={subcategory || "__ALL__"}
-              onValueChange={value => {
-                console.log("🟢 [BookSearchPanel] Subcategoria selecionada:", value);
-                if (value === "__ALL__") setSubcategory(""); else setSubcategory(value);
+          <CategoryFilter category={category} setCategory={setCategory} areaCodes={areaCodes} />
+          <SubareaFilter category={category} subcategory={subcategory} setSubcategory={setSubcategory} subareaCodes={subareaCodes} />
+          <LanguageFilter language={language} setLanguage={setLanguage} languageOptions={languageOptions} />
+          <StatusFilter status={status} setStatus={setStatus} />
+          {!isPristine && (
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={() => {
+                setCategory([]);
+                setSubcategory([]);
+                setStatus([]);
+                setLanguage([]);
+                setSearch("");
               }}
-              disabled={!category}
             >
-              <SelectTrigger className="rounded-2xl">
-                <SelectValue placeholder="Subárea" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__ALL__">Todos</SelectItem>
-                {subcategoryOptions
-                  .filter(sub => sub !== "" && sub !== undefined && sub !== null)
-                  .map(sub => (
-                    <SelectItem
-                      key={sub}
-                      value={String(subareaCodes[category]?.[sub])}
-                    >
-                      {sub}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-start md:justify-end">
-            {!isPristine && (
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                onClick={() => resetFilters()}
-              >
-                <XCircle size={16} /> Limpar
-              </Button>
-            )}
-          </div>
+              <XCircle size={16} /> Limpar
+            </Button>
+          )}
         </div>
-
-        {/* Resultados */}
+      </aside>
+      {/* Resultados */}
+      <main className="flex-1">
         <div className="mt-8">
           {isLoading ? (
             <div className="text-center py-8">Carregando livros...</div>
@@ -299,8 +251,8 @@ const BookSearch: React.FC = () => {
               <p className="text-gray-500">Nenhum livro encontrado com esses critérios.</p>
             </div>
           )}
-        </div>
 
+        </div>
         {/* Modal de detalhes do livro usando o componente reutilizável */}
         {selectedBook && (
           <BookDetailsModal
@@ -311,7 +263,7 @@ const BookSearch: React.FC = () => {
             subareaCodes={subareaCodes}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 };

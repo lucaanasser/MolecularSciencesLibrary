@@ -44,20 +44,8 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    
-    /* Variáveis de modo - Biblioteca (padrão) */
-    --mode-primary: 302 32% 52%; /* cm-purple */
-    --mode-primary-light: 302 32% 62%;
-    --mode-bg: 0 0% 100%;
   }
   
-  /* Modo Acadêmico */
-  .mode-academico {
-    --mode-primary: 171 78% 31%; /* cm-academic (teal-600) */
-    --mode-primary-light: 168 76% 42%; /* teal-500 */
-    --mode-bg: 170 76% 98%; /* teal-50 */
-  }
-
   * {
     @apply border-border;
   }
@@ -65,12 +53,6 @@
   body {
     @apply bg-cm-bg text-foreground font-dmsans;
     transition: background-color 0.5s ease, color 0.3s ease;
-  }
-  
-  /* Transição suave ao mudar de modo */
-  .mode-biblioteca body,
-  .mode-academico body {
-    transition: background-color 0.5s ease-in-out;
   }
 
   /* Estilos de texto */
@@ -129,30 +111,26 @@
 @layer components {
 
   .btn {
-    @apply inline-flex items-center justify-center whitespace-nowrap h-10 rounded-2xl font-semibold text-base md:text-lg
+    @apply inline-flex items-center justify-center whitespace-nowrap h-10 rounded-2xl font-semibold
   }
 
   .btn:hover {
-    opacity: 0.8;
+    scale: 1.05;
+    transition: all;
+    animation-duration: 500;
+    @apply shadow-lg;
   }
+  
   
   .primary-btn {
     @apply btn bg-cm-purple text-cm-bg px-7 py-5 text-base md:text-lg;
   }
 
   .primary-btn-academic {
-    @apply btn bg-cm-academic   text-cm-bg px-7 py-5;
+    @apply btn bg-cm-academic   text-cm-bg px-7 py-5 ;
   }
 
   .wide-btn {
     @apply btn text-cm-bg rounded-xl w-full;
   }
-}
-
-@keyframes pulse-highlight {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.5); }
-  50% { box-shadow: 0 0 0 8px rgba(37,99,235,0.15); }
-}
-.pulse-highlight {
-  animation: pulse-highlight 1.2s ease-out;
 }
