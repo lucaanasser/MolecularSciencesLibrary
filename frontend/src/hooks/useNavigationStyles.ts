@@ -26,7 +26,7 @@ export const useNavigationStyles = (
 
   const navbarBg = isMobileMenuOpen 
     ? primaryColorClass 
-    : whiteBackground ? "bg-white" : primaryColorClass;
+    : whiteBackground ? "bg-white" : `bg-white ${primaryColorClass}`;
 
   const textColor = isMobileMenuOpen 
     ? "text-black" 
