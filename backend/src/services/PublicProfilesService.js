@@ -75,11 +75,10 @@ class PublicProfilesService {
             linkedin: profile.linkedin,
             lattes: profile.lattes,
             github: profile.github,
-            site_pessoal: profile.site_pessoal,
+            site: profile.site,
             
             // Banner
-            banner_choice: profile.banner_choice,
-            is_public: profile.is_public,
+            banner_choice: profile.banner_choice || profile.bannerChoice || 'purple',
             
             // Related data
             advanced_cycles: ciclosAvancados,
