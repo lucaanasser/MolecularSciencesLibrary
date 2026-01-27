@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
-import Navigation from "../components/Navigation";
-import Footer from "../components/Footer";
+import Navigation from "../../components/Navigation";
+import Footer from "../../components/Footer";
 
 type FAQ = { 
     question: string; 

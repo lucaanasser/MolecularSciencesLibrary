@@ -15,7 +15,7 @@ import AdminPage from "./pages/utilities/AdminPage";
 import ProAlunoPage from "./pages/utilities/ProAlunoPage"; 
 import ResetPasswordPage from "./pages/utilities/ResetPasswordPage";
 import ProtectedRoute from "@/components/ProtectedRoute"; 
-import DonationPage from "./pages/library/DonationPage";
+import DonationPage from "./pages/library/HelpTheLibrary";
 import FAQ from "./pages/library/FAQ";
 import { SiteModeProvider } from "./hooks/useSiteMode";
 import AcademicSearchPage from "./pages/academic/AcademicSearchPage";
@@ -30,8 +30,8 @@ import NewQuestionPage from "./pages/academic/NewQuestionPage";
 import AdminPendingTagsPage from "./pages/utilities/AdminPendingTagsPage";
 import TransparencyPortalPage from "./pages/library/TransparencyPortalPage";
 
-import FAQTestPage from "./pages/FAQTestPage";
-
+import FAQTestPage from "./pages/testing/FAQTestPage";
+import ExampleTabsPage from "./pages/testing/ExampleTabsPage";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -47,7 +47,10 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
+
+            {/* Rotas de teste */}
             <Route path="/faq-teste" element={<FAQTestPage />} />
+            <Route path="/example-tabs" element={<ExampleTabsPage />} />
 
             <Route path="/" element={<Index />} />
             <Route path="/buscar" element={<SearchPage />} />

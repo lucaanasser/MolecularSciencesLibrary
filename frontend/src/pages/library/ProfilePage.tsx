@@ -6,6 +6,7 @@ import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";
 import LoanHistoryOnly from "@/features/loans/components/LoanHistoryOnly";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ProfileTabsCard, TabType } from "@/features/personalProfile/ProfileTabsCard";
 
 console.log("🔵 [ProfilePage] Renderizando página de perfil do usuário");
 
@@ -19,8 +20,6 @@ const MOCK_DONATIONS = [
   { id: 2, title: "Física Básica", author: "Halliday", date: "2025-10-20", status: "aceita" },
   { id: 3, title: "Química Orgânica", author: "Solomons", date: "2025-12-01", status: "em análise" },
 ];
-
-type TabType = "ativos" | "historico" | "doacoes" ;
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("ativos");
@@ -238,98 +237,72 @@ const ProfilePage = () => {
 
             {/* Card com botões no topo */}
             <div className="flex-1 min-w-0">
-              <div className={`rounded-2xl border-b border-${getTabColor()} bg-white shadow-lg p-0 flex flex-col`}>
-                {/* Botões no topo */}
-                <div className={`flex flex-row bg-white rounded-t-2xl overflow-hidden`}>
-                  {tabs.map((tab, idx) => {
-                    const Icon = tab.icon;
-                    const isActive = activeTab === tab.id;
-                    const color = ["ativos", "historico", "doacoes"].includes(tab.id) ? getTabColor() : "cm-purple";
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 font-semibold text-sm sm:text-base transition-colors
-                          ${isActive
-                            ? `text-white border-b-4 border-${color} bg-${color} `
-                            : `text-gray-500 border-b-4 border-${color} hover:text-${color} bg-white`
-                          }
-                        `}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="hidden sm:inline">{tab.label}</span>
-                        <span className="sm:hidden">{isActive ? tab.shortLabel : ""}</span>
-                      </button>
-                    );
-                  })}
+              <ProfileTabsCard
+                tabs={tabs}
+                initialTab={activeTab}
+                getTabColor={getTabColor}
+              >
+                {/* Conteúdo das abas */}
+                {/* Ativos */}
+                <div>
+                  {user.id ? (
+                    <LoanActive userId={user.id} />
+                  ) : (
+                    <p className="text-gray-500 text-center py-8">Não foi possível carregar os empréstimos.</p>
+                  )}
                 </div>
-                {/* Conteúdo do card */}
-                <div className="p-4 sm:p-6">
-                  {activeTab === "ativos" && (
-                    <div>
-                      {user.id ? (
-                        <LoanActive userId={user.id} />
-                      ) : (
-                        <p className="text-gray-500 text-center py-8">Não foi possível carregar os empréstimos.</p>
-                      )}
-                    </div>
+                {/* Histórico */}
+                <div>
+                  {user.id ? (
+                    <LoanHistoryOnly userId={user.id} />
+                  ) : (
+                    <p className="text-gray-500 text-center py-8">Não foi possível carregar o histórico.</p>
                   )}
-                  {activeTab === "historico" && (
-                    <div>
-                      {user.id ? (
-                        <LoanHistoryOnly userId={user.id} />
-                      ) : (
-                        <p className="text-gray-500 text-center py-8">Não foi possível carregar o histórico.</p>
-                      )}
-                    </div>
-                  )}
-                  {activeTab === "doacoes" && (
-                    <div>
-                      {MOCK_DONATIONS.length > 0 ? (
-                        <div className="space-y-3">
-                          {MOCK_DONATIONS.map((donation) => (
-                            <div 
-                              key={donation.id} 
-                              className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
-                            >
-              {/* Ícone de presente removido para manter igual ao LoanActive atual */}
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
-                                  <Gift className="w-5 h-5 text-cm-purple" />
-                                </div>
-                                <div>
-                                  <p className="font-medium text-gray-900">{donation.title}</p>
-                                  <p className="text-sm text-gray-500">{donation.author}</p>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                  donation.status === "aceita" 
-                                    ? "bg-cm-green/10 text-cm-green" 
-                                    : "bg-cm-yellow/20 text-cm-orange"
-                                }`}>
-                                  {donation.status === "aceita" ? "Aceita" : "Em análise"}
-                                </span>
-                                <p className="text-xs text-gray-400 mt-1">
-                                  {new Date(donation.date).toLocaleDateString("pt-BR")}
-                                </p>
-                              </div>
+                </div>
+                {/* Doações */}
+                <div>
+                  {MOCK_DONATIONS.length > 0 ? (
+                    <div className="space-y-3">
+                      {MOCK_DONATIONS.map((donation) => (
+                        <div 
+                          key={donation.id} 
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
+                              <Gift className="w-5 h-5 text-cm-purple" />
                             </div>
-                          ))}
+                            <div>
+                              <p className="font-medium text-gray-900">{donation.title}</p>
+                              <p className="text-sm text-gray-500">{donation.author}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                              donation.status === "aceita" 
+                                ? "bg-cm-green/10 text-cm-green" 
+                                : "bg-cm-yellow/20 text-cm-orange"
+                            }`}>
+                              {donation.status === "aceita" ? "Aceita" : "Em análise"}
+                            </span>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(donation.date).toLocaleDateString("pt-BR")}
+                            </p>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="text-center py-12">
-                          <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                          <p className="text-gray-500">Você ainda não fez nenhuma doação.</p>
-                          <a href="/ajude" className="text-cm-purple hover:underline text-sm mt-2 inline-block">
-                            Que tal doar um livro?
-                          </a>
-                        </div>
-                      )}
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500">Você ainda não fez nenhuma doação.</p>
+                      <a href="/ajude" className="text-cm-purple hover:underline text-sm mt-2 inline-block">
+                        Que tal doar um livro?
+                      </a>
                     </div>
                   )}
                 </div>
-              </div>
+              </ProfileTabsCard>
             </div>
           </div>
         </div>
@@ -380,11 +353,6 @@ const ProfilePage = () => {
       )}
 
       <Footer />
-
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 };

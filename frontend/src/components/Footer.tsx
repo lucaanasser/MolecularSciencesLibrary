@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-200 py-6">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-x-10 md:[grid-template-columns:1.2fr_0.8fr_1fr]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-x-10 md:[grid-template-columns:1.2fr_0.8fr_1fr]">
           {/* Logo/texto */}
           <div>
             <img
