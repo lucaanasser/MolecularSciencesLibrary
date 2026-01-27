@@ -6,15 +6,21 @@ interface ProfileAvatarProps {
   profileImage?: string;
   isOwnProfile: boolean;
   isEditing: boolean;
+  avatarTimestamp?: number;
 }
 
-export const ProfileAvatar = ({ name, profileImage, isOwnProfile, isEditing }: ProfileAvatarProps) => {
+export const ProfileAvatar = ({ name, profileImage, isOwnProfile, isEditing, avatarTimestamp }: ProfileAvatarProps) => {
+  // Add cache-buster for custom uploaded images
+  const avatarSrc = profileImage?.includes('/images/user-images/') 
+    ? `${profileImage}?t=${avatarTimestamp || Date.now()}` 
+    : profileImage;
+
   return (
     <div className="p-6 bg-gradient-to-b from-cm-purple/5 to-white">
       <div className="relative mx-auto w-48 h-48 mb-4">
         <Avatar className="w-full h-full border-4 border-white shadow-lg">
-          {profileImage ? (
-            <AvatarImage src={profileImage} alt={name} />
+          {avatarSrc ? (
+            <AvatarImage src={avatarSrc} alt={name} />
           ) : null}
           <AvatarFallback className="bg-cm-purple text-white text-6xl font-bebas">
             {name?.charAt(0)}

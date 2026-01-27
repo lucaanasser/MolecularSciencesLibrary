@@ -35,6 +35,8 @@ const upload = multer({
  */
 const uploadImage = (fileBuffer, originalName, directory, maxSizeMB = 5) => {
     console.log(`🔵 [imageUpload] Iniciando upload de imagem para: ${directory}`);
+    console.log(`🔵 [imageUpload] Buffer size: ${fileBuffer.length} bytes`);
+    console.log(`🔵 [imageUpload] Original name: ${originalName}`);
 
     // Validate file size
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
@@ -51,16 +53,27 @@ const uploadImage = (fileBuffer, originalName, directory, maxSizeMB = 5) => {
     // Construct full path
     const uploadDir = path.join(__dirname, '..', '..', 'public', 'images', directory);
     const filePath = path.join(uploadDir, filename);
+    
+    console.log(`🔵 [imageUpload] Upload directory: ${uploadDir}`);
+    console.log(`🔵 [imageUpload] Full file path: ${filePath}`);
 
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
         console.log(`🟢 [imageUpload] Diretório criado: ${uploadDir}`);
+    } else {
+        console.log(`🔵 [imageUpload] Diretório já existe: ${uploadDir}`);
     }
 
-    // Write file to disk
-    fs.writeFileSync(filePath, fileBuffer);
-    console.log(`🟢 [imageUpload] Imagem salva: ${filename}`);
+    try {
+        // Write file to disk
+        fs.writeFileSync(filePath, fileBuffer);
+        console.log(`🟢 [imageUpload] Imagem salva com sucesso: ${filename}`);
+        console.log(`🟢 [imageUpload] Tamanho do arquivo salvo: ${fs.statSync(filePath).size} bytes`);
+    } catch (err) {
+        console.error(`🔴 [imageUpload] Erro ao salvar arquivo:`, err);
+        throw err;
+    }
 
     // Return relative path for database storage
     return `/images/${directory}/${filename}`;

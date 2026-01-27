@@ -29,17 +29,24 @@ class PublicProfilesModel {
         console.log(`🔵 [PublicProfilesModel] Buscando perfil público de user: ${userId}`);
         
         const profile = await getQuery(
-            `SELECT * FROM public_profiles WHERE user_id = ?`,
+            `SELECT id, user_id, turma, curso_origem, area_interesse, bio, citacao, citacao_autor, 
+                    email_publico, linkedin, lattes, github, site, banner_choice, 
+                    created_at, updated_at 
+             FROM public_profiles 
+             WHERE user_id = ?`,
             [userId]
         );
 
         if (profile) {
             console.log(`🟢 [PublicProfilesModel] Perfil encontrado`);
+            console.log(`🔍 [PublicProfilesModel] Profile raw do DB:`, JSON.stringify(profile, null, 2));
         } else {
             console.log(`🟡 [PublicProfilesModel] Perfil não encontrado`);
         }
 
-        return snakeToCamel(profile);
+        const converted = snakeToCamel(profile);
+        console.log(`🔍 [PublicProfilesModel] Profile convertido:`, JSON.stringify(converted, null, 2));
+        return converted;
     }
 
     /**

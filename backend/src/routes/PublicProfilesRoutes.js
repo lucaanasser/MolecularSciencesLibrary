@@ -29,6 +29,11 @@ router.put('/:userId/avatar', authenticateToken, verifyProfileOwnership, upload.
     publicProfilesController.uploadAvatar(req, res);
 });
 
+// Select default avatar (PROTECTED - ownership required)
+router.put('/:userId/avatar/default', authenticateToken, verifyProfileOwnership, (req, res) => {
+    publicProfilesController.selectDefaultAvatar(req, res);
+});
+
 // ==================== ADVANCED CYCLES ====================
 
 // Create advanced cycle (PROTECTED - ownership required)

@@ -33,6 +33,8 @@ class PublicProfilesService {
             console.log(`🟡 [PublicProfilesService] Perfil público não existe, criando...`);
             profile = await publicProfilesModel.createProfile(userId);
         }
+        
+        console.log(`🔍 [PublicProfilesService] Profile do DB:`, JSON.stringify(profile, null, 2));
 
         // Get all related data in parallel
         const [
@@ -60,38 +62,40 @@ class PublicProfilesService {
             profileImage: user.profile_image,
             
             // Stats
-            cursoOrigem: profile.curso_origem,
-            areaInteresse: profile.area_interesse,
+            curso_origem: profile.curso_origem,
+            area_interesse: profile.area_interesse,
             
             // Bio and quote
             bio: profile.bio,
             citacao: profile.citacao,
-            citacaoAutor: profile.citacao_autor,
+            citacao_autor: profile.citacao_autor,
             
             // Contact info
-            emailPublico: profile.email_publico,
-            linkedIn: profile.linkedin,
+            email_publico: profile.email_publico,
+            linkedin: profile.linkedin,
             lattes: profile.lattes,
             github: profile.github,
-            site: profile.site,
+            site_pessoal: profile.site_pessoal,
             
             // Banner
-            bannerChoice: profile.banner_choice,
+            banner_choice: profile.banner_choice,
+            is_public: profile.is_public,
             
             // Related data
-            ciclosAvancados,
-            disciplinas,
-            experienciasInternacionais,
-            posCM,
+            advanced_cycles: ciclosAvancados,
+            disciplines: disciplinas,
+            international_experiences: experienciasInternacionais,
+            post_cm: posCM,
             tags,
             seguindo,
             
             // Timestamps
-            createdAt: profile.created_at,
-            updatedAt: profile.updated_at
+            created_at: profile.created_at,
+            updated_at: profile.updated_at
         };
 
-        console.log(`🟢 [PublicProfilesService] Perfil completo montado`);
+        console.log(`� [PublicProfilesService] Complete profile banner_choice:`, completeProfile.banner_choice);
+        console.log(`�🟢 [PublicProfilesService] Perfil completo montado`);
         return completeProfile;
     }
 

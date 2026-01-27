@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -22,12 +22,37 @@ const PublicProfilePage = () => {
   const { user, loading: userLoading, error: userError } = useUserProfile();
   const { isEditing, isSaving, startEditing, saveChanges } = useProfileEdit();
   const [activeTab, setActiveTab] = useState<TabId>("avancados");
+  const [avatarTimestamp, setAvatarTimestamp] = useState(Date.now());
+  const [bannerTimestamp, setBannerTimestamp] = useState(Date.now());
   
   // Determine which user ID to use (from URL param or current user)
   const userId = userIdParam ? parseInt(userIdParam) : user?.id || 0;
   const profile = usePublicProfile(userId);
 
+  // Update avatar timestamp when profile_image changes
+  useEffect(() => {
+    if (user?.profile_image) {
+      setAvatarTimestamp(Date.now());
+    }
+  }, [user?.profile_image]);
+
+  useEffect(() => {
+    console.log('🔵 [PublicProfilePage] Profile atualizado:', {
+      ciclosAvancados: profile.ciclosAvancados.length,
+      disciplinas: profile.disciplinas.length,
+      experiencias: profile.experienciasInternacionais.length,
+      posCM: profile.posCM.length
+    });
+  }, [profile.ciclosAvancados, profile.disciplinas, profile.experienciasInternacionais, profile.posCM]);
+
   const isOwnProfile = !userIdParam || (user && userIdParam === String(user.id));
+
+  // Create user object from profile data for display
+  const displayUser = {
+    name: profile.nome || user?.name || "Usuário",
+    profile_image: profile.profileImage || user?.profile_image,
+    class: profile.turma || user?.class
+  };
 
   // All possible tabs
   const allTabs = [
@@ -64,18 +89,36 @@ const PublicProfilePage = () => {
     try {
       await ProfileService.uploadAvatar(userId, file);
       await profile.refetch(); // Reload profile to get new avatar path
+      setAvatarTimestamp(Date.now()); // Force avatar refresh
     } catch (err) {
       console.error('Erro ao fazer upload de avatar:', err);
       alert('Erro ao fazer upload de avatar');
     }
   };
 
+  const handleDefaultAvatarSelect = async (imagePath: string) => {
+    try {
+      await ProfileService.selectDefaultAvatar(userId, imagePath);
+      await profile.refetch(); // Reload profile to get new avatar
+      setAvatarTimestamp(Date.now()); // Force avatar refresh
+    } catch (err) {
+      console.error('Erro ao selecionar avatar padrão:', err);
+      alert('Erro ao selecionar avatar padrão');
+    }
+  };
+
   const handleBannerChange = async (bannerChoice: string) => {
     try {
+      console.log('🎨 [PublicProfilePage] Atualizando banner para:', bannerChoice);
       await ProfileService.updateBanner(userId, bannerChoice);
+      console.log('✅ [PublicProfilePage] Banner atualizado no backend');
       await profile.refetch(); // Reload to get new banner
+      console.log('✅ [PublicProfilePage] Profile refetchado');
+      const newTimestamp = Date.now();
+      setBannerTimestamp(newTimestamp); // Force banner refresh
+      console.log('✅ [PublicProfilePage] Timestamp atualizado:', newTimestamp);
     } catch (err) {
-      console.error('Erro ao atualizar banner:', err);
+      console.error('❌ [PublicProfilePage] Erro ao atualizar banner:', err);
       alert('Erro ao atualizar banner');
     }
   };
@@ -127,7 +170,7 @@ const PublicProfilePage = () => {
       <main className="flex-grow">
         {/* Profile Header with Banner */}
         <ProfileHeader
-          user={user}
+          user={displayUser}
           isOwnProfile={isOwnProfile}
           isEditing={isEditing}
           isSaving={isSaving}
@@ -140,6 +183,9 @@ const PublicProfilePage = () => {
           lattes={profile.lattes}
           github={profile.github}
           site={profile.site}
+          bannerChoice={profile.bannerChoice}
+          avatarTimestamp={avatarTimestamp}
+          bannerTimestamp={bannerTimestamp}
           onEdit={startEditing}
           onSave={handleSave}
           onFollow={handleFollowToggle}
@@ -151,6 +197,7 @@ const PublicProfilePage = () => {
           onLattesChange={profile.setLattes}
           onGithubChange={profile.setGithub}
           onAvatarUpload={handleAvatarUpload}
+          onDefaultAvatarSelect={handleDefaultAvatarSelect}
           onBannerChange={handleBannerChange}
         />
 
@@ -172,12 +219,13 @@ const PublicProfilePage = () => {
                 <ProfileTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
                 {/* Tab Content */}
-                <div className="p-6">
+                <div className="p-6" key={`tab-content-${profile.ciclosAvancados.length}-${profile.disciplinas.length}-${profile.experienciasInternacionais.length}-${profile.posCM.length}`}>
                   {activeTab === "avancados" && (
                     <AdvancedCyclesTab
                       ciclosAvancados={profile.ciclosAvancados}
                       isEditing={isEditing}
                       onAdd={profile.addAvancado}
+                      onSave={profile.saveAvancado}
                       onRemove={profile.removeAvancado}
                       onUpdate={profile.updateAvancado}
                     />
@@ -189,6 +237,7 @@ const PublicProfilePage = () => {
                       ciclosAvancados={profile.ciclosAvancados}
                       isEditing={isEditing}
                       onAdd={profile.addDisciplina}
+                      onSave={profile.saveDisciplina}
                       onRemove={profile.removeDisciplina}
                       onUpdate={profile.updateDisciplina}
                     />
@@ -199,6 +248,7 @@ const PublicProfilePage = () => {
                       experiencias={profile.experienciasInternacionais}
                       isEditing={isEditing}
                       onAdd={profile.addExperienciaInternacional}
+                      onSave={profile.saveExperienciaInternacional}
                       onRemove={profile.removeExperienciaInternacional}
                       onUpdate={profile.updateExperienciaInternacional}
                     />
@@ -209,6 +259,7 @@ const PublicProfilePage = () => {
                       posCM={Array.isArray(profile.posCM) ? profile.posCM : []}
                       isEditing={isEditing}
                       onAdd={profile.addPosCM}
+                      onSave={profile.savePosCM}
                       onRemove={profile.removePosCM}
                       onUpdate={profile.updatePosCM}
                     />

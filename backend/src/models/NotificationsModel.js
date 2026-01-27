@@ -17,9 +17,9 @@ class NotificationsModel {
         `;
         const params = [user_id, type, message, metadata ? JSON.stringify(metadata) : null, loan_id, status];
         try {
-            const id = await executeQuery(query, params);
-            console.log("🟢 [NotificationsModel] Notificação criada:", id);
-            return id;
+            const result = await executeQuery(query, params);
+            console.log("🟢 [NotificationsModel] Notificação criada:", result.lastID);
+            return result.lastID;
         } catch (error) {
             console.error("🔴 [NotificationsModel] Erro ao criar notificação:", error.message);
             throw error;

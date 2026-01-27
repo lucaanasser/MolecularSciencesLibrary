@@ -35,6 +35,8 @@ export interface ProfileData {
 }
 
 export interface CompleteProfile extends ProfileData {
+  nome?: string;
+  profileImage?: string;
   advanced_cycles?: AdvancedCycleWithTags[];
   disciplines?: DisciplinaAvancado[];
   international_experiences?: InternationalExperience[];
@@ -100,6 +102,8 @@ class ProfileService {
       }
       const profile = await response.json();
       console.log('🟢 [ProfileService] Perfil carregado com sucesso');
+      console.log('🔍 [ProfileService] Profile completo:', JSON.stringify(profile, null, 2));
+      console.log('🔍 [ProfileService] banner_choice recebido:', profile.banner_choice);
       return profile;
     } catch (error) {
       console.error('🔴 [ProfileService] Erro ao buscar perfil:', error);
@@ -141,7 +145,7 @@ class ProfileService {
       const response = await fetch(`/api/profiles/${userId}/banner`, {
         method: 'PUT',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify({ banner_choice: bannerChoice })
+        body: JSON.stringify({ bannerChoice })
       });
       if (!response.ok) {
         if (response.status === 400) throw new Error('Escolha de banner inválida');
@@ -159,26 +163,58 @@ class ProfileService {
    * Upload de avatar (imagem, max 5MB)
    */
   async uploadAvatar(userId: number, imageFile: File): Promise<{ avatar_path: string }> {
-    console.log(`🔵 [ProfileService] Fazendo upload de avatar`);
+    console.log(`🔵 [ProfileService] Fazendo upload de avatar para usuário ${userId}`);
+    console.log(`🔵 [ProfileService] Arquivo:`, imageFile.name, imageFile.size, "bytes", imageFile.type);
     try {
       const formData = new FormData();
-      formData.append('avatar', imageFile);
+      formData.append('image', imageFile);
+
+      console.log(`🔵 [ProfileService] Enviando PUT para /api/profiles/${userId}/avatar`);
 
       const response = await fetch(`/api/profiles/${userId}/avatar`, {
-        method: 'POST',
+        method: 'PUT',
         headers: this.getMultipartAuthHeaders(),
         body: formData
       });
+      
+      console.log(`🔵 [ProfileService] Resposta:`, response.status, response.statusText);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`🔴 [ProfileService] Erro na resposta:`, errorText);
         if (response.status === 400) throw new Error('Arquivo inválido (máx 5MB, PNG/JPG)');
         if (response.status === 403) throw new Error('Sem permissão para editar este perfil');
         throw new Error(`Erro HTTP: ${response.status}`);
       }
       const data = await response.json();
-      console.log('🟢 [ProfileService] Avatar enviado com sucesso');
+      console.log('🟢 [ProfileService] Avatar enviado com sucesso:', data);
       return data;
     } catch (error) {
       console.error('🔴 [ProfileService] Erro ao fazer upload de avatar:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Selecionar avatar padrão
+   */
+  async selectDefaultAvatar(userId: number, imagePath: string): Promise<{ profile_image: string }> {
+    console.log(`🔵 [ProfileService] Selecionando avatar padrão: ${imagePath}`);
+    try {
+      const response = await fetch(`/api/profiles/${userId}/avatar/default`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ imagePath })
+      });
+      if (!response.ok) {
+        if (response.status === 403) throw new Error('Sem permissão para editar este perfil');
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('🟢 [ProfileService] Avatar padrão selecionado com sucesso');
+      return data;
+    } catch (error) {
+      console.error('🔴 [ProfileService] Erro ao selecionar avatar padrão:', error);
       throw error;
     }
   }

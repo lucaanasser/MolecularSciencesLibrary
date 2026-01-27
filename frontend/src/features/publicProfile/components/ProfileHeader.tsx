@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { Edit3, Camera, UserPlus, UserCheck, Save, Mail, Linkedin, FileText, Github, Globe, X, Plus, Users, Upload, ZoomIn, ZoomOut } from "lucide-react";
+import { useState } from "react";
+import { Edit3, Camera, UserPlus, UserCheck, Save, Mail, Linkedin, FileText, Github, Globe, Plus, Users, X } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ProfileTag, SUGGESTED_TAGS } from "@/types/publicProfile";
 import { cn } from "@/lib/utils";
+import { AvatarSelectorModal } from "./AvatarSelectorModal";
 import {
   Popover,
   PopoverContent,
@@ -32,6 +33,9 @@ interface ProfileHeaderProps {
   lattes: string;
   github?: string;
   site?: string;
+  bannerChoice?: string;
+  avatarTimestamp?: number;
+  bannerTimestamp?: number;
   onEdit: () => void;
   onSave: () => void;
   onFollow: () => void;
@@ -43,6 +47,7 @@ interface ProfileHeaderProps {
   onLattesChange: (value: string) => void;
   onGithubChange: (value: string) => void;
   onAvatarUpload?: (file: File) => Promise<void>;
+  onDefaultAvatarSelect?: (imagePath: string) => Promise<void>;
   onBannerChange?: (bannerChoice: string) => Promise<void>;
 }
 
@@ -67,6 +72,9 @@ export const ProfileHeader = ({
   lattes,
   github,
   site,
+  bannerChoice = "purple",
+  avatarTimestamp,
+  bannerTimestamp,
   onEdit,
   onSave,
   onFollow,
@@ -78,6 +86,7 @@ export const ProfileHeader = ({
   onLattesChange,
   onGithubChange,
   onAvatarUpload,
+  onDefaultAvatarSelect,
   onBannerChange,
 }: ProfileHeaderProps) => {
   const [showFollowing, setShowFollowing] = useState(false);
@@ -85,152 +94,25 @@ export const ProfileHeader = ({
   const [newTag, setNewTag] = useState("");
   const [tagCategory, setTagCategory] = useState<ProfileTag["category"]>("area");
   const [showBannerSelector, setShowBannerSelector] = useState(false);
-
-  // Avatar upload/crop
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isDraggingImage, setIsDraggingImage] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const inputRef = useRef<HTMLInputElement>(null);
-  const imageContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleAvatarClick = () => setShowAvatarModal(true);
-  
-  const processFile = (file: File) => {
-    if (file && file.size <= 5 * 1024 * 1024 && file.type.startsWith("image/")) {
-      setAvatarUrl(URL.createObjectURL(file));
-      setZoom(1);
-      setPosition({ x: 0, y: 0 });
-    } else {
-      alert("Selecione uma imagem de até 5MB (PNG ou JPG).");
+  console.log('🔍 [ProfileHeader] bannerChoice recebido:', bannerChoice);
+  console.log('🔍 [ProfileHeader] bannerTimestamp recebido:', bannerTimestamp);
+
+  const handleSelectImage = async (imageFile: File) => {
+    if (onAvatarUpload) {
+      await onAvatarUpload(imageFile);
     }
   };
 
-  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
-  };
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) processFile(file);
-  }, []);
-
-  // Funções para arrastar a imagem dentro do preview
-  const handleImageMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDraggingImage(true);
-    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-  };
-
-  const handleImageMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDraggingImage) return;
-    const maxOffset = 100 * (zoom - 1);
-    const newX = Math.max(-maxOffset, Math.min(maxOffset, e.clientX - dragStart.x));
-    const newY = Math.max(-maxOffset, Math.min(maxOffset, e.clientY - dragStart.y));
-    setPosition({ x: newX, y: newY });
-  }, [isDraggingImage, dragStart, zoom]);
-
-  const handleImageMouseUp = useCallback(() => {
-    setIsDraggingImage(false);
-  }, []);
-
-  // Touch events para mobile
-  const handleImageTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setIsDraggingImage(true);
-    setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
-  };
-
-  const handleImageTouchMove = useCallback((e: TouchEvent) => {
-    if (!isDraggingImage) return;
-    const touch = e.touches[0];
-    const maxOffset = 100 * (zoom - 1);
-    const newX = Math.max(-maxOffset, Math.min(maxOffset, touch.clientX - dragStart.x));
-    const newY = Math.max(-maxOffset, Math.min(maxOffset, touch.clientY - dragStart.y));
-    setPosition({ x: newX, y: newY });
-  }, [isDraggingImage, dragStart, zoom]);
-
-  // Efeito para adicionar/remover listeners globais
-  useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (!isDraggingImage) return;
-      const maxOffset = 100 * (zoom - 1);
-      const newX = Math.max(-maxOffset, Math.min(maxOffset, e.clientX - dragStart.x));
-      const newY = Math.max(-maxOffset, Math.min(maxOffset, e.clientY - dragStart.y));
-      setPosition({ x: newX, y: newY });
-    };
-    const handleGlobalMouseUp = () => setIsDraggingImage(false);
-    const handleGlobalTouchMove = (e: TouchEvent) => {
-      if (!isDraggingImage) return;
-      const touch = e.touches[0];
-      const maxOffset = 100 * (zoom - 1);
-      const newX = Math.max(-maxOffset, Math.min(maxOffset, touch.clientX - dragStart.x));
-      const newY = Math.max(-maxOffset, Math.min(maxOffset, touch.clientY - dragStart.y));
-      setPosition({ x: newX, y: newY });
-    };
-    const handleGlobalTouchEnd = () => setIsDraggingImage(false);
-
-    if (isDraggingImage) {
-      window.addEventListener("mousemove", handleGlobalMouseMove);
-      window.addEventListener("mouseup", handleGlobalMouseUp);
-      window.addEventListener("touchmove", handleGlobalTouchMove);
-      window.addEventListener("touchend", handleGlobalTouchEnd);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleGlobalMouseMove);
-      window.removeEventListener("mouseup", handleGlobalMouseUp);
-      window.removeEventListener("touchmove", handleGlobalTouchMove);
-      window.removeEventListener("touchend", handleGlobalTouchEnd);
-    };
-  }, [isDraggingImage, dragStart, zoom]);
-
-  const handleAvatarSave = async () => {
-    if (!avatarUrl || !onAvatarUpload) return;
-
-    try {
-      // Convert data URL to File
-      const response = await fetch(avatarUrl);
-      const blob = await response.blob();
-      const file = new File([blob], "avatar.png", { type: "image/png" });
-      
-      await onAvatarUpload(file);
-      
-      // Close modal and reset
-      setShowAvatarModal(false);
-      setAvatarUrl(null);
-      setPosition({ x: 0, y: 0 });
-      setZoom(1);
-    } catch (err) {
-      console.error('Erro ao salvar avatar:', err);
-      alert('Erro ao salvar avatar');
+  const handleSelectDefault = async (imagePath: string) => {
+    if (onDefaultAvatarSelect) {
+      await onDefaultAvatarSelect(imagePath);
     }
   };
 
-  const handleCloseModal = () => {
-    setShowAvatarModal(false);
-    setAvatarUrl(null);
-    setZoom(1);
-    setPosition({ x: 0, y: 0 });
+  const handleAvatarClick = () => {
+    setShowAvatarModal(true);
   };
 
   const handleAddTag = () => {
@@ -243,21 +125,23 @@ export const ProfileHeader = ({
   const handleBannerSelect = async (bannerChoice: string) => {
     if (onBannerChange) {
       try {
+        console.log('🎨 [ProfileHeader] Alterando banner para:', bannerChoice);
         await onBannerChange(bannerChoice);
         setShowBannerSelector(false);
+        console.log('✅ [ProfileHeader] Banner alterado com sucesso');
       } catch (err) {
-        console.error('Erro ao alterar banner:', err);
+        console.error('❌ [ProfileHeader] Erro ao alterar banner:', err);
       }
     }
   };
 
   const BANNER_OPTIONS = [
-    { name: "purple", color: "#7C3AED", label: "Roxo" },
-    { name: "blue", color: "#3B82F6", label: "Azul" },
-    { name: "green", color: "#10B981", label: "Verde" },
-    { name: "red", color: "#EF4444", label: "Vermelho" },
-    { name: "orange", color: "#F97316", label: "Laranja" },
-    { name: "yellow", color: "#EAB308", label: "Amarelo" },
+    { name: "purple", label: "Roxo", image: "/images/background-images/purple_background.png" },
+    { name: "blue", label: "Azul", image: "/images/background-images/blue_background.png" },
+    { name: "green", label: "Verde", image: "/images/background-images/green_background.png" },
+    { name: "red", label: "Vermelho", image: "/images/background-images/red_background.png" },
+    { name: "orange", label: "Laranja", image: "/images/background-images/orange_background.png" },
+    { name: "yellow", label: "Amarelo", image: "/images/background-images/yellow_background.png" },
   ];
 
   return (
@@ -265,8 +149,8 @@ export const ProfileHeader = ({
       {/* Banner */}
       <div className="h-48 sm:h-56 bg-cm-bg relative overflow-hidden">
         <img
-          src="/images/background-images/purple_background.png"
-          alt="Banner mockado"
+          src={`/images/background-images/${bannerChoice}_background.png?t=${bannerTimestamp || Date.now()}`}
+          alt="Banner de perfil"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-cm-bg" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
@@ -280,19 +164,22 @@ export const ProfileHeader = ({
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="space-y-3">
-                <h4 className="font-semibold text-sm text-gray-700">Escolha uma cor para o banner</h4>
+                <h4 className="font-semibold text-sm text-gray-700">Escolha um banner</h4>
                 <div className="grid grid-cols-3 gap-3">
                   {BANNER_OPTIONS.map((banner) => (
                     <button
                       key={banner.name}
                       onClick={() => handleBannerSelect(banner.name)}
-                      className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
+                      className="flex flex-col items-center gap-2 p-2 rounded-lg border-2 border-gray-200 hover:border-cm-purple hover:bg-gray-50 transition-all"
                     >
-                      <div 
-                        className="w-full h-12 rounded-md"
-                        style={{ backgroundColor: banner.color }}
-                      />
-                      <span className="text-xs text-gray-600">{banner.label}</span>
+                      <div className="w-full h-16 rounded-md overflow-hidden">
+                        <img 
+                          src={banner.image} 
+                          alt={banner.label}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-xs text-gray-600 font-medium">{banner.label}</span>
                     </button>
                   ))}
                 </div>
@@ -309,7 +196,12 @@ export const ProfileHeader = ({
           <div className="relative flex-shrink-0">
             <Avatar className="w-36 h-36 sm:w-40 sm:h-40 border-4 border-white shadow-xl">
               {user.profile_image ? (
-                <AvatarImage src={user.profile_image} alt={user.name} />
+                <AvatarImage 
+                  src={user.profile_image.includes('/images/user-images/') 
+                    ? `${user.profile_image}?t=${avatarTimestamp || Date.now()}` 
+                    : user.profile_image} 
+                  alt={user.name} 
+                />
               ) : null}
               <AvatarFallback className="bg-cm-academic text-white text-5xl font-bebas">
                 {user.name?.charAt(0)}
@@ -324,95 +216,15 @@ export const ProfileHeader = ({
                 <Camera className="w-6 h-6" />
               </button>
             )}
-            {/* Modal de upload/crop */}
-            {showAvatarModal && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative">
-                  <button className="absolute top-3 right-3 text-gray-400 hover:text-red-600 transition-colors" onClick={handleCloseModal}>
-                    <X className="w-6 h-6" />
-                  </button>
-                  <h3 className="text-xl font-bold mb-4 text-gray-900">Alterar foto de perfil</h3>
-                  
-                  {!avatarUrl ? (
-                    <div
-                      className={cn(
-                        "flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-xl transition-colors cursor-pointer",
-                        isDragging ? "border-cm-purple bg-cm-purple/10" : "border-gray-300 hover:border-cm-purple/50"
-                      )}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onClick={() => inputRef.current?.click()}
-                    >
-                      <input
-                        ref={inputRef}
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg"
-                        className="hidden"
-                        onChange={handleAvatarFile}
-                      />
-                      <div className="w-16 h-16 rounded-full bg-cm-purple/10 flex items-center justify-center">
-                        <Upload className="w-8 h-8 text-cm-purple" />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-gray-700">
-                          {isDragging ? "Solte a imagem aqui" : "Arraste uma imagem ou clique para selecionar"}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">PNG ou JPG, máximo 5MB</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-4">
-                      {/* Preview com zoom e drag */}
-                      <div 
-                        ref={imageContainerRef}
-                        className="relative w-64 h-64 bg-gray-100 rounded-xl overflow-hidden border-4 border-gray-200 cursor-grab active:cursor-grabbing select-none"
-                        onMouseDown={handleImageMouseDown}
-                        onTouchStart={handleImageTouchStart}
-                      >
-                        <img
-                          src={avatarUrl}
-                          alt="Preview"
-                          draggable={false}
-                          className="absolute w-full h-full object-cover pointer-events-none"
-                          style={{
-                            transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-                            transformOrigin: "center center",
-                          }}
-                        />
-                        {/* Guia visual de área de corte */}
-                        <div className="absolute inset-0 pointer-events-none border-2 border-white/50 rounded-xl" />
-                      </div>
-                      <p className="text-xs text-gray-500">Arraste para posicionar a imagem</p>
-                      
-                      {/* Controle de Zoom */}
-                      <div className="flex items-center gap-3 w-full max-w-xs">
-                        <ZoomOut className="w-4 h-4 text-gray-500" />
-                        <input
-                          type="range"
-                          min={1}
-                          max={3}
-                          step={0.05}
-                          value={zoom}
-                          onChange={(e) => setZoom(Number(e.target.value))}
-                          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cm-purple"
-                        />
-                        <ZoomIn className="w-4 h-4 text-gray-500" />
-                      </div>
-                      
-                      <div className="flex gap-3 mt-2 w-full">
-                        <Button onClick={handleAvatarSave} className="flex-1 bg-cm-green hover:bg-cm-green/90 text-white">
-                          Salvar
-                        </Button>
-                        <Button onClick={() => setAvatarUrl(null)} variant="outline" className="flex-1">
-                          Trocar imagem
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+
+            {/* Modal de Avatar Unificado */}
+            <AvatarSelectorModal
+              isOpen={showAvatarModal}
+              onClose={() => setShowAvatarModal(false)}
+              onSelectImage={handleSelectImage}
+              onSelectDefault={handleSelectDefault}
+              currentImage={user.profile_image}
+            />
           </div>
 
           {/* Info */}

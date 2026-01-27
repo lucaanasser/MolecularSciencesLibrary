@@ -9,10 +9,11 @@ class UsersModel {
      */
     async createUser({ name, email, phone, password_hash, role, NUSP, profile_image, class: userClass }) {
         console.log("🟢 [createUser] Criando usuário:", { name, email, phone, role, NUSP, profile_image, class: userClass });
-        return await executeQuery(
+        const result = await executeQuery(
             `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image, class) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [name, NUSP, email, phone, password_hash, role, profile_image, userClass || null]
         );
+        return result.lastID;
     }
 
     /**

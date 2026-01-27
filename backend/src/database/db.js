@@ -54,7 +54,7 @@ function executeQuery(query, params = []) {
                 return reject(err);
             }
             console.log('🟢 [db] Query executada com sucesso:', query);
-            resolve(this.lastID);
+            resolve({ lastID: this.lastID, changes: this.changes });
         });
     });
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   ProfileTag,
   AdvancedCycleInfo,
@@ -31,6 +31,10 @@ export const usePublicProfile = (userId: number) => {
   const [lattes, setLattes] = useState("");
   const [github, setGithub] = useState("");
   const [site, setSite] = useState("");
+  const [bannerChoice, setBannerChoice] = useState("purple");
+  const [nome, setNome] = useState("");
+  const [turma, setTurma] = useState("");
+  const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const [seguindo, setSeguindo] = useState<any[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [stats, setStats] = useState({
@@ -46,6 +50,8 @@ export const usePublicProfile = (userId: number) => {
         setLoading(true);
         setError(null);
         const profile = await ProfileService.getProfile(userId);
+        console.log('🔍 [usePublicProfile] Profile completo recebido:', profile);
+        console.log('🔍 [usePublicProfile] banner_choice do backend:', profile.banner_choice);
         
         // Set basic profile data
         setBio(profile.bio || "");
@@ -57,6 +63,11 @@ export const usePublicProfile = (userId: number) => {
         setLattes(profile.lattes || "");
         setGithub(profile.github || "");
         setSite(profile.site_pessoal || "");
+        setBannerChoice(profile.banner_choice || "purple");
+        setNome(profile.nome || "");
+        setTurma(profile.turma || "");
+        setProfileImage(profile.profileImage);
+        console.log('🔍 [usePublicProfile] Banner choice carregado:', profile.banner_choice);
         
         // Set stats
         setStats({
@@ -103,6 +114,10 @@ export const usePublicProfile = (userId: number) => {
       setLattes(profile.lattes || "");
       setGithub(profile.github || "");
       setSite(profile.site_pessoal || "");
+      setBannerChoice(profile.banner_choice || "purple");
+      setNome(profile.nome || "");
+      setTurma(profile.turma || "");
+      setProfileImage(profile.profileImage);
       setStats({
         turma: profile.turma || "",
         cursoOrigem: profile.curso_origem || "",
@@ -165,21 +180,50 @@ export const usePublicProfile = (userId: number) => {
   };
 
   // Advanced cycle operations
-  const addAvancado = async () => {
+  const addAvancado = () => {
+    // Retorna um ID temporário para o novo card (será criado no DB apenas quando salvar)
+    return `temp-${Date.now()}`;
+  };
+
+  const saveAvancado = async (data: Partial<AdvancedCycleInfo & { id?: string; cor?: string }>) => {
     try {
-      const newColor = AVANCADO_COLORS[ciclosAvancados.length % AVANCADO_COLORS.length];
-      const newCycle = await ProfileService.createAdvancedCycle(userId, {
-        tema: "Novo Ciclo Avançado",
-        orientador: "Nome do Orientador",
-        descricao: "",
-        semestres: 4,
-        disciplinas: [],
-      });
+      console.log('🔵 [usePublicProfile] Salvando ciclo avançado');
       
-      console.log('✅ Novo ciclo criado:', newCycle);
-      setCiclosAvancados([...ciclosAvancados, { ...newCycle, cor: newColor, id: String(newCycle.id) }]);
+      // Check if it's an edit (has ID) or create (no ID)
+      if (data.id) {
+        const cycleId = parseInt(data.id);
+        if (isNaN(cycleId)) {
+          throw new Error('ID inválido');
+        }
+        
+        // Update existing cycle
+        const { id, cor, ...updateData } = data;
+        const updatedCycle = await ProfileService.updateAdvancedCycle(userId, cycleId, updateData);
+        
+        console.log('✅ Ciclo atualizado pelo backend:', updatedCycle);
+        
+        // Update local state
+        setCiclosAvancados(ciclosAvancados.map((c) => 
+          c.id === data.id ? { ...updatedCycle, id: String(updatedCycle.id), cor: c.cor } : c
+        ));
+        
+        return { ...updatedCycle, id: String(updatedCycle.id), cor };
+      } else {
+        // Create new cycle
+        const newColor = AVANCADO_COLORS[ciclosAvancados.length % AVANCADO_COLORS.length];
+        const newCycle = await ProfileService.createAdvancedCycle(userId, data);
+        
+        console.log('✅ Novo ciclo criado pelo backend:', newCycle);
+        const cycleWithColor = { ...newCycle, cor: newColor, id: String(newCycle.id) };
+        
+        const updatedCycles = [...ciclosAvancados, cycleWithColor];
+        setCiclosAvancados(updatedCycles);
+        console.log('✅ Estado atualizado');
+        
+        return cycleWithColor;
+      }
     } catch (err) {
-      console.error('Erro ao adicionar ciclo:', err);
+      console.error('🔴 Erro ao salvar ciclo:', err);
       throw err;
     }
   };
@@ -221,19 +265,49 @@ export const usePublicProfile = (userId: number) => {
   };
 
   // Discipline operations
-  const addDisciplina = async () => {
+  const addDisciplina = () => {
+    // Retorna um ID temporário para o novo card (será criado no DB apenas quando salvar)
+    return `temp-${Date.now()}`;
+  };
+
+  const saveDisciplina = async (data: Partial<DisciplinaAvancado & { id?: string }>) => {
     try {
-      const newDiscipline = await ProfileService.createDiscipline(userId, {
-        codigo: "Nova Disciplina",
-        nome: "Nova Disciplina",
-        ano: new Date().getFullYear(),
-        semestre: 1,
-      });
+      console.log('🔵 [usePublicProfile] Salvando disciplina');
       
-      console.log('✅ Nova disciplina criada:', newDiscipline);
-      setDisciplinas([...disciplinas, { ...newDiscipline, id: String(newDiscipline.id) }]);
+      // Check if it's an edit (has ID) or create (no ID)
+      if (data.id) {
+        const disciplineId = parseInt(data.id);
+        if (isNaN(disciplineId)) {
+          throw new Error('ID inválido');
+        }
+        
+        // Update existing discipline
+        const { id, ...updateData } = data;
+        const updatedDiscipline = await ProfileService.updateDiscipline(userId, disciplineId, updateData);
+        
+        console.log('✅ Disciplina atualizada pelo backend:', updatedDiscipline);
+        
+        // Update local state
+        setDisciplinas(disciplinas.map((d) => 
+          d.id === data.id ? { ...updatedDiscipline, id: String(updatedDiscipline.id) } : d
+        ));
+        
+        return { ...updatedDiscipline, id: String(updatedDiscipline.id) };
+      } else {
+        // Create new discipline
+        const newDiscipline = await ProfileService.createDiscipline(userId, data);
+        
+        console.log('✅ Nova disciplina criada pelo backend:', newDiscipline);
+        const disciplineWithId = { ...newDiscipline, id: String(newDiscipline.id) };
+        
+        const updatedDisciplines = [...disciplinas, disciplineWithId];
+        setDisciplinas(updatedDisciplines);
+        console.log('✅ Estado atualizado');
+        
+        return disciplineWithId;
+      }
     } catch (err) {
-      console.error('Erro ao adicionar disciplina:', err);
+      console.error('🔴 Erro ao salvar disciplina:', err);
       throw err;
     }
   };
@@ -271,19 +345,49 @@ export const usePublicProfile = (userId: number) => {
   };
 
   // International experience operations
-  const addExperienciaInternacional = async () => {
+  const addExperienciaInternacional = () => {
+    // Retorna um ID temporário para o novo card (será criado no DB apenas quando salvar)
+    return `temp-${Date.now()}`;
+  };
+
+  const saveExperienciaInternacional = async (data: Partial<InternationalExperience & { id?: string }>) => {
     try {
-      const newExperience = await ProfileService.createInternationalExperience(userId, {
-        tipo: "intercambio",
-        pais: "País",
-        instituicao: "Instituição",
-        anoInicio: new Date().getFullYear(),
-      });
+      console.log('🔵 [usePublicProfile] Salvando experiência internacional');
       
-      console.log('✅ Nova experiência criada:', newExperience);
-      setExperienciasInternacionais([...experienciasInternacionais, { ...newExperience, id: String(newExperience.id) }]);
+      // Check if it's an edit (has ID) or create (no ID)
+      if (data.id) {
+        const experienceId = parseInt(data.id);
+        if (isNaN(experienceId)) {
+          throw new Error('ID inválido');
+        }
+        
+        // Update existing experience
+        const { id, ...updateData } = data;
+        const updatedExperience = await ProfileService.updateInternationalExperience(userId, experienceId, updateData);
+        
+        console.log('✅ Experiência atualizada pelo backend:', updatedExperience);
+        
+        // Update local state
+        setExperienciasInternacionais(experienciasInternacionais.map((e) => 
+          e.id === data.id ? { ...updatedExperience, id: String(updatedExperience.id) } : e
+        ));
+        
+        return { ...updatedExperience, id: String(updatedExperience.id) };
+      } else {
+        // Create new experience
+        const newExperience = await ProfileService.createInternationalExperience(userId, data);
+        
+        console.log('✅ Nova experiência criada pelo backend:', newExperience);
+        const experienceWithId = { ...newExperience, id: String(newExperience.id) };
+        
+        const updatedExperiences = [...experienciasInternacionais, experienceWithId];
+        setExperienciasInternacionais(updatedExperiences);
+        console.log('✅ Estado atualizado');
+        
+        return experienceWithId;
+      }
     } catch (err) {
-      console.error('Erro ao adicionar experiência:', err);
+      console.error('🔴 Erro ao salvar experiência:', err);
       throw err;
     }
   };
@@ -321,19 +425,49 @@ export const usePublicProfile = (userId: number) => {
   };
 
   // PostCM operations
-  const addPosCM = async () => {
+  const addPosCM = () => {
+    // Retorna um ID temporário para o novo card (será criado no DB apenas quando salvar)
+    return `temp-${Date.now()}`;
+  };
+
+  const savePosCM = async (data: Partial<PostCMInfo & { id?: string }>) => {
     try {
-      const newPostCM = await ProfileService.createPostCM(userId, {
-        tipo: "pos-graduacao",
-        instituicao: "Instituição",
-        cargo: "",
-        anoInicio: new Date().getFullYear(),
-      });
+      console.log('🔵 [usePublicProfile] Salvando pós-CM');
       
-      console.log('✅ Novo pós-CM criado:', newPostCM);
-      setPosCM([...posCM, { ...newPostCM, id: String(newPostCM.id) }]);
+      // Check if it's an edit (has ID) or create (no ID)
+      if (data.id) {
+        const postCmId = parseInt(data.id);
+        if (isNaN(postCmId)) {
+          throw new Error('ID inválido');
+        }
+        
+        // Update existing post-CM
+        const { id, ...updateData } = data;
+        const updatedPostCM = await ProfileService.updatePostCM(userId, postCmId, updateData);
+        
+        console.log('✅ Pós-CM atualizado pelo backend:', updatedPostCM);
+        
+        // Update local state
+        setPosCM(posCM.map((p) => 
+          p.id === data.id ? { ...updatedPostCM, id: String(updatedPostCM.id) } : p
+        ));
+        
+        return { ...updatedPostCM, id: String(updatedPostCM.id) };
+      } else {
+        // Create new post-CM
+        const newPostCM = await ProfileService.createPostCM(userId, data);
+        
+        console.log('✅ Novo pós-CM criado pelo backend:', newPostCM);
+        const postCMWithId = { ...newPostCM, id: String(newPostCM.id) };
+        
+        const updatedPostCM = [...posCM, postCMWithId];
+        setPosCM(updatedPostCM);
+        console.log('✅ Estado atualizado');
+        
+        return postCMWithId;
+      }
     } catch (err) {
-      console.error('Erro ao adicionar pós-CM:', err);
+      console.error('🔴 Erro ao salvar pós-CM:', err);
       throw err;
     }
   };
@@ -398,7 +532,7 @@ export const usePublicProfile = (userId: number) => {
     }
   };
 
-  return {
+  return useMemo(() => ({
     // State
     bio,
     citacao,
@@ -414,6 +548,10 @@ export const usePublicProfile = (userId: number) => {
     lattes,
     github,
     site,
+    bannerChoice,
+    nome,
+    turma,
+    profileImage,
     seguindo,
     isFollowing,
     stats,
@@ -438,18 +576,28 @@ export const usePublicProfile = (userId: number) => {
     addTag,
     removeTag,
     addAvancado,
+    saveAvancado,
     removeAvancado,
     updateAvancado,
     addDisciplina,
+    saveDisciplina,
     removeDisciplina,
     updateDisciplina,
     addExperienciaInternacional,
+    saveExperienciaInternacional,
     removeExperienciaInternacional,
     updateExperienciaInternacional,
     addPosCM,
+    savePosCM,
     removePosCM,
     updatePosCM,
     saveProfile,
     refetch,
-  };
+  }), [
+    bio, citacao, citacaoAutor, ciclosAvancados, disciplinas, 
+    experienciasInternacionais, posCM, tags, isPublic, emailPublico,
+    linkedIn, lattes, github, site, seguindo, isFollowing, stats,
+    loading, error, saving,
+    bannerChoice, nome, turma, profileImage
+  ]);
 };

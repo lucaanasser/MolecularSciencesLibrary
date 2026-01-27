@@ -1,5 +1,6 @@
 const { executeQuery, getQuery, allQuery } = require('../database/db');
 const { snakeToCamel } = require('../utils/caseConverter');
+const areaTagsModel = require('./AreaTagsModel');
 
 class AdvancedCyclesModel {
     /**
@@ -149,34 +150,7 @@ class AdvancedCyclesModel {
      */
     async addTag(cycleId, label, category) {
         console.log(`🔵 [AdvancedCyclesModel] Adicionando tag ao ciclo: ${cycleId}`);
-
-        // Check current tag count and category distribution
-        const tags = await this.getTags(cycleId);
-        const areaTags = tags.filter(t => t.category === 'area');
-        const subareaTags = tags.filter(t => t.category === 'subarea');
-
-        if (tags.length >= 5) {
-            console.error(`🔴 [AdvancedCyclesModel] Limite de 5 tags atingido`);
-            throw new Error('Limite máximo de 5 tags por ciclo');
-        }
-
-        if (category === 'area' && areaTags.length >= 2) {
-            console.error(`🔴 [AdvancedCyclesModel] Limite de 2 tags de área atingido`);
-            throw new Error('Limite máximo de 2 tags de área');
-        }
-
-        if (category === 'subarea' && subareaTags.length >= 3) {
-            console.error(`🔴 [AdvancedCyclesModel] Limite de 3 tags de subárea atingido`);
-            throw new Error('Limite máximo de 3 tags de subárea');
-        }
-
-        const result = await executeQuery(
-            `INSERT INTO advanced_cycle_tags (cycle_id, label, category) VALUES (?, ?, ?)`,
-            [cycleId, label, category]
-        );
-
-        console.log(`🟢 [AdvancedCyclesModel] Tag adicionada`);
-        return { id: result.lastID, cycle_id: cycleId, label, category };
+        return await areaTagsModel.addTag('advanced_cycle', cycleId, label, category);
     }
 
     /**
@@ -186,13 +160,7 @@ class AdvancedCyclesModel {
      */
     async removeTag(tagId) {
         console.log(`🔵 [AdvancedCyclesModel] Removendo tag: ${tagId}`);
-        
-        await executeQuery(
-            `DELETE FROM advanced_cycle_tags WHERE id = ?`,
-            [tagId]
-        );
-
-        console.log(`🟢 [AdvancedCyclesModel] Tag removida`);
+        return await areaTagsModel.removeTag(tagId);
     }
 
     /**
@@ -202,13 +170,7 @@ class AdvancedCyclesModel {
      */
     async getTags(cycleId) {
         console.log(`🔵 [AdvancedCyclesModel] Buscando tags do ciclo: ${cycleId}`);
-        
-        const tags = await allQuery(
-            `SELECT * FROM advanced_cycle_tags WHERE cycle_id = ?`,
-            [cycleId]
-        );
-
-        return tags;
+        return await areaTagsModel.getByEntity('advanced_cycle', cycleId);
     }
 }
 

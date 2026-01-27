@@ -87,25 +87,69 @@ class PublicProfilesController {
                 return res.status(400).json({ error: 'Nenhum arquivo enviado' });
             }
 
+            console.log(`🔵 [PublicProfilesController.uploadAvatar] Arquivo recebido:`, {
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.buffer.length,
+                hasBuffer: !!req.file.buffer
+            });
+
             // Get current user to delete old avatar if exists
             const user = await usersModel.getUserById(userId);
             const oldAvatar = user.profile_image;
 
             // Upload new avatar
             const imagePath = uploadImage(req.file.buffer, req.file.originalname, 'user-images', 5);
+            console.log(`🟢 [PublicProfilesController.uploadAvatar] Imagem salva em: ${imagePath}`);
+
+            // Delete old avatar BEFORE updating if it's a custom uploaded image
+            if (oldAvatar && oldAvatar.includes('/images/user-images/')) {
+                console.log(`🗑️  [PublicProfilesController.uploadAvatar] Deletando imagem antiga: ${oldAvatar}`);
+                deleteImage(oldAvatar);
+            }
 
             // Update user avatar in users table
             await usersModel.updateUserProfileImage(userId, imagePath);
-
-            // Delete old avatar if exists
-            if (oldAvatar) {
-                deleteImage(oldAvatar);
-            }
 
             console.log(`🟢 [PublicProfilesController.uploadAvatar] Avatar atualizado: ${imagePath}`);
             res.status(200).json({ profile_image: imagePath });
         } catch (error) {
             console.error(`🔴 [PublicProfilesController.uploadAvatar] Erro:`, error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Select default avatar (delete custom avatar if exists)
+     */
+    async selectDefaultAvatar(req, res) {
+        try {
+            const { userId } = req.params;
+            const { imagePath } = req.body;
+            console.log(`🔵 [PublicProfilesController.selectDefaultAvatar] Selecionando avatar padrão para user: ${userId}`);
+
+            if (!imagePath) {
+                console.error(`🔴 [PublicProfilesController.selectDefaultAvatar] imagePath não fornecido`);
+                return res.status(400).json({ error: 'imagePath é obrigatório' });
+            }
+
+            // Get current user to delete old custom avatar if exists
+            const user = await usersModel.getUserById(userId);
+            const oldAvatar = user.profile_image;
+
+            // Delete old custom avatar if exists BEFORE selecting default
+            if (oldAvatar && oldAvatar.includes('/images/user-images/')) {
+                console.log(`🗑️  [PublicProfilesController.selectDefaultAvatar] Deletando imagem customizada: ${oldAvatar}`);
+                deleteImage(oldAvatar);
+            }
+
+            // Update user avatar with default path
+            await usersModel.updateUserProfileImage(userId, imagePath);
+
+            console.log(`🟢 [PublicProfilesController.selectDefaultAvatar] Avatar padrão selecionado: ${imagePath}`);
+            res.status(200).json({ profile_image: imagePath });
+        } catch (error) {
+            console.error(`🔴 [PublicProfilesController.selectDefaultAvatar] Erro:`, error.message);
             res.status(500).json({ error: error.message });
         }
     }
