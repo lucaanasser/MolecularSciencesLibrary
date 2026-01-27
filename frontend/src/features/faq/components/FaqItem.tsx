@@ -13,7 +13,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
   faq,
   isOpen,
   onToggle,
-  color = "cm-purple",
+  color = "library-purple",
 }) => {
   const bgColor = `bg-${color}`;
   const textColor = `text-${color}`;
@@ -23,9 +23,9 @@ export const FaqItem: React.FC<FaqItemProps> = ({
     <div
       className={`${
         isOpen
-          ? `rounded-2xl bg-cm-bg ring-2 ${ringColor}`
+          ? `rounded-2xl bg-default-bg ring-2 ${ringColor}`
           : `rounded-2xl ${bgColor}`
-      } hover:bg-cm-bg/80 hover:ring-2 ${ringColor} transition-all duration-0`}
+      } hover:bg-default-bg/80 hover:ring-2 ${ringColor} transition-all duration-0`}
     >
       <button
         className="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none group"
@@ -34,7 +34,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
       >
         <span
           className={`font-semibold text-lg flex items-center gap-2 ${
-            isOpen ? textColor : "text-cm-bg"
+            isOpen ? textColor : "text-default-bg"
           } group-hover:${textColor}`}
         >
           <span className={`inline-block w-2 h-2 ${textColor} rounded-full ${bgColor}/60`} />
@@ -42,7 +42,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
         </span>
         <span
           className={`text-2xl font-bold ${
-            isOpen ? textColor : "text-cm-bg"
+            isOpen ? textColor : "text-default-bg"
           } group-hover:${textColor}`}
         >
           {isOpen ? "−" : "+"}

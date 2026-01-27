@@ -18,7 +18,7 @@ export interface TabsCardProps {
 export const TabsCard: React.FC<TabsCardProps> = ({
   tabs,
   initialTabId,
-  getTabColor = () => "cm-purple",
+  getTabColor = () => "library-purple",
   children,
   className = "",
 }) => {

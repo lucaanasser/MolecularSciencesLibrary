@@ -17,7 +17,7 @@ interface DisciplinesTabProps {
 }
 
 const BADGE_COLORS = [
-  "bg-cm-purple/10 text-cm-purple border-cm-purple/20",
+  "bg-library-purple/10 text-library-purple border-library-purple/20",
   "bg-cm-blue/10 text-cm-blue border-cm-blue/20",
   "bg-cm-green/10 text-cm-green border-cm-green/20",
   "bg-cm-orange/10 text-cm-orange border-cm-orange/20",
@@ -84,12 +84,12 @@ export const DisciplinesTab = ({
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-1 h-8 bg-cm-academic rounded-full" />
+          <div className="w-1 h-8 bg-academic-blue rounded-full" />
           <h2 className="text-2xl font-bebas text-gray-900">Disciplinas Cursadas</h2>
           <span className="text-sm text-gray-500">({disciplinas.length} disciplinas)</span>
         </div>
         {isEditing && (
-          <Button onClick={handleAddClick} className="rounded-full bg-cm-academic hover:bg-cm-academic/90">
+          <Button onClick={handleAddClick} className="rounded-full bg-academic-blue hover:bg-academic-blue/90">
             <Plus className="w-4 h-4 mr-2" />
             Nova Disciplina
           </Button>
@@ -117,8 +117,8 @@ export const DisciplinesTab = ({
               className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200 overflow-hidden shadow-sm"
             >
               {/* Header do Semestre */}
-              <div className="bg-cm-purple/5 px-6 py-4 border-b-2 border-gray-200 flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-cm-purple" />
+              <div className="bg-library-purple/5 px-6 py-4 border-b-2 border-gray-200 flex items-center gap-3">
+                <Calendar className="w-5 h-5 text-library-purple" />
                 <h3 className="text-xl font-bold text-gray-900">{semester}</h3>
                 <span className="ml-auto text-sm font-semibold text-gray-600 bg-white px-3 py-1 rounded-full">
                   {groupedDisciplinas[semester].length} {groupedDisciplinas[semester].length === 1 ? 'disciplina' : 'disciplinas'}
@@ -135,7 +135,7 @@ export const DisciplinesTab = ({
                       className={cn(
                         "p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all relative group",
                         !disc.avancadoId && "border-l-gray-300",
-                        disc.avancadoId && avancadoIndex === 0 && "border-l-cm-purple",
+                        disc.avancadoId && avancadoIndex === 0 && "border-l-library-purple",
                         disc.avancadoId && avancadoIndex === 1 && "border-l-cm-blue",
                         disc.avancadoId && avancadoIndex === 2 && "border-l-cm-green",
                         disc.avancadoId && avancadoIndex >= 3 && "border-l-cm-orange"
@@ -158,7 +158,7 @@ export const DisciplinesTab = ({
                         </div>
                       )}
                       <div className="flex items-start gap-2 mb-2">
-                        <span className="text-xs font-mono font-bold text-cm-purple bg-cm-purple/10 px-2 py-1 rounded">
+                        <span className="text-xs font-mono font-bold text-library-purple bg-library-purple/10 px-2 py-1 rounded">
                           {disc.codigo}
                         </span>
                         <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">

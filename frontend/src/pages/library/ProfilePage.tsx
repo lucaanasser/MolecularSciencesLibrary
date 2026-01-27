@@ -26,13 +26,13 @@ const ProfilePage = () => {
 
   // Função para determinar cor das abas conforme imagem de perfil
   const getTabColor = () => {
-    if (!user?.profile_image) return "cm-purple";
+    if (!user?.profile_image) return "library-purple";
     if (user.profile_image.includes("mat")) return "cm-red";
     if (user.profile_image.includes("fis")) return "cm-orange";
     if (user.profile_image.includes("qui")) return "cm-yellow";
     if (user.profile_image.includes("bio")) return "cm-green";
     if (user.profile_image.includes("cmp")) return "cm-blue";
-    return "cm-purple";
+    return "library-purple";
   };
   const { user, loading: userLoading, error: userError } = useUserProfile();
   const [showImageSelector, setShowImageSelector] = useState(false);
@@ -111,7 +111,7 @@ const ProfilePage = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
 
-      <div className="flex-grow bg-cm-bg">
+      <div className="flex-grow bg-default-bg">
         <div className="max-w-7xl mx-auto mb-10 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
           {/* Header do Perfil */}
@@ -127,7 +127,7 @@ const ProfilePage = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-white rounded-2xl shadow-lg p-12 border border-gray-100">
               {/* Avatar */}
               <div className="relative">
-                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-cm-purple/20">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-library-purple/20">
                   {user.profile_image ? (
                     <AvatarImage 
                       src={user.profile_image.includes('/images/user-images/') 
@@ -136,13 +136,13 @@ const ProfilePage = () => {
                       alt="Foto de perfil" 
                     />
                   ) : null}
-                  <AvatarFallback className="bg-cm-purple text-white text-2xl sm:text-3xl font-bebas">
+                  <AvatarFallback className="bg-library-purple text-white text-2xl sm:text-3xl font-bebas">
                     {user.name?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <button
                   onClick={() => setShowImageSelector(true)}
-                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-cm-purple text-white rounded-full flex items-center justify-center shadow-lg hover:bg-cm-purple/90 transition-colors"
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-library-purple text-white rounded-full flex items-center justify-center shadow-lg hover:bg-library-purple/90 transition-colors"
                   title="Alterar foto"
                 >
                   <Camera className="w-4 h-4" />
@@ -269,8 +269,8 @@ const ProfilePage = () => {
                           className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
-                              <Gift className="w-5 h-5 text-cm-purple" />
+                            <div className="w-10 h-10 rounded-lg bg-library-purple/10 flex items-center justify-center">
+                              <Gift className="w-5 h-5 text-library-purple" />
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">{donation.title}</p>
@@ -296,7 +296,7 @@ const ProfilePage = () => {
                     <div className="text-center py-12">
                       <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                       <p className="text-gray-500">Você ainda não fez nenhuma doação.</p>
-                      <a href="/ajude" className="text-cm-purple hover:underline text-sm mt-2 inline-block">
+                      <a href="/ajude" className="text-library-purple hover:underline text-sm mt-2 inline-block">
                         Que tal doar um livro?
                       </a>
                     </div>
@@ -328,8 +328,8 @@ const ProfilePage = () => {
                   key={img}
                   className={`aspect-square rounded-xl overflow-hidden ring-2 transition-all hover:scale-105 ${
                     selectedImage === img 
-                      ? 'ring-cm-purple ring-offset-2' 
-                      : 'ring-transparent hover:ring-cm-purple/40'
+                      ? 'ring-library-purple ring-offset-2' 
+                      : 'ring-transparent hover:ring-library-purple/40'
                   }`}
                   onClick={() => handleImageChange(img)}
                 >

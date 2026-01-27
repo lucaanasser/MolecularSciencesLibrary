@@ -41,49 +41,49 @@ function StatsGrid({ stats }: { stats: StatsType }) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
       <div className="text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <Users className="h-8 w-8 text-cm-bg" />
+          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+            <Users className="h-8 w-8 text-default-bg" />
           </div>
         </div>
-        <p className="bigtext mb-2 font-bold text-cm-bg">
+        <p className="bigtext mb-2 font-bold text-default-bg">
           {stats.users == null ? '-' : users}
         </p>
-        <p className="bigtext text-cm-bg">
+        <p className="bigtext text-default-bg">
           Alunos cadastrados
         </p>
-        <p className="text-cm-bg leading-tight">
+        <p className="text-default-bg leading-tight">
           Conectando estudantes e promovendo colaboração acadêmica.
         </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <BookOpen className="h-8 w-8 text-cm-bg" />
+          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+            <BookOpen className="h-8 w-8 text-default-bg" />
           </div>
         </div>
-        <p className="bigtext mb-2 font-bold text-cm-bg">
+        <p className="bigtext mb-2 font-bold text-default-bg">
           {stats.disciplines == null ? '-' : disciplines}
         </p>
-        <p className="bigtext text-cm-bg">
+        <p className="bigtext text-default-bg">
           Disciplinas disponíveis
         </p>
-        <p className="text-cm-bg leading-tight">
+        <p className="text-default-bg leading-tight">
           Catálogo completo de disciplinas para seu planejamento.
         </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <Lightbulb className="h-8 w-8 text-cm-bg" />
+          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+            <Lightbulb className="h-8 w-8 text-default-bg" />
           </div>
         </div>
-        <p className="bigtext mb-2 font-bold text-cm-bg">
+        <p className="bigtext mb-2 font-bold text-default-bg">
           {stats.areas == null ? '-' : areas}
         </p>
-        <p className="bigtext text-cm-bg">
+        <p className="bigtext text-default-bg">
           Áreas de concentração
         </p>
-        <p className="text-cm-bg leading-tight">
+        <p className="text-default-bg leading-tight">
           Escolha sua especialização e trace seu caminho.
         </p>
       </div>
@@ -148,7 +148,7 @@ const AcademicIndexPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       {/* Hero Section - Academic */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-cm-academic/80 via-cm-academic/10 to-cm-bg">
+      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-academic-blue/80 via-academic-blue/10 to-default-bg">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
           {/* Content - Janela de busca estilo Google com aba CM */}
           <div className="flex-1 flex flex-col items-center justify-center order-2 md:order-1">
@@ -198,7 +198,7 @@ const AcademicIndexPage = () => {
                 <div className="relative w-full">
                   <input
                     type="text"
-                    className="w-full px-6 py-4 rounded-full border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-cm-academic text-xl bg-gray-50"
+                    className="w-full px-6 py-4 rounded-full border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-academic-blue text-xl bg-gray-50"
                     value={typed}
                     readOnly
                     placeholder="Faça uma pergunta..."
@@ -263,7 +263,7 @@ const AcademicIndexPage = () => {
       {/* Fim Hero Section customizada */}
 
       {/* About Section */}
-      <div className="py-24 bg-cm-bg">
+      <div className="py-24 bg-default-bg">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
@@ -294,19 +294,19 @@ const AcademicIndexPage = () => {
       </div>
 
       {/* Statistics Section with Diagonal Design */}
-      <section className="relative py-40 bg-cm-academic">
+      <section className="relative py-40 bg-academic-blue">
         {/* Top Diagonal Cut */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
+        <div className="absolute top-0 left-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-top-left"></div>
         {/* Bottom Diagonal Cut */}
         <div className="absolute bottom-0 right-0 w-full h-24 bg-gray-100 transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-cm-bg">
+            <h2 className="text-default-bg">
               O Ciclo Avançado em números
             </h2>
           </div>
           {loadingStats ? (
-            <div className="text-center text-cm-bg text-xl">Carregando...</div>
+            <div className="text-center text-default-bg text-xl">Carregando...</div>
           ) : statsError ? (
             <div className="text-center text-red-200 text-xl">{statsError}</div>
           ) : (
@@ -321,9 +321,9 @@ const AcademicIndexPage = () => {
           <h2 className="text-center mb-16">Recursos disponíveis</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Card 1 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-cm-bg">
-                <Search className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green border-8 border-default-bg">
+                <Search className="h-10 w-10 text-default-bg" />
               </div>
               <h4>
                 Busque disciplinas
@@ -338,9 +338,9 @@ const AcademicIndexPage = () => {
               </button>
             </div>
             {/* Card 2 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
-                <Calendar className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-default-bg">
+                <Calendar className="h-10 w-10 text-default-bg" />
               </div>
               <h4>
                 Monte sua grade
@@ -355,9 +355,9 @@ const AcademicIndexPage = () => {
               </button>
             </div>
             {/* Card 3 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-academic border-8 border-cm-bg">
-                <MessageSquare className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-academic-blue border-8 border-default-bg">
+                <MessageSquare className="h-10 w-10 text-default-bg" />
               </div>
               <h4>
                 MolecOverflow
@@ -367,14 +367,14 @@ const AcademicIndexPage = () => {
               </p>
               <div className="flex flex-col items-center mb-4">
               </div>
-              <button className="wide-btn bg-cm-academic hover:bg-cm-academic/70">
+              <button className="wide-btn bg-academic-blue hover:bg-academic-blue/70">
                 <Link to="/forum">Acessar Fórum</Link>
               </button>
             </div>
             {/* Card 4 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
-                <GraduationCap className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-default-bg">
+                <GraduationCap className="h-10 w-10 text-default-bg" />
               </div>
               <h4>
                 Tire suas dúvidas

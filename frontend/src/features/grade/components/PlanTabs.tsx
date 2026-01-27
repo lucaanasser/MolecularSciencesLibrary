@@ -94,7 +94,7 @@ export function PlanTabs({
           >
             {editingScheduleName === schedule.id ? (
               /* Modo de edição */
-              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-gray-800 border border-cm-academic">
+              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-gray-800 border border-academic-blue">
                 <Input
                   ref={inputRef}
                   type="text"
@@ -123,7 +123,7 @@ export function PlanTabs({
                 className={cn(
                   "flex items-center gap-1 px-3 py-1.5 rounded-lg cursor-pointer transition-all",
                   schedule.id === activeScheduleId
-                    ? "bg-cm-academic text-white shadow-sm"
+                    ? "bg-academic-blue text-white shadow-sm"
                     : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                 )}
               >

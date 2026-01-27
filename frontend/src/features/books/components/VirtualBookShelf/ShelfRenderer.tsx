@@ -51,7 +51,7 @@ const ShelfRenderer: React.FC<ShelfRendererProps> = ({
       case "MAT": return "bg-cm-red";
       case "FIS": return "bg-cm-orange";
       case "CMP": return "bg-cm-blue";
-      case "VAR": return "bg-cm-purple";
+      case "VAR": return "bg-library-purple";
       default: return "bg-gray-200";
     }
   };

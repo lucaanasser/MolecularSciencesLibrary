@@ -35,8 +35,8 @@ export default function LoanHistoryOnly({ userId }: LoanHistoryOnlyProps) {
           className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm gap-4"
         >
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center flex-shrink-0">
-              <Book className="w-5 h-5 text-cm-purple" />
+            <div className="w-10 h-10 rounded-lg bg-library-purple/10 flex items-center justify-center flex-shrink-0">
+              <Book className="w-5 h-5 text-library-purple" />
             </div>
             <div className="min-w-0">
               <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 min-w-0">

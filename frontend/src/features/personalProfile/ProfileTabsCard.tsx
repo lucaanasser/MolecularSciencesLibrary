@@ -31,7 +31,7 @@ export const ProfileTabsCard: React.FC<ProfileTabsCardProps> = ({
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-          const color = ["ativos", "historico", "doacoes"].includes(tab.id) ? getTabColor() : "cm-purple";
+          const color = ["ativos", "historico", "doacoes"].includes(tab.id) ? getTabColor() : "library-purple";
           return (
             <button
               key={tab.id}

@@ -104,8 +104,8 @@ export default function TransparencyPortalPage() {
               {/* Ícones decorativos */}
               <div className="flex gap-4">
                 <div className="flex flex-col gap-4">
-                  <div className="h-20 w-20 rounded-2xl bg-cm-purple/10 flex items-center justify-center">
-                    <TrendingUp className="h-10 w-10 text-cm-purple" />
+                  <div className="h-20 w-20 rounded-2xl bg-library-purple/10 flex items-center justify-center">
+                    <TrendingUp className="h-10 w-10 text-library-purple" />
                   </div>
                   <div className="h-20 w-20 rounded-2xl bg-cm-blue/10 flex items-center justify-center">
                     <Users className="h-10 w-10 text-cm-blue" />

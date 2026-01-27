@@ -184,14 +184,14 @@ export default function LoanForm({ nusp: propNusp = "", codigoLivro: propCodigoL
             />
             <div className="flex flex-row gap-4 w-full">
               <button
-                className="w-full bg-cm-purple text-white py-4 rounded-xl text-lg font-bold"
+                className="w-full bg-library-purple text-white py-4 rounded-xl text-lg font-bold"
                 onClick={() => { setOperation("emprestimo"); setStep(1); }}
                 aria-label="Iniciar Empréstimo"
               >
                 Empréstimo
               </button>
               <button
-                className="w-full bg-cm-purple text-white py-4 rounded-xl text-lg font-bold"
+                className="w-full bg-library-purple text-white py-4 rounded-xl text-lg font-bold"
                 onClick={() => { setOperation("devolucao"); setStep(1); }}
                 aria-label="Iniciar Devolução"
               >

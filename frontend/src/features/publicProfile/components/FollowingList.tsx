@@ -29,7 +29,7 @@ export const FollowingList = ({ seguindo, isOwnProfile }: FollowingListProps) =>
           </div>
         ))}
         {seguindo.length > 3 && (
-          <button className="text-xs text-cm-purple hover:underline">
+          <button className="text-xs text-library-purple hover:underline">
             Ver todos ({seguindo.length})
           </button>
         )}

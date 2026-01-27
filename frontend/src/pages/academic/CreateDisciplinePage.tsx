@@ -97,7 +97,7 @@ const CreateDisciplinePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-cm-bg">
+    <div className="min-h-screen flex flex-col bg-default-bg">
       <Navigation />
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
@@ -129,11 +129,11 @@ const CreateDisciplinePage: React.FC = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-cm-academic/5 to-cm-academic/10 rounded-2xl p-6 mb-8 border border-cm-academic/20"
+          className="bg-gradient-to-br from-academic-blue/5 to-academic-blue/10 rounded-2xl p-6 mb-8 border border-academic-blue/20"
         >
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-cm-academic/20 rounded-xl">
-              <Lightbulb className="w-6 h-6 text-cm-academic" />
+            <div className="p-3 bg-academic-blue/20 rounded-xl">
+              <Lightbulb className="w-6 h-6 text-academic-blue" />
             </div>
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-gray-900 mb-2">
@@ -146,7 +146,7 @@ const CreateDisciplinePage: React.FC = () => {
                     href="https://uspdigital.usp.br/janus"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-cm-academic hover:underline inline-flex items-center gap-1"
+                    className="text-academic-blue hover:underline inline-flex items-center gap-1"
                   >
                     Janus USP <ExternalLink className="w-3 h-3" />
                   </a>
@@ -169,8 +169,8 @@ const CreateDisciplinePage: React.FC = () => {
             className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-cm-academic/10 rounded-lg">
-                <Hash className="w-5 h-5 text-cm-academic" />
+              <div className="p-2 bg-academic-blue/10 rounded-lg">
+                <Hash className="w-5 h-5 text-academic-blue" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Informações Básicas</h2>
@@ -458,7 +458,7 @@ const CreateDisciplinePage: React.FC = () => {
             <Button
               type="submit"
               disabled={!isFormValid || isSubmitting}
-              className="bg-cm-academic hover:bg-cm-academic/90"
+              className="bg-academic-blue hover:bg-academic-blue/90"
             >
               {isSubmitting ? (
                 <>

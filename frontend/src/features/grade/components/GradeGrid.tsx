@@ -88,7 +88,7 @@ export function GradeGrid({
               className="flex-1 min-w-0 border-r border-gray-200 dark:border-gray-700 last:border-r-0"
             >
               {/* Header do dia */}
-              <div className="h-8 flex items-center justify-center border-b border-gray-200 dark:border-gray-700 bg-cm-academic text-white">
+              <div className="h-8 flex items-center justify-center border-b border-gray-200 dark:border-gray-700 bg-academic-blue text-white">
                 <span className="text-xs font-semibold uppercase tracking-wide">
                   {DIA_LABELS[dia]}
                 </span>

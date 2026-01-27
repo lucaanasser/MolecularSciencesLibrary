@@ -50,7 +50,7 @@ interface ProfileHeaderProps {
 }
 
 const TAG_STYLES = {
-  "grande-area": "bg-cm-purple/10 text-cm-purple border-cm-purple/30",
+  "grande-area": "bg-library-purple/10 text-library-purple border-library-purple/30",
   "area": "bg-cm-blue/10 text-cm-blue border-cm-blue/30",
   "subarea": "bg-cm-green/10 text-cm-green border-cm-green/30",
   "custom": "bg-cm-orange/10 text-cm-orange border-cm-orange/30",
@@ -143,17 +143,17 @@ export const ProfileHeader = ({
   return (
     <div className="relative">
       {/* Banner */}
-      <div className="h-48 sm:h-56 bg-cm-bg relative overflow-hidden">
+      <div className="h-48 sm:h-56 bg-default-bg relative overflow-hidden">
         <img
           src={`/images/background-images/${bannerChoice}_background.png?t=${bannerTimestamp || Date.now()}`}
           alt="Banner de perfil"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-cm-bg" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-default-bg" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
         {isOwnProfile && isEditing && (
           <Popover open={showBannerSelector} onOpenChange={setShowBannerSelector}>
             <PopoverTrigger asChild>
-              <button className="absolute top-8 right-10 flex items-center gap-2 px-3 py-2 bg-cm-bg/50 hover:bg-cm-bg/70 text-black rounded-lg text-sm backdrop-blur-sm transition-colors">
+              <button className="absolute top-8 right-10 flex items-center gap-2 px-3 py-2 bg-default-bg/50 hover:bg-default-bg/70 text-black rounded-lg text-sm backdrop-blur-sm transition-colors">
                 <Camera className="w-4 h-4" />
                 Alterar banner
               </button>
@@ -166,7 +166,7 @@ export const ProfileHeader = ({
                     <button
                       key={banner.name}
                       onClick={() => handleBannerSelect(banner.name)}
-                      className="flex flex-col items-center gap-2 p-2 rounded-lg border-2 border-gray-200 hover:border-cm-purple hover:bg-gray-50 transition-all"
+                      className="flex flex-col items-center gap-2 p-2 rounded-lg border-2 border-gray-200 hover:border-library-purple hover:bg-gray-50 transition-all"
                     >
                       <div className="w-full h-16 rounded-md overflow-hidden">
                         <img 
@@ -199,13 +199,13 @@ export const ProfileHeader = ({
                   alt={user.name} 
                 />
               ) : null}
-              <AvatarFallback className="bg-cm-academic text-white text-5xl font-bebas">
+              <AvatarFallback className="bg-academic-blue text-white text-5xl font-bebas">
                 {user.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
             {isOwnProfile && isEditing && (
               <button
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-cm-purple text-white rounded-full shadow-lg hover:bg-cm-purple/90 flex items-center justify-center z-10"
+                className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-library-purple text-white rounded-full shadow-lg hover:bg-library-purple/90 flex items-center justify-center z-10"
                 style={{ marginTop: "-16px" }}
                 onClick={handleAvatarClick}
               >
@@ -265,9 +265,9 @@ export const ProfileHeader = ({
                   {isOwnProfile && seguindo.length > 0 && (
                     <Popover open={showFollowing} onOpenChange={setShowFollowing}>
                       <PopoverTrigger asChild>
-                        <button className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-cm-purple/10 hover:text-cm-purple transition-colors relative">
+                        <button className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-library-purple/10 hover:text-library-purple transition-colors relative">
                           <Users className="w-4 h-4" />
-                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-cm-purple text-white text-[10px] rounded-full flex items-center justify-center">
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-library-purple text-white text-[10px] rounded-full flex items-center justify-center">
                             {seguindo.length}
                           </span>
                         </button>
@@ -310,7 +310,7 @@ export const ProfileHeader = ({
                       "rounded-full px-6",
                       isFollowing
                         ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        : "bg-cm-purple text-white hover:bg-cm-purple/90"
+                        : "bg-library-purple text-white hover:bg-library-purple/90"
                     )}
                   >
                     {isFollowing ? (
@@ -341,7 +341,7 @@ export const ProfileHeader = ({
                       <Button
                         onClick={onEdit}
                         size="lg"
-                        className="rounded-full px-6 bg-cm-purple text-white hover:bg-cm-purple/90"
+                        className="rounded-full px-6 bg-library-purple text-white hover:bg-library-purple/90"
                       >
                         <Edit3 className="w-4 h-4 mr-2" />
                         Editar perfil
@@ -372,7 +372,7 @@ export const ProfileHeader = ({
               {isEditing && (
                 <Popover open={showTagEditor} onOpenChange={setShowTagEditor}>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 border border-dashed border-gray-300 rounded-full hover:border-cm-purple hover:text-cm-purple transition-colors">
+                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 border border-dashed border-gray-300 rounded-full hover:border-library-purple hover:text-library-purple transition-colors">
                       <Plus className="w-3 h-3" />
                       Adicionar tag
                     </button>
@@ -383,7 +383,7 @@ export const ProfileHeader = ({
                         <Label className="text-xs text-gray-600">Categoria</Label>
                         <div className="flex gap-2 mt-2">
                           {[
-                            { value: "grande-area", label: "Grande Área", color: "cm-purple" },
+                            { value: "grande-area", label: "Grande Área", color: "library-purple" },
                             { value: "area", label: "Área", color: "cm-blue" },
                             { value: "subarea", label: "Subárea", color: "cm-green" },
                           ].map((cat) => (

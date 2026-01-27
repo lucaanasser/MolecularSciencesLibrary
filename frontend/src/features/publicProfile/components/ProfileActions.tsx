@@ -36,7 +36,7 @@ export const ProfileActions = ({
             "w-full",
             isFollowing
               ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              : "bg-cm-purple text-white hover:bg-cm-purple/90"
+              : "bg-library-purple text-white hover:bg-library-purple/90"
           )}
         >
           {isFollowing ? (
@@ -65,7 +65,7 @@ export const ProfileActions = ({
           ) : (
             <Button
               onClick={onEdit}
-              className="w-full bg-cm-purple text-white hover:bg-cm-purple/90"
+              className="w-full bg-library-purple text-white hover:bg-library-purple/90"
             >
               <Edit3 className="w-4 h-4 mr-2" />
               Editar perfil

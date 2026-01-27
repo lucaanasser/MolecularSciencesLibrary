@@ -72,7 +72,7 @@ export function CombinationSelector({
   if (isGenerating) {
     return (
       <div className="text-center py-4">
-        <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-cm-academic" />
+        <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-academic-blue" />
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Gerando combinações...
         </p>
@@ -100,12 +100,12 @@ export function CombinationSelector({
       {/* Header com contador */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cm-academic" />
+          <Sparkles className="w-4 h-4 text-academic-blue" />
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Combinações
           </span>
         </div>
-        <span className="text-xs bg-cm-academic/10 text-cm-academic px-2 py-0.5 rounded-full font-medium">
+        <span className="text-xs bg-academic-blue/10 text-academic-blue px-2 py-0.5 rounded-full font-medium">
           {combinations.length} {combinations.length === 1 ? 'opção' : 'opções'}
         </span>
       </div>
@@ -138,7 +138,7 @@ export function CombinationSelector({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
             >
-              <span className="text-lg font-bold text-cm-academic">
+              <span className="text-lg font-bold text-academic-blue">
                 {currentIndex + 1}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -182,12 +182,12 @@ export function CombinationSelector({
           {/* Créditos */}
           <div className="flex items-center justify-center gap-4 text-sm">
             <div className="text-center">
-              <span className="font-bold text-cm-academic">{currentCombination.totalCreditsAula}</span>
+              <span className="font-bold text-academic-blue">{currentCombination.totalCreditsAula}</span>
               <span className="text-gray-500 dark:text-gray-400 ml-1">cred. aula</span>
             </div>
             <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
             <div className="text-center">
-              <span className="font-bold text-cm-academic">{currentCombination.totalCreditsTrabalho}</span>
+              <span className="font-bold text-academic-blue">{currentCombination.totalCreditsTrabalho}</span>
               <span className="text-gray-500 dark:text-gray-400 ml-1">cred. trab.</span>
             </div>
           </div>
@@ -215,7 +215,7 @@ export function CombinationSelector({
       <Button
         onClick={() => currentCombination && onApplyCombination(currentCombination)}
         disabled={!currentCombination}
-        className="w-full bg-cm-academic hover:bg-cm-academic-dark"
+        className="w-full bg-academic-blue hover:bg-academic-blue-dark"
       >
         <Check className="w-4 h-4 mr-2" />
         Aplicar esta combinação

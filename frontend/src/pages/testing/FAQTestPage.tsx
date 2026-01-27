@@ -14,7 +14,7 @@ const faqs = [
         <li><span className="font-bold text-cm-yellow">Amarelo:</span> Emprestado</li>
         <li><span className="font-bold text-cm-orange">Laranja:</span> Estendido</li>
         <li><span className="font-bold text-cm-red">Vermelho:</span> Atrasado</li>
-        <li><span className="font-bold text-cm-purple">Roxo:</span> Reserva didática (não disponível para empréstimo)</li>
+        <li><span className="font-bold text-library-purple">Roxo:</span> Reserva didática (não disponível para empréstimo)</li>
       </ul>
     ),
   },
@@ -77,5 +77,5 @@ const faqs = [
 
 
 export default function FAQTestPage() {
-  return <FAQPage faqs={faqs} color="cm-academic" />;
+  return <FAQPage faqs={faqs} color="academic-blue" />;
 }

@@ -59,7 +59,7 @@ const CATEGORIES = [
 	{
 		key: "geral",
 		label: "Geral",
-		icon: <Trophy className="w-5 h-5 mr-2 text-cm-purple" />,
+		icon: <Trophy className="w-5 h-5 mr-2 text-library-purple" />,
 		achievements: [
 			{
 				id: 7,

@@ -297,7 +297,7 @@ const DisciplinePage: React.FC = () => {
     { key: "professores" as const, label: "Professores", icon: Users, color: "cm-blue" },
     { key: "clareza" as const, label: "Clareza", icon: Lightbulb, color: "cm-yellow" },
     { key: "utilidade" as const, label: "Utilidade", icon: Target, color: "cm-green" },
-    { key: "organizacao" as const, label: "Organização", icon: Award, color: "cm-purple" },
+    { key: "organizacao" as const, label: "Organização", icon: Award, color: "library-purple" },
   ];
 
   const tabs = [
@@ -372,7 +372,7 @@ const DisciplinePage: React.FC = () => {
       <div className="min-h-screen flex flex-col">
         <Navigation />
         <div className="flex-grow flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-cm-academic" />
+          <Loader2 className="w-8 h-8 animate-spin text-academic-blue" />
         </div>
         <Footer />
       </div>
@@ -401,13 +401,13 @@ const DisciplinePage: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
 
-      <div className="flex-grow bg-cm-bg">
+      <div className="flex-grow bg-default-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Botão Voltar */}
           <Button
             variant="ghost"
             onClick={() => navigate("/academico/buscar")}
-            className="mb-4 text-gray-600 hover:text-cm-academic -ml-2"
+            className="mb-4 text-gray-600 hover:text-academic-blue -ml-2"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Voltar à busca
@@ -417,7 +417,7 @@ const DisciplinePage: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8">
             {/* Ícone */}
             <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-              disciplina.is_postgrad ? 'bg-purple-600' : 'bg-cm-academic'
+              disciplina.is_postgrad ? 'bg-purple-600' : 'bg-academic-blue'
             }`}>
               {disciplina.is_postgrad ? (
                 <School className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
@@ -429,7 +429,7 @@ const DisciplinePage: React.FC = () => {
             {/* Info */}
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="px-3 py-1 bg-cm-academic/10 text-cm-academic font-mono text-sm rounded-lg font-semibold">
+                <span className="px-3 py-1 bg-academic-blue/10 text-academic-blue font-mono text-sm rounded-lg font-semibold">
                   {disciplina.codigo}
                 </span>
                 <span className={`px-3 py-1 text-sm rounded-lg font-semibold ${
@@ -516,7 +516,7 @@ const DisciplinePage: React.FC = () => {
                     <div className="flex gap-2">
                       <Button
                         onClick={() => fillFormWithExisting(myEvaluation)}
-                        className="flex-1 bg-cm-academic hover:bg-cm-academic/90 text-white rounded-xl font-bold py-3"
+                        className="flex-1 bg-academic-blue hover:bg-academic-blue/90 text-white rounded-xl font-bold py-3"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Editar Avaliação
@@ -535,7 +535,7 @@ const DisciplinePage: React.FC = () => {
                         setActiveTab("avaliacoes");
                         setShowReviewForm(true);
                       }}
-                      className="w-full bg-cm-academic hover:bg-cm-academic/90 text-white rounded-xl font-bold py-3"
+                      className="w-full bg-academic-blue hover:bg-academic-blue/90 text-white rounded-xl font-bold py-3"
                     >
                       <Star className="w-4 h-4 mr-2" />
                       Avaliar Disciplina
@@ -545,7 +545,7 @@ const DisciplinePage: React.FC = () => {
                   <Button
                     onClick={() => navigate("/login")}
                     variant="outline"
-                    className="w-full rounded-xl font-bold py-3 border-cm-academic text-cm-academic hover:bg-cm-academic/5"
+                    className="w-full rounded-xl font-bold py-3 border-academic-blue text-academic-blue hover:bg-academic-blue/5"
                   >
                     Faça login para avaliar
                   </Button>
@@ -566,8 +566,8 @@ const DisciplinePage: React.FC = () => {
                       className={cn(
                         "py-3 px-4 sm:px-6 font-semibold text-sm sm:text-base transition-colors border-b-2 -mb-px whitespace-nowrap flex-shrink-0 flex items-center gap-2 rounded-t-xl",
                         activeTab === tab.id
-                          ? "text-white border-cm-academic bg-cm-academic"
-                          : "text-gray-600 border-transparent hover:text-cm-academic hover:bg-gray-50"
+                          ? "text-white border-academic-blue bg-academic-blue"
+                          : "text-gray-600 border-transparent hover:text-academic-blue hover:bg-gray-50"
                       )}
                     >
                       <Icon className="w-4 h-4" />
@@ -641,7 +641,7 @@ const DisciplinePage: React.FC = () => {
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
-                        className="p-4 sm:p-6 bg-cm-academic/5 rounded-xl border border-cm-academic/20"
+                        className="p-4 sm:p-6 bg-academic-blue/5 rounded-xl border border-academic-blue/20"
                       >
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           {isEditMode ? "Editar Avaliação" : "Sua Avaliação"}
@@ -714,7 +714,7 @@ const DisciplinePage: React.FC = () => {
                           <Button 
                             onClick={handleSubmitEvaluation}
                             disabled={isSubmitting}
-                            className="bg-cm-academic hover:bg-cm-academic/90"
+                            className="bg-academic-blue hover:bg-academic-blue/90"
                           >
                             {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             {isEditMode ? "Salvar Alterações" : "Publicar Avaliação"}
@@ -730,7 +730,7 @@ const DisciplinePage: React.FC = () => {
                       <Button
                         onClick={() => setShowReviewForm(true)}
                         variant="outline"
-                        className="w-full border-dashed border-cm-academic text-cm-academic hover:bg-cm-academic/5"
+                        className="w-full border-dashed border-academic-blue text-academic-blue hover:bg-academic-blue/5"
                       >
                         <Star className="w-4 h-4 mr-2" />
                         Escrever uma avaliação
@@ -755,7 +755,7 @@ const DisciplinePage: React.FC = () => {
                             className={cn(
                               "p-4 rounded-xl border",
                               evaluation.is_own_evaluation 
-                                ? "bg-cm-academic/5 border-cm-academic/20" 
+                                ? "bg-academic-blue/5 border-academic-blue/20" 
                                 : "bg-gray-50 border-gray-100"
                             )}
                           >
@@ -763,8 +763,8 @@ const DisciplinePage: React.FC = () => {
                               <div className="flex items-center gap-3">
                                 {evaluation.comentario ? (
                                   <>
-                                    <div className="w-10 h-10 rounded-full bg-cm-purple/10 flex items-center justify-center">
-                                      <span className="text-cm-purple font-semibold">
+                                    <div className="w-10 h-10 rounded-full bg-library-purple/10 flex items-center justify-center">
+                                      <span className="text-library-purple font-semibold">
                                         {evaluation.is_anonymous ? "?" : (evaluation.user_name?.charAt(0) || "?")}
                                       </span>
                                     </div>
@@ -772,7 +772,7 @@ const DisciplinePage: React.FC = () => {
                                       <p className="font-semibold text-gray-900">
                                         {evaluation.is_anonymous ? "Anônimo" : evaluation.user_name}
                                         {evaluation.is_own_evaluation && (
-                                          <span className="text-xs ml-2 text-cm-academic">(você)</span>
+                                          <span className="text-xs ml-2 text-academic-blue">(você)</span>
                                         )}
                                       </p>
                                       <p className="text-xs text-gray-500">
@@ -807,8 +807,8 @@ const DisciplinePage: React.FC = () => {
                                   evaluation.is_own_evaluation 
                                     ? "text-gray-300 cursor-not-allowed"
                                     : evaluation.user_has_voted
-                                      ? "text-cm-academic font-medium"
-                                      : "text-gray-500 hover:text-cm-academic"
+                                      ? "text-academic-blue font-medium"
+                                      : "text-gray-500 hover:text-academic-blue"
                                 )}
                               >
                                 <ThumbsUp className={cn("w-4 h-4", evaluation.user_has_voted && "fill-current")} />

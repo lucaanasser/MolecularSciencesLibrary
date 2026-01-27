@@ -141,7 +141,7 @@ const PublicProfilePage = () => {
 
   if (userLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-cm-bg">
+      <div className="min-h-screen flex flex-col bg-default-bg">
         <Navigation />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando...</div>
@@ -153,7 +153,7 @@ const PublicProfilePage = () => {
 
   if (userError || !user) {
     return (
-      <div className="min-h-screen flex flex-col bg-cm-bg">
+      <div className="min-h-screen flex flex-col bg-default-bg">
         <Navigation />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError || "Usuário não encontrado"}</div>
@@ -164,7 +164,7 @@ const PublicProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-cm-bg">
+    <div className="min-h-screen flex flex-col bg-default-bg">
       <Navigation />
 
       <main className="flex-grow">

@@ -144,7 +144,7 @@ const QuestionDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="flex justify-center items-center py-24">
-          <Loader2 className="w-12 h-12 animate-spin text-cm-academic" />
+          <Loader2 className="w-12 h-12 animate-spin text-academic-blue" />
         </div>
         <Footer />
       </div>
@@ -161,7 +161,7 @@ const QuestionDetailPage: React.FC = () => {
           </h1>
           <button
             onClick={() => navigate("/forum")}
-            className="text-cm-academic hover:underline"
+            className="text-academic-blue hover:underline"
           >
             Voltar para o fórum
           </button>
@@ -182,7 +182,7 @@ const QuestionDetailPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6 py-4">
           <button
             onClick={() => navigate("/forum")}
-            className="flex items-center gap-2 text-gray-600 hover:text-cm-academic mb-3 transition-colors"
+            className="flex items-center gap-2 text-gray-600 hover:text-academic-blue mb-3 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Voltar para o fórum
@@ -216,7 +216,7 @@ const QuestionDetailPage: React.FC = () => {
                     disabled={!isLoggedIn}
                     className={`p-2 rounded-full transition-colors ${
                       question.user_vote === 1
-                        ? "bg-cm-academic text-white"
+                        ? "bg-academic-blue text-white"
                         : "hover:bg-gray-100 text-gray-600"
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                     title={!isLoggedIn ? "Faça login para votar" : "Votar"}
@@ -255,12 +255,12 @@ const QuestionDetailPage: React.FC = () => {
                   {/* Actions & Author */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div className="flex gap-3">
-                      <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-cm-academic transition-colors">
+                      <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-academic-blue transition-colors">
                         <Share2 className="w-4 h-4" />
                         Compartilhar
                       </button>
                       {isQuestionAuthor && (
-                        <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-cm-academic transition-colors">
+                        <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-academic-blue transition-colors">
                           <Edit className="w-4 h-4" />
                           Editar
                         </button>
@@ -280,7 +280,7 @@ const QuestionDetailPage: React.FC = () => {
                           {question.user_name}
                         </div>
                       </div>
-                      <div className="w-10 h-10 bg-cm-academic rounded-full flex items-center justify-center text-white font-bold">
+                      <div className="w-10 h-10 bg-academic-blue rounded-full flex items-center justify-center text-white font-bold">
                       </div>
                     </div>
                   </div>
@@ -315,7 +315,7 @@ const QuestionDetailPage: React.FC = () => {
                           disabled={!isLoggedIn}
                           className={`p-2 rounded-full transition-colors ${
                             answer.user_vote === 1
-                              ? "bg-cm-academic text-white"
+                              ? "bg-academic-blue text-white"
                               : "hover:bg-gray-100 text-gray-600"
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
@@ -357,7 +357,7 @@ const QuestionDetailPage: React.FC = () => {
                         <div className="flex items-center justify-between pt-3">
                           <div className="flex gap-3">
                             {isAnswerAuthor && (
-                              <button className="text-sm text-gray-600 hover:text-cm-academic transition-colors">
+                              <button className="text-sm text-gray-600 hover:text-academic-blue transition-colors">
                                 Editar
                               </button>
                             )}
@@ -400,7 +400,7 @@ const QuestionDetailPage: React.FC = () => {
                       id="answer-anonymous"
                       checked={isAnswerAnonymous}
                       onChange={(e) => setIsAnswerAnonymous(e.target.checked)}
-                      className="w-4 h-4 text-cm-academic border-gray-300 rounded focus:ring-cyan-500 cursor-pointer"
+                      className="w-4 h-4 text-academic-blue border-gray-300 rounded focus:ring-cyan-500 cursor-pointer"
                     />
                     <label htmlFor="answer-anonymous" className="text-sm text-gray-700 cursor-pointer">
                       Responder anonimamente (apenas o admin verá seu nome)
@@ -415,7 +415,7 @@ const QuestionDetailPage: React.FC = () => {
                     <button
                       onClick={handleSubmitAnswer}
                       disabled={!newAnswer.trim() || submitting}
-                      className="bg-cm-academic hover:bg-cyan-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
+                      className="bg-academic-blue hover:bg-cyan-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
                     >
                       {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                       {submitting ? "Enviando..." : "Enviar Resposta"}
@@ -432,7 +432,7 @@ const QuestionDetailPage: React.FC = () => {
                 </p>
                 <Link
                   to="/login"
-                  className="inline-block bg-cm-academic hover:bg-cyan-600 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                  className="inline-block bg-academic-blue hover:bg-cyan-600 text-white px-6 py-2 rounded-md font-medium transition-colors"
                 >
                   Fazer Login
                 </Link>

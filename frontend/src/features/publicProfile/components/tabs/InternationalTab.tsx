@@ -155,7 +155,7 @@ export const InternationalTab = ({
                     )}
                     {formatDuration(exp.duracaoNumero, exp.duracaoUnidade) && (
                       <span className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-cm-purple" />
+                        <Clock className="w-4 h-4 text-library-purple" />
                         {formatDuration(exp.duracaoNumero, exp.duracaoUnidade)}
                       </span>
                     )}

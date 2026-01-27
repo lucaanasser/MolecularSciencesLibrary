@@ -9,7 +9,7 @@ const VirtualShelfPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <div className="flex-grow bg-cm-bg overflow-visible">
+      <div className="flex-grow bg-default-bg overflow-visible">
         <div className="max-w-7xl mx-auto w-full">
           {/* Wrapper extra para responsividade */}
           <div className="w-full">

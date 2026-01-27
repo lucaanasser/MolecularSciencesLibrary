@@ -82,7 +82,7 @@ const ForumPage: React.FC = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="bg-cm-academic hover:bg-cyan-600 text-white px-6 py-2.5 rounded-md font-medium flex items-center gap-2 shadow-md transition-colors"
+                  className="bg-academic-blue hover:bg-cyan-600 text-white px-6 py-2.5 rounded-md font-medium flex items-center gap-2 shadow-md transition-colors"
                 >
                   <Plus className="w-5 h-5" />
                   Fazer Pergunta
@@ -100,7 +100,7 @@ const ForumPage: React.FC = () => {
             {/* Loading State */}
             {loading && (
               <div className="flex justify-center items-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-cm-academic" />
+                <Loader2 className="w-8 h-8 animate-spin text-academic-blue" />
               </div>
             )}
 
@@ -150,7 +150,7 @@ const ForumPage: React.FC = () => {
                     Tente ajustar os filtros ou fazer uma nova busca
                   </p>
                   <Link to="/forum/nova-pergunta">
-                    <button className="bg-cm-academic hover:bg-cyan-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                    <button className="bg-academic-blue hover:bg-cyan-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
                       Seja o primeiro a perguntar!
                     </button>
                   </Link>

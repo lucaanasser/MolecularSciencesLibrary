@@ -9,7 +9,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <div className="flex-grow bg-cm-bg">
+      <div className="flex-grow bg-default-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <LoginForm />
         </div>

@@ -14,7 +14,7 @@ const path = require('path');
 class PDFGeneratorService {
     constructor() {
         this.colors = {
-            primary: '#6B21A8',      // cm-purple
+            primary: '#6B21A8',      // library-purple
             secondary: '#1E40AF',    // cm-blue
             success: '#16A34A',      // cm-green
             warning: '#F59E0B',      // cm-yellow/orange

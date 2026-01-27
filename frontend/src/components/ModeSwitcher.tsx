@@ -33,12 +33,12 @@ const ModeSwitcher: React.FC = () => {
         transition-all duration-500 ease-in-out
         cursor-pointer
         ${isAcademico 
-          ? "bg-cm-academic text-white" 
-          : "bg-gradient-to-r from-cm-purple to-cm-purple/80 text-white"
+          ? "bg-academic-blue text-white" 
+          : "bg-gradient-to-r from-library-purple to-library-purple/80 text-white"
         }
         hover:scale-105 hover:shadow-lg
         focus:outline-none focus:ring-2 focus:ring-offset-2
-        ${isAcademico ? "focus:ring-cm-academic" : "focus:ring-cm-purple"}
+        ${isAcademico ? "focus:ring-academic-blue" : "focus:ring-library-purple"}
       `}
       aria-label={`Mudar para modo ${isAcademico ? "biblioteca" : "acadêmico"}`}
       title={`Mudar para modo ${isAcademico ? "biblioteca" : "acadêmico"}`}

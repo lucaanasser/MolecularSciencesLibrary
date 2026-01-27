@@ -50,8 +50,8 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
             className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center">
-                <Book className="w-5 h-5 text-cm-purple" />
+              <div className="w-10 h-10 rounded-lg bg-library-purple/10 flex items-center justify-center">
+                <Book className="w-5 h-5 text-library-purple" />
               </div>
               <div>
                 <div className="flex flex-row flex-wrap items-center gap-x-1">
@@ -83,7 +83,7 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
                     ? "bg-cm-green/20 text-cm-green"
                     : overdue
                     ? "bg-cm-yellow/20 text-cm-orange"
-                    : "bg-cm-purple/10 text-cm-purple"
+                    : "bg-library-purple/10 text-library-purple"
                 }`}
               >
                 {loan.returned_at ? "Devolvido" : overdue ? "Atrasado" : statusText}

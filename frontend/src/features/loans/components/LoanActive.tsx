@@ -135,8 +135,8 @@ export default function LoanActive({ userId }: LoanActiveProps) {
               className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm gap-4"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-cm-purple/10 flex items-center justify-center flex-shrink-0">
-                  <Book className="w-5 h-5 text-cm-purple" />
+                <div className="w-10 h-10 rounded-lg bg-library-purple/10 flex items-center justify-center flex-shrink-0">
+                  <Book className="w-5 h-5 text-library-purple" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 min-w-0">
@@ -148,7 +148,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                       <Clock className="w-3 h-3 mr-1" />
                       Início: {loan.borrowed_at ? new Date(loan.borrowed_at).toLocaleDateString("pt-BR") : "-"}
                     </span>
-                    <span className="flex items-center text-sm font-semibold text-cm-purple">
+                    <span className="flex items-center text-sm font-semibold text-library-purple">
                       <Clock className="w-3 h-3 mr-1" />
                       Prazo: {loan.due_date ? new Date(loan.due_date).toLocaleDateString("pt-BR") : "Sem data"}
                     </span>
@@ -171,7 +171,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 <div className="flex flex-col gap-1 items-center sm:items-end w-full mt-2">
                   {showRenew && (
                     <button
-                      className="flex items-center gap-2 bg-cm-purple text-white px-3 py-1 rounded-full hover:bg-cm-purple/80 disabled:opacity-50"
+                      className="flex items-center gap-2 bg-library-purple text-white px-3 py-1 rounded-full hover:bg-library-purple/80 disabled:opacity-50"
                       onClick={() => handlePreviewRenew(loan)}
                       disabled={renewLoading === loan.loan_id}
                     >

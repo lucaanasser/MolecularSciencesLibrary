@@ -41,7 +41,7 @@ const ProAlunoPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <main className="flex-grow bg-cm-bg py-8">
+      <main className="flex-grow bg-default-bg py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
             <h1 className="text-4xl font-bebas text-cm-black">Portal Pró-Aluno</h1>

@@ -314,7 +314,7 @@ const GradePage: React.FC = () => {
       <Navigation />
       
       {/* Header compacto */}
-      <div className="bg-cm-academic text-white py-2 px-4 shadow-lg">
+      <div className="bg-academic-blue text-white py-2 px-4 shadow-lg">
         <div className="max-w-[1800px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bebas tracking-wide">Grade Interativa</h1>
@@ -323,7 +323,7 @@ const GradePage: React.FC = () => {
               <div className="hidden sm:flex items-center gap-2 text-sm bg-white/10 rounded-full px-3 py-1">
                 <Info className="w-4 h-4" />
                 <span>Faça login para salvar</span>
-                <Link to="/login" className="underline font-medium hover:text-cm-academic-light">
+                <Link to="/login" className="underline font-medium hover:text-academic-blue-light">
                   Entrar
                 </Link>
               </div>
@@ -431,7 +431,7 @@ const GradePage: React.FC = () => {
           >
             {isLoading ? (
               <div className="h-full flex items-center justify-center p-12">
-                <Loader2 className="w-8 h-8 animate-spin text-cm-academic" />
+                <Loader2 className="w-8 h-8 animate-spin text-academic-blue" />
               </div>
             ) : (
               <>
@@ -464,12 +464,12 @@ const GradePage: React.FC = () => {
               className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm border border-gray-200 dark:border-gray-700"
             >
               <div className="text-center">
-                <div className="text-lg font-bold text-cm-academic">{displayCredits.creditos_aula}</div>
+                <div className="text-lg font-bold text-academic-blue">{displayCredits.creditos_aula}</div>
                 <div className="text-[10px] text-gray-500 dark:text-gray-400">Aula</div>
               </div>
               <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
               <div className="text-center">
-                <div className="text-lg font-bold text-cm-academic">{displayCredits.creditos_trabalho}</div>
+                <div className="text-lg font-bold text-academic-blue">{displayCredits.creditos_trabalho}</div>
                 <div className="text-[10px] text-gray-500 dark:text-gray-400">Trabalho</div>
               </div>
             </motion.div>

@@ -126,7 +126,7 @@ export const AdvancedCyclesTab = ({
                     <div className="grid sm:grid-cols-2 gap-4">
                       {av.orientador && (
                         <div className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
-                          <Award className="w-5 h-5 text-cm-purple mt-0.5 flex-shrink-0" />
+                          <Award className="w-5 h-5 text-library-purple mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-xs font-medium text-gray-500">Orientador</p>
                             <p className="text-sm font-semibold text-gray-900">{av.orientador}</p>

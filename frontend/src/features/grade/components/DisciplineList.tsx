@@ -153,7 +153,7 @@ export function DisciplineList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-cm-academic" />
+          <BookOpen className="w-4 h-4 text-academic-blue" />
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
             Lista de Disciplinas
           </span>
@@ -193,7 +193,7 @@ export function DisciplineList({
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-cm-academic">
+                  <span className="text-xs font-bold text-academic-blue">
                     {discipline.codigo}
                   </span>
                   <span className="text-xs text-gray-500">
@@ -232,7 +232,7 @@ export function DisciplineList({
       {disciplines.length > 0 && (
         <div className="flex items-center justify-center gap-4 text-xs pt-2 border-t border-gray-200 dark:border-gray-700">
           <span className="text-gray-500 dark:text-gray-400">
-            Total: <strong className="text-cm-academic">{totalCredits.aula}</strong> aula + <strong className="text-cm-academic">{totalCredits.trabalho}</strong> trabalho
+            Total: <strong className="text-academic-blue">{totalCredits.aula}</strong> aula + <strong className="text-academic-blue">{totalCredits.trabalho}</strong> trabalho
           </span>
         </div>
       )}

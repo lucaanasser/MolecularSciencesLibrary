@@ -69,13 +69,13 @@ function SupportersCarousel() {
       <div className="overflow-hidden h-[10rem] sm:h-[12rem] relative" style={{ width: "auto", minWidth: "10rem" }}>
         <div ref={listRef} className="transition-transform duration-500 ease-in-out">
           {displaySupporters.map((supporter, i) => (
-            <div key={i} className={`h-[2rem] sm:h-[2.2rem] flex items-center justify-center font-bold text-sm sm:text-base ${i === index + 2 ? "text-cm-purple" : "text-gray-400"}`}>
+            <div key={i} className={`h-[2rem] sm:h-[2.2rem] flex items-center justify-center font-bold text-sm sm:text-base ${i === index + 2 ? "text-library-purple" : "text-gray-400"}`}>
               {supporter}
             </div>
           ))}
         </div>
-        <div className="absolute top-0 h-[4rem] w-full bg-gradient-to-b from-cm-bg to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 h-[4rem] w-full bg-gradient-to-t from-cm-bg to-transparent pointer-events-none" />
+        <div className="absolute top-0 h-[4rem] w-full bg-gradient-to-b from-default-bg to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 h-[4rem] w-full bg-gradient-to-t from-default-bg to-transparent pointer-events-none" />
       </div>
       <span className="text-black">pelo apoio!</span>
     </div>
@@ -85,7 +85,7 @@ function SupportersCarousel() {
 // Página de doações financeiras para a biblioteca
 export default function DonationsPage() {
   return (
-    <section className="relative py-40 mt-20 mb-20 bg-cm-purple">
+    <section className="relative py-40 mt-20 mb-20 bg-library-purple">
             {/* Feature: Roleta com nomes dos apoiadores */}
             <div className="mt-18 flex flex-col items-center mb-24">
               <h2 className="text-5xl text-center mb-8">
@@ -93,11 +93,11 @@ export default function DonationsPage() {
               </h2>
               <SupportersCarousel />
             </div>
-      <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
-      <div className="absolute bottom-0 right-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-bottom-right"></div>
+      <div className="absolute top-0 left-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-top-left"></div>
+      <div className="absolute bottom-0 right-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-bottom-right"></div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-5xl text-cm-bg mb-4">Apoio financeiro</h2>
-        <p className="text-lg text-cm-bg mb-8">
+        <h2 className="text-5xl text-default-bg mb-4">Apoio financeiro</h2>
+        <p className="text-lg text-default-bg mb-8">
           Sua contribuição é fundamental para a preservação do acervo.
         </p>
         <div className="flex flex-col items-center mb-8">
@@ -106,10 +106,10 @@ export default function DonationsPage() {
             alt="QR Code para doação"
             className="w-64 h-64 rounded-xl border border-gray-300 shadow-lg"
           />
-          <span className="text-cm-bg mt-2 font-semibold">Escaneie para doar</span>
+          <span className="text-default-bg mt-2 font-semibold">Escaneie para doar</span>
         </div>
         <Button
-          className="w-full max-w-xs bg-cm-bg hover:bg-gray-200 text-cm-purple rounded-xl font-bold py-3 flex items-center justify-center gap-2 shadow-md mx-auto"
+          className="w-full max-w-xs bg-default-bg hover:bg-gray-200 text-library-purple rounded-xl font-bold py-3 flex items-center justify-center gap-2 shadow-md mx-auto"
           onClick={() => window.location.href = "/donate"}
         >
           <Gift className="h-4 w-4" />

@@ -196,7 +196,7 @@ export const DisciplineModal = ({
           <Button onClick={onClose} variant="outline" disabled={saving}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={saving} className="bg-cm-academic hover:bg-cm-academic/90">
+          <Button onClick={handleSave} disabled={saving} className="bg-academic-blue hover:bg-academic-blue/90">
             {saving ? "Salvando..." : "Salvar"}
           </Button>
         </div>

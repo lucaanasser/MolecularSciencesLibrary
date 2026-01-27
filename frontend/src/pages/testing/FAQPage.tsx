@@ -10,7 +10,7 @@ type FAQ = {
 
 type FAQPageProps = { faqs: FAQ[]; color?: string };
 
-const FAQPage = ({ faqs, color = "cm-purple" }: FAQPageProps) => {
+const FAQPage = ({ faqs, color = "library-purple" }: FAQPageProps) => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     // Utiliza a cor recebida para construir as classes
     const bgColor = `bg-${color}`;
@@ -30,7 +30,7 @@ const FAQPage = ({ faqs, color = "cm-purple" }: FAQPageProps) => {
                         {faqs.map((faq, idx) => (
                             <div
                                 key={idx}
-                                className={`${openIndex === idx ? `rounded-2xl bg-cm-bg ring-2 ${ringColor}` : `rounded-2xl ${bgColor}`} ${hoverRing} transition-all duration-0`}
+                                className={`${openIndex === idx ? `rounded-2xl bg-default-bg ring-2 ${ringColor}` : `rounded-2xl ${bgColor}`} ${hoverRing} transition-all duration-0`}
                             >
                                 <button
                                     className="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none group"
@@ -39,16 +39,16 @@ const FAQPage = ({ faqs, color = "cm-purple" }: FAQPageProps) => {
                                 >
                                     <span
                                         className={`font-semibold text-lg flex items-center gap-2
-                                            ${openIndex === idx ? textColor : 'text-cm-bg'}
-                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-cm-bg'}`}
+                                            ${openIndex === idx ? textColor : 'text-default-bg'}
+                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-default-bg'}`}
                                     >
                                         <span className={`inline-block w-2 h-2 ${textColor} rounded-full ${bgColor60}`} />
                                         {faq.question}
                                     </span>
                                     <span
                                         className={`text-2xl font-bold
-                                            ${openIndex === idx ? textColor : 'text-cm-bg'}
-                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-cm-bg'}`}
+                                            ${openIndex === idx ? textColor : 'text-default-bg'}
+                                            ${openIndex === idx ? 'group-hover:' + textColor : 'group-hover:text-default-bg'}`}
                                     >
                                         {openIndex === idx ? "−" : "+"}
                                     </span>

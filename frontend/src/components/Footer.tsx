@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
           {/* Logo/texto */}
           <div>
             <img
-              src="/images/logoestendido.png"
+              src="/images/logos/logoHorizontal.png"
               alt="Logo Biblioteca CM"
               className="h-20 mb-4"
             />

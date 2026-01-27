@@ -11,8 +11,8 @@ const getTabColor = (tabId: string) => {
   switch (tabId) {
     case "tab1": return "cm-blue";
     case "tab2": return "cm-green";
-    case "tab3": return "cm-purple";
-    default: return "cm-purple";
+    case "tab3": return "library-purple";
+    default: return "library-purple";
   }
 };
 

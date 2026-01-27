@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
                   <button
                     type="button"
                     style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                    className="text-gray-500 hover:text-cm-purple focus:outline-none"
+                    className="text-gray-500 hover:text-library-purple focus:outline-none"
                     onClick={() => setShowNewPassword(v => !v)}
                     tabIndex={0}
                     aria-label={showNewPassword ? "Ocultar senha" : "Mostrar senha"}
@@ -117,7 +117,7 @@ export default function ResetPasswordPage() {
                   <button
                     type="button"
                     style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                    className="text-gray-500 hover:text-cm-purple focus:outline-none"
+                    className="text-gray-500 hover:text-library-purple focus:outline-none"
                     onClick={() => setShowConfirmPassword(v => !v)}
                     tabIndex={0}
                     aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
@@ -134,7 +134,7 @@ export default function ResetPasswordPage() {
             </div>
             <Button
               type="submit"
-              className="w-full mt-6 bg-cm-purple hover:bg-cm-purple/90 rounded-xl"
+              className="w-full mt-6 bg-library-purple hover:bg-library-purple/90 rounded-xl"
               disabled={loading}
             >
               {loading ? "Salvando..." : "Salvar nova senha"}

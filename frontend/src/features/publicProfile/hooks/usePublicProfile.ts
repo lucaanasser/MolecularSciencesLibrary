@@ -8,7 +8,7 @@ import {
 } from "@/types/publicProfile";
 import ProfileService from "@/services/ProfileService";
 
-const AVANCADO_COLORS = ["cm-blue", "cm-green", "cm-orange", "cm-purple", "cm-academic"];
+const AVANCADO_COLORS = ["cm-blue", "cm-green", "cm-orange", "library-purple", "academic-blue"];
 
 export const usePublicProfile = (userId: number) => {
   // Loading and error states

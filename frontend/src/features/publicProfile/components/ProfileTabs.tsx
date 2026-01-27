@@ -21,7 +21,7 @@ const getTabColor = (tabId: TabId) => {
     case "disciplinas": return "cm-blue";
     case "internacional": return "cm-green";
     case "pos-cm": return "cm-orange";
-    default: return "cm-purple";
+    default: return "library-purple";
   }
 };
 

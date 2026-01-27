@@ -60,10 +60,10 @@ const Navigation: React.FC = () => {
         <div className="flex items-center gap-4">
           <Link to={navLinks[0].to} className="flex items-center">
             <img 
-              src="/images/logoestendido.png" 
+              src="/images/logos/logoHorizontal.png" 
               alt="Logo da Biblioteca" 
               className="h-20" 
-              onError={(e) => { e.currentTarget.src = "/images/logoestendido.png"; }} 
+              onError={(e) => { e.currentTarget.src = "/images/logos/logoHorizontal.png"; }} 
             />
           </Link>
           <ModeSwitcher />

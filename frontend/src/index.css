@@ -51,7 +51,7 @@
   }
 
   body {
-    @apply bg-cm-bg text-foreground font-dmsans;
+    @apply bg-default-bg text-foreground font-dmsans;
     transition: background-color 0.5s ease, color 0.3s ease;
   }
 
@@ -122,14 +122,14 @@
   }
   
   .primary-btn {
-    @apply btn bg-cm-purple text-cm-bg px-7 py-5 text-base md:text-lg;
+    @apply btn bg-library-purple text-default-bg px-7 py-5 text-base md:text-lg;
   }
 
   .primary-btn-academic {
-    @apply btn bg-cm-academic   text-cm-bg px-7 py-5 ;
+    @apply btn bg-academic-blue   text-default-bg px-7 py-5 ;
   }
 
   .wide-btn {
-    @apply btn text-cm-bg rounded-xl w-full;
+    @apply btn text-default-bg rounded-xl w-full;
   }
 }

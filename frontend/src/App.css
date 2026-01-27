@@ -1,6 +1,6 @@
 
 .group svg {
-  --icon-fill: cm-purple;
+  --icon-fill: library-purple;
 }
 .group:hover svg {
   --icon-fill: #fff;
@@ -19,7 +19,7 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em cm-purple);
+  filter: drop-shadow(0 0 2em library-purple);
 }
 
 @keyframes logo-spin {

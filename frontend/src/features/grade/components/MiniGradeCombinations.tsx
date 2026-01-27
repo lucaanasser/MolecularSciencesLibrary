@@ -124,7 +124,7 @@ function MiniGrade({
         "relative w-16 h-14 rounded border-2 transition-all overflow-hidden flex-shrink-0",
         "hover:scale-105 hover:shadow-md",
         isSelected 
-          ? "border-cm-academic ring-2 ring-cm-academic ring-offset-1" 
+          ? "border-academic-blue ring-2 ring-academic-blue ring-offset-1" 
           : "border-gray-300 dark:border-gray-600"
       )}
     >
@@ -174,7 +174,7 @@ export function MiniGradeCombinations({
   if (isGenerating) {
     return (
       <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-        <Loader2 className="w-4 h-4 animate-spin text-cm-academic" />
+        <Loader2 className="w-4 h-4 animate-spin text-academic-blue" />
         <span className="text-xs">Gerando...</span>
       </div>
     );

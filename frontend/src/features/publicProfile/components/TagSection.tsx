@@ -21,7 +21,7 @@ interface TagSectionProps {
 }
 
 const TAG_COLORS = {
-  "grande-area": { bg: "bg-cm-purple", text: "text-cm-purple" },
+  "grande-area": { bg: "bg-library-purple", text: "text-library-purple" },
   "area": { bg: "bg-cm-blue", text: "text-cm-blue" },
   "subarea": { bg: "bg-cm-green", text: "text-cm-green" },
 };

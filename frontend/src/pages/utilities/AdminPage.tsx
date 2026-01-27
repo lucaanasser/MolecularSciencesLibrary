@@ -590,7 +590,7 @@ const ManageLoans = () => {
             </CardHeader>
             <CardContent>
               <Button
-                className="w-full bg-cm-purple hover:bg-cm-purple/90 text-xs sm:text-sm"
+                className="w-full bg-library-purple hover:bg-library-purple/90 text-xs sm:text-sm"
                 onClick={() => {
                   console.log("🔵 [AdminPage/ManageLoans] Selecionado: Uso Interno");
                   setSelectedTab("internal");
@@ -698,7 +698,7 @@ const ManageLoans = () => {
                   <div className="text-green-600 text-sm">{internalUseSuccess}</div>
                 )}
                 <Button
-                  className="w-full bg-cm-purple hover:bg-cm-purple/90"
+                  className="w-full bg-library-purple hover:bg-library-purple/90"
                   onClick={handleInternalUse}
                   disabled={internalUseLoading}
                 >
@@ -1252,7 +1252,7 @@ const ManageDonators = () => {
             </CardHeader>
             <CardContent>
               <Button
-                className="w-full bg-cm-purple hover:bg-cm-purple/90 text-xs sm:text-sm"
+                className="w-full bg-library-purple hover:bg-library-purple/90 text-xs sm:text-sm"
                 onClick={() => setShowImportCSV(true)}
               >
                 Importar
@@ -1374,7 +1374,7 @@ const AdminPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <div className="flex-grow bg-cm-bg py-4 sm:py-6 md:py-8">
+      <div className="flex-grow bg-default-bg py-4 sm:py-6 md:py-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bebas mb-4 sm:mb-6 md:mb-8">Painel do Administrador</h1>
           

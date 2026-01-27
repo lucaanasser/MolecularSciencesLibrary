@@ -16,7 +16,7 @@ const faqs = [
         <li><span className="font-bold text-cm-yellow">Amarelo:</span> Emprestado</li>
         <li><span className="font-bold text-cm-orange">Laranja:</span> Estendido</li>
         <li><span className="font-bold text-cm-red">Vermelho:</span> Atrasado</li>
-        <li><span className="font-bold text-cm-purple">Roxo:</span> Reserva didática (não disponível para empréstimo)</li>
+        <li><span className="font-bold text-library-purple">Roxo:</span> Reserva didática (não disponível para empréstimo)</li>
       </ul>
     ),
   },
@@ -91,18 +91,18 @@ export default function AcademicFAQPage() {
               {faqs.map((faq, idx) => (
                 <div
                   key={idx}
-                  className={`${openIndex === idx ? 'rounded-2xl bg-cm-bg ring-2 ring-cm-academic/60' : 'rounded-2xl bg-cm-academic'} hover:bg-cm-bg/80 hover:ring-2 hover:ring-cm-academic/60 transition-all duration-0`}
+                  className={`${openIndex === idx ? 'rounded-2xl bg-default-bg ring-2 ring-academic-blue/60' : 'rounded-2xl bg-academic-blue'} hover:bg-default-bg/80 hover:ring-2 hover:ring-academic-blue/60 transition-all duration-0`}
                 >
                   <button
                     className="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none group"
                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                     aria-expanded={openIndex === idx}
                   >
-                    <span className={`font-semibold text-lg flex items-center gap-2 ${openIndex === idx ? 'text-cm-academic' : 'text-cm-bg'} group-hover:text-cm-academic`}>
-                      <span className="inline-block w-2 h-2 text-cm-academic rounded-full bg-cm-academic/60" />
+                    <span className={`font-semibold text-lg flex items-center gap-2 ${openIndex === idx ? 'text-academic-blue' : 'text-default-bg'} group-hover:text-academic-blue`}>
+                      <span className="inline-block w-2 h-2 text-academic-blue rounded-full bg-academic-blue/60" />
                       {faq.question}
                     </span>
-                    <span className={`text-2xl font-bold ${openIndex === idx ? 'text-cm-academic' : 'text-cm-bg'} group-hover:text-cm-academic`}>{openIndex === idx ? "−" : "+"}</span>
+                    <span className={`text-2xl font-bold ${openIndex === idx ? 'text-academic-blue' : 'text-default-bg'} group-hover:text-academic-blue`}>{openIndex === idx ? "−" : "+"}</span>
                   </button>
                   {openIndex === idx && (
                     <div className="px-6 pb-5 text-gray-700">
@@ -116,7 +116,7 @@ export default function AcademicFAQPage() {
               <img src="/images/erro404.svg" alt="Biblioteca do CM" className="max-w-md w-full h-auto rounded-2xl" />
             </div>
           </div>
-          <div className="mt-10 text-center text-cm-academic text-base font-medium">
+          <div className="mt-10 text-center text-academic-blue text-base font-medium">
             Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="underline hover:text-black">Fale conosco</a>!
           </div>
         </div>

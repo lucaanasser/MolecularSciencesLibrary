@@ -85,7 +85,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
           id={`email-${tab}`}
           name="email"
           required
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent text-sm"
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent text-sm"
           placeholder="seu.email@exemplo.com"
         />
       </div>
@@ -113,7 +113,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
               id="titulo"
               name="titulo"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent text-sm"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent text-sm"
               placeholder="Ex: Princípios de Química"
             />
           </div>
@@ -126,7 +126,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
               id="autor"
               name="autor"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent text-sm"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent text-sm"
               placeholder="Ex: John Smith"
             />
           </div>
@@ -139,7 +139,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
               id="area"
               name="area"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent text-sm"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent text-sm"
               placeholder="Ex: Química, Biologia, Física..."
             />
           </div>
@@ -151,7 +151,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
               id="estado"
               name="estado"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent text-sm"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent text-sm"
               defaultValue=""
             >
               <option value="" disabled>Selecione o estado</option>
@@ -170,7 +170,7 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
               name="motivo"
               rows={2}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent resize-none text-sm"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent resize-none text-sm"
               placeholder="O que esse livro pode agregar ao acervo do CM?"
             />
           </div>
@@ -185,13 +185,13 @@ const TabForm: React.FC<TabFormProps> = ({ tab }) => {
           name="message"
           rows={4}
           required={!isDonation}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cm-purple focus:border-transparent resize-none text-sm"
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-library-purple focus:border-transparent resize-none text-sm"
           placeholder={placeholder}
         />
       </div>
       <Button
         type="submit"
-        className="w-full bg-cm-purple hover:bg-cm-purple/80 text-cm-bg rounded-xl font-bold py-3 flex items-center justify-center gap-2"
+        className="w-full bg-library-purple hover:bg-library-purple/80 text-default-bg rounded-xl font-bold py-3 flex items-center justify-center gap-2"
         disabled={loading}
       >
         <Send className="h-4 w-4" />

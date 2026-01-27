@@ -39,7 +39,7 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({ onTagClick, selectedTag }) 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-cm-academic" />
+        <Loader2 className="w-6 h-6 animate-spin text-academic-blue" />
       </div>
     );
   }
@@ -72,7 +72,7 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({ onTagClick, selectedTag }) 
         className="bg-white border border-gray-200 rounded-lg p-4"
       >
         <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-cm-academic" />
+          <TrendingUp className="w-5 h-5 text-academic-blue" />
           Tags Populares
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -103,7 +103,7 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({ onTagClick, selectedTag }) 
         className="bg-white border border-gray-200 rounded-lg p-4"
       >
         <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-          <Award className="w-5 h-5 text-cm-academic" />
+          <Award className="w-5 h-5 text-academic-blue" />
           Top Contributors
         </h3>
         <div className="space-y-3">

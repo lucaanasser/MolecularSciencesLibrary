@@ -29,7 +29,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-gray-200 rounded-md hover:border-cm-academic/40 transition-colors p-4"
+      className="bg-white border border-gray-200 rounded-md hover:border-academic-blue/40 transition-colors p-4"
     >
       <div className="flex gap-4">
         {/* Stats Column */}

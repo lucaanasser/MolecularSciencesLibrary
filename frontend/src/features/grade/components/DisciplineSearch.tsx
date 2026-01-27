@@ -162,7 +162,7 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
           className="pl-7 pr-7 h-7 text-xs"
         />
         {isSearching && (
-          <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-cm-academic animate-spin" />
+          <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-academic-blue animate-spin" />
         )}
       </div>
 
@@ -186,12 +186,12 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                     className={cn(
                       "flex-1 p-1.5 flex items-start justify-between text-left",
                       "hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors",
-                      expandedDiscipline === discipline.id && "bg-cm-academic-bg dark:bg-gray-800"
+                      expandedDiscipline === discipline.id && "bg-academic-blue-bg dark:bg-gray-800"
                     )}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-cm-academic">
+                        <span className="text-xs font-bold text-academic-blue">
                           {discipline.codigo}
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -207,7 +207,7 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                     </div>
                     <div className="ml-2 flex-shrink-0">
                       {loadingClasses === discipline.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-cm-academic" />
+                        <Loader2 className="w-4 h-4 animate-spin text-academic-blue" />
                       ) : expandedDiscipline === discipline.id ? (
                         <ChevronUp className="w-4 h-4 text-gray-400" />
                       ) : (
@@ -228,7 +228,7 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                           onAddToBoard(discipline);
                         }}
                         disabled={disabled}
-                        className="h-full px-3 rounded-none hover:bg-cm-academic hover:text-white"
+                        className="h-full px-3 rounded-none hover:bg-academic-blue hover:text-white"
                         title="Adicionar ao quadro"
                       >
                         <Plus className="w-4 h-4" />

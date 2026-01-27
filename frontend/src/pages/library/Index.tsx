@@ -42,49 +42,49 @@ function StatsGrid({ stats }: { stats: StatsType }) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
       <div className="text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <Users className="h-8 w-8 text-cm-bg" />
+          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+            <Users className="h-8 w-8 text-default-bg" />
           </div>
         </div>
-        <p className="bigtext mb-2 font-bold text-cm-bg">
+        <p className="bigtext mb-2 font-bold text-default-bg">
           {stats.users == null ? '-' : users}
         </p>
-        <p className="bigtext text-cm-bg">
+        <p className="bigtext text-default-bg">
           Usuários ativos
         </p>
-        <p className="text-cm-bg leading-tight">
+        <p className="text-default-bg leading-tight">
           Conectando leitores e promovendo o acesso ao conhecimento.
         </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <Lightbulb className="h-8 w-8 text-cm-bg" />
+          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+            <Lightbulb className="h-8 w-8 text-default-bg" />
           </div>
         </div>
-        <p className="bigtext mb-2 font-bold text-cm-bg">
+        <p className="bigtext mb-2 font-bold text-default-bg">
           {stats.subareas == null ? '-' : subareas}
         </p>
-        <p className="bigtext text-cm-bg">
+        <p className="bigtext text-default-bg">
           Áreas do conhecimento
         </p>
-        <p className="text-cm-bg leading-tight">
+        <p className="text-default-bg leading-tight">
           Navegue pelas disciplinas e descubra conteúdos de diversas especialidades.
         </p>
       </div>
       <div className="text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-16 w-16 rounded-full bg-cm-bg/20 flex items-center justify-center">
-            <BookMarked className="h-8 w-8 text-cm-bg" />
+          <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+            <BookMarked className="h-8 w-8 text-default-bg" />
           </div>
         </div>
-        <p className="bigtext mb-2 font-bold text-cm-bg">
+        <p className="bigtext mb-2 font-bold text-default-bg">
           {stats.books == null ? '-' : books}
         </p>
-        <p className="bigtext text-cm-bg">
+        <p className="bigtext text-default-bg">
           Exemplares disponíveis
         </p>
-        <p className="text-cm-bg leading-tight">
+        <p className="text-default-bg leading-tight">
           Encontre facilmente o livro que procura no nosso acervo organizado.
         </p>
       </div>
@@ -101,7 +101,7 @@ const HERO_AREAS = [
   { name: "Química", color: "text-cm-yellow" },
   { name: "Biologia", color: "text-cm-green" },
   { name: "Computação", color: "text-cm-blue" },
-  { name: "Universo", color: "text-cm-purple" },
+  { name: "Universo", color: "text-library-purple" },
 ];
 
 const Index = () => {
@@ -174,7 +174,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       {/* Hero Section - Custom */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-cm-purple/80 via-cm-purple/10 to-cm-bg">
+      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-library-purple/80 via-library-purple/10 to-default-bg">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
           {/* Logo */}
           <div className="flex-1 flex justify-center md:mb-0">
@@ -215,7 +215,7 @@ const Index = () => {
       {/* Fim Hero Section customizada */}
 
       {/* About Section */}
-      <div className="py-24 bg-cm-bg">
+      <div className="py-24 bg-default-bg">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
@@ -246,19 +246,19 @@ const Index = () => {
       </div>
 
       {/* Statistics Section with Diagonal Design */}
-      <section className="relative py-40 bg-cm-purple">
+      <section className="relative py-40 bg-library-purple">
         {/* Top Diagonal Cut */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-top-left"></div>
+        <div className="absolute top-0 left-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-top-left"></div>
         {/* Bottom Diagonal Cut */}
-        <div className="absolute bottom-0 right-0 w-full h-24 bg-cm-bg transform -skew-y-3 origin-bottom-right"></div>
+        <div className="absolute bottom-0 right-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-cm-bg">
+            <h2 className="text-default-bg">
               A biblioteca em números
             </h2>
           </div>
           {loadingStats ? (
-            <div className="text-center text-cm-bg text-xl">Carregando...</div>
+            <div className="text-center text-default-bg text-xl">Carregando...</div>
           ) : statsError ? (
             <div className="text-center text-red-200 text-xl">{statsError}</div>
           ) : (
@@ -268,7 +268,7 @@ const Index = () => {
       </section>
 
       {/* Portal da Transparência Section */}
-      <div className="py-24 bg-cm-bg">
+      <div className="py-24 bg-default-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-gray-100 p-12">
@@ -300,9 +300,9 @@ const Index = () => {
           <h2 className="text-center mb-16">Recursos do site</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Card 1 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-cm-bg">
-                <Search className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-red border-8 border-default-bg">
+                <Search className="h-10 w-10 text-default-bg" />
               </div>
               <h4>Encontre livros no acervo</h4>
               <p className="smalltext">
@@ -315,9 +315,9 @@ const Index = () => {
               </button>
             </div>
             {/* Card 2 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-cm-bg">
-                <User className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-blue border-8 border-default-bg">
+                <User className="h-10 w-10 text-default-bg" />
               </div>
               <h4>Acompanhe seus empréstimos</h4>
               <p className="smalltext">
@@ -330,9 +330,9 @@ const Index = () => {
               </button>
             </div>
             {/* Card 3 */}
-            <div className="flex flex-col items-center text-center p-8 bg-cm-bg rounded-2xl shadow-md border border-gray-200">
-              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green/90 border-8 border-cm-bg">
-                <BookOpen className="h-10 w-10 text-cm-bg" />
+            <div className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200">
+              <div className="-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full bg-cm-green/90 border-8 border-default-bg">
+                <BookOpen className="h-10 w-10 text-default-bg" />
               </div>
               <h4>Explore a estante virtual</h4>
               <p className="smalltext">

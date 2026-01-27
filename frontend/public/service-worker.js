@@ -3,8 +3,8 @@ const urlsToCache = [
   '/',
   '/manifest.json',
   '/favicon.ico',
-  '/images/LogoBrancoBiblioteca.png',
-  '/images/LogoBrancoBiblioteca.png'
+  '/images/logos/logoFundoBrancoBiblioteca.png',
+  '/images/logos/logoFundoBrancoBiblioteca.png'
 ];
 
 // Install event - cache resources
@@ -121,8 +121,8 @@ self.addEventListener('push', function(event) {
   
   const options = {
     body: event.data ? event.data.text() : 'Nova notificação da Biblioteca CM',
-    icon: '/images/LogoBrancoBiblioteca.png',
-    badge: '/images/LogoBrancoBiblioteca.png',
+    icon: '/images/logos/logoFundoBrancoBiblioteca.png',
+    badge: '/images/logos/logoFundoBrancoBiblioteca.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -132,7 +132,7 @@ self.addEventListener('push', function(event) {
       {
         action: 'explore',
         title: 'Ver detalhes',
-        icon: '/images/LogoBrancoBiblioteca.png'
+        icon: '/images/logos/logoFundoBrancoBiblioteca.png'
       },
       {
         action: 'close',

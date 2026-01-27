@@ -227,7 +227,7 @@ export function AddCustomDiscipline({ onAdd, disabled, colorIndex = 0 }: AddCust
           <Button
             onClick={handleSubmit}
             disabled={!isValid || isSubmitting}
-            className="bg-cm-academic hover:bg-cm-academic-dark"
+            className="bg-academic-blue hover:bg-academic-blue-dark"
           >
             {isSubmitting ? 'Adicionando...' : 'Adicionar'}
           </Button>

@@ -55,7 +55,7 @@ export const LoanItem: React.FC<LoanItemProps> = ({
         <div className="flex flex-col items-end gap-2">
           {showRenew && (
             <button
-              className="flex items-center gap-2 bg-cm-purple text-white px-4 py-2 rounded hover:bg-cm-purple/80 disabled:opacity-50"
+              className="flex items-center gap-2 bg-library-purple text-white px-4 py-2 rounded hover:bg-library-purple/80 disabled:opacity-50"
               onClick={onRenew}
               disabled={renewLoading}
             >

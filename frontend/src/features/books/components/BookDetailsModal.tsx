@@ -73,7 +73,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
             <p>Subárea: {resolvedSubarea}</p>
             <p>Idioma: {LANGUAGE_MAP[Number(book.language)] || LANGUAGE_MAP[book.language] || book.language || '—'}</p>
             {book.donator_name && (
-              <p className="mt-2 font-semibold text-cm-purple">Doado por: {book.donator_name}</p>
+              <p className="mt-2 font-semibold text-library-purple">Doado por: {book.donator_name}</p>
             )}
           
           {showAvailabilityText && (
@@ -93,7 +93,7 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
               onClick={() => {
                 navigate(`/estante-virtual?highlight=${encodeURIComponent(book.code)}`);
               }}
-              className="bg-cm-purple text-white px-4 py-2 rounded-xl hover:bg-cm-purple/80"
+              className="bg-library-purple text-white px-4 py-2 rounded-xl hover:bg-library-purple/80"
             >
               Ver na Estante
             </button>

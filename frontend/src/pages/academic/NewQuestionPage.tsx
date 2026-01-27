@@ -143,7 +143,7 @@ const NewQuestionPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-6 py-4">
           <button
             onClick={() => navigate("/forum")}
-            className="flex items-center gap-2 text-gray-600 hover:text-cm-academic mb-3 transition-colors"
+            className="flex items-center gap-2 text-gray-600 hover:text-academic-blue mb-3 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Voltar para o fórum
@@ -199,7 +199,7 @@ const NewQuestionPage: React.FC = () => {
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
                 placeholder="Ex: Como calcular os créditos necessários para formatura?"
-                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-cm-academic ${
+                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-academic-blue ${
                   errors.titulo ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -233,7 +233,7 @@ const NewQuestionPage: React.FC = () => {
                 value={conteudo}
                 onChange={(e) => setConteudo(e.target.value)}
                 placeholder="Forneça o máximo de contexto possível. O que você já tentou? Qual é o problema específico?&#10;&#10;Você pode usar Markdown para formatar seu texto!"
-                className={`w-full min-h-[300px] px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-cm-academic resize-y ${
+                className={`w-full min-h-[300px] px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-academic-blue resize-y ${
                   errors.conteudo ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -292,7 +292,7 @@ const NewQuestionPage: React.FC = () => {
                 onKeyDown={handleKeyDown}
                 placeholder="Digite uma tag e pressione Enter"
                 disabled={tags.length >= 5}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cm-academic disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-academic-blue disabled:bg-gray-100 disabled:cursor-not-allowed ${
                   errors.tags ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -325,7 +325,7 @@ const NewQuestionPage: React.FC = () => {
                 )}
                 {isLoadingTags ? (
                   <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-cm-academic" />
+                    <Loader2 className="w-5 h-5 animate-spin text-academic-blue" />
                   </div>
                 ) : availableTags.length === 0 ? (
                   <div className="p-4 bg-gray-50 rounded-md border border-gray-200 text-center">
@@ -446,7 +446,7 @@ const NewQuestionPage: React.FC = () => {
                   id="anonymous"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="w-4 h-4 text-cm-academic border-gray-300 rounded focus:ring-cyan-500 cursor-pointer"
+                  className="w-4 h-4 text-academic-blue border-gray-300 rounded focus:ring-cyan-500 cursor-pointer"
                 />
                 <label htmlFor="anonymous" className="text-sm text-gray-700 cursor-pointer">
                   Postar anonimamente (apenas o admin verá seu nome)
@@ -463,7 +463,7 @@ const NewQuestionPage: React.FC = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="px-6 py-2.5 bg-cm-academic hover:bg-cyan-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md font-medium transition-colors shadow-md flex items-center gap-2"
+                  className="px-6 py-2.5 bg-academic-blue hover:bg-cyan-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md font-medium transition-colors shadow-md flex items-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {submitting ? "Publicando..." : "Publicar Pergunta"}

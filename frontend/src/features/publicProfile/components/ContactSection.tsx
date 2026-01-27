@@ -32,7 +32,7 @@ export const ContactSection = ({
           <h3 className="text-sm font-bold text-gray-900 uppercase mb-3">Contato</h3>
           <div className="space-y-2 text-sm">
             {emailPublico && (
-              <a href={`mailto:${emailPublico}`} className="flex items-center gap-2 text-cm-purple hover:underline">
+              <a href={`mailto:${emailPublico}`} className="flex items-center gap-2 text-library-purple hover:underline">
                 <Mail className="w-4 h-4" />
                 Email
               </a>

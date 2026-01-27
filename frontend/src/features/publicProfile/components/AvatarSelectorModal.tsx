@@ -150,7 +150,7 @@ export const AvatarSelectorModal = ({
             onClick={() => setSelectedTab("default")}
             className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
               selectedTab === "default"
-                ? "bg-cm-purple text-white"
+                ? "bg-library-purple text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -160,7 +160,7 @@ export const AvatarSelectorModal = ({
             onClick={() => setSelectedTab("upload")}
             className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
               selectedTab === "upload"
-                ? "bg-cm-purple text-white"
+                ? "bg-library-purple text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -177,7 +177,7 @@ export const AvatarSelectorModal = ({
                   key={avatar}
                   onClick={() => handleSelectDefault(avatar)}
                   disabled={saving}
-                  className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-cm-purple transition-all hover:scale-105 disabled:opacity-50"
+                  className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-library-purple transition-all hover:scale-105 disabled:opacity-50"
                 >
                   <img
                     src={avatar}
@@ -185,8 +185,8 @@ export const AvatarSelectorModal = ({
                     className="w-full h-full object-cover"
                   />
                   {currentImage === avatar && (
-                    <div className="absolute inset-0 bg-cm-purple/20 flex items-center justify-center">
-                      <div className="w-8 h-8 bg-cm-purple rounded-full flex items-center justify-center">
+                    <div className="absolute inset-0 bg-library-purple/20 flex items-center justify-center">
+                      <div className="w-8 h-8 bg-library-purple rounded-full flex items-center justify-center">
                         <Check className="w-5 h-5 text-white" />
                       </div>
                     </div>
@@ -209,7 +209,7 @@ export const AvatarSelectorModal = ({
                   />
                   <Button
                     onClick={handleUploadClick}
-                    className="bg-cm-purple hover:bg-cm-purple/90 text-white"
+                    className="bg-library-purple hover:bg-library-purple/90 text-white"
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     Escolher Imagem
@@ -246,7 +246,7 @@ export const AvatarSelectorModal = ({
                     <Button
                       onClick={handleCropAndSave}
                       disabled={saving}
-                      className="flex-1 bg-cm-purple hover:bg-cm-purple/90 text-white"
+                      className="flex-1 bg-library-purple hover:bg-library-purple/90 text-white"
                     >
                       {saving ? "Salvando..." : "Salvar"}
                     </Button>

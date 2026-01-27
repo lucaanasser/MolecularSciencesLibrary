@@ -60,7 +60,7 @@ const ForumFilters: React.FC<ForumFiltersProps> = ({
                 transition-all whitespace-nowrap
                 ${
                   currentSort === filter.value
-                    ? "bg-cm-academic text-white shadow-md"
+                    ? "bg-academic-blue text-white shadow-md"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }
               `}

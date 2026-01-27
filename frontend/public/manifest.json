@@ -19,7 +19,7 @@
       "url": "/books",
       "icons": [
         {
-          "src": "/images/LogoBrancoBiblioteca.png",
+          "src": "/images/logos/logoFundoBrancoBiblioteca.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -28,25 +28,25 @@
   ],
   "icons": [
     {
-      "src": "/images/LogoBrancoBiblioteca.png",
+      "src": "/images/logos/logoFundoBrancoBiblioteca.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/LogoBrancoBiblioteca.png",
+      "src": "/images/logos/logoFundoBrancoBiblioteca.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/images/LogoBrancoBiblioteca.png",
+      "src": "/images/logos/logoFundoBrancoBiblioteca.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/LogoBrancoBiblioteca.png",
+      "src": "/images/logos/logoFundoBrancoBiblioteca.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

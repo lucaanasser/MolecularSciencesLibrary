@@ -234,7 +234,7 @@ const AcademicSearchPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-cm-bg">
+    <div className="min-h-screen flex flex-col bg-default-bg">
       <Navigation />
       
       <main className="flex-1 flex flex-col items-center px-4 pt-20 pb-16">
@@ -306,7 +306,7 @@ const AcademicSearchPage: React.FC = () => {
                 onClick={handleSearch}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <Search className="w-5 h-5 text-cm-academic" />
+                <Search className="w-5 h-5 text-academic-blue" />
               </button>
             </div>
           </div>
@@ -400,7 +400,7 @@ const AcademicSearchPage: React.FC = () => {
                               ${selectedIndex === index + recentSearches.length ? "bg-gray-100" : "hover:bg-gray-50"}
                             `}
                           >
-                            <TrendingUp className="w-4 h-4 text-cm-academic" />
+                            <TrendingUp className="w-4 h-4 text-academic-blue" />
                             <span className="text-gray-700">{disc.nome}</span>
                             <span className="text-gray-400 text-sm">— {disc.codigo}</span>
                           </button>
@@ -420,7 +420,7 @@ const AcademicSearchPage: React.FC = () => {
                       </p>
                       <Link
                         to={`/academico/criar-disciplina?codigo=${encodeURIComponent(searchQuery.toUpperCase())}`}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-cm-academic text-white rounded-lg hover:bg-cm-academic/90 transition-colors text-sm font-medium"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-academic-blue text-white rounded-lg hover:bg-academic-blue/90 transition-colors text-sm font-medium"
                       >
                         <Plus className="w-4 h-4" />
                         Adicionar Disciplina
@@ -452,8 +452,8 @@ const AcademicSearchPage: React.FC = () => {
                             ${selectedIndex === index ? "bg-gray-100" : "hover:bg-gray-50"}
                           `}
                         >
-                          <div className="w-8 h-8 rounded-full bg-cm-purple/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-cm-purple font-semibold text-sm">
+                          <div className="w-8 h-8 rounded-full bg-library-purple/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-library-purple font-semibold text-sm">
                               {user.nome.charAt(0)}
                             </span>
                           </div>
@@ -500,7 +500,7 @@ const AcademicSearchPage: React.FC = () => {
             onClick={() => handleModeChange("disciplinas")}
             className={`px-4 py-2 text-sm rounded transition-colors border ${
               searchMode === "disciplinas"
-                ? "bg-cm-academic text-white border-cm-academic"
+                ? "bg-academic-blue text-white border-academic-blue"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
             }`}
           >
@@ -510,7 +510,7 @@ const AcademicSearchPage: React.FC = () => {
             onClick={() => handleModeChange("usuarios")}
             className={`px-4 py-2 text-sm rounded transition-colors border ${
               searchMode === "usuarios"
-                ? "bg-cm-academic text-white border-cm-academic"
+                ? "bg-academic-blue text-white border-academic-blue"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
             }`}
           >

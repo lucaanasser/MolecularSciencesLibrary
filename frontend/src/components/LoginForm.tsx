@@ -143,7 +143,7 @@ const LoginForm: React.FC = () => {
                 <button
                   type="button"
                   style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                  className="text-gray-500 hover:text-cm-purple focus:outline-none"
+                  className="text-gray-500 hover:text-library-purple focus:outline-none"
                   onClick={() => setShowPassword((v) => !v)}
                   tabIndex={0}
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
@@ -161,7 +161,7 @@ const LoginForm: React.FC = () => {
             <Button
               type="button"
               variant="link"
-              className="text-cm-purple px-0 text-sm"
+              className="text-library-purple px-0 text-sm"
               onClick={handleForgotPassword}
               disabled={forgotLoading}
             >
@@ -170,7 +170,7 @@ const LoginForm: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="wide-btn bg-cm-purple"
+            className="wide-btn bg-library-purple"
             disabled={isLoading}
           >
             {isLoading ? "Entrando..." : "Entrar"}

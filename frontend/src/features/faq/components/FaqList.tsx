@@ -7,7 +7,7 @@ interface FaqListProps {
   color?: string;
 }
 
-export const FaqList: React.FC<FaqListProps> = ({ faqs, color = "cm-purple" }) => {
+export const FaqList: React.FC<FaqListProps> = ({ faqs, color = "library-purple" }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const handleToggle = (index: number) => {
