@@ -99,54 +99,30 @@ const DonatorsController = {
         }
     },
     
+    // Utilitário CSV compartilhado
+    const { importFromCSV } = require('../utils/csvUtils');
+
     async importDonatorsFromCSV(req, res) {
         try {
             console.log('🔵 [DonatorsController] Iniciando importação de doadores via CSV');
-            
             if (!req.file) {
                 return res.status(400).json({ success: false, message: 'Nenhum arquivo CSV fornecido' });
             }
-
-            const csvContent = req.file.buffer.toString('utf-8');
-            const lines = csvContent.split('\n').filter(line => line.trim());
-            
-            if (lines.length < 2) {
-                return res.status(400).json({ success: false, message: 'Arquivo CSV vazio ou inválido' });
-            }
-
-            // Parse do cabeçalho
-            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-            
-            const results = {
-                success: 0,
-                failed: 0,
-                errors: []
+            const requiredFields = ['name', 'donation_type'];
+            // Logger customizado para logs padronizados
+            const logger = {
+                success: (entity, row) => console.log(`🟢 [DonatorsController] Doador importado: ${entity.name} (linha ${row})`),
+                error: (error, row, line) => console.error(`🔴 [DonatorsController] Erro na linha ${row}:`, error.message),
+                finish: (results) => console.log(`🟢 [DonatorsController] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)
             };
-
-            // Processar cada linha
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i];
-                if (!line.trim()) continue;
-
-                try {
-                    const values = parseCSVLine(line);
-                    const donatorData = {};
-                    
-                    headers.forEach((header, index) => {
-                        donatorData[header] = values[index] || '';
-                    });
-
-                    // Validação de campos obrigatórios
-                    if (!donatorData.name || donatorData.name.trim() === '') {
-                        throw new Error('Nome do doador é obrigatório');
-                    }
-                    
-                    if (!donatorData.donation_type || !['book', 'money'].includes(donatorData.donation_type.toLowerCase())) {
+            const results = await importFromCSV({
+                fileBuffer: req.file.buffer,
+                requiredFields,
+                mapRow: (donatorData) => {
+                    if (!['book', 'money'].includes(donatorData.donation_type.toLowerCase())) {
                         throw new Error('Tipo de doação deve ser "book" ou "money"');
                     }
-
-                    // Preparar dados para inserção
-                    const donatorToAdd = {
+                    return {
                         name: donatorData.name.trim(),
                         user_id: donatorData.user_id ? parseInt(donatorData.user_id) : null,
                         book_id: donatorData.book_id ? parseInt(donatorData.book_id) : null,
@@ -155,23 +131,10 @@ const DonatorsController = {
                         contact: donatorData.contact?.trim() || null,
                         notes: donatorData.notes?.trim() || null
                     };
-
-                    // Adicionar doador usando o serviço existente
-                    await DonatorsService.addDonator(donatorToAdd);
-                    results.success++;
-                    console.log(`🟢 [DonatorsController] Doador importado: ${donatorToAdd.name} (linha ${i + 1})`);
-                } catch (error) {
-                    results.failed++;
-                    results.errors.push({
-                        row: i + 1,
-                        error: error.message,
-                        data: line.substring(0, 100)
-                    });
-                    console.error(`🔴 [DonatorsController] Erro na linha ${i + 1}:`, error.message);
-                }
-            }
-
-            console.log(`🟢 [DonatorsController] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`);
+                },
+                addFn: DonatorsService.addDonator,
+                logger
+            });
             res.status(200).json(results);
         } catch (error) {
             console.error('🔴 [DonatorsController] Erro ao importar CSV:', error.message);
