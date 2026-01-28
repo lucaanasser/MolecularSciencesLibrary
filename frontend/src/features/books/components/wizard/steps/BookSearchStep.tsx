@@ -1,5 +1,5 @@
 import { BookOption, AddBookType } from "@/features/books/types/book";
-import BookList from "@/features/books/components/BookSearchList";
+import BookList from "@/features/books/components/lists/BookSearchList";
 
 /**
  * Componente de busca e seleção de livros.

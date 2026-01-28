@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { getResolvedSubarea } from "@/utils/bookUtils";
-import { BookOption, SubareaCode } from "../types/book";
+import { BookOption, SubareaCode } from "../../types/book";
 import NudgeButton from "./NudgeButton";
 import { BookOpen, Pi, Atom, Dna, Braces, Orbit  } from "lucide-react";
 import React from "react";
 
-interface BookCard2Props {
+interface BookCardProps {
   book: any;
   areaCodes: Record<string, string>;
   subareaCodes: SubareaCode;
@@ -32,7 +32,7 @@ const areaIcon = (area: string) => {
 };
 
 // Cores de status
-const statusStyles = (book: BookCard2Props["book"]) => {
+const statusStyles = (book: BookCardProps["book"]) => {
   if (book.overdue) return { label: "Atrasado", color: "text-red-600" };
   if (book.is_reserved) return { label: "Reservado", color: "text-purple-700" };
   if (book.is_extended) return { label: "Estendido", color: "text-orange-500" };
@@ -40,7 +40,7 @@ const statusStyles = (book: BookCard2Props["book"]) => {
   return { label: "Disponível", color: "text-green-700" };
 };
 
-const BookCard2: React.FC<BookCard2Props> = ({ book, areaCodes, subareaCodes, loadingBookDetails, onDetails }) => {
+const BookCard: React.FC<BookCardProps> = ({ book, areaCodes, subareaCodes, loadingBookDetails, onDetails }) => {
 
   const areaLabel = areaCodes[book.area] || "Área desconhecida";
   const areaStyle = areaIcon(book.area);
@@ -86,4 +86,4 @@ const BookCard2: React.FC<BookCard2Props> = ({ book, areaCodes, subareaCodes, lo
   );
 };
 
-export default BookCard2;
+export default BookCard;

@@ -1,19 +1,17 @@
 import { getResolvedSubarea } from "@/utils/bookUtils";
-import BookCard2 from "./BookCard2";
-import useBookOptions from "../hooks/useBookOptions";
-import useBookList from "../hooks/useBookList";
+import BookCard from "../cards/BookCard";
+import useBookOptions from "../../hooks/useBookOptions";
+import useBookList from "../../hooks/useBookList";
 import { useEffect } from "react";
-import { BookOption } from "../types/book";
+import { BookOption } from "../../types/book";
 import { Search, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
-import BookDetailsModal from "./BookDetailsModal";
-import NudgeButton from "./NudgeButton";
-import CategoryFilter from "./BookFilters/CategoryFilter";
-import SubareaFilter from "./BookFilters/SubareaFilter";
-import StatusFilter from "./BookFilters/StatusFilter";
-import LanguageFilter from "./BookFilters/LanguageFilter";
+import { Drawer, DrawerTrigger, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import BookDetailsModal from "../modals/BookDetailsModal";
+import NudgeButton from "../cards/NudgeButton";
+import BookFiltersPanel from "../filters/BookFiltersPanel";
 
 /**
  * Painel de busca de livros.
@@ -92,6 +90,14 @@ const BookSearch: React.FC = () => {
 
   // Detecta se algo foi modificado em relação aos padrões (Todos/sem busca)
   // ...existing code...
+  // Responsividade: detectar se é mobile
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   const isPristine = !search && category.length === 0 && subcategory.length === 0 && status.length === 0 && language.length === 0;
 
   // Agrupa livros por código E idioma para exibir apenas um card por grupo
@@ -116,7 +122,6 @@ const BookSearch: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col">
-      
       {/* Barra de pesquisa no topo */}
       <div className="relative w-full max-w-4xl mx-auto mt-4 mb-8">
         <Input
@@ -128,34 +133,55 @@ const BookSearch: React.FC = () => {
         />
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
       </div>
-      
       <div className="w-full flex">
-
-        {/* Painel lateral de filtros */}
-        <aside className="w-40 min-w-[100px] max-w-xs p-4 mr-6 h-fit top-4 self-start">
-          <div className="space-y-4">
-            <CategoryFilter category={category} setCategory={setCategory} areaCodes={areaCodes} />
-            <SubareaFilter category={category} subcategory={subcategory} setSubcategory={setSubcategory} subareaCodes={subareaCodes} />
-            <LanguageFilter language={language} setLanguage={setLanguage} languageOptions={languageOptions} />
-            <StatusFilter status={status} setStatus={setStatus} />
-            {!isPristine && (
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-2xl text-sm flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                onClick={() => {
-                  setCategory([]);
-                  setSubcategory([]);
-                  setStatus([]);
-                  setLanguage([]);
-                  setSearch("");
-                }}
-              >
-                <XCircle size={16} /> Limpar
-              </Button>
-            )}
-          </div>
-        </aside>
+        {/* Filtros: Drawer no mobile, fixo no desktop/tablet */}
+        {isMobile ? (
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="outline" className="mb-4 ml-2">Filtrar</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div className="p-4">
+                <BookFiltersPanel
+                  category={category}
+                  setCategory={setCategory}
+                  subcategory={subcategory}
+                  setSubcategory={setSubcategory}
+                  status={status}
+                  setStatus={setStatus}
+                  language={language}
+                  setLanguage={setLanguage}
+                  areaCodes={areaCodes}
+                  subareaCodes={subareaCodes}
+                  languageOptions={languageOptions}
+                  isPristine={isPristine}
+                  setSearch={setSearch}
+                />
+                <DrawerClose asChild>
+                  <Button variant="secondary" className="mt-4 w-full">Fechar</Button>
+                </DrawerClose>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <aside className="w-40 min-w-[100px] max-w-xs p-4 mr-6 h-fit top-4 self-start">
+            <BookFiltersPanel
+              category={category}
+              setCategory={setCategory}
+              subcategory={subcategory}
+              setSubcategory={setSubcategory}
+              status={status}
+              setStatus={setStatus}
+              language={language}
+              setLanguage={setLanguage}
+              areaCodes={areaCodes}
+              subareaCodes={subareaCodes}
+              languageOptions={languageOptions}
+              isPristine={isPristine}
+              setSearch={setSearch}
+            />
+          </aside>
+        )}
         {/* Resultados */}
         <main className="flex-1">
           <div className="mt-8">
@@ -164,7 +190,7 @@ const BookSearch: React.FC = () => {
             ) : groupedBooks.length > 0 ? (
               <div className="grid grid-cols-2 gap-4">
                 {groupedBooks.map(book => (
-                  <BookCard2
+                  <BookCard
                     key={book.code}
                     book={book}
                     areaCodes={areaCodes}
@@ -179,7 +205,6 @@ const BookSearch: React.FC = () => {
                 <p className="text-gray-500">Nenhum livro encontrado com esses critérios.</p>
               </div>
             )}
-
           </div>
           {/* Modal de detalhes do livro*/}
           {selectedBook && (
@@ -192,7 +217,6 @@ const BookSearch: React.FC = () => {
             />
           )}
         </main>
-
       </div>
     </div>
   );

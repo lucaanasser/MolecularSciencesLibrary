@@ -3,10 +3,10 @@ import useStep from "@/features/books/hooks/useStep";
 import useAreaSelection from "@/features/books/hooks/useAreaSelection";
 import useBookSearch from "@/features/books/hooks/useBookList";
 import useAddBook from "@/features/books/hooks/useCreateBook";
-import BookAreaStep from "@/features/books/components/steps/BookAreaStep";
-import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
-import BookLanguageStep from "@/features/books/components/steps/BookLanguageStep";
-import BookDetailsStep from "@/features/books/components/steps/BookDetailsStep";
+import BookAreaStep from "@/features/books/components/wizard/steps/BookAreaStep";
+import BookSearchStep from "@/features/books/components/wizard/steps/BookSearchStep";
+import BookLanguageStep from "@/features/books/components/wizard/steps/BookLanguageStep";
+import BookDetailsStep from "@/features/books/components/wizard/steps/BookDetailsStep";
 /**
  * Wizard para adicionar livro.
  * Padrão de logs:

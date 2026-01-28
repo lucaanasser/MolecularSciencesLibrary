@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
-import AddBookForm from "@/features/books/components/AddBookWizard";
-import RemoveBookForm from "@/features/books/components/RemoveBookWizard";
-import BooksList from "@/features/books/components/BooksList";
-import ImportBooksCSV from "@/features/books/components/ImportBooksCSV";
+import AddBookForm from "@/features/books/components/wizard/AddBookWizard";
+import RemoveBookForm from "@/features/books/components/wizard/RemoveBookWizard";
+import BooksList from "@/features/books/components/lists/BooksList";
+import ImportBooksCSV from "@/features/books/components/modals/ImportBooksCSV";
 import AddUserForm from "@/features/users/components/AddUserForm";
 import UserList from "@/features/users/components/UserList";
 import RemoveUserForm from "@/features/users/components/RemoveUserForm";
@@ -26,8 +26,8 @@ import LoanRulesView from "@/features/rules/components/LoanRulesView";
 import DonatorsList from "@/features/donators/components/DonatorsList";
 import DonatorForm from "@/features/donators/components/DonatorForm";
 import ImportDonatorsCSV from "@/features/donators/components/ImportDonatorsCSV";
-import BookReservePanel from '@/features/books/components/BookReservePanel';
-import ReservedBooksList from '@/features/books/components/ReservedBooksList';
+import BookReservePanel from '@/features/books/components/modals/BookReservePanel';
+import ReservedBooksList from '@/features/books/components/lists/ReservedBooksList';
 import { useBookReserve } from '@/features/books/hooks/useBookReserve';
 import { 
   LoansReportView, 

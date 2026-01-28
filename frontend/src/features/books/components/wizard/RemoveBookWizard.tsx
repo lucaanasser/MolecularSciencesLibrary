@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useStep from "@/features/books/hooks/useStep";
 import useAreaSelection from "@/features/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/books/hooks/useBookList";
+import useBookSearch from "@/features/books/hooks/useBookSearch";
 import useRemoveBook from "@/features/books/hooks/useRemoveBook";
 import { BookOption } from "@/features/books/types/book";
-import BookAreaStep from "@/features/books/components/steps/BookAreaStep";
-import BookSearchStep from "@/features/books/components/steps/BookSearchStep";
+import BookAreaStep from "@/features/books/components/wizard/steps/BookAreaStep";
+import BookSearchStep from "@/features/books/components/wizard/steps/BookSearchStep";
 
 /**
  * Wizard para remoção de livro.
@@ -35,12 +35,21 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
 
   const [selectedBook, setSelectedBook] = useState<BookOption | null>(null);
 
-  const { filteredBooks, isLoading, search, setSearch } = useBookSearch(
-    category,
-    subcategory,
-    step === 2,
-    onError
-  );
+  const {
+    books,
+    isLoading,
+    search,
+    setSearch,
+  } = useBookSearch(onError);
+
+  // Sincronizar filtros do hook com seleção do wizard
+  // (mantém categoria/subcategoria do wizard no filtro de busca)
+  useEffect(() => {
+    if (step === 2) {
+      // Atualiza filtros do hook de busca
+      setSearch(""); // Limpa busca ao entrar
+    }
+  }, [step, setSearch]);
   const { removeBook, isSubmitting } = useRemoveBook();
 
   const handleSelectBook = (book: BookOption) => {
@@ -81,7 +90,9 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
     case 2:
       return (
         <BookSearchStep
-          books={filteredBooks}
+          books={books.filter(
+            b => b.area === category && (subcategory ? String(b.subarea) === subcategory : true)
+          )}
           isLoading={isLoading}
           search={search}
           onSearchChange={setSearch}

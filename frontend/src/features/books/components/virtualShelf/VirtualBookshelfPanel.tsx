@@ -3,7 +3,7 @@ import useOrderedBooks from "../../hooks/useVirtualBookShelfOrder";
 import { Button } from "@/components/ui/button";
 import { VirtualShelf } from "@/types/VirtualBookshelf";
 import VirtualBookshelfService from "@/services/VirtualBookshelfService";
-import BookDetailsModal from "../BookDetailsModal";
+import BookDetailsModal from "../modals/BookDetailsModal";
 import ShelfRenderer from "./ShelfRenderer";
 import { useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";

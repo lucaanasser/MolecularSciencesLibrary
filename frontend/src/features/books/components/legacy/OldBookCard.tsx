@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import NudgeButton from "./NudgeButton";
+import NudgeButton from "../cards/NudgeButton";
 import { getResolvedSubarea } from "@/utils/bookUtils";
 import React from "react";
 
 
-import { SubareaCode } from "../types/book";
+import { SubareaCode } from "../../types/book";
 
 interface BookCardProps {
   book: any;

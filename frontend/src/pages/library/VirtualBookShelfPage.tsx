@@ -1,7 +1,7 @@
 
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import VirtualBookshelf from "@/features/books/components/VirtualBookShelf/VirtualBookshelfPanel";
+import VirtualBookshelf from "@/features/books/components/virtualShelf/VirtualBookshelfPanel";
 import { PageContainer } from "@/lib/PageContainer";
 
 // Log de início de renderização da página Estante Virtual

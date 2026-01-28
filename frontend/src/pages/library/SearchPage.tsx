@@ -1,7 +1,7 @@
 
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import BookSearch from "@/features/books/components/BookSearchPanel";
+import BookSearch from "@/features/books/components/panels/BookSearchPanel";
 import { PageContainer } from "@/lib/PageContainer";
 
 

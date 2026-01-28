@@ -99,8 +99,9 @@ const DonatorsController = {
         }
     },
     
+    // Consertar depois
     // Utilitário CSV compartilhado
-    const { importFromCSV } = require('../utils/csvUtils');
+    // const { importFromCSV } = require('../utils/csvUtils');
 
     async importDonatorsFromCSV(req, res) {
         try {

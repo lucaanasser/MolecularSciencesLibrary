@@ -1,1 +1,0 @@
-// Removido: hook useBookLabelSession (etiquetas)

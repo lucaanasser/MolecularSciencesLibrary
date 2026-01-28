@@ -298,8 +298,9 @@ class BooksController {
         }
     }
 
+    // Consertar depois
     // Utilitário CSV compartilhado
-    const { escapeCSV, importFromCSV } = require('../utils/csvUtils');
+    // const { escapeCSV, importFromCSV } = require('../utils/csvUtils');
 
     /**
      * Importa livros a partir de um arquivo CSV (refatorado)
