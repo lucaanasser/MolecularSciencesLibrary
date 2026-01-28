@@ -1,15 +1,19 @@
-import FAQPage from "./FAQPage";
+import FAQPage from "../../features/faq/FAQPage";
 
 const faqs = [
   {
     question: "Como fazer cadastro na Biblioteca?",
     answer:
-      "Envie um e-mail para bibliotecamoleculares@gmail.com com seu nome completo, número USP, email, telefone e turma. Em breve, você receberá um e-mail para criar uma senha pessoal.",
+    (
+      <span>
+        Envie-nos um <a href="mailto:bibliotecamoleculares@gmail.com" className="link">e-mail</a> com seu nome completo, número USP, email, telefone e turma. Em breve, você receberá um e-mail para criar uma senha pessoal.
+      </span>
+    ),  
   },
   {
     question: "O que significam as cores na página de busca?",
     answer: (
-      <ul className="list-disc pl-6">
+      <ul>
         <li><span className="font-bold text-cm-green">Verde:</span> Disponível para empréstimo</li>
         <li><span className="font-bold text-cm-yellow">Amarelo:</span> Emprestado</li>
         <li><span className="font-bold text-cm-orange">Laranja:</span> Estendido</li>
@@ -41,7 +45,11 @@ const faqs = [
   {
     question: "O que fazer caso o Painel Pró Aluno não esteja logado?",
     answer:
-      "Mande um email para bibliotecamoleculares@gmail.com informando o código de barras do livro desejado e o seu Número USP, e iremos cadastrar o empréstimo manualmente.",
+    (
+      <span>
+        Envie-nos um <a href="mailto:bibliotecamoleculares@gmail.com" className="link">e-mail</a> informando o código de barras do livro desejado e o seu Número USP, e iremos cadastrar o empréstimo manualmente.
+      </span>
+    ),
   },
   {
     question: "Qual o prazo de empréstimo?",
@@ -77,5 +85,12 @@ const faqs = [
 
 
 export default function FAQTestPage() {
-  return <FAQPage faqs={faqs} color="academic-blue" />;
+  return (
+    <FAQPage
+      faqs={faqs}
+      color="academic-blue"
+      imageSrc="/images/faqAcademic.png"
+      intro="Aqui você encontra respostas para as dúvidas mais comuns sobre o funcionamento da biblioteca e seus serviços."
+    />
+  );
 }

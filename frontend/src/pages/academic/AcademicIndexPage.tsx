@@ -61,12 +61,12 @@ const AcademicIndexPage = () => {
         <div className="absolute bottom-0 right-0 w-full h-24 bg-gray-100 transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-white">
+            <h2 className="text-default-bg">
               O Ciclo Avançado em números
             </h2>
           </div>
           {loadingStats ? (
-            <div className="text-center text-white text-xl">Carregando...</div>
+            <div className="text-center text-default-bg text-xl">Carregando...</div>
           ) : statsError ? (
             <div className="text-center text-red-200 text-xl">{statsError}</div>
           ) : (
@@ -83,7 +83,7 @@ const AcademicIndexPage = () => {
             columns={4}
             cards={[
               {
-                icon: <Search className="h-10 w-10 text-white" />,
+                icon: <Search className="h-10 w-10 text-default-bg" />,
                 title: "Busque disciplinas",
                 description: "Encontre disciplinas por área, instituto, horário ou palavras-chave.",
                 buttonText: "Buscar Disciplinas",
@@ -92,7 +92,7 @@ const AcademicIndexPage = () => {
                 buttonClass: "bg-cm-green hover:bg-cm-green/70"
               },
               {
-                icon: <Calendar className="h-10 w-10 text-white" />,
+                icon: <Calendar className="h-10 w-10 text-default-bg" />,
                 title: "Monte sua grade",
                 description: "Organize suas disciplinas visualmente e evite conflitos de horário.",
                 buttonText: "Montar Grade",
@@ -101,7 +101,7 @@ const AcademicIndexPage = () => {
                 buttonClass: "bg-cm-blue hover:bg-cm-blue/70"
               },
               {
-                icon: <MessageSquare className="h-10 w-10 text-white" />,
+                icon: <MessageSquare className="h-10 w-10 text-default-bg" />,
                 title: "MolecOverflow",
                 description: "Fórum de dúvidas sobre o curso, créditos, projetos e orientadores.",
                 buttonText: "Acessar Fórum",
@@ -110,7 +110,7 @@ const AcademicIndexPage = () => {
                 buttonClass: "bg-academic-blue hover:bg-academic-blue/70"
               },
               {
-                icon: <GraduationCap className="h-10 w-10 text-white" />,
+                icon: <GraduationCap className="h-10 w-10 text-default-bg" />,
                 title: "Tire suas dúvidas",
                 description: "Encontre respostas sobre o Ciclo Avançado no nosso FAQ.",
                 buttonText: "Ver FAQ",

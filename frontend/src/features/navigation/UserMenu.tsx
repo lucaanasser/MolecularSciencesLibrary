@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ModeSwitcher } from "../ModeSwitcher";
+import { ModeSwitcher } from "../../components/ModeSwitcher";
 import { useSiteMode } from "@/hooks/useSiteMode";
 
 interface UserMenuProps {

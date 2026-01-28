@@ -49,7 +49,7 @@ const NotFound = () => {
           </p>
           <a
             href="/"
-            className="inline-block mt-6 px-4 py-3 text-sm xs:text-base md:text-lg bg-library-purple text-white rounded-2xl transition font-semibold shadow-lg"
+            className="inline-block mt-6 px-4 py-3 text-sm xs:text-base md:text-lg bg-library-purple text-default-bg rounded-2xl transition font-semibold shadow-lg"
           >
             Voltar para o início
           </a>

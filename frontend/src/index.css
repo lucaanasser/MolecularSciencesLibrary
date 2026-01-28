@@ -88,6 +88,10 @@
     @apply text-base mb-4 leading-tight;
   }
 
+  .link {
+    @apply underline hover:text-academic-blue;
+  }
+
   /* Virtual bookshelf specific styles */
   .bookshelf {
     @apply relative w-full;
@@ -122,14 +126,14 @@
   }
   
   .primary-btn {
-    @apply btn bg-library-purple text-white px-7 py-5 text-base md:text-lg;
+    @apply btn bg-library-purple text-default-bg px-7 py-5 text-base md:text-lg;
   }
 
   .primary-btn-academic {
-    @apply btn bg-academic-blue   text-white px-7 py-5 ;
+    @apply btn bg-academic-blue   text-default-bg px-7 py-5 ;
   }
 
   .wide-btn {
-    @apply btn text-white rounded-xl w-full;
+    @apply btn text-default-bg rounded-xl w-full;
   }
 }

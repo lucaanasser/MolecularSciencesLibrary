@@ -4,10 +4,13 @@ import { FaqItem } from "./FaqItem";
 
 interface FaqListProps {
   faqs: FAQ[];
-  color?: string;
+  color: string;
 }
 
-export const FaqList: React.FC<FaqListProps> = ({ faqs, color = "library-purple" }) => {
+export const FaqList: React.FC<FaqListProps> = ({
+  faqs,
+  color,
+}) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const handleToggle = (index: number) => {

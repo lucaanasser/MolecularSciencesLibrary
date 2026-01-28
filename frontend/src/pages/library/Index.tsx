@@ -9,8 +9,6 @@ import { AboutSection } from "@/features/index/AboutSection";
 import { StatsGrid } from "@/features/index/StatsGrid";
 import { FeatureCards } from "@/features/index/FeatureCards";
 
-// ...existing code...
-
 // Log de início de renderização da página inicial
 console.log("🔵 [Index] Renderizando página inicial");
 
@@ -125,12 +123,12 @@ const Index = () => {
         <div className="absolute bottom-0 right-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-bottom-right"></div>
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-white">
+            <h2 className="text-default-bg">
               A biblioteca em números
             </h2>
           </div>
           {loadingStats ? (
-            <div className="text-center text-white text-xl">Carregando...</div>
+            <div className="text-center text-default-bg text-xl">Carregando...</div>
           ) : statsError ? (
             <div className="text-center text-red-200 text-xl">{statsError}</div>
           ) : (
@@ -173,7 +171,7 @@ const Index = () => {
           <FeatureCards
             cards={[
               {
-                icon: <Search className="h-10 w-10 text-white" />,
+                icon: <Search className="h-10 w-10 text-default-bg" />,
                 title: "Encontre livros no acervo",
                 description: "Busque rapidamente por autor, título, tema ou área e descubra tudo o que a biblioteca oferece.",
                 buttonText: "Buscar Livros",
@@ -181,7 +179,7 @@ const Index = () => {
                 colorClass: "bg-cm-red"
               },
               {
-                icon: <User className="h-10 w-10 text-white" />,
+                icon: <User className="h-10 w-10 text-default-bg" />,
                 title: "Acompanhe seus empréstimos",
                 description: "Acesse sua área pessoal para renovar livros e consultar prazos de forma simples e rápida.",
                 buttonText: "Fazer Login",
@@ -189,7 +187,7 @@ const Index = () => {
                 colorClass: "bg-cm-blue"
               },
               {
-                icon: <BookOpen className="h-10 w-10 text-white" />,
+                icon: <BookOpen className="h-10 w-10 text-default-bg" />,
                 title: "Explore a estante virtual",
                 description: "Navegue pelo acervo de maneira visual e interativa, como se estivesse dentro da biblioteca.",
                 buttonText: "Explorar Estante",

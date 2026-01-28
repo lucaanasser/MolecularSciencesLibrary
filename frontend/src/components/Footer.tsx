@@ -15,7 +15,7 @@ const linkBaseClass = `${textBaseClass} hover:text-gray-700`;
 
 const Footer: React.FC = () => {
   
-  const isAcademico = useSiteMode();
+  const { isAcademico } = useSiteMode();
 
   let links = [];
   if (isAcademico) {
@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
       { to: "/academico/buscar", label: "Buscar" },
       { to: "/academico/grade", label: "Montar Grade" },
       { to: "/academico/forum", label: "Fórum de Dúvidas" },
-      { to: "/academico/faq", label: "FAQ" },
+      { to: "/academico/faq", label: "Perguntas Frequentes" },
       { to: "/entrar", label: "Login" },
     ];
   } else {
@@ -33,10 +33,10 @@ const Footer: React.FC = () => {
       { to: "/buscar", label: "Buscar Livros" },
       { to: "/estante", label: "Estante Virtual" },
       { to: "/ajude", label: "Ajude a Biblioteca" },
-      { to: "/faq", label: "FAQ" },
+      { to: "/faq", label: "Perguntas Frequentes" },
       { to: "/entrar", label: "Login" },
     ];
-  };
+  }
 
   const contato = [
     "Universidade de São Paulo",

@@ -4,11 +4,11 @@ import { useCountUp } from "./useCountUp";
 export type StatsType = Record<string, number | null>;
 
 const ICONS: Record<string, JSX.Element> = {
-  users: <Users className="h-8 w-8 text-white" />,
-  books: <BookMarked className="h-8 w-8 text-white" />,
-  subareas: <Lightbulb className="h-8 w-8 text-white" />,
-  disciplines: <BookOpen className="h-8 w-8 text-white" />,
-  areas: <Lightbulb className="h-8 w-8 text-white" />,
+  users: <Users className="h-8 w-8 text-default-bg" />,
+  books: <BookMarked className="h-8 w-8 text-default-bg" />,
+  subareas: <Lightbulb className="h-8 w-8 text-default-bg" />,
+  disciplines: <BookOpen className="h-8 w-8 text-default-bg" />,
+  areas: <Lightbulb className="h-8 w-8 text-default-bg" />,
 };
 
 const LABELS: Record<string, string> = {
@@ -37,13 +37,13 @@ export function StatsGrid({ stats, order }: { stats: StatsType, order: string[] 
               {ICONS[key]}
             </div>
           </div>
-          <p className="bigtext mb-2 font-bold text-white">
+          <p className="bigtext mb-2 font-bold text-default-bg">
             {stats[key] == null ? '-' : useCountUp(stats[key], 1200)}
           </p>
-          <p className="bigtext text-white">
+          <p className="bigtext text-default-bg">
             {LABELS[key]}
           </p>
-          <p className="text-white leading-tight">
+          <p className="text-default-bg leading-tight">
             {DESCRIPTIONS[key]}
           </p>
         </div>

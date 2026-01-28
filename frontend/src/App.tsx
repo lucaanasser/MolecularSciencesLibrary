@@ -49,7 +49,6 @@ const App = () => (
           <Routes>
 
             {/* Rotas de teste */}
-            <Route path="/faq-teste" element={<FAQTestPage />} />
             <Route path="/example-tabs" element={<ExampleTabsPage />} />
 
             <Route path="/" element={<Index />} />

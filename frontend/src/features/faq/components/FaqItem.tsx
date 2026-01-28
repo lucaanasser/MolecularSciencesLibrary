@@ -13,42 +13,43 @@ export const FaqItem: React.FC<FaqItemProps> = ({
   faq,
   isOpen,
   onToggle,
-  color = "library-purple",
+  color,
 }) => {
-  const bgColor = `bg-${color}`;
-  const textColor = `text-${color}`;
-  const ringColor = `ring-${color}/60`;
-
+  const [hovered, setHovered] = React.useState(false);
+  
   return (
+    <>
+    {/* Card da pergunta*/}
     <div
-      className={`${
-        isOpen
-          ? `rounded-2xl bg-default-bg ring-2 ${ringColor}`
-          : `rounded-2xl ${bgColor}`
-      } hover:bg-default-bg/80 hover:ring-2 ${ringColor} transition-all duration-0`}
+      className={`rounded-xl bg-${color}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <button
-        className="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none group"
+        className="w-full text-left px-6 py-4 flex justify-between items-center focus:outline-none"
         onClick={onToggle}
         aria-expanded={isOpen}
       >
-        <span
-          className={`font-semibold text-lg flex items-center gap-2 ${
-            isOpen ? textColor : "text-white"
-          } group-hover:${textColor}`}
-        >
-          <span className={`inline-block w-2 h-2 ${textColor} rounded-full ${bgColor}/60`} />
+        <p className="text-white font-semibold mb-0">
           {faq.question}
-        </span>
-        <span
-          className={`text-2xl font-bold ${
-            isOpen ? textColor : "text-white"
-          } group-hover:${textColor}`}
-        >
-          {isOpen ? "−" : "+"}
+        </p>
+
+        <span className="pl-1 text-2xl font-bold text-white">
+          {isOpen ? "-" : "+"}
         </span>
       </button>
-      {isOpen && <div className="px-6 pb-5 text-gray-700">{faq.answer}</div>}
     </div>
+
+    {/* Resposta (fora do card) */}
+    {isOpen && (
+      <div className="flex mt-0 pl-4 w-full">
+        <div className={`border-l-4 border-${color} pr-3 flex-shrink-0`} />
+        <p className="smalltext mb-0 break-words w-full">
+          {faq.answer}
+        </p>
+      </div>
+    )}
+    </>
+
   );
 };
