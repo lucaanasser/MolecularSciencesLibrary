@@ -9,7 +9,7 @@ process.env.DATABASE_URL = `sqlite://${dbAbsolutePath}`;
 console.log(`[importCsv] DATABASE_URL definido para: ${process.env.DATABASE_URL}`);
 
 // Agora que o env foi definido, carregue o model (que usa db.js)
-const booksModel = require('../src/models/BooksModel');
+const booksModel = require('../src/models/library/BooksModel'); // Caminho já está correto
 
 // Recebe o caminho do arquivo CSV via argumento de linha de comando
 const csvFilePath = process.argv[2]; 

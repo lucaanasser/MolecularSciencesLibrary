@@ -33,7 +33,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Importar o service para salvar no banco
-const DisciplinesService = require('../src/services/DisciplinesService');
+const DisciplinesService = require('../src/services/academic/DisciplinesService'); // Caminho já está correto
 
 // ===================== CONFIGURAÇÃO =====================
 

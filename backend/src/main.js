@@ -10,21 +10,25 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 const fs = require('fs');
-const booksRouter = require('./routes/BooksRoutes');
-const usersRouter = require('./routes/UsersRoutes');
-const loansRouter = require('./routes/LoansRoutes');
-const notificationsRouter = require('./routes/NotificationsRoutes');
-const rulesRouter = require('./routes/RulesRoutes');
-const badgesRouter = require('./routes/BadgesRoutes');
-const donatorsRouter = require('./routes/DonatorsRoutes');
-const virtualBookShelfRouter = require('./routes/VirtualBookSheflRoute'); 
-const formsRouter = require('./routes/FormsRoutes');
-const disciplinesRouter = require('./routes/DisciplinesRoutes');
-const disciplineEvaluationsRouter = require('./routes/DisciplineEvaluationsRoutes');
-const reportsRouter = require('./routes/ReportsRoutes');
-const userSchedulesRouter = require('./routes/UserSchedulesRoutes');
-const forumRouter = require('./routes/ForumRoutes');
-const publicProfilesRouter = require('./routes/PublicProfilesRoutes');
+
+const booksRouter = require('./routes/library/BooksRoutes');
+const usersRouter = require('./routes/library/UsersRoutes');
+const loansRouter = require('./routes/library/LoansRoutes');
+const badgesRouter = require('./routes/library/BadgesRoutes');
+const donatorsRouter = require('./routes/library/DonatorsRoutes');
+const virtualBookShelfRouter = require('./routes/library/VirtualBookSheflRoute');
+
+const notificationsRouter = require('./routes/utilities/NotificationsRoutes');
+const rulesRouter = require('./routes/utilities/RulesRoutes');
+const formsRouter = require('./routes/utilities/FormsRoutes');
+const reportsRouter = require('./routes/utilities/ReportsRoutes');
+
+const disciplinesRouter = require('./routes/academic/DisciplinesRoutes');
+const disciplineEvaluationsRouter = require('./routes/academic/DisciplineEvaluationsRoutes');
+const userSchedulesRouter = require('./routes/academic/UserSchedulesRoutes');
+const forumRouter = require('./routes/academic/ForumRoutes');
+const publicProfilesRouter = require('./routes/academic/PublicProfilesRoutes');
+
 require('dotenv').config();
 
 /**
@@ -56,7 +60,7 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/rules', rulesRouter);
 app.use('/api/badges', badgesRouter);
 app.use('/api/donators', donatorsRouter);
-app.use('/api/virtual-bookshelf', virtualBookShelfRouter); // Adicione esta linha
+app.use('/api/virtual-bookshelf', virtualBookShelfRouter);
 app.use('/api/forms', formsRouter);
 app.use('/api/disciplines', disciplinesRouter);
 app.use('/api/evaluations', disciplineEvaluationsRouter);
