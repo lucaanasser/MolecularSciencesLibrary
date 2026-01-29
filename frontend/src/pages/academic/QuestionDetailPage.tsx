@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ThumbsUp,
@@ -142,11 +142,11 @@ const QuestionDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navigation />
+        
         <div className="flex justify-center items-center py-24">
           <Loader2 className="w-12 h-12 animate-spin text-academic-blue" />
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -154,7 +154,7 @@ const QuestionDetailPage: React.FC = () => {
   if (error || !question) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navigation />
+        
         <div className="max-w-6xl mx-auto px-6 py-24 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             {error || "Pergunta não encontrada"}
@@ -166,7 +166,7 @@ const QuestionDetailPage: React.FC = () => {
             Voltar para o fórum
           </button>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -175,9 +175,9 @@ const QuestionDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      
 
-      {/* Header */}
+      {/* Header removido, agora está no layout global */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <button
@@ -461,7 +461,7 @@ const QuestionDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <Footer />
+      {/* Footer removido, agora está no layout global */}
     </div>
   );
 };

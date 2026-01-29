@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, HelpCircle, AlertCircle, Lightbulb, Loader2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
@@ -136,7 +136,7 @@ const NewQuestionPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      
 
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
@@ -540,7 +540,7 @@ const NewQuestionPage: React.FC = () => {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   );
 };

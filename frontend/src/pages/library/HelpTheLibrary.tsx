@@ -1,13 +1,13 @@
 
 
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import HelpTabsCard from "@/features/forms/HelpTabsCard";
 import { PageContainer } from "@/lib/PageContainer";
 
 const HelpPageContent = () => (
   <div className="min-h-screen flex flex-col">
-    <Navigation />
+    
     <div className="flex-grow">
       <PageContainer>
         <h2>Ajude a Biblioteca</h2>
@@ -20,7 +20,7 @@ const HelpPageContent = () => (
         <div className="mb-24"></div>
       </PageContainer>
     </div>
-    <Footer />
+    {/* Footer removido, agora está no layout global */}
   </div>
 );
 

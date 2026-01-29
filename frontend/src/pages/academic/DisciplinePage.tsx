@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -370,11 +370,11 @@ const DisciplinePage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navigation />
+        
         <div className="flex-grow flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-academic-blue" />
         </div>
-        <Footer />
+        
       </div>
     );
   }
@@ -383,7 +383,7 @@ const DisciplinePage: React.FC = () => {
   if (error || !disciplina) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navigation />
+        
         <div className="flex-grow flex flex-col items-center justify-center gap-4">
           <AlertCircle className="w-12 h-12 text-red-500" />
           <p className="text-gray-600">{error || "Disciplina não encontrada"}</p>
@@ -392,14 +392,14 @@ const DisciplinePage: React.FC = () => {
             Voltar
           </Button>
         </div>
-        <Footer />
+        
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      
 
       <div className="flex-grow bg-default-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -839,7 +839,7 @@ const DisciplinePage: React.FC = () => {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   );
 };

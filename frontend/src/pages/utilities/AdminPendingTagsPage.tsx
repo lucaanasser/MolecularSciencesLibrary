@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 import { Tag, CheckCircle, XCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
@@ -97,7 +97,7 @@ const AdminPendingTagsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
+      
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Header */}
@@ -247,7 +247,7 @@ const AdminPendingTagsPage: React.FC = () => {
         )}
       </main>
 
-      <Footer />
+      
     </div>
   );
 };

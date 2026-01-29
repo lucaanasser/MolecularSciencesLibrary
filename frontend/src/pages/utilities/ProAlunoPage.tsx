@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LoanForm from "@/features/loans/components/LoanForm";
@@ -40,7 +40,7 @@ const ProAlunoPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      
       <main className="flex-grow bg-default-bg py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
@@ -55,7 +55,7 @@ const ProAlunoPage = () => {
 
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

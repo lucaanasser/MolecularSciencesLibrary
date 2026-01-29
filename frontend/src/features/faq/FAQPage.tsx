@@ -1,5 +1,5 @@
 import React from "react";
-import Navigation from "../../components/Navigation";
+import Navigation from "../../components/Header";
 import Footer from "../../components/Footer";
 import { PageContainer } from "../../lib/PageContainer";
 import { FaqList } from ".";
@@ -11,7 +11,7 @@ const FAQPage = ({ faqs, color = "library-purple", imageSrc = "/images/erro404.s
     const textColor = `text-${color}`;
     return (
         <>
-        <Navigation />
+        
         <PageContainer>
             <h2>Perguntas Frequentes</h2>
             {intro && <p>{intro}</p>}
@@ -29,7 +29,6 @@ const FAQPage = ({ faqs, color = "library-purple", imageSrc = "/images/erro404.s
                 Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className={`underline hover:${textColor}`}>Fale conosco</a>!
             </p>
         </PageContainer>
-        <Footer/>
         </>
     );
 };

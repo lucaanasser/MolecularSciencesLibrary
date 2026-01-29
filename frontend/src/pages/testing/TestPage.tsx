@@ -1,6 +1,9 @@
+import { Content } from "vaul"
+
 const TestPage = () => {
   return (
-    <div className="min-h-screen bg-academic-blue flex flex-col">
+    <div className="content-container">
+        
     </div>
   )
 }

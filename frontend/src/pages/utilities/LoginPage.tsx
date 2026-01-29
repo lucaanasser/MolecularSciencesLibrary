@@ -1,5 +1,5 @@
 
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/Header";
 import Footer from "@/components/Footer";
 import LoginForm from "@/components/LoginForm";
 import { PageContainer } from "@/lib/PageContainer";
@@ -10,7 +10,7 @@ console.log("🔵 [LoginPage] Renderizando página de login");
 const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      
       <PageContainer className="py-16">
         <h2>Login</h2>
         <p>
@@ -20,7 +20,7 @@ const LoginPage = () => {
             <LoginForm />
         </div>
       </PageContainer>
-      <Footer />
+      
     </div>
   );
 };

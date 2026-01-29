@@ -1,12 +1,13 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
 import MolecoogleWindow from "@/features/index/helpers/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";
-import { AboutSection } from "@/features/index/AboutSection";
-import { StatsSection } from "@/features/index/StatsSection";
+import { AboutSection } from "@/features/index/sections/AboutSection";
+import { StatsSection } from "@/features/index/sections/StatsSection";
 import type { StatsType } from "@/features/index/helpers/StatsGrid";
-import { FeatureSection } from "@/features/index/FeatureSection";
+import { FeatureSection } from "@/features/index/sections/FeatureSection";
+import { HeroSection } from "@/features/index/sections/HeroSection";
 
 // Log de início de renderização da página inicial acadêmica
 console.log("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
@@ -20,27 +21,12 @@ const AcademicIndexPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      
 
       {/* Hero Section customizada */}
-      <section className="section relative min-h-screen flex items-center bg-gradient-to-b from-academic-blue-muted via-academic-blue/10 to-default-bg">
-        <div className="mx-auto flex flex-col md:flex-row items-center gap-2 md:gap-4 flex-1">
-          
-          {/* Animação de texto */}
-          <div className="flex-1 flex flex-col items-center justify-center order-2 md:order-1">
-            <MolecoogleWindow />
-          </div>
-          
-          {/* Mascote */}
-          <div className="flex-[0_0_35%] max-w-[40%] min-w-[180px] flex justify-center order-1 md:order-2 md:mb-0">
-            <img
-              src="/images/academic1.png"
-              alt="Foto Carlos Magno"
-              className="w-full h-auto object-contain max-h-[420px]"
-            />
-          </div>
-        </div>
-      </section>
+      <HeroSection variant="academic">
+        <MolecoogleWindow />
+      </HeroSection>
       
       {/* About Section */}
       <AboutSection
@@ -110,7 +96,7 @@ const AcademicIndexPage = () => {
         bgClass="bg-gray-100"
       />
       
-      <Footer />
+      {/* Footer removido, agora está no layout global */}
     </div>
   );
 };

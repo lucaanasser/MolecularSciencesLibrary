@@ -1,4 +1,4 @@
-import { StatsGrid, StatsType } from "./helpers/StatsGrid";
+import { StatsGrid, StatsType } from "../helpers/StatsGrid";
 
 export function StatsSection({
   stats,
@@ -27,7 +27,7 @@ export function StatsSection({
           <div className="absolute bottom-0 right-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-bottom-right"></div>
         </>
       )}
-      <div className="container mx-auto">
+      <div className="content-container mx-auto">
         <div className="text-center mb-16">
           <h2 className={textClass}>{title}</h2>
         </div>

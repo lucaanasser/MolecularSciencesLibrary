@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,11 +67,11 @@ export default function TransparencyPortalPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navigation />
+        
         <div className="container mx-auto px-4 py-20">
           <div className="text-center text-xl">Carregando dados...</div>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function TransparencyPortalPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      
       
       {/* Hero Section */}
       <div className="bg-gray-50 border-b-2 border-gray-200 py-16">
@@ -560,7 +560,7 @@ export default function TransparencyPortalPage() {
         </Card>
       </div>
 
-      <Footer />
+      
     </div>
   );
 }

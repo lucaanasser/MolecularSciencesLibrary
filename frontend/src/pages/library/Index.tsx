@@ -1,12 +1,15 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+// import Navigation from "@/components/Navigation";
+// import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTypewriterAreas } from "@/hooks/useTypewriterAreas";
-import { AboutSection } from "@/features/index/AboutSection";
-import { StatsSection } from "@/features/index/StatsSection";
-import { FeatureSection } from "@/features/index/FeatureSection";
+import { AboutSection } from "@/features/index/sections/AboutSection";
+import { StatsSection } from "@/features/index/sections/StatsSection";
+import { FeatureSection } from "@/features/index/sections/FeatureSection";
+import { HeroSection } from "@/features/index/sections/HeroSection";
+import { LibraryHeroText } from "@/features/index/helpers/LibraryHeroText";
+import { TransparencySection } from "@/features/index/sections/TransparencySection";
 
 // Log de início de renderização da página inicial
 console.log("🔵 [Index] Renderizando página inicial");
@@ -56,53 +59,17 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navigation />
-
+    <>
       {/* Hero Section customizada */}
-      <section className="section relative min-h-screen flex items-center bg-gradient-to-b from-library-purple-muted via-library-purple/10 to-default-bg">
-        <div className="mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
-          
-          {/* Mascote */}
-          <div className="flex-1 flex justify-center md:mb-0">
-            <img
-              src="/images/home.png"
-              alt="Mascote Carlos Magno"
-              className="w-80 md:w-[34rem] lg:w-[40rem] h-auto"
-            />
-          </div>
-          
-          {/* Animação de texto */}
-          <div className="flex-1 flex flex-col items-start">
-            <h1>
-              Abra um livro,<br />
-              {(() => {
-                const artigo =
-                  HERO_AREAS[areaIndex].name === "Universo" ? "o " : "a ";
-                return (
-                  <>
-                    <span className="inline lg:inline">desvende </span>
-                    <br className="block lg:hidden" />
-                    <span>{artigo} </span>
-                    <span
-                      className={`destaque border-r-2 border-current pr-2 transition-colors duration-500 ${HERO_AREAS[areaIndex].color}`}
-                    >
-                      {displayText}
-                    </span>
-                  </>
-                );
-              })()}
-            </h1>
-            <p className="bigtext">
-              Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
-            </p>
-            <button className="primary-btn text-2xl">
-              <Link to="/buscar">Explorar Acervo</Link>
-            </button>
-          </div>
-        </div>
-      </section>
-
+      <HeroSection variant="library">
+        <h1><LibraryHeroText /></h1>
+        <p className="bigtext">
+          Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
+        </p>
+        <a className="primary-btn text-2xl" href="/buscar">
+          Explorar Acervo
+        </a>
+      </HeroSection>
       {/* About Section */}
       <AboutSection
         title="Biblioteca: um espaço que cresce com você"
@@ -115,7 +82,6 @@ const Index = () => {
         imageSrc="/images/prateleira.png"
         imageAlt="Ciências Moleculares"
       />
-
       <StatsSection
         stats={stats}
         order={["users", "subareas", "books"]}
@@ -125,34 +91,8 @@ const Index = () => {
         bgClass="bg-library-purple"
         textClass="text-white"
       />
-
       {/* Portal da Transparência Section */}
-      <section className="section py-24 bg-default-bg">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-gray-100 p-12">
-              <TrendingUp className="h-48 w-48 text-cm-blue opacity-20" />
-            </div>
-            <div>
-              <h3>
-                Conheça melhor nossos números
-              </h3>
-              <p>
-                Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. 
-                Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento da biblioteca.
-              </p>
-              <p>
-                Confira gráficos detalhados sobre empréstimos, acervo e usuários. 
-                Todos os dados são apresentados de forma agregada, sem expor informações pessoais.
-              </p>
-              <button className="primary-btn">
-                <Link to="/transparencia">Biblioteca em Dados</Link>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <TransparencySection />
       <FeatureSection
         title="Recursos do site"
         cards={[
@@ -184,9 +124,7 @@ const Index = () => {
         columns={3}
         bgClass="bg-gray-100"
       />
-      
-      <Footer />
-    </div>
+    </>
   );
 };
 

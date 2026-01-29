@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { BookOpen, Bell, History, Mail, Phone, Camera, X, Gift, BookMarked, TrendingUp } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";
@@ -67,11 +67,11 @@ const ProfilePage = () => {
   if (userLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navigation />
+        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando perfil...</div>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -79,11 +79,11 @@ const ProfilePage = () => {
   if (userError) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navigation />
+        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError}</div>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -91,11 +91,11 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navigation />
+        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Nenhum dado encontrado.</div>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -109,7 +109,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      
 
       <div className="flex-grow bg-default-bg">
         <div className="max-w-7xl mx-auto mb-10 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -352,7 +352,7 @@ const ProfilePage = () => {
         </div>
       )}
 
-      <Footer />
+      {/* Footer removido, agora está no layout global */}
     </div>
   );
 };

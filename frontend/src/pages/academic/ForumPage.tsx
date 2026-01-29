@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/Header";
 import Footer from "@/components/Footer";
 import ForumHeader from "@/features/forum/components/ForumHeader";
 import ForumFilters, { SortOption } from "@/features/forum/components/ForumFilters";
@@ -55,7 +55,7 @@ const ForumPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      
       <ForumHeader />
 
       <div className="max-w-7xl mx-auto px-6 py-6">
@@ -168,7 +168,7 @@ const ForumPage: React.FC = () => {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   );
 };

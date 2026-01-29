@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1373,7 +1373,7 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      
       <div className="flex-grow bg-default-bg py-4 sm:py-6 md:py-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bebas mb-4 sm:mb-6 md:mb-8">Painel do Administrador</h1>
@@ -1469,7 +1469,7 @@ const AdminPage = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

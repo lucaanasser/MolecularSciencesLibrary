@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -98,9 +98,9 @@ const CreateDisciplinePage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-default-bg">
-      <Navigation />
+      
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <div className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -474,9 +474,9 @@ const CreateDisciplinePage: React.FC = () => {
             </Button>
           </motion.div>
         </form>
-      </main>
+      </div>
 
-      <Footer />
+      {/* Footer removido, agora está no layout global */}
     </div>
   );
 };

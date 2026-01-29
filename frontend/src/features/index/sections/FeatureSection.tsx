@@ -1,4 +1,4 @@
-import { FeatureCards, FeatureCardType } from "./helpers/FeatureCards";
+import { FeatureCards, FeatureCardType } from "../helpers/FeatureCards";
 
 export function FeatureSection({
   title,
@@ -14,8 +14,8 @@ export function FeatureSection({
   textClass?: string;
 }) {
   return (
-    <section className={`section py-20 md:py-30 ${bgClass}`}>
-      <div className="max-w-7xl mx-auto">
+    <section className={`${bgClass}`}>
+      <div className={`content-container py-20 md:py-30`}>
         <h2 className={`text-center mb-16 ${textClass}`}>{title}</h2>
         <FeatureCards cards={cards} columns={columns} />
       </div>

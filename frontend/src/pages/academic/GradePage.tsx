@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Info, AlertCircle, Loader2, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import {
   Alert,
@@ -311,9 +311,9 @@ const GradePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
-      <Navigation />
       
-      {/* Header compacto */}
+      
+      {/* Header removido, agora está no layout global */}
       <div className="bg-academic-blue text-white py-2 px-4 shadow-lg">
         <div className="max-w-[1800px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">

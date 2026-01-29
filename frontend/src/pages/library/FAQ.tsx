@@ -84,7 +84,7 @@ const faqs = [
 ];
 
 
-export default function FAQTestPage() {
+export default function FAQLibrary() {
   return (
     <FAQPage
       faqs={faqs}

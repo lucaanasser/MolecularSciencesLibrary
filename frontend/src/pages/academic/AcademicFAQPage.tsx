@@ -25,7 +25,7 @@ const faqs = [
 ];
 
 
-export default function FAQTestPage() {
+export default function FAQAcademic() {
   return (
     <FAQPage
       faqs={faqs}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/Header";
+// import Footer from "@/components/Footer";
 import { GraduationCap, Briefcase, BookMarked, Globe } from "lucide-react";
 import ProfileService from "@/services/ProfileService";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
@@ -142,11 +142,11 @@ const PublicProfilePage = () => {
   if (userLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-default-bg">
-        <Navigation />
+        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando...</div>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
@@ -154,20 +154,20 @@ const PublicProfilePage = () => {
   if (userError || !user) {
     return (
       <div className="min-h-screen flex flex-col bg-default-bg">
-        <Navigation />
+        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError || "Usuário não encontrado"}</div>
         </div>
-        <Footer />
+        {/* Footer removido, agora está no layout global */}
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-default-bg">
-      <Navigation />
+      
 
-      <main className="flex-grow">
+      <div className="flex-grow">
         {/* Profile Header with Banner */}
         <ProfileHeader
           user={displayUser}
@@ -267,9 +267,9 @@ const PublicProfilePage = () => {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
-      <Footer />
+      {/* Footer removido, agora está no layout global */}
     </div>
   );
 };

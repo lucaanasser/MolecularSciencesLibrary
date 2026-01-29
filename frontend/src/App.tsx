@@ -18,6 +18,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DonationPage from "./pages/library/HelpTheLibrary";
 import FAQ from "./pages/library/FAQ";
 import { SiteModeProvider } from "./hooks/useSiteMode";
+import { RenderPage } from "./components/RenderPage";
 import AcademicSearchPage from "./pages/academic/AcademicSearchPage";
 import GradePage from "./pages/academic/GradePage";
 import AcademicFAQPage from "./pages/academic/AcademicFAQPage";
@@ -32,8 +33,8 @@ import TransparencyPortalPage from "./pages/library/TransparencyPortalPage";
 
 import TestPage from "./pages/testing/TestPage";
 
-// Log de início de renderização do App
-console.log("🔵 [App] Renderizando componente raiz da aplicação");
+// Log de início de RenderPageização do App
+console.log("🔵 [App] RenderPageizando componente raiz da aplicação");
 
 const queryClient = new QueryClient();
 
@@ -46,73 +47,71 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-
             {/* Rota de teste */}
-            <Route path="/test" element={<TestPage />} />
-
-            <Route path="/" element={<Index />} />
-            <Route path="/buscar" element={<SearchPage />} />
-            <Route path="/estante-virtual" element={<VirtualShelfPage />} />
-            <Route path="/entrar" element={<LoginPage />} />
+            <Route path="/test" element={RenderPage(TestPage)} />
+            <Route path="/" element={RenderPage(Index)} />
+            <Route path="/buscar" element={RenderPage(SearchPage)} />
+            <Route path="/estante-virtual" element={RenderPage(VirtualShelfPage)} />
+            <Route path="/entrar" element={RenderPage(LoginPage)} />
             <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
-            <Route path="/ajude" element={<DonationPage />} />
+            <Route path="/ajude" element={RenderPage(DonationPage)} />
             <Route
               path="/perfil"
-              element={
+              element={RenderPage(() => (
                 <ProtectedRoute allowedRoles={["aluno", "admin", "proaluno"]}>
                   <ProfilePage />
                 </ProtectedRoute>
-              }
+              ))}
             />
             <Route
               path="/minha-pagina"
-              element={
+              element={RenderPage(() => (
                 <ProtectedRoute allowedRoles={["aluno", "admin", "proaluno"]}>
                   <PublicProfilePage />
                 </ProtectedRoute>
-              }
+              ))}
             />
-            <Route path="/perfil/:userId" element={<PublicProfilePage />} />
+            <Route path="/perfil/:userId" element={RenderPage(PublicProfilePage)} />
             <Route
               path="/admin"
-              element={
+              element={RenderPage(() => (
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminPage />
                 </ProtectedRoute>
-              }
+              ))}
             />
             <Route
               path="/proaluno"
-              element={
+              element={RenderPage(() => (
                 <ProtectedRoute allowedRoles={["proaluno"]}>
                   <ProAlunoPage />
                 </ProtectedRoute>
-              }
+              ))}
             />
-            <Route path="/faq" element={<FAQ />} />
-            
+            <Route path="/faq" element={RenderPage(FAQ)} />
             {/* Rotas do modo acadêmico */}
-            <Route path="/academico" element={<AcademicIndexPage />} />
-            <Route path="/academico/buscar" element={<AcademicSearchPage />} />
-            <Route path="/academico/disciplina/:codigo" element={<DisciplinePage />} />
-            <Route path="/academico/criar-disciplina" element={<CreateDisciplinePage />} />
-            <Route path="/academico/grade" element={<GradePage />} />
-            <Route path="/academico/faq" element={<AcademicFAQPage />} />
+            <Route path="/academico" element={RenderPage(AcademicIndexPage)} />
+            <Route path="/academico/buscar" element={RenderPage(AcademicSearchPage)} />
+            <Route path="/academico/disciplina/:codigo" element={RenderPage(DisciplinePage)} />
+            <Route path="/academico/criar-disciplina" element={RenderPage(CreateDisciplinePage)} />
+            <Route path="/academico/grade" element={RenderPage(GradePage)} />
+            <Route path="/academico/faq" element={RenderPage(AcademicFAQPage)} />
             {/* Rotas do fórum */}
-            <Route path="/academico/forum" element={<ForumPage />} />
-            <Route path="/academico/forum/:id" element={<QuestionDetailPage />} />
-            <Route path="/academico/forum/nova-pergunta" element={<NewQuestionPage />} />
+            <Route path="/academico/forum" element={RenderPage(ForumPage)} />
+            <Route path="/academico/forum/:id" element={RenderPage(QuestionDetailPage)} />
+            <Route path="/academico/forum/nova-pergunta" element={RenderPage(NewQuestionPage)} />
             <Route 
               path="/admin/forum/tags/pending" 
-              element={
+              element={RenderPage(() => (
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminPendingTagsPage />
                 </ProtectedRoute>
-              } 
+              ))}
             />
             {/* Portal da Transparência */}
-            <Route path="/transparencia" element={<TransparencyPortalPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/transparencia" element={RenderPage(TransparencyPortalPage)} />
+            
+            {/* Catch all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

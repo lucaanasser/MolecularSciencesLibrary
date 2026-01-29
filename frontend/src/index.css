@@ -48,6 +48,10 @@
 
     --section-padding-x: 1.5rem;
   }
+
+  main {
+    min-height: calc(100vh - 6rem);
+  }
   
   * {
     @apply border-border;
@@ -55,7 +59,6 @@
 
   body {
     @apply bg-default-bg text-foreground font-dmsans;
-    transition: background-color 0.5s ease, color 0.3s ease;
   }
 
   /* Estilos de texto */
@@ -79,16 +82,24 @@
     @apply text-2xl mb-2 tracking-wider;
   }
 
-  p {
-    @apply font-dmsans text-xl text-gray-600 mb-4;
-  }
-
-  .bigtext {
-    @apply text-xl md:text-2xl lg:text-3xl text-gray-700 max-w-2xl mb-6;
+  .text {
+    @apply font-dmsans text-gray-600;
   }
 
   .smalltext {
-    @apply text-lg mb-2 leading-tight;
+    @apply text text-lg mb-2 leading-tight;
+  }
+
+  .mediumtext {
+    @apply text text-xl mb-4;
+  }
+
+  .bigtext {
+    @apply text text-xl md:text-2xl mb-6;
+  }
+
+  p {
+    @apply mediumtext;
   }
 
   .link {
@@ -100,13 +111,11 @@
 @layer components {
   /* Estilo dos botões */
   .btn {
-    @apply inline-flex items-center justify-center whitespace-nowrap h-10 rounded-2xl font-semibold
+    @apply inline-flex items-center justify-center whitespace-nowrap h-10 rounded-2xl font-semibold transition-transform transition-shadow duration-300;
   }
 
   .btn:hover {
-    scale: 1.05;
-    transition: all;
-    animation-duration: 500;
+    transform: scale(1.05);
     @apply shadow-md;
   }
   
@@ -120,6 +129,15 @@
 
   .wide-btn {
     @apply btn text-white rounded-xl w-full;
+  }
+
+  .content-container {
+    @apply
+      w-full
+      max-w-7xl
+      mx-auto
+      py-8 lg:py-16;
+      padding-inline: var(--section-padding-x);
   }
 }
 
