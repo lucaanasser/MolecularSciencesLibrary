@@ -37,10 +37,10 @@ export function StatsGrid({ stats, order }: { stats: StatsType, order: string[] 
               {ICONS[key]}
             </div>
           </div>
-          <p className="bigtext mb-2 font-bold text-default-bg">
+          <p className="prose-lg mb-2 font-bold text-default-bg">
             {stats[key] == null ? '-' : useCountUp(stats[key], 1200)}
           </p>
-          <p className="bigtext text-default-bg">
+          <p className="prose-lg text-default-bg">
             {LABELS[key]}
           </p>
           <p className="text-default-bg leading-tight">

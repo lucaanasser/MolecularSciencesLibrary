@@ -5,7 +5,7 @@ export function AboutSection({
   paragraphs,
   buttonText,
   buttonLink,
-  buttonClass = "primary-btn",
+  buttonClass = "btn-primary",
   imageSrc,
   imageAlt = "",
   reverse = false,

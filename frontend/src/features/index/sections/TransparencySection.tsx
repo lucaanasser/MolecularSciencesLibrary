@@ -24,7 +24,7 @@ export const TransparencySection: React.FC<TransparencySectionProps> = ({ classN
             Confira gráficos detalhados sobre empréstimos, acervo e usuários.
             Todos os dados são apresentados de forma agregada, sem expor informações pessoais.
           </p>
-          <a className="primary-btn" href="/transparencia">
+          <a className="btn-primary" href="/transparencia">
             Biblioteca em Dados
           </a>
         </div>

@@ -173,7 +173,7 @@ const LoginForm: React.FC = () => {
           </div>
           <button
             type="submit"
-            className={`wide-btn bg-${modeColor}`}
+            className={`btn-wide bg-${modeColor}`}
             disabled={isLoading}
           >
             {isLoading ? "Entrando..." : "Entrar"}

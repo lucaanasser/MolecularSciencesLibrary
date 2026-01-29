@@ -37,7 +37,7 @@ const AcademicIndexPage = () => {
         ]}
         buttonText="Saiba mais"
         buttonLink="/academico/faq"
-        buttonClass="primary-btn-academic"
+        buttonClass="btn-primary-academic"
         imageSrc="/images/prateleira.png"
         imageAlt="Ciências Moleculares"
       />

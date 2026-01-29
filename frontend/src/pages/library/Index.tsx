@@ -63,10 +63,10 @@ const Index = () => {
       {/* Hero Section customizada */}
       <HeroSection variant="library">
         <h1><LibraryHeroText /></h1>
-        <p className="bigtext">
+        <p className="prose-lg">
           Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
         </p>
-        <a className="primary-btn text-2xl" href="/buscar">
+        <a className="btn-primary text-2xl" href="/buscar">
           Explorar Acervo
         </a>
       </HeroSection>

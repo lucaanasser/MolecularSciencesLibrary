@@ -24,9 +24,9 @@ export function FeatureCards({ cards, columns = 3 }: { cards: FeatureCardType[];
             {card.icon}
           </div>
           <h4>{card.title}</h4>
-          <p className="smalltext">{card.description}</p>
+          <p className="prose-sm">{card.description}</p>
           <div className="flex flex-col items-center mb-4"></div>
-          <button className={`wide-btn ${card.buttonClass || card.colorClass}`}>
+          <button className={`btn-wide ${card.buttonClass || card.colorClass}`}>
             <Link to={card.buttonLink}>{card.buttonText}</Link>
           </button>
         </div>

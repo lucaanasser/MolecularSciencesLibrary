@@ -10,7 +10,7 @@ import { useSiteMode } from "@/hooks/useSiteMode";
  * 🔴 Erro
  */
 
-const textBaseClass = "smalltext text-black";
+const textBaseClass = "prose-sm text-black";
 const linkBaseClass = `${textBaseClass} hover:text-gray-700`;
 
 const Footer: React.FC = () => {

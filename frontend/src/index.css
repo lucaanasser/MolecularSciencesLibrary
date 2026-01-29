@@ -7,155 +7,105 @@
 
 @layer base {
   :root {
-    --background: 60 33% 98%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    --section-padding-x: 1.5rem;
+    --x-padding: 1.5rem;
   }
 
-  main {
-    min-height: calc(100vh - 6rem);
-  }
-  
-  * {
-    @apply border-border;
+  body { @apply 
+    bg-default-bg 
+    font-dmsans; 
   }
 
-  body {
-    @apply bg-default-bg text-foreground font-dmsans;
+  main { min-height: calc(100vh - 6rem); }
+
+  h1, h2, h3, h4, h5, h6 { @apply 
+    font-bebas 
+    leading-tight; 
   }
 
-  /* Estilos de texto */
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bebas;
+  h1 { @apply 
+    text-5xl md:text-6xl 
+    font-bold
+    mb-6; 
   }
 
-  h1 {
-    @apply text-5xl md:text-6xl lg:text-7xl mb-6 font-bold leading-tight;
+  h2 { @apply 
+    text-4xl md:text-5xl 
+    tracking-wide 
+    mb-4; 
   }
 
-  h2 {
-    @apply text-5xl mb-4 tracking-wide;
+  h3 { @apply 
+    text-3xl md:text-4xl 
+    tracking-wide 
+    mb-4; 
   }
 
-  h3 {
-    @apply text-4xl mb-4 tracking-wide;
+  h4 { @apply 
+    text-2xl
+    tracking-wider
+    mb-2; 
   }
 
-  h4 {
-    @apply text-2xl mb-2 tracking-wider;
+  p { @apply 
+    text-gray-600 
+    prose-md 
+    mb-4 md:mb-6; 
   }
-
-  .text {
-    @apply font-dmsans text-gray-600;
-  }
-
-  .smalltext {
-    @apply text text-lg mb-2 leading-tight;
-  }
-
-  .mediumtext {
-    @apply text text-xl mb-4;
-  }
-
-  .bigtext {
-    @apply text text-xl md:text-2xl mb-6;
-  }
-
-  p {
-    @apply mediumtext;
-  }
-
-  .link {
-    @apply underline hover:text-academic-blue;
-  }
-
 }
 
 @layer components {
-  /* Estilo dos botões */
-  .btn {
-    @apply inline-flex items-center justify-center whitespace-nowrap h-10 rounded-2xl font-semibold transition-transform transition-shadow duration-300;
+  .content-container {
+    @apply w-full max-w-7xl mx-auto py-8 lg:py-16;
+    padding-inline: var(--x-padding);
+  }
+
+  .prose-sm { @apply text-base md:text-lg; }
+  .prose-md { @apply text-lg md:text-xl; }
+  .prose-lg { @apply text-xl md:text-2xl; }
+
+  .link { @apply underline hover:text-academic-blue; }
+}
+
+@layer components {
+  .btn { @apply 
+    inline-flex 
+    items-center justify-center 
+    whitespace-nowrap
+    h-10 
+    rounded-2xl 
+    font-semibold
+    duration-300;
   }
 
   .btn:hover {
     transform: scale(1.05);
-    @apply shadow-md;
+    @apply shadow-lg;
   }
-  
-  .primary-btn {
+
+  .btn-primary {
     @apply btn bg-library-purple text-white px-7 py-5 text-base md:text-lg;
   }
 
-  .primary-btn-academic {
-    @apply btn bg-academic-blue   text-white px-7 py-5 ;
+  .btn-academic {
+    @apply btn bg-academic-blue text-white px-7 py-5;
   }
 
-  .wide-btn {
-    @apply btn text-white rounded-xl w-full;
-  }
-
-  .content-container {
-    @apply
-      w-full
-      max-w-7xl
-      mx-auto
-      py-8 lg:py-16;
-      padding-inline: var(--section-padding-x);
+  .btn-wide {
+    @apply btn text-white w-full rounded-xl;
   }
 }
 
 @layer utilities {
-
   @media (min-width: 768px) {
     :root {
-      --section-padding-x: 2rem;
+      --x-padding: 2rem;
     }
   }
 
   @media (min-width: 1200px) {
     :root {
-      --section-padding-x: 3rem;
+      --x-padding: 3rem;
     }
-  }
-
-  .section {
-    padding-inline: var(--section-padding-x);
   }
 }

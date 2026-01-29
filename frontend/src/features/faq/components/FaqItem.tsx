@@ -44,7 +44,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
     {isOpen && (
       <div className="flex mt-0 pl-4 w-full">
         <div className={`border-l-4 border-${color} pr-3 flex-shrink-0`} />
-        <p className="smalltext mb-0 break-words w-full">
+        <p className="prose-sm mb-0 break-words w-full">
           {faq.answer}
         </p>
       </div>
