@@ -17,10 +17,10 @@ export function FeatureCards({ cards, columns = 3 }: { cards: FeatureCardType[];
     <div className={`grid grid-cols-1 ${gridCols} gap-12`}>
       {cards.map((card, idx) => (
         <div
-          className="flex flex-col items-center text-center p-8 bg-default-bg rounded-2xl shadow-md border border-gray-200"
+          className="flex flex-col items-center text-center p-8 bg-white rounded-2xl shadow-md border border-gray-200"
           key={idx}
         >
-          <div className={`-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full ${card.colorClass} border-8 border-default-bg`}>
+          <div className={`-mt-16 mb-4 flex items-center justify-center w-24 h-24 rounded-full ${card.colorClass} border-8 border-white`}>
             {card.icon}
           </div>
           <h4>{card.title}</h4>

@@ -1,5 +1,5 @@
 import { Users, BookOpen, Lightbulb, BookMarked } from "lucide-react";
-import { useCountUp } from "./useCountUp";
+import { useCountUp } from "../../../hooks/useCountUp";
 
 export type StatsType = Record<string, number | null>;
 

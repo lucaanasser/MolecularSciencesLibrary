@@ -1,16 +1,14 @@
-import { getResolvedSubarea } from "@/utils/bookUtils";
 import BookCard from "../cards/BookCard";
+import BookResults from "./BookResults";
 import useBookOptions from "../../hooks/useBookOptions";
 import useBookList from "../../hooks/useBookList";
 import { useEffect } from "react";
-import { BookOption } from "../../types/book";
-import { Search, XCircle } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
 import { Drawer, DrawerTrigger, DrawerContent, DrawerClose } from "@/components/ui/drawer";
 import BookDetailsModal from "../modals/BookDetailsModal";
-import NudgeButton from "../cards/NudgeButton";
 import BookFiltersPanel from "../filters/BookFiltersPanel";
 
 /**
@@ -48,7 +46,7 @@ const BookSearch: React.FC = () => {
   };
   const { books: rawBooks, isLoading } = useBookList(filters, true);
 
-  // Filtragem manual para simular OU (união dos filtros múltiplos)
+  // União dos filtros múltiplos
   const books = useMemo(() => {
     if (!rawBooks) return [];
     return rawBooks.filter(book => {
@@ -86,10 +84,6 @@ const BookSearch: React.FC = () => {
     }
   };
 
-
-
-  // Detecta se algo foi modificado em relação aos padrões (Todos/sem busca)
-  // ...existing code...
   // Responsividade: detectar se é mobile
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -120,6 +114,28 @@ const BookSearch: React.FC = () => {
     });
   }, [books]);
 
+  // Props para o painel de filtros
+  const filterPanelProps = {
+    category, setCategory,
+    subcategory, setSubcategory,
+    status, setStatus,
+    language, setLanguage,
+    areaCodes, subareaCodes,
+    languageOptions,
+    isPristine,
+    setSearch
+  };
+
+  // Props para o resultado das buscas
+  const bookResultsProps = {
+    groupedBooks,
+    isLoading,
+    areaCodes,
+    subareaCodes,
+    loadingBookDetails,
+    handleBookClick
+  };
+
   return (
     <div className="w-full flex flex-col">
       {/* Barra de pesquisa no topo */}
@@ -134,89 +150,46 @@ const BookSearch: React.FC = () => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
       </div>
       <div className="w-full flex">
-        {/* Filtros: Drawer no mobile, fixo no desktop/tablet */}
-        {isMobile ? (
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button variant="outline" className="mb-4 ml-2">Filtrar</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <div className="p-4">
-                <BookFiltersPanel
-                  category={category}
-                  setCategory={setCategory}
-                  subcategory={subcategory}
-                  setSubcategory={setSubcategory}
-                  status={status}
-                  setStatus={setStatus}
-                  language={language}
-                  setLanguage={setLanguage}
-                  areaCodes={areaCodes}
-                  subareaCodes={subareaCodes}
-                  languageOptions={languageOptions}
-                  isPristine={isPristine}
-                  setSearch={setSearch}
-                />
-                <DrawerClose asChild>
-                  <Button variant="secondary" className="mt-4 w-full">Fechar</Button>
-                </DrawerClose>
-              </div>
-            </DrawerContent>
-          </Drawer>
-        ) : (
-          <aside className="w-40 min-w-[100px] max-w-xs p-4 mr-6 h-fit top-4 self-start">
-            <BookFiltersPanel
-              category={category}
-              setCategory={setCategory}
-              subcategory={subcategory}
-              setSubcategory={setSubcategory}
-              status={status}
-              setStatus={setStatus}
-              language={language}
-              setLanguage={setLanguage}
-              areaCodes={areaCodes}
-              subareaCodes={subareaCodes}
-              languageOptions={languageOptions}
-              isPristine={isPristine}
-              setSearch={setSearch}
-            />
-          </aside>
-        )}
-        {/* Resultados */}
-        <main className="flex-1">
-          <div className="mt-8">
-            {isLoading ? (
-              <div className="text-center py-8">Carregando livros...</div>
-            ) : groupedBooks.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {groupedBooks.map(book => (
-                  <BookCard
-                    key={book.code}
-                    book={book}
-                    areaCodes={areaCodes}
-                    subareaCodes={subareaCodes}
-                    loadingBookDetails={loadingBookDetails}
-                    onDetails={handleBookClick}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Nenhum livro encontrado com esses critérios.</p>
-              </div>
-            )}
+        {isMobile 
+        ? (
+          <div className="w-full flex flex-col">
+          {/* Mobile: Filtros em drawer e resultados embaixo */}
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="outline" className="mb-4 ml-2 w-full">Filtrar</Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <div className="p-4">
+                  <BookFiltersPanel {...filterPanelProps} />
+                  <DrawerClose asChild>
+                    <Button variant="secondary" className="mt-4 w-full">Fechar</Button>
+                  </DrawerClose>
+                </div>
+              </DrawerContent>
+            </Drawer>
+            <BookResults {...bookResultsProps} />
           </div>
-          {/* Modal de detalhes do livro*/}
-          {selectedBook && (
-            <BookDetailsModal
-              book={selectedBook}
-              onClose={() => setSelectedBook(null)}
-              showAvailabilityText={true}
-              showVirtualShelfButton={true}
-              subareaCodes={subareaCodes}
-            />
-          )}
-        </main>
+        ) 
+        : (
+          <>
+            { /* Desktop: Filtros na esquerda e resultados ao lado */}
+            <aside className="w-40 min-w-[100px] max-w-xs p-4 mr-6 h-fit top-4 self-start">
+              <BookFiltersPanel {...filterPanelProps} />
+            </aside>
+            <BookResults {...bookResultsProps} />
+          </>
+        )}
+        
+        {/* Modal de detalhes do livro*/}
+        {selectedBook && (
+          <BookDetailsModal
+            book={selectedBook}
+            onClose={() => setSelectedBook(null)}
+            showAvailabilityText={true}
+            showVirtualShelfButton={true}
+            subareaCodes={subareaCodes}
+          />
+        )}
       </div>
     </div>
   );

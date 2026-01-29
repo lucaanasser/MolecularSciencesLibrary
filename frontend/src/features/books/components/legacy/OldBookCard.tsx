@@ -38,62 +38,46 @@ const BookCard: React.FC<BookCardProps> = ({ book, areaCodes, subareaCodes, load
     <div className="relative group">
       {/* Aba lateral de status na esquerda */}
       <div className={`absolute left-0 top-0 h-full w-4 ${color} rounded-l-lg transition-all duration-300 ease-in-out group-hover:w-8 group-hover:-translate-x-4 translate-x-0 overflow-visible z-10 origin-left`}>
+        {/* Texto na vertical que aparece no hover */}
         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-full flex items-center justify-center">
           <span className={`${textColor} text-xs font-semibold transform -rotate-90 whitespace-nowrap`}>
             {text}
           </span>
         </div>
       </div>
-      {/* Card do livro */}
-      <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow duration-200 min-h-72 flex flex-col justify-between">
+      <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow duration-200 min-h-64 flex flex-col justify-between">
         <div className="flex justify-between items-start">
           <div>
-            <h4>
-              {book.title}
-              {book.volume && (
-                <span className="ml-2 text-base text-gray-500">Vol. {book.volume}</span>
-              )}
-            </h4>
-            <p className="mb-2">
-              {book.authors}
-            </p>
-            <p className="smalltext">
-              <span>
+            <h4 className="font-semibold text-lg text-black line-clamp-2 tracking-wider">{book.title}</h4>
+            <p className="text-gray-600 line-clamp-2">{book.authors}</p>
+            <div className="flex space-x-4 mt-2">
+              <span className="text-sm text-gray-500">
                 {book.area && areaCodes && areaCodes[book.area] ? areaCodes[book.area] : (book.area || "Área desconhecida")}
                 {book.subarea ? ` / ${getResolvedSubarea(book.area, book.subarea, subareaCodes)}` : ""}
               </span>
-            </p>
+            </div>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-sm">
-            {book.totalExemplares > 0 && (
-              <>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</>
-            )}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-xl bg-white text-library-purple border-library-purple hover:bg-library-purple-muted hover:text-white"
-              onClick={() => onDetails(book)}
-              disabled={loadingBookDetails}
-            >
-              {loadingBookDetails ? 'Carregando...' : 'Detalhes'}
-            </Button>
-          </div>
+        <div className="mt-2 text-xs text-gray-500">
+          {book.totalExemplares > 1 && (
+            <span>{book.exemplaresDisponiveis}/{book.totalExemplares} exemplares disponíveis</span>
+          )}
         </div>
-        {/* Botão de nudge para livros atrasados ou na janela final ou estendidos*/}
-        {(book.overdue || book.due_in_window || book.is_extended) ? (
-          <div className="flex justify-end mt-2">
+        <div className="mt-4 flex justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
+            onClick={() => onDetails(book)}
+            disabled={loadingBookDetails}
+          >
+            Detalhes
+          </Button>
+          {/* Botão de nudge para livros atrasados ou na janela final ou estendidos */}
+          {(book.overdue || book.due_in_window || book.is_extended) && (
             <NudgeButton book={book} />
-          </div>
-        ) : (
-          <div className="flex justify-end mt-2" style={{ visibility: 'hidden', height: '40px' }}>
-            {/* Placeholder invisível para alinhar o conteúdo */}
-            <div style={{ width: '40px', height: '40px' }} />
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

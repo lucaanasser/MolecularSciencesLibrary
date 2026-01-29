@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
 import { getResolvedSubarea } from "@/utils/bookUtils";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { SubareaCode } from "../../types/book";
 
 const LANGUAGE_MAP: Record<string | number, string> = {

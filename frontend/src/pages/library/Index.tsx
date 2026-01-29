@@ -2,12 +2,11 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import { useTypewriterAreas } from "@/features/index/useTypewriterAreas";
+import { useState, useEffect } from "react";
+import { useTypewriterAreas } from "@/hooks/useTypewriterAreas";
 import { AboutSection } from "@/features/index/AboutSection";
-import { StatsGrid } from "@/features/index/StatsGrid";
-import { FeatureCards } from "@/features/index/FeatureCards";
+import { StatsSection } from "@/features/index/StatsSection";
+import { FeatureSection } from "@/features/index/FeatureSection";
 
 // Log de início de renderização da página inicial
 console.log("🔵 [Index] Renderizando página inicial");
@@ -22,8 +21,6 @@ const HERO_AREAS = [
 ];
 
 const Index = () => {
-  const { scrollYProgress } = useScroll();
-  const translateY = useTransform(scrollYProgress, [0, 1], [0, -50]);
   const { areaIndex, displayText } = useTypewriterAreas(HERO_AREAS);
 
   // Estados para estatísticas
@@ -61,18 +58,21 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      {/* Hero Section - Custom */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-b from-library-purple-muted via-library-purple/10 to-default-bg">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
-          {/* Logo */}
+
+      {/* Hero Section customizada */}
+      <section className="section relative min-h-screen flex items-center bg-gradient-to-b from-library-purple-muted via-library-purple/10 to-default-bg">
+        <div className="mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-8 flex-1">
+          
+          {/* Mascote */}
           <div className="flex-1 flex justify-center md:mb-0">
             <img
               src="/images/home.png"
-              alt="Ciências Moleculares"
+              alt="Mascote Carlos Magno"
               className="w-80 md:w-[34rem] lg:w-[40rem] h-auto"
             />
           </div>
-          {/* Content */}
+          
+          {/* Animação de texto */}
           <div className="flex-1 flex flex-col items-start">
             <h1>
               Abra um livro,<br />
@@ -81,7 +81,9 @@ const Index = () => {
                   HERO_AREAS[areaIndex].name === "Universo" ? "o " : "a ";
                 return (
                   <>
-                    desvende {artigo} 
+                    <span className="inline lg:inline">desvende </span>
+                    <br className="block lg:hidden" />
+                    <span>{artigo} </span>
                     <span
                       className={`destaque border-r-2 border-current pr-2 transition-colors duration-500 ${HERO_AREAS[areaIndex].color}`}
                     >
@@ -100,7 +102,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-      {/* Fim Hero Section customizada */}
 
       {/* About Section */}
       <AboutSection
@@ -115,31 +116,19 @@ const Index = () => {
         imageAlt="Ciências Moleculares"
       />
 
-      {/* Statistics Section with Diagonal Design */}
-      <section className="relative py-40 bg-library-purple">
-        {/* Top Diagonal Cut */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-top-left"></div>
-        {/* Bottom Diagonal Cut */}
-        <div className="absolute bottom-0 right-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-bottom-right"></div>
-        <div className="container mx-auto px-4 py-20">
-          <div className="text-center mb-16">
-            <h2 className="text-default-bg">
-              A biblioteca em números
-            </h2>
-          </div>
-          {loadingStats ? (
-            <div className="text-center text-default-bg text-xl">Carregando...</div>
-          ) : statsError ? (
-            <div className="text-center text-red-200 text-xl">{statsError}</div>
-          ) : (
-            <StatsGrid stats={stats} order={["users", "subareas", "books"]} />
-          )}
-        </div>
-      </section>
+      <StatsSection
+        stats={stats}
+        order={["users", "subareas", "books"]}
+        title="A biblioteca em números"
+        loading={loadingStats}
+        error={statsError}
+        bgClass="bg-library-purple"
+        textClass="text-white"
+      />
 
       {/* Portal da Transparência Section */}
-      <div className="py-24 bg-default-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section py-24 bg-default-bg">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-gray-100 p-12">
               <TrendingUp className="h-48 w-48 text-cm-blue opacity-20" />
@@ -162,42 +151,39 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Features Section */}
-      <div className="py-40 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center mb-16">Recursos do site</h2>
-          <FeatureCards
-            cards={[
-              {
-                icon: <Search className="h-10 w-10 text-default-bg" />,
-                title: "Encontre livros no acervo",
-                description: "Busque rapidamente por autor, título, tema ou área e descubra tudo o que a biblioteca oferece.",
-                buttonText: "Buscar Livros",
-                buttonLink: "/buscar",
-                colorClass: "bg-cm-red"
-              },
-              {
-                icon: <User className="h-10 w-10 text-default-bg" />,
-                title: "Acompanhe seus empréstimos",
-                description: "Acesse sua área pessoal para renovar livros e consultar prazos de forma simples e rápida.",
-                buttonText: "Fazer Login",
-                buttonLink: "/entrar",
-                colorClass: "bg-cm-blue"
-              },
-              {
-                icon: <BookOpen className="h-10 w-10 text-default-bg" />,
-                title: "Explore a estante virtual",
-                description: "Navegue pelo acervo de maneira visual e interativa, como se estivesse dentro da biblioteca.",
-                buttonText: "Explorar Estante",
-                buttonLink: "/estante-virtual",
-                colorClass: "bg-cm-green"
-              }
-            ]}
-          />
-        </div>
-      </div>
+      <FeatureSection
+        title="Recursos do site"
+        cards={[
+          {
+            icon: <Search className="h-10 w-10 text-white" />,
+            title: "Encontre livros no acervo",
+            description: "Busque rapidamente por autor, título, tema ou área e descubra tudo o que a biblioteca oferece.",
+            buttonText: "Buscar Livros",
+            buttonLink: "/buscar",
+            colorClass: "bg-cm-red"
+          },
+          {
+            icon: <User className="h-10 w-10 text-white" />,
+            title: "Acompanhe seus empréstimos",
+            description: "Acesse sua área pessoal para renovar livros e consultar prazos de forma simples e rápida.",
+            buttonText: "Fazer Login",
+            buttonLink: "/entrar",
+            colorClass: "bg-cm-blue"
+          },
+          {
+            icon: <BookOpen className="h-10 w-10 text-white" />,
+            title: "Explore a estante virtual",
+            description: "Navegue pelo acervo de maneira visual e interativa, como se estivesse dentro da biblioteca.",
+            buttonText: "Explorar Estante",
+            buttonLink: "/estante-virtual",
+            colorClass: "bg-cm-green"
+          }
+        ]}
+        columns={3}
+        bgClass="bg-gray-100"
+      />
       
       <Footer />
     </div>
