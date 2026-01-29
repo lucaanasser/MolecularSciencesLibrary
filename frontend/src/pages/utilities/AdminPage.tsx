@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { BookOpen, Users, Calendar, Heart, Bookmark, Bell, BarChart3, Settings as SettingsIcon } from "lucide-react";
 
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsCard } from "@/lib/TabsCard";
 import { Link } from "react-router-dom";
 import AddBookForm from "@/features/books/components/wizard/AddBookWizard";
 import RemoveBookForm from "@/features/books/components/wizard/RemoveBookWizard";
@@ -17,7 +17,6 @@ import LoanForm from "@/features/loans/components/LoanForm";
 import ActiveLoansList from "@/features/loans/components/ActiveLoansList"; 
 import SendNotification from "@/features/notifications/components/Sendnotification";
 import NotificationList from "@/features/notifications/components/NotificationList";
-import AdminInboxTab from "@/features/notifications/components/AdminInboxTab";
 import InboxList from "@/features/notifications/components/InboxList";
 import { useAdminNotifications } from "@/features/notifications/hooks/useAdminNotifications";
 import { useInbox } from "@/features/notifications/hooks/useInbox";
@@ -26,7 +25,6 @@ import LoanRulesView from "@/features/rules/components/LoanRulesView";
 import DonatorsList from "@/features/donators/components/DonatorsList";
 import DonatorForm from "@/features/donators/components/DonatorForm";
 import ImportDonatorsCSV from "@/features/donators/components/ImportDonatorsCSV";
-import BookReservePanel from '@/features/books/components/modals/BookReservePanel';
 import ReservedBooksList from '@/features/books/components/lists/ReservedBooksList';
 import { useBookReserve } from '@/features/books/hooks/useBookReserve';
 import { 
@@ -1352,7 +1350,6 @@ const ManageDonators = () => {
 
 // --- Página Principal do Admin ---
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState("books");
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   // Log de início de renderização do componente principal do Admin
@@ -1371,6 +1368,31 @@ const AdminPage = () => {
     );
   }
 
+  const tabs = [
+    { id: "books", label: "Livros", icon: BookOpen },
+    { id: "users", label: "Usuários", icon: Users },
+    { id: "loans", label: "Empréstimos", icon: Calendar },
+    { id: "donators", label: "Doadores", icon: Heart },
+    { id: "reserve", label: "Reserva", icon: Bookmark },
+    { id: "notifications", label: "Notificações", icon: Bell },
+    { id: "reports", label: "Relatórios", icon: BarChart3 },
+    { id: "settings", label: "Configurações", icon: SettingsIcon },
+  ];
+
+  const getTabColor = (tabId: string) => {
+    switch(tabId){
+      case "books": return "cm-red";
+      case "users": return "cm-orange";
+      case "loans": return "cm-yellow";
+      case "donators": return "cm-green";
+      case "reserve": return "purple-600";
+      case "notifications": return "cm-green";
+      case "reports": return "cm-blue";
+      case "settings": return "gray-700";
+      default: return "library-purple";
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       
@@ -1379,87 +1401,16 @@ const AdminPage = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bebas mb-4 sm:mb-6 md:mb-8">Painel do Administrador</h1>
           
           <ErrorBoundary>
-            <Tabs defaultValue="books" onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex flex-wrap gap-1 sm:gap-2 bg-white p-1.5 sm:p-2 rounded-t-2xl shadow-sm relative border-b border-gray-200">
-                {[
-                  { value: "books", label: "Livros", color: "bg-cm-red text-white" },
-                  { value: "users", label: "Usuários", color: "bg-cm-orange text-white" },
-                  { value: "loans", label: "Empréstimos", color: "bg-cm-yellow text-white" },
-                  { value: "donators", label: "Doadores", color: "bg-cm-green text-white" },
-                  { value: "reserve", label: "Reserva", color: "bg-purple-600 text-white" },
-                  { value: "notifications", label: "Notificações", color: "bg-cm-green text-white" },
-                  { value: "reports", label: "Relatórios", color: "bg-cm-blue text-white" },
-                  { value: "settings", label: "Configurações", color: "bg-gray-700 text-white" },
-                ].map(tab => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className={`
-                      px-2 sm:px-3 py-1 sm:py-1.5 mx-0.5 sm:mx-1 rounded-t-xl sm:rounded-t-2xl font-semibold transition-all duration-200 relative text-xs sm:text-sm md:text-base
-                      ${activeTab === tab.value 
-                        ? "!bg-gray-200 !text-gray-900 shadow-lg scale-105 z-20 border-b-0"
-                        : `${tab.color} z-10 border-b-2 border-gray-200`
-                      }
-                      hover:scale-105 sm:hover:scale-110 hover:shadow-xl
-                    `}
-                    style={{ minWidth: "70px" }}
-                  >
-                    <span className="hidden sm:inline">{tab.label}</span>
-                    <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              
-              <Card className="rounded-t-none rounded-b-2xl shadow-md bg-white">
-                <CardContent className="p-0">
-                  <TabsContent value="books">
-                    <ErrorBoundary>
-                      <ManageBooks />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="users">
-                    <ErrorBoundary>
-                      <ManageUsers />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="loans">
-                    <ErrorBoundary>
-                      <ManageLoans />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="notifications">
-                    <ErrorBoundary>
-                      <Notifications />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="inbox">
-                    <ErrorBoundary>
-                      <AdminInboxTab />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="reports">
-                    <ErrorBoundary>
-                      <Reports />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="settings">
-                    <ErrorBoundary>
-                      <Settings />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="donators">
-                    <ErrorBoundary>
-                      <ManageDonators />
-                    </ErrorBoundary>
-                  </TabsContent>
-                  <TabsContent value="reserve">
-                    <ErrorBoundary>
-                      <ManageReserve />
-                    </ErrorBoundary>
-                  </TabsContent>
-                </CardContent>
-              </Card>
-            </Tabs>
+            <TabsCard tabs={tabs} getTabColor={getTabColor} initialTabId="books">
+              <ErrorBoundary><ManageBooks /></ErrorBoundary>
+              <ErrorBoundary><ManageUsers /></ErrorBoundary>
+              <ErrorBoundary><ManageLoans /></ErrorBoundary>
+              <ErrorBoundary><ManageDonators /></ErrorBoundary>
+              <ErrorBoundary><ManageReserve /></ErrorBoundary>
+              <ErrorBoundary><Notifications /></ErrorBoundary>
+              <ErrorBoundary><Reports /></ErrorBoundary>
+              <ErrorBoundary><Settings /></ErrorBoundary>
+            </TabsCard>
           </ErrorBoundary>
           
           <div className="mt-8 text-center">
