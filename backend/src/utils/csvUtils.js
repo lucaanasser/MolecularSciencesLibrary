@@ -1,4 +1,3 @@
-// backend/src/utils/csvUtils.js
 // Utilitário genérico para importação/exportação de CSV
 
 /**

@@ -9,6 +9,9 @@
 const booksService = require('../services/BooksService');
 const BooksModel = require('../models/BooksModel');
 
+
+const { escapeCSV, importFromCSV } = require('../utils/csvUtils');
+
 class BooksController {
     constructor() {
         // Inicializações ou configurações do controller, se necessário
@@ -40,12 +43,20 @@ class BooksController {
      * @returns {Promise<Object>} Resultado da operação
      */
     async addBook(bookData) {
+        try {
+            return await booksService.addBook(bookData);
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao adicionar livro:", error.message);
+            throw error;
+        }
+    }
+
     /**
      * Busca livros por filtros dinâmicos, incluindo status
      * @param {Object} filters - Filtros recebidos da query
      * @returns {Promise<Array>} Lista de livros encontrados
      */
-    getBooks = async (filters) => {
+    async getBooksByFilters(filters) {
         try {
             console.log(`[BooksController] Buscando livros por filtros:`, filters);
             const books = await booksService.getBooks(filters);
@@ -53,20 +64,6 @@ class BooksController {
             return books;
         } catch (error) {
             console.error(`[BooksController] Erro ao buscar livros:`, error.message);
-            throw error;
-        }
-    }
-        try {
-            console.log(`🔵 [BooksController] Buscando livro por id: ${id}`);
-            const book = await booksService.getBookById(id);
-            if (book) {
-                console.log("🟢 [BooksController] Livro encontrado:", book);
-            } else {
-                console.warn("🟡 [BooksController] Livro não encontrado para id:", id);
-            }
-            return book;
-        } catch (error) {
-            console.error("🔴 [BooksController] Erro ao buscar livro:", error.message);
             throw error;
         }
     }
@@ -267,19 +264,19 @@ class BooksController {
             for (const book of books) {
                 const row = [
                     book.id || '',
-                    this.escapeCSV(book.code || ''),
-                    this.escapeCSV(book.title || ''),
-                    this.escapeCSV(book.authors || ''),
-                    this.escapeCSV(book.publisher || ''),
-                    this.escapeCSV(book.edition || ''),
-                    this.escapeCSV(book.isbn || ''),
+                    escapeCSV(book.code || ''),
+                    escapeCSV(book.title || ''),
+                    escapeCSV(book.authors || ''),
+                    escapeCSV(book.publisher || ''),
+                    escapeCSV(book.edition || ''),
+                    escapeCSV(book.isbn || ''),
                     book.year || '',
-                    this.escapeCSV(book.barcode || ''),
-                    this.escapeCSV(book.area || ''),
-                    this.escapeCSV(book.sub_area || ''),
+                    escapeCSV(book.barcode || ''),
+                    escapeCSV(book.area || ''),
+                    escapeCSV(book.sub_area || ''),
                     book.available ? 'Sim' : 'Não',
                     book.is_reserved === 1 ? 'Sim' : 'Não',
-                    this.escapeCSV(book.observations || '')
+                    escapeCSV(book.observations || '')
                 ];
                 csvRows.push(row.join(','));
             }
@@ -291,19 +288,16 @@ class BooksController {
             res.setHeader('Content-Disposition', `attachment; filename="catalogo_livros_${new Date().toISOString().split('T')[0]}.csv"`);
             
             console.log(`🟢 [BooksController] CSV exportado com sucesso: ${books.length} livros`);
-            res.send('\ufeff' + csvContent); // BOM para UTF-8
+            res.send('\ufeff' + csvContent);
         } catch (error) {
             console.error('🔴 [BooksController] Erro ao exportar CSV:', error.message);
             res.status(500).json({ success: false, message: error.message });
         }
     }
 
-    // Consertar depois
-    // Utilitário CSV compartilhado
-    // const { escapeCSV, importFromCSV } = require('../utils/csvUtils');
-
+   
     /**
-     * Importa livros a partir de um arquivo CSV (refatorado)
+     * Importa livros a partir de um arquivo CSV
      */
     async importBooksFromCSV(req, res) {
         try {
@@ -312,7 +306,6 @@ class BooksController {
                 return res.status(400).json({ success: false, message: 'Nenhum arquivo CSV fornecido' });
             }
             const requiredFields = ['code', 'title', 'authors', 'area', 'subarea', 'edition', 'language', 'volume'];
-            // Logger customizado para logs padronizados
             const logger = {
                 success: (entity, row) => console.log(`🟢 [BooksController] Livro importado: ${entity.title} (linha ${row})`),
                 error: (error, row, line) => console.error(`🔴 [BooksController] Erro na linha ${row}:`, error.message),
