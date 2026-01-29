@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Navigation from "@/components/Header";
-// import Footer from "@/components/Footer";
+
+
 import { GraduationCap, Briefcase, BookMarked, Globe } from "lucide-react";
 import ProfileService from "@/services/ProfileService";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
@@ -146,7 +146,7 @@ const PublicProfilePage = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando...</div>
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -158,7 +158,7 @@ const PublicProfilePage = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError || "Usuário não encontrado"}</div>
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -269,7 +269,7 @@ const PublicProfilePage = () => {
         </div>
       </div>
 
-      {/* Footer removido, agora está no layout global */}
+      
     </div>
   );
 };

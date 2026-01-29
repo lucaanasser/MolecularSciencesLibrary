@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "@/components/Header";
-// import Footer from "@/components/Footer";
+
+
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ThumbsUp,
@@ -146,7 +146,7 @@ const QuestionDetailPage: React.FC = () => {
         <div className="flex justify-center items-center py-24">
           <Loader2 className="w-12 h-12 animate-spin text-academic-blue" />
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -166,7 +166,7 @@ const QuestionDetailPage: React.FC = () => {
             Voltar para o fórum
           </button>
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -461,7 +461,7 @@ const QuestionDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer removido, agora está no layout global */}
+      
     </div>
   );
 };

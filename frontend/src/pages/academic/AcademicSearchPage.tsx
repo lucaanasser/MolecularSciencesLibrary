@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import Navigation from "@/components/Header";
+
 import Footer from "@/components/Footer";
 import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
@@ -237,7 +237,7 @@ const AcademicSearchPage: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-default-bg">
       
       
-      <main className="flex-1 flex flex-col items-center px-4 pt-20 pb-16">
+      <div className="flex-1 flex flex-col items-center px-4 pt-20 pb-16">
         {/* Logo Molecoogle */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -544,7 +544,7 @@ const AcademicSearchPage: React.FC = () => {
             ))}
           </div>
         </motion.div>
-      </main>
+      </div>
       
       
     </div>

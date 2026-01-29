@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navigation from "@/components/Header";
-// import Footer from "@/components/Footer";
+
+
 import { BookOpen, Bell, History, Mail, Phone, Camera, X, Gift, BookMarked, TrendingUp } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";
@@ -71,7 +71,7 @@ const ProfilePage = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando perfil...</div>
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -83,7 +83,7 @@ const ProfilePage = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError}</div>
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -95,7 +95,7 @@ const ProfilePage = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Nenhum dado encontrado.</div>
         </div>
-        {/* Footer removido, agora está no layout global */}
+        
       </div>
     );
   }
@@ -352,7 +352,7 @@ const ProfilePage = () => {
         </div>
       )}
 
-      {/* Footer removido, agora está no layout global */}
+      
     </div>
   );
 };

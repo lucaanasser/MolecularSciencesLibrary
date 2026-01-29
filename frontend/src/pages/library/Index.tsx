@@ -1,5 +1,5 @@
 // import Navigation from "@/components/Navigation";
-// import Footer from "@/components/Footer";
+
 import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
 import { useState, useEffect } from "react";

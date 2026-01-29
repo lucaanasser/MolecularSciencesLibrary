@@ -1,5 +1,5 @@
-import Navigation from "@/components/Header";
-// import Footer from "@/components/Footer";
+
+
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
 import MolecoogleWindow from "@/features/index/helpers/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";
@@ -96,7 +96,7 @@ const AcademicIndexPage = () => {
         bgClass="bg-gray-100"
       />
       
-      {/* Footer removido, agora está no layout global */}
+      
     </div>
   );
 };

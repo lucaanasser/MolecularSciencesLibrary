@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex justify-center items-center p-6 min-h-screen bg-gray-50">
+    <main className="flex justify-center items-center p-6 min-h-screen bg-gray-50">
       <div className="w-full max-w-md flex flex-col items-center">
         <img
           src="/images/erro404.svg"
@@ -143,6 +143,6 @@ export default function ResetPasswordPage() {
         )}
         </Card>
       </div>
-    </div>
+    </main>
   );
 }

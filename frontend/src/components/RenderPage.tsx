@@ -6,7 +6,7 @@ import Footer from "./Footer";
 export function RenderPage(Component) {
     
     type SiteLayoutProps = {
-    children: React.ReactNode;
+        children: React.ReactNode;
     };
 
     function SiteLayout({ children }: SiteLayoutProps) {

@@ -15,7 +15,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-default-bg px-4 md:px-16">
+    <main className="min-h-screen flex items-center justify-center bg-default-bg px-4 md:px-16">
       <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-5xl">
         <img
           src="/images/erro404.svg"
@@ -55,7 +55,7 @@ const NotFound = () => {
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

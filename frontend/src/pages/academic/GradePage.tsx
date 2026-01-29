@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Info, AlertCircle, Loader2, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import Navigation from "@/components/Header";
+
 import { Button } from "@/components/ui/button";
 import {
   Alert,
