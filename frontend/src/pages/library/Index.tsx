@@ -4,12 +4,11 @@ import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTypewriterAreas } from "@/hooks/useTypewriterAreas";
-import { AboutSection } from "@/features/index/sections/AboutSection";
+import { TextSection } from "@/features/index/sections/TextSection";
 import { StatsSection } from "@/features/index/sections/StatsSection";
-import { FeatureSection } from "@/features/index/sections/FeatureSection";
+import { FeatureSection } from "@/features/index/sections/FeaturesSection";
 import { HeroSection } from "@/features/index/sections/HeroSection";
 import { LibraryHeroText } from "@/features/index/helpers/LibraryHeroText";
-import { TransparencySection } from "@/features/index/sections/TransparencySection";
 
 // Log de início de renderização da página inicial
 console.log("🔵 [Index] Renderizando página inicial");
@@ -60,18 +59,17 @@ const Index = () => {
 
   return (
     <>
-      {/* Hero Section customizada */}
       <HeroSection variant="library">
         <h1><LibraryHeroText /></h1>
         <p className="prose-lg">
           Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
         </p>
-        <a className="btn-primary text-2xl" href="/buscar">
+        <a className="btn-primary prose-lg" href="/buscar">
           Explorar Acervo
         </a>
       </HeroSection>
-      {/* About Section */}
-      <AboutSection
+
+      <TextSection
         title="Biblioteca: um espaço que cresce com você"
         paragraphs={[
           "A biblioteca é um lugar de encontros e descobertas. Aqui, cada livro, cada conversa e cada pesquisa ajudam a abrir caminhos para novas ideias e novas possibilidades.",
@@ -79,9 +77,12 @@ const Index = () => {
         ]}
         buttonText="Ajude a biblioteca"
         buttonLink="/ajude"
+        buttonClass="btn-primary"
         imageSrc="/images/prateleira.png"
         imageAlt="Ciências Moleculares"
+        reverse={true}
       />
+      
       <StatsSection
         stats={stats}
         order={["users", "subareas", "books"]}
@@ -91,8 +92,21 @@ const Index = () => {
         bgClass="bg-library-purple"
         textClass="text-white"
       />
-      {/* Portal da Transparência Section */}
-      <TransparencySection />
+
+      <TextSection
+        title="Conheça melhor nossos números"
+        paragraphs={[
+          "Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento da biblioteca.",
+          "Confira gráficos detalhados sobre empréstimos, acervo e usuários. Todos os dados são apresentados de forma agregada, sem expor informações pessoais."
+        ]}
+        buttonText="Biblioteca em Dados"
+        buttonLink="/transparencia"
+        buttonClass="btn-primary"
+        imageSrc="/images/image.png"
+        imageAlt=""
+        reverse={false}
+      />
+      
       <FeatureSection
         title="Recursos do site"
         cards={[
@@ -121,8 +135,7 @@ const Index = () => {
             colorClass: "bg-cm-green"
           }
         ]}
-        columns={3}
-        bgClass="bg-gray-100"
+        columns='md:grid-cols-3 md:gap-8 lg:gap-12'
       />
     </>
   );

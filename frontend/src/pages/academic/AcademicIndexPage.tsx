@@ -3,10 +3,10 @@
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
 import MolecoogleWindow from "@/features/index/helpers/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";
-import { AboutSection } from "@/features/index/sections/AboutSection";
+import { TextSection } from "@/features/index/sections/TextSection";
 import { StatsSection } from "@/features/index/sections/StatsSection";
 import type { StatsType } from "@/features/index/helpers/StatsGrid";
-import { FeatureSection } from "@/features/index/sections/FeatureSection";
+import { FeatureSection } from "@/features/index/sections/FeaturesSection";
 import { HeroSection } from "@/features/index/sections/HeroSection";
 
 // Log de início de renderização da página inicial acadêmica
@@ -23,13 +23,11 @@ const AcademicIndexPage = () => {
     <div className="min-h-screen flex flex-col">
       
 
-      {/* Hero Section customizada */}
       <HeroSection variant="academic">
         <MolecoogleWindow />
       </HeroSection>
       
-      {/* About Section */}
-      <AboutSection
+      <TextSection
         title="Ciclo Avançado: sua jornada de especialização"
         paragraphs={[
           "O Ciclo Avançado do Ciências Moleculares é o momento de escolher sua área de concentração e aprofundar seus conhecimentos em disciplinas específicas de diferentes institutos da USP.",
@@ -37,9 +35,10 @@ const AcademicIndexPage = () => {
         ]}
         buttonText="Saiba mais"
         buttonLink="/academico/faq"
-        buttonClass="btn-primary-academic"
-        imageSrc="/images/prateleira.png"
+        buttonClass="btn-academic"
+        imageSrc="/images/image.png"
         imageAlt="Ciências Moleculares"
+        reverse={false}
       />
 
       <StatsSection
@@ -52,6 +51,20 @@ const AcademicIndexPage = () => {
         textClass="text-white"
       />
 
+      <TextSection
+        title="Conheça melhor nossos números"
+        paragraphs={[
+          "Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento da biblioteca.",
+          "Confira gráficos detalhados sobre empréstimos, acervo e usuários. Todos os dados são apresentados de forma agregada, sem expor informações pessoais."
+        ]}
+        buttonText="Biblioteca em Dados"
+        buttonLink="/transparencia"
+        buttonClass="btn-academic"
+        imageSrc="/images/image.png"
+        imageAlt=""
+        reverse={true}
+      />
+
       <FeatureSection
         title="Recursos disponíveis"
         cards={[
@@ -62,7 +75,6 @@ const AcademicIndexPage = () => {
             buttonText: "Buscar Disciplinas",
             buttonLink: "/academico/buscar",
             colorClass: "bg-cm-green",
-            buttonClass: "bg-cm-green hover:bg-cm-green/70"
           },
           {
             icon: <Calendar className="h-10 w-10 text-white" />,
@@ -71,7 +83,6 @@ const AcademicIndexPage = () => {
             buttonText: "Montar Grade",
             buttonLink: "/academico/grade",
             colorClass: "bg-cm-blue",
-            buttonClass: "bg-cm-blue hover:bg-cm-blue/70"
           },
           {
             icon: <MessageSquare className="h-10 w-10 text-white" />,
@@ -80,7 +91,6 @@ const AcademicIndexPage = () => {
             buttonText: "Acessar Fórum",
             buttonLink: "/forum",
             colorClass: "bg-academic-blue",
-            buttonClass: "bg-academic-blue hover:bg-academic-blue/70"
           },
           {
             icon: <GraduationCap className="h-10 w-10 text-white" />,
@@ -89,11 +99,9 @@ const AcademicIndexPage = () => {
             buttonText: "Ver FAQ",
             buttonLink: "/academico/faq",
             colorClass: "bg-cm-red",
-            buttonClass: "bg-cm-red hover:bg-cm-red/70"
           }
         ]}
-        columns={4}
-        bgClass="bg-gray-100"
+        columns='md:grid-cols-2 lg:grid-cols-4 md:gap-12 lg:gap-8'
       />
       
       

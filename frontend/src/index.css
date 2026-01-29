@@ -84,15 +84,38 @@
   }
 
   .btn-primary {
-    @apply btn bg-library-purple text-white px-7 py-5 text-base md:text-lg;
+    @apply btn bg-library-purple text-white px-7 py-5 prose-md;
   }
 
   .btn-academic {
-    @apply btn bg-academic-blue text-white px-7 py-5;
+    @apply btn bg-academic-blue text-white px-7 py-5 prose-md;
   }
 
   .btn-wide {
     @apply btn text-white w-full rounded-xl;
+  }
+}
+
+@layer components {
+  .card {
+    @apply 
+      bg-white 
+      rounded-2xl 
+      shadow-md 
+      border border-gray-200 
+      p-4 md:p-6
+      flex flex-col 
+      items-center text-center;
+  }
+
+  .card-icon {
+    @apply 
+      -mt-16 mb-4 
+      flex 
+      items-center justify-center
+      w-24 h-24 
+      rounded-full 
+      border-8 border-white;
   }
 }
 
