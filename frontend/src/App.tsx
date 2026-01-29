@@ -30,8 +30,7 @@ import NewQuestionPage from "./pages/academic/NewQuestionPage";
 import AdminPendingTagsPage from "./pages/utilities/AdminPendingTagsPage";
 import TransparencyPortalPage from "./pages/library/TransparencyPortalPage";
 
-import FAQTestPage from "./pages/testing/FAQTestPage";
-import ExampleTabsPage from "./pages/testing/ExampleTabsPage";
+import TestPage from "./pages/testing/TestPage";
 
 // Log de início de renderização do App
 console.log("🔵 [App] Renderizando componente raiz da aplicação");
@@ -48,8 +47,8 @@ const App = () => (
           <ScrollToTop />
           <Routes>
 
-            {/* Rotas de teste */}
-            <Route path="/example-tabs" element={<ExampleTabsPage />} />
+            {/* Rota de teste */}
+            <Route path="/test" element={<TestPage />} />
 
             <Route path="/" element={<Index />} />
             <Route path="/buscar" element={<SearchPage />} />
