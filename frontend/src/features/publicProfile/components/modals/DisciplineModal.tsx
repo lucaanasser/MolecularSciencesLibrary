@@ -193,7 +193,7 @@ export const DisciplineModal = ({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <Button onClick={onClose} variant="outline" disabled={saving}>
+          <Button onClick={onClose} variant="default" disabled={saving}>
             Cancelar
           </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-academic-blue hover:bg-academic-blue/90">

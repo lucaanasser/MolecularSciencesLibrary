@@ -33,7 +33,7 @@ const AcademicIndexPage = () => {
         ]}
         buttonText="Saiba mais"
         buttonLink="/academico/faq"
-        buttonClass="btn-academic"
+        buttonVariant="secondary"
         imageSrc="/images/image.png"
         imageAlt="Ciências Moleculares"
         reverse={false}
@@ -57,7 +57,7 @@ const AcademicIndexPage = () => {
         ]}
         buttonText="Biblioteca em Dados"
         buttonLink="/transparencia"
-        buttonClass="btn-academic"
+        buttonVariant="secondary"
         imageSrc="/images/image.png"
         imageAlt=""
         reverse={true}

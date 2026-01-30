@@ -156,7 +156,7 @@ const BookSearch: React.FC = () => {
           {/* Mobile: Filtros em drawer e resultados embaixo */}
             <Drawer>
               <DrawerTrigger asChild>
-                <Button variant="outline" className="mb-4 ml-2 w-full">Filtrar</Button>
+                <Button variant="default" className="mb-4 ml-2 w-full">Filtrar</Button>
               </DrawerTrigger>
               <DrawerContent>
                 <div className="p-4">

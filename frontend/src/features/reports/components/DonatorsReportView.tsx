@@ -142,7 +142,7 @@ export default function DonatorsReportView() {
             </Button>
             <Button 
               onClick={handleDownloadPDF} 
-              variant="outline" 
+              variant="default" 
               className="gap-2"
               disabled={downloading}
             >
@@ -325,7 +325,7 @@ export default function DonatorsReportView() {
                   <tr key={donation.id} className={i % 2 === 0 ? 'bg-gray-50' : ''}>
                     <td className="p-2 font-medium">{donation.donator_name}</td>
                     <td className="p-2">
-                      <Badge variant="outline" className={
+                      <Badge variant="default" className={
                         donation.type === 'book' 
                           ? 'bg-orange-50 text-orange-700' 
                           : 'bg-green-50 text-green-700'

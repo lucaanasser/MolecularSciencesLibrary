@@ -59,7 +59,7 @@ const BookReservePanel: React.FC = () => {
       </CardHeader>
       <CardContent>
         <Button 
-          variant="outline" 
+          variant="default" 
           className="mb-4 rounded-xl" 
           onClick={handleClose}
         >

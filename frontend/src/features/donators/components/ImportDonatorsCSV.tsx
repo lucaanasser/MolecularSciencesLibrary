@@ -39,7 +39,7 @@ export default function ImportDonatorsCSV({ onCancel, onSuccess, onError }: Impo
                   <li><strong>notes</strong>: Observações (opcional)</li>
                 </ul>
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={handleDownloadTemplate}
                   className="mt-2"

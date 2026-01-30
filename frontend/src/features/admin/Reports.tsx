@@ -13,7 +13,7 @@ const Reports = () => {
   if (selectedReport) {
     return (
       <div className="p-3 sm:p-4 md:p-6">
-        <Button variant="outline" onClick={handleBack} className="mb-4">
+        <Button variant="default" onClick={handleBack} className="mb-4">
           ← Voltar
         </Button>
         {selectedReport === 'loans' && <LoansReportView />}

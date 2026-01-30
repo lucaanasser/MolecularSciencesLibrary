@@ -168,11 +168,11 @@ export default function BookSearchList({
       )}
 
       <div className="flex gap-2 mt-2">
-        <Button variant="outline" onClick={() => {
+        <Button variant="default" onClick={() => {
           console.warn("🟡 [BookSearchList] Voltar clicado");
           onPrevious();
         }}>Voltar</Button>
-        {onCancel && <Button variant="outline" onClick={() => {
+        {onCancel && <Button variant="default" onClick={() => {
           console.warn("🟡 [BookSearchList] Cancelar clicado");
           onCancel();
         }}>Cancelar</Button>}

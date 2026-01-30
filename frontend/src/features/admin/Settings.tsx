@@ -20,7 +20,7 @@ const Settings = () => {
             {showRulesForm ? (
               <>
                 <LoanRulesForm onSuccess={() => setShowRulesForm(false)} />
-                <Button variant="outline" className="mt-4 w-full text-sm sm:text-base" onClick={() => setShowRulesForm(false)}>
+                <Button variant="default" className="mt-4 w-full text-sm sm:text-base" onClick={() => setShowRulesForm(false)}>
                   Cancelar
                 </Button>
               </>

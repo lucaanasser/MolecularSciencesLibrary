@@ -217,7 +217,7 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
             </Button>
             <Button
               size="sm"
-              variant="outline"
+              variant="default"
               onClick={() => {
                 setAddingShelf(null);
                 setNewShelfCode("");
@@ -291,7 +291,7 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
             </Button>
             <Button
               size="sm"
-              variant="outline"
+              variant="default"
               onClick={handleCancelAdd}
               disabled={loading}
               className="h-6 w-6 p-0"
@@ -354,7 +354,7 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
                   </Button>
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="default"
                     onClick={handleCancelEdit}
                     disabled={loading}
                     className="h-6 w-6 p-0"
@@ -403,7 +403,7 @@ const VirtualBookshelfAdminEditor: React.FC<VirtualBookshelfAdminEditorProps> = 
                   </Button>
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="default"
                     onClick={handleCancelEdit}
                     disabled={loading}
                     className="h-6 w-6 p-0"

@@ -108,7 +108,7 @@ const ManageReserve = () => {
       {selectedTab === 'add' && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => {
               setSelectedTab(null);
@@ -153,7 +153,7 @@ const ManageReserve = () => {
       {selectedTab === 'remove' && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => {
               setSelectedTab(null);
@@ -211,7 +211,7 @@ const ManageReserve = () => {
                         Sim, Remover Todos
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="default"
                         className="flex-1"
                         onClick={() => setConfirmClearAll(false)}
                       >
@@ -232,7 +232,7 @@ const ManageReserve = () => {
       {selectedTab === 'list' && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setSelectedTab(null)}
           >

@@ -32,7 +32,7 @@ const Notifications = () => {
               <>
                 <SendNotification />
                 <Button
-                  variant="outline"
+                  variant="default"
                   className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowSend(false)}
                 >
@@ -59,7 +59,7 @@ const Notifications = () => {
               <>
                 <NotificationList notifications={notifications} loading={loading} adminSearch />
                 <Button
-                  variant="outline"
+                  variant="default"
                   className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowHistory(false)}
                 >
@@ -91,7 +91,7 @@ const Notifications = () => {
                   onEmailDeleted={refetch}
                 />
                 <Button
-                  variant="outline"
+                  variant="default"
                   className="mt-4 w-full text-sm sm:text-base"
                   onClick={() => setShowInbox(false)}
                 >

@@ -90,7 +90,7 @@ export const InternationalTab = ({
           </div>
           <p className="text-gray-400 text-lg">Nenhuma experiência internacional adicionada.</p>
           {isEditing && (
-            <Button onClick={handleAddClick} variant="outline" className="mt-6 rounded-full">
+            <Button onClick={handleAddClick} variant="default" className="mt-6 rounded-full">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar primeira experiência
             </Button>
@@ -129,7 +129,7 @@ export const InternationalTab = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="default" className="text-xs">
                           {typeConfig.label}
                         </Badge>
                       </div>

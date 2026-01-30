@@ -104,7 +104,7 @@ export function AddCustomDiscipline({ onAdd, disabled, colorIndex = 0 }: AddCust
     <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-1.5">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" disabled={disabled} className="w-full h-7 text-xs">
+          <Button variant="default" disabled={disabled} className="w-full h-7 text-xs">
             <Plus className="w-3 h-3 mr-1" />
             Adicionar Manualmente
           </Button>

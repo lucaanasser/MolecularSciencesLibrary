@@ -357,7 +357,7 @@ export const ProfileHeader = ({
               {tags.map((tag) => (
                 <Badge
                   key={tag.id}
-                  variant="outline"
+                  variant="default"
                   className={cn("text-xs font-medium border", TAG_STYLES[tag.category || "custom"])}
                 >
                   {tag.label}

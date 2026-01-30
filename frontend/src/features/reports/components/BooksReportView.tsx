@@ -110,7 +110,7 @@ export default function BooksReportView() {
             </p>
             <Button 
               onClick={handleDownloadPDF} 
-              variant="outline" 
+              variant="default" 
               className="gap-2"
               disabled={downloading}
             >
@@ -348,7 +348,7 @@ export default function BooksReportView() {
                     <td className="p-2 font-medium">{book.title}</td>
                     <td className="p-2">{book.author}</td>
                     <td className="p-2">
-                      <Badge variant="outline">{book.area || 'Não definida'}</Badge>
+                      <Badge variant="default">{book.area || 'Não definida'}</Badge>
                     </td>
                     <td className="p-2">
                       {new Date(book.created_at).toLocaleDateString('pt-BR')}

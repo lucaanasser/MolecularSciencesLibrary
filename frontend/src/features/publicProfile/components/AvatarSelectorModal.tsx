@@ -252,7 +252,7 @@ export const AvatarSelectorModal = ({
                     </Button>
                     <Button
                       onClick={() => setUploadedImage(null)}
-                      variant="outline"
+                      variant="default"
                       className="flex-1"
                       disabled={saving}
                     >

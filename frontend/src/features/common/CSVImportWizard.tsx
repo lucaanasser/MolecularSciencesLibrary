@@ -116,7 +116,7 @@ export default function CSVImportWizard({ endpoint, requiredFields, instructions
               </p>
               <p className="text-xs text-gray-500 mb-4">ou</p>
               <label htmlFor="csv-upload" className="cursor-pointer">
-                <Button type="button" variant="outline" asChild>
+                <Button type="button" variant="default" asChild>
                   <span>Selecionar Arquivo</span>
                 </Button>
                 <input
@@ -187,7 +187,7 @@ export default function CSVImportWizard({ endpoint, requiredFields, instructions
                 </div>
               )}
               <Button
-                variant="outline"
+                variant="default"
                 onClick={handleReset}
                 className="w-full"
               >
@@ -199,7 +199,7 @@ export default function CSVImportWizard({ endpoint, requiredFields, instructions
           {!result && (
             <div className="flex gap-2">
               <Button
-                variant="outline"
+                variant="default"
                 onClick={onCancel}
                 className="flex-1"
               >

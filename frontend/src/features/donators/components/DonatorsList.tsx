@@ -86,9 +86,9 @@ export default function DonatorsList() {
 
   const getUserTypeBadge = (donator: Donator) => {
     if (donator.user_id) {
-      return <Badge variant="outline" className="border-purple-200 text-purple-700">Cadastrado</Badge>;
+      return <Badge variant="default" className="border-purple-200 text-purple-700">Cadastrado</Badge>;
     }
-    return <Badge variant="outline" className="border-gray-300 text-gray-600">Não cadastrado</Badge>;
+    return <Badge variant="default" className="border-gray-300 text-gray-600">Não cadastrado</Badge>;
   };
 
   if (loading) {

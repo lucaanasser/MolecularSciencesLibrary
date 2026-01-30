@@ -134,7 +134,7 @@ export default function BooksList({ onClose }: BooksListProps) {
       <div className="flex justify-start items-center">
         <Button
           onClick={handleExportCSV}
-          variant="outline"
+          variant="default"
           className="flex items-center gap-2"
         >
           <Download className="h-4 w-4" />

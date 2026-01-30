@@ -114,7 +114,7 @@ export function CombinationSelector({
       <div className="flex items-center gap-2">
         {/* Botão anterior */}
         <Button
-          variant="outline"
+          variant="default"
           size="icon"
           onClick={handlePrevious}
           disabled={currentIndex === 0}
@@ -161,7 +161,7 @@ export function CombinationSelector({
 
         {/* Botão próximo */}
         <Button
-          variant="outline"
+          variant="default"
           size="icon"
           onClick={handleNext}
           disabled={currentIndex === combinations.length - 1}

@@ -6,6 +6,7 @@ import { StatsSection } from "@/features/index/sections/StatsSection";
 import { FeatureSection } from "@/features/index/sections/FeaturesSection";
 import { HeroSection } from "@/features/index/sections/HeroSection";
 import { LibraryHeroText } from "@/features/index/helpers/LibraryHeroText";
+import { Button } from "@/components/ui/button";
 
 // Log de início de renderização da página inicial
 console.log("🔵 [Index] Renderizando página inicial");
@@ -61,9 +62,11 @@ const Index = () => {
         <p className="prose-lg">
           Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
         </p>
-        <a className="btn-primary prose-lg" href="/buscar">
-          Explorar Acervo
-        </a>
+        <Button variant="primary" size="lg" className="prose-lg" asChild>
+          <a href="/buscar">
+            Explorar Acervo
+          </a>
+        </Button>
       </HeroSection>
 
       <TextSection
@@ -74,7 +77,7 @@ const Index = () => {
         ]}
         buttonText="Ajude a biblioteca"
         buttonLink="/ajude"
-        buttonClass="btn-primary"
+        buttonVariant="primary"
         imageSrc="/images/prateleira.png"
         imageAlt="Ciências Moleculares"
         reverse={true}
@@ -98,7 +101,7 @@ const Index = () => {
         ]}
         buttonText="Biblioteca em Dados"
         buttonLink="/transparencia"
-        buttonClass="btn-primary"
+        buttonVariant="primary"
         imageSrc="/images/image.png"
         imageAlt=""
         reverse={false}

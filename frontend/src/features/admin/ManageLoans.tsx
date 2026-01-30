@@ -124,7 +124,7 @@ const ManageLoans = () => {
         {selectedTab === "loan" && (
             <div className="mt-6">
             <Button 
-                variant="outline" 
+                variant="default" 
                 className="mb-4 rounded-xl" 
                 onClick={() => {
                 console.warn("🟡 [AdminPage/ManageLoans] Voltar do formulário de empréstimo");
@@ -150,7 +150,7 @@ const ManageLoans = () => {
         {selectedTab === "list" && (
             <div className="mt-6">
             <Button 
-                variant="outline" 
+                variant="default" 
                 className="mb-4 rounded-xl" 
                 onClick={() => {
                 console.warn("🟡 [AdminPage/ManageLoans] Voltar da lista de empréstimos");
@@ -173,7 +173,7 @@ const ManageLoans = () => {
         {selectedTab === "internal" && (
             <div className="mt-6">
             <Button 
-                variant="outline" 
+                variant="default" 
                 className="mb-4 rounded-xl" 
                 onClick={() => {
                 console.warn("🟡 [AdminPage/ManageLoans] Voltar do uso interno");

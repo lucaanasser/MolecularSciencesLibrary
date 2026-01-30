@@ -219,7 +219,7 @@ export const AdvancedCycleModal = ({
                 <Button
                   type="button"
                   onClick={() => addCoorientador(coorientadorInput)}
-                  variant="outline"
+                  variant="default"
                   size="sm"
                 >
                   <Plus className="w-4 h-4" />
@@ -335,7 +335,7 @@ export const AdvancedCycleModal = ({
                   onClick={() => {
                     if (tagInput.area) addTag(tagInput.area, "area");
                   }}
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   disabled={areaTags.length >= 2}
                 >
@@ -383,7 +383,7 @@ export const AdvancedCycleModal = ({
                   onClick={() => {
                     if (tagInput.subarea) addTag(tagInput.subarea, "subarea");
                   }}
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   disabled={subareaTags.length >= 3}
                 >
@@ -409,7 +409,7 @@ export const AdvancedCycleModal = ({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <Button onClick={onClose} variant="outline" disabled={saving}>
+          <Button onClick={onClose} variant="default" disabled={saving}>
             Cancelar
           </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-cm-blue hover:bg-cm-blue/90">

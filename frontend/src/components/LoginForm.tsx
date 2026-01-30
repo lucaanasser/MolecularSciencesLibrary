@@ -162,8 +162,6 @@ const LoginForm: React.FC = () => {
           </div>
           <div className="flex justify-end mt-2">
             <Button
-              type="button"
-              variant="link"
               className={`text-${modeColor} px-0 text-sm`}
               onClick={handleForgotPassword}
               disabled={forgotLoading}
@@ -171,13 +169,13 @@ const LoginForm: React.FC = () => {
               {forgotLoading ? "Enviando..." : "Esqueci minha senha"}
             </Button>
           </div>
-          <button
+          <Button
             type="submit"
-            className={`btn-wide bg-${modeColor}`}
+            variant="wide"
             disabled={isLoading}
           >
             {isLoading ? "Entrando..." : "Entrar"}
-          </button>
+          </Button>
         </form>
       </Card>
     </div>

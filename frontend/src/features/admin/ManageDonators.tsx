@@ -96,7 +96,7 @@ const ManageDonators = () => {
       {showAddForm && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setShowAddForm(false)}
           >
@@ -123,7 +123,7 @@ const ManageDonators = () => {
       {showList && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setShowList(false)}
           >
@@ -136,7 +136,7 @@ const ManageDonators = () => {
             <CardContent>
               <div className="mb-4">
                 <Button
-                  variant="outline"
+                  variant="default"
                   onClick={handleExportCSV}
                   className="flex items-center gap-2"
                 >
@@ -153,7 +153,7 @@ const ManageDonators = () => {
       {showImportCSV && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setShowImportCSV(false)}
           >

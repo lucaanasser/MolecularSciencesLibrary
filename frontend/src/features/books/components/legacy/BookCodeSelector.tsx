@@ -159,7 +159,7 @@ const BookCodeSelector: React.FC<BookCodeSelectorProps> = ({
 
         {/* Footer */}
         <div className="p-4 border-t flex justify-end">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="default" onClick={onClose}>
             Cancelar
           </Button>
         </div>

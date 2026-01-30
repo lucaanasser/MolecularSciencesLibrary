@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
+import { Button, buttonVariants } from "@/components/ui/button";
+import type { VariantProps } from "class-variance-authority";
 
 export function TextSection({
   title,
   paragraphs,
   buttonText,
   buttonLink,
-  buttonClass,
+  buttonVariant,
   imageSrc,
   imageAlt = "",
   reverse = false,
@@ -14,7 +16,7 @@ export function TextSection({
   paragraphs: string[];
   buttonText: string;
   buttonLink: string;
-  buttonClass: string;
+  buttonVariant: VariantProps<typeof buttonVariants>["variant"];
   imageSrc: string;
   imageAlt?: string;
   reverse?: boolean;
@@ -40,9 +42,9 @@ export function TextSection({
             <p key={i}>{p}</p>
           ))}
           
-          <button className={buttonClass}>
+          <Button variant={buttonVariant}>
             <Link to={buttonLink}>{buttonText}</Link>
-          </button>
+          </Button>
         </div>
         
       </div>

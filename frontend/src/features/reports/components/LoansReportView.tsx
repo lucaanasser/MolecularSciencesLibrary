@@ -133,7 +133,7 @@ export default function LoansReportView() {
             </Button>
             <Button 
               onClick={handleDownloadPDF} 
-              variant="outline" 
+              variant="default" 
               className="gap-2"
               disabled={downloading}
             >
@@ -294,7 +294,7 @@ export default function LoansReportView() {
                     <td className="p-2">{user.name}</td>
                     <td className="p-2 font-mono">{user.NUSP}</td>
                     <td className="p-2">
-                      <Badge variant="outline">{user.role}</Badge>
+                      <Badge variant="default">{user.role}</Badge>
                     </td>
                     <td className="p-2 text-right font-semibold">{user.loan_count}</td>
                   </tr>

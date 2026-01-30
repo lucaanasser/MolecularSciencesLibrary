@@ -65,7 +65,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, areaCodes, subareaCodes, load
         </div>
         <div className="mt-4 flex justify-end gap-2">
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             className="rounded-xl bg-white text-cm-purple border-cm-purple hover:bg-cm-purple/80 hover:text-white"
             onClick={() => onDetails(book)}

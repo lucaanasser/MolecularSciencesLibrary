@@ -74,7 +74,7 @@ export default function BookAreaStep({
         }}>
           Avançar
         </Button>
-        {onCancel && <Button variant="outline" onClick={() => {
+        {onCancel && <Button variant="default" onClick={() => {
           console.warn("🟡 [BookAreaStep] Cancelar clicado");
           onCancel();
         }}>Cancelar</Button>}

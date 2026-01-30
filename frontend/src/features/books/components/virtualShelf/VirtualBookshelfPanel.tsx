@@ -244,7 +244,7 @@ const VirtualBookshelf = () => {
                 if (prateleirasNaEstante < NUM_ROWS) {
                   return (
                     <div className="flex justify-center mt-2">
-                      <Button onClick={handleAddShelfRow} variant="outline" className="text-xs py-1 px-2">
+                      <Button onClick={handleAddShelfRow} variant="default" className="text-xs py-1 px-2">
                         + Adicionar prateleira à estante {selectedShelf}
                       </Button>
                     </div>

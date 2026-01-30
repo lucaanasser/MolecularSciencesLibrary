@@ -7,8 +7,24 @@
 
 @layer base {
   :root {
+    /* Border radius and padding */
     --radius: 0.5rem;
     --x-padding: 1.5rem;
+
+    /* Button and theme colors */
+    --default-foreground: hsl(0, 0%, 0%);
+
+    --primary: theme(colors.library-purple);
+    --primary-foreground: theme(colors.white);
+    
+    --secondary: theme(colors.academic-blue);
+    --secondary-foreground: theme(colors.white);
+    
+    --destructive: theme(colors.cm-red);
+    --destructive-foreground: theme(colors.white);
+    
+    --accent: hsl(0, 0%, 80%);
+    --accent-foreground: hsl(0, 0%, 20%);
   }
 
   body { @apply 
@@ -67,34 +83,7 @@
   .link { @apply underline hover:text-academic-blue; }
 }
 
-@layer components {
-  .btn { @apply 
-    inline-flex 
-    items-center justify-center 
-    whitespace-nowrap
-    h-10 
-    rounded-2xl 
-    font-semibold
-    duration-300;
-  }
-
-  .btn:hover {
-    transform: scale(1.05);
-    @apply shadow-lg;
-  }
-
-  .btn-primary {
-    @apply btn bg-library-purple text-white px-7 py-5 prose-md;
-  }
-
-  .btn-academic {
-    @apply btn bg-academic-blue text-white px-7 py-5 prose-md;
-  }
-
-  .btn-wide {
-    @apply btn text-white w-full rounded-xl;
-  }
-}
+/* Removidas classes de botão duplicadas. Use variantes do componente Button para estilos de botão. */
 
 @layer components {
   .card {

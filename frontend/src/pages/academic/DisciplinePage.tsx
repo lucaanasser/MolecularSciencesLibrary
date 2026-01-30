@@ -385,7 +385,7 @@ const DisciplinePage: React.FC = () => {
         <div className="flex-grow flex flex-col items-center justify-center gap-4">
           <AlertCircle className="w-12 h-12 text-red-500" />
           <p className="text-gray-600">{error || "Disciplina não encontrada"}</p>
-          <Button onClick={() => navigate(-1)} variant="outline">
+          <Button onClick={() => navigate(-1)}>
             <ChevronLeft className="w-4 h-4 mr-1" />
             Voltar
           </Button>
@@ -521,7 +521,6 @@ const DisciplinePage: React.FC = () => {
                       </Button>
                       <Button
                         onClick={handleDeleteEvaluation}
-                        variant="outline"
                         className="rounded-xl py-3 text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -542,7 +541,6 @@ const DisciplinePage: React.FC = () => {
                 ) : (
                   <Button
                     onClick={() => navigate("/login")}
-                    variant="outline"
                     className="w-full rounded-xl font-bold py-3 border-academic-blue text-academic-blue hover:bg-academic-blue/5"
                   >
                     Faça login para avaliar
@@ -717,7 +715,7 @@ const DisciplinePage: React.FC = () => {
                             {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             {isEditMode ? "Salvar Alterações" : "Publicar Avaliação"}
                           </Button>
-                          <Button variant="outline" onClick={resetForm}>
+                          <Button onClick={resetForm}>
                             Cancelar
                           </Button>
                         </div>
@@ -727,7 +725,6 @@ const DisciplinePage: React.FC = () => {
                     {!showReviewForm && isLoggedIn && !myEvaluation && (
                       <Button
                         onClick={() => setShowReviewForm(true)}
-                        variant="outline"
                         className="w-full border-dashed border-academic-blue text-academic-blue hover:bg-academic-blue/5"
                       >
                         <Star className="w-4 h-4 mr-2" />

@@ -75,7 +75,7 @@ export const PostCMTab = ({ posCM, isEditing, onAdd, onSave, onRemove, onUpdate 
             <Briefcase className="w-12 h-12 text-gray-300" />
           </div>
           <p className="text-gray-400 text-lg">Nenhuma informação pós-CM adicionada.</p>
-          <Button onClick={handleAddClick} variant="outline" className="mt-6 rounded-full">
+          <Button onClick={handleAddClick} variant="default" className="mt-6 rounded-full">
             <Plus className="w-4 h-4 mr-2" />
             Adicionar primeira informação
           </Button>

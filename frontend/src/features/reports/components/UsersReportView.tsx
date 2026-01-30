@@ -132,7 +132,7 @@ export default function UsersReportView() {
             </Button>
             <Button 
               onClick={handleDownloadPDF} 
-              variant="outline" 
+              variant="default" 
               className="gap-2"
               disabled={downloading}
             >
@@ -284,7 +284,7 @@ export default function UsersReportView() {
                     <td className="p-2">{user.name}</td>
                     <td className="p-2 font-mono">{user.NUSP}</td>
                     <td className="p-2">
-                      <Badge variant="outline">{user.role}</Badge>
+                      <Badge variant="default">{user.role}</Badge>
                     </td>
                     <td className="p-2">{user.class || '-'}</td>
                     <td className="p-2 text-right font-semibold">{user.total_loans}</td>

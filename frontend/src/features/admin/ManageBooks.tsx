@@ -90,7 +90,7 @@ const ManageBooks = () => {
       {selectedTab === "add" && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setSelectedTab(null)}
           >
@@ -119,7 +119,7 @@ const ManageBooks = () => {
       {selectedTab === "remove" && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setSelectedTab(null)}
           >
@@ -148,7 +148,7 @@ const ManageBooks = () => {
       {selectedTab === "import" && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setSelectedTab(null)}
           >
@@ -168,7 +168,7 @@ const ManageBooks = () => {
       {selectedTab === "list" && (
         <div className="mt-6">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="mb-4 rounded-xl" 
             onClick={() => setSelectedTab(null)}
           >

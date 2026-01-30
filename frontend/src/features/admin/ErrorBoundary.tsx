@@ -31,7 +31,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           <h3 className="text-xl font-semibold text-red-600 mb-2">Algo deu errado</h3>
           <p className="text-gray-600 mb-4">Ocorreu um erro ao renderizar este componente.</p>
           <Button 
-            variant="outline" 
+            variant="default" 
             onClick={() => this.setState({ hasError: false, error: null })}
           >
             Tentar novamente

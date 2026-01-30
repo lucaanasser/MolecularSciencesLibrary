@@ -142,7 +142,7 @@ export default function BookDetailsStep({
           {isSubmitting ? "Salvando..." : submitLabel}
         </Button>
         <Button 
-          variant="outline" 
+          variant="default" 
           type="button" 
           onClick={() => {
             console.warn("🟡 [BookDetailsStep] Voltar clicado");

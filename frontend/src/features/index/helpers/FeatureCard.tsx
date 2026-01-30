@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 export type FeatureCardType = {
   icon: ReactNode;
@@ -22,12 +23,11 @@ export function FeatureCard({ cards }: { cards: FeatureCardType[] }) {
           <h4>{card.title}</h4>
           <p className="prose-sm">{card.description}</p>
 
-          <Link
-            to={card.buttonLink}
-            className={`btn-wide ${card.colorClass} mt-auto`}
-          >
-            {card.buttonText}
-          </Link>
+          <Button variant="wide" size="sm" className={`mt-auto ${card.colorClass}`}>
+            <Link to={card.buttonLink} className="w-full h-full flex items-center justify-center">
+              {card.buttonText}
+            </Link>
+          </Button>
         </article>
       ))}
     </>

@@ -75,7 +75,7 @@ export const AdvancedCyclesTab = ({
           </div>
           <p className="text-gray-400 text-lg">Nenhum ciclo avançado adicionado.</p>
           {isEditing && (
-            <Button onClick={handleAddClick} variant="outline" className="mt-6 rounded-full">
+            <Button onClick={handleAddClick} variant="default" className="mt-6 rounded-full">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar primeiro avançado
             </Button>
@@ -197,7 +197,7 @@ export const AdvancedCyclesTab = ({
                               </Badge>
                             ))}
                             {subareaTags.map((tag) => (
-                              <Badge key={tag.id} variant="outline">
+                              <Badge key={tag.id} variant="default">
                                 {tag.label}
                               </Badge>
                             ))}

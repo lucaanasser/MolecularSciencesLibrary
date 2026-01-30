@@ -103,7 +103,7 @@ export const DisciplinesTab = ({
           </div>
           <p className="text-gray-400 text-lg">Nenhuma disciplina adicionada.</p>
           {isEditing && (
-            <Button onClick={handleAddClick} variant="outline" className="mt-6 rounded-full">
+            <Button onClick={handleAddClick} variant="default" className="mt-6 rounded-full">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar primeira disciplina
             </Button>
@@ -166,7 +166,7 @@ export const DisciplinesTab = ({
                         </span>
                         {disc.avancadoId && (
                           <Badge 
-                            variant="outline" 
+                            variant="default" 
                             className={cn("text-[10px] border", BADGE_COLORS[avancadoIndex % BADGE_COLORS.length])}
                           >
                             Av. {avancadoIndex + 1}

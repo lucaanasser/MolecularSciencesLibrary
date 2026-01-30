@@ -34,7 +34,7 @@ export default function BookLanguageStep({ onLanguageSelect, onPrevious }: BookL
           <SelectItem value="4">Outros Idiomas</SelectItem>
         </SelectContent>
       </Select>
-      <Button variant="outline" onClick={() => {
+      <Button variant="default" onClick={() => {
         console.warn("🟡 [BookLanguageStep] Voltar clicado");
         onPrevious();
       }}>Voltar</Button>

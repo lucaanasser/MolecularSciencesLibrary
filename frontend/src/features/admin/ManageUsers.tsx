@@ -83,7 +83,7 @@ const ManageUsers = () => {
         {showAddForm && (
             <div className="mt-6">
             <Button 
-                variant="outline" 
+                variant="default" 
                 className="mb-4 rounded-xl" 
                 onClick={() => {
                 console.warn("🟡 [AdminPage/ManageUsers] Voltar de adicionar usuário");
@@ -117,7 +117,7 @@ const ManageUsers = () => {
         {showUserList && (
             <div className="mt-6">
             <Button 
-                variant="outline" 
+                variant="default" 
                 className="mb-4 rounded-xl" 
                 onClick={() => {
                 console.warn("🟡 [AdminPage/ManageUsers] Voltar da lista de usuários");
@@ -141,7 +141,7 @@ const ManageUsers = () => {
         {showRemoveForm && (
             <div className="mt-6">
             <Button 
-                variant="outline" 
+                variant="default" 
                 className="mb-4 rounded-xl" 
                 onClick={() => {
                 console.warn("🟡 [AdminPage/ManageUsers] Voltar de remover usuário");
