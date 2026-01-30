@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import ActionBar from "@/features/admin/components/ActionBar";
 import { useRemoveUser } from "@/features/users/hooks/useRemoveUser";
 import { User } from "@/features/users/types/user";
 
@@ -15,19 +16,25 @@ import { User } from "@/features/users/types/user";
 interface RemoveUserFormProps {
   onSuccess?: () => void;
   onError?: (err: Error) => void;
+  onBack?: () => void;
 }
 
-export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormProps) {
+export default function RemoveUserForm({ onSuccess, onError, onBack }: RemoveUserFormProps) {
   const [query, setQuery] = useState("");
   const [foundUser, setFoundUser] = useState<User | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(false);
   const { removeUser, loading, error } = useRemoveUser();
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
+    await doSearch();
+  }
+
+  async function doSearch() {
     setSearching(true);
     setFoundUser(null);
-
+    setSearched(false);
     try {
       console.log("🔵 [RemoveUserForm] Buscando usuário:", query);
       const res = await fetch(`/api/users`);
@@ -40,6 +47,7 @@ export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormPro
           (u.NUSP && String(u.NUSP) === q)
       );
       setFoundUser(user || null);
+      setSearched(true);
       if (user) {
         console.log("🟢 [RemoveUserForm] Usuário encontrado:", user);
       } else {
@@ -47,10 +55,16 @@ export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormPro
       }
     } catch (err) {
       setFoundUser(null);
+      setSearched(true);
       console.error("🔴 [RemoveUserForm] Erro ao buscar usuário:", err);
     } finally {
       setSearching(false);
     }
+  }
+
+  // Handler para ActionBar
+  function handleSearchClick() {
+    doSearch();
   }
 
   async function handleRemove() {
@@ -69,37 +83,50 @@ export default function RemoveUserForm({ onSuccess, onError }: RemoveUserFormPro
 
   return (
     <div>
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
-        <Input
-          placeholder="Nome, Email ou NUSP"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          required
-        />
-        <Button type="submit" disabled={searching}>
-          Buscar
-        </Button>
-      </form>
-      {foundUser ? (
-        <div className="border rounded-xl p-4 mb-4">
-          <div><b>Nome:</b> {foundUser.name}</div>
-          <div><b>Email:</b> {foundUser.email}</div>
-          <div><b>NUSP:</b> {foundUser.NUSP}</div>
-          <div><b>Tipo:</b> {foundUser.role}</div>
-          <Button
-            className="mt-4 bg-cm-red hover:bg-cm-red/90"
-            onClick={handleRemove}
-            disabled={loading}
-          >
-            {loading ? "Removendo..." : "Remover Usuário"}
-          </Button>
-        </div>
-      ) : (
-        query && !searching && (
-          <div className="text-gray-500">Nenhum usuário encontrado.</div>
-        )
+      {!foundUser && (
+        <form onSubmit={handleSearch} className="space-y-4">
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            required
+          />
+          <ActionBar
+            onConfirm={handleSearchClick}
+            onCancel={onBack}
+            confirmLabel={searching ? "Buscando..." : "Buscar"}
+            confirmColor="bg-cm-blue"
+            loading={searching}
+            showCancel={!!onBack}
+          />
+        </form>
       )}
-      {error && <div className="text-red-600 mt-2">{error}</div>}
+
+      {foundUser && (
+        <div className="border rounded-xl p-6 my-4">
+          <p className="mb-2"><b>Nome:</b> {foundUser.name}</p>
+          <p className="mb-2"><b>Email:</b> {foundUser.email}</p>
+          <p className="mb-2"><b>NUSP:</b> {foundUser.NUSP}</p>
+          <p className="mb-4"><b>Tipo:</b> {foundUser.role}</p>
+          <ActionBar
+            onConfirm={handleRemove}
+            onCancel={() => {
+              setFoundUser(null);
+              setSearched(false);
+              setQuery("");
+            }}
+            confirmLabel={loading ? "Removendo..." : "Remover Usuário"}
+            confirmColor="bg-cm-red"
+            loading={loading}
+            cancelLabel="Voltar"
+          />
+        </div>
+      )}
+
+      {searched && query && !searching && !foundUser && (
+        <p className="text-cm-red mt-4">Nenhum usuário encontrado.</p>
+      )}
+
+      {error && <p className="text-red-600 mt-4">{error}</p>}
     </div>
   );
 }

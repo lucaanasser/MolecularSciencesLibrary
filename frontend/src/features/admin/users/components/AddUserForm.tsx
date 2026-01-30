@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useAddUser } from "@/features/users/hooks/useCreateUser";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ActionBar from "@/features/admin/components/ActionBar";
 
 /**
  * Formulário para adicionar usuário.
@@ -15,9 +15,10 @@ import { Label } from "@/components/ui/label";
 interface AddUserFormProps {
   onSuccess?: () => void;
   onError?: (err: Error) => void;
+  onBack?: () => void;
 }
 
-const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
+const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError, onBack }) => {
   const [name, setName] = useState("");
   const [NUSP, setNUSP] = useState("");
   const [email, setEmail] = useState("");
@@ -49,6 +50,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      
       <div>
         <Label htmlFor="name">Nome</Label>
         <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
@@ -69,10 +71,13 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError }) => {
         <Label htmlFor="class">Turma (número)</Label>
         <Input id="class" value={userClass} onChange={e => setUserClass(e.target.value)} required placeholder="Ex: 33" />
       </div>
-      {error && <div className="text-red-600">{error}</div>}
-      <Button type="submit" disabled={loading}>
-        {loading ? "Adicionando..." : "Adicionar Usuário"}
-      </Button>
+      {error && <div className="text-cm-red">{error}</div>}
+
+      <ActionBar
+        onCancel={onBack}
+        confirmLabel={loading ? "Adicionando..." : "Adicionar Usuário"}
+        loading={loading}
+      />
     </form>
   );
 };

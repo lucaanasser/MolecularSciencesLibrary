@@ -4,8 +4,8 @@ import useAreaSelection from "@/features/admin/books/hooks/useAreaSelection";
 import useBookSearch from "@/features/admin/books/hooks/useBookSearch";
 import useRemoveBook from "@/features/admin/books/hooks/useRemoveBook";
 import { BookOption } from "@/types/book";
-import BookAreaStep from "@/features/books/components/wizard/steps/BookAreaStep";
-import BookSearchStep from "@/features/books/components/wizard/steps/BookSearchStep";
+import BookAreaStep from "@/features/admin/books/utils/BookAreaStep";
+import BookSearchStep from "@/features/admin/books/utils/BookSearchStep";
 
 /**
  * Wizard para remoção de livro.

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import AddBookForm from "@/features/admin/books/utils/AddBookWizard";
-import RemoveBookForm from "@/features/admin/books/utils/RemoveBookWizard";
-import BooksList from "@/features/admin/books/utils/BooksList";
-import ImportBooksCSV from "@/features/admin/books/utils/ImportBooksCSV";
+import AddBookForm from "@/features/admin/books/components/AddBookWizard";
+import RemoveBookForm from "@/features/admin/books/components/RemoveBookWizard";
+import BooksList from "@/features/admin/books/components/BooksList";
+import ImportBooksCSV from "@/features/admin/books/components/ImportBooksCSV";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const ManageBooks = () => {
@@ -16,7 +16,10 @@ const ManageBooks = () => {
       {!selectedTab && (
         <>
           <h3>Gerenciamento de Livros</h3>
-          <p>Aqui você pode gerenciar o acervo da biblioteca.</p>
+          <p>
+            Adicione, remova ou veja todos os livros no acervo. 
+            Para adicionar vários livros de uma vez (batch import), escolha a opção "Importar CSV".
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { label: "Adicionar livro", tab: "add", color: "bg-cm-green" },

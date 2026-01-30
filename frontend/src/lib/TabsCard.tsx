@@ -73,7 +73,7 @@ export const TabsCard: React.FC<TabsCardProps> = ({
         })}
       </div>
       <div
-        className="content-container flex-1 tabs-content-transition"
+        className="p-6 md:p-10 flex-1 tabs-content-transition"
         style={{overflow: 'auto' }}
       >
         <div
