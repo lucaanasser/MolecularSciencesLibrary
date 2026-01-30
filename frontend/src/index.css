@@ -12,7 +12,8 @@
     --x-padding: 1.5rem;
 
     /* Button and theme colors */
-    --default-foreground: hsl(0, 0%, 0%);
+    --background: theme(colors.white);
+    --foreground: theme(colors.black);
 
     --primary: theme(colors.library-purple);
     --primary-foreground: theme(colors.white);
@@ -25,6 +26,9 @@
     
     --accent: hsl(0, 0%, 80%);
     --accent-foreground: hsl(0, 0%, 20%);
+
+    --popover: white;
+    --popover-foreground: theme(colors.default-text);
   }
 
   body { @apply 

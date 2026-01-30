@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useBookOptions from "./useBookOptions";
+import useBookOptions from "@/hooks/useBookOptions";
 
 /**
  * Hook para seleção de área e subárea de livros.

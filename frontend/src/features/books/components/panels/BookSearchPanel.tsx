@@ -1,7 +1,7 @@
 import BookCard from "../cards/BookCard";
 import BookResults from "./BookResults";
-import useBookOptions from "../../hooks/useBookOptions";
-import useBookList from "../../hooks/useBookList";
+import useBookOptions from "@/hooks/useBookOptions";
+import useBookList from "../../../../hooks/useBookList";
 import { useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";

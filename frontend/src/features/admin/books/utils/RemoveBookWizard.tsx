@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import useStep from "@/features/books/hooks/useStep";
-import useAreaSelection from "@/features/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/books/hooks/useBookSearch";
-import useRemoveBook from "@/features/books/hooks/useRemoveBook";
-import { BookOption } from "@/features/books/types/book";
+import useStep from "@/features/admin/books/hooks/useStep";
+import useAreaSelection from "@/features/admin/books/hooks/useAreaSelection";
+import useBookSearch from "@/features/admin/books/hooks/useBookSearch";
+import useRemoveBook from "@/features/admin/books/hooks/useRemoveBook";
+import { BookOption } from "@/types/book";
 import BookAreaStep from "@/features/books/components/wizard/steps/BookAreaStep";
 import BookSearchStep from "@/features/books/components/wizard/steps/BookSearchStep";
 

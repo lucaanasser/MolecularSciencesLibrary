@@ -4,7 +4,7 @@ import { getResolvedSubarea } from "@/utils/bookUtils";
 import React from "react";
 
 
-import { SubareaCode } from "../../types/book";
+import { SubareaCode } from "@/types/book";
 
 interface BookCardProps {
   book: any;

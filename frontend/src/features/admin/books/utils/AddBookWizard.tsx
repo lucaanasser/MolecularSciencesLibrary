@@ -1,8 +1,8 @@
 import { useState } from "react";
-import useStep from "@/features/books/hooks/useStep";
-import useAreaSelection from "@/features/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/books/hooks/useBookList";
-import useAddBook from "@/features/books/hooks/useCreateBook";
+import useStep from "@/features/admin/books/hooks/useStep";
+import useAreaSelection from "@/features/admin/books/hooks/useAreaSelection";
+import useBookSearch from "@/hooks/useBookList";
+import useAddBook from "@/features/admin/books/hooks/useAddBook";
 import BookAreaStep from "@/features/books/components/wizard/steps/BookAreaStep";
 import BookSearchStep from "@/features/books/components/wizard/steps/BookSearchStep";
 import BookLanguageStep from "@/features/books/components/wizard/steps/BookLanguageStep";

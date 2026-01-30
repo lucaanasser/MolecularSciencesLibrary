@@ -1,6 +1,6 @@
 import { getResolvedSubarea } from "@/utils/bookUtils";
 import { useNavigate } from "react-router-dom";
-import { SubareaCode } from "../../types/book";
+import { SubareaCode } from "@/types/book";
 
 const LANGUAGE_MAP: Record<string | number, string> = {
   1: "Português",

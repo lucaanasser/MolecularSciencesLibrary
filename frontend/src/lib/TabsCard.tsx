@@ -34,8 +34,8 @@ export const TabsCard: React.FC<TabsCardProps> = ({
 
   return (
     <div
-      className={`rounded-2xl border-b bg-white shadow-lg p-0 flex flex-col w-full ${className}`}
-      style={{ height: '65vh', maxHeight: '65vh', minHeight: '65vh', width: '100%' }}
+      className={`rounded-2xl border-b bg-white shadow-lg p-0 flex flex-col w-full justify-center h-full ${className}`}
+      style={{ height: '65vh', width: '100%' }}
     >
       <div className="flex flex-row bg-white rounded-t-2xl overflow-y-auto">
         {tabs.map((tab, idx) => {
@@ -46,10 +46,10 @@ export const TabsCard: React.FC<TabsCardProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 font-semibold text-sm sm:text-base transition-transform duration-200
+              className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 transition-transform duration-200
                 ${isActive
                   ? `text-white border-b-4 border-${color} bg-${color}`
-                  : `text-gray-500 border-b-4 hover:text-${color} bg-white`}
+                  : `text-gray-500 border-b-4 hover:text-${color}`}
               `}
               style={{ zIndex: isActive ? 1 : 0 }}
             >
@@ -61,11 +61,11 @@ export const TabsCard: React.FC<TabsCardProps> = ({
                   <Icon />
                 </span>
               )}
-              {/* Em telas grandes, sempre mostra a label. Em telas pequenas, só mostra a label da aba ativa (shortLabel se existir) */}
-              <span className="hidden sm:inline text-sm font-medium">
+              {/* Em telas grandes, sempre mostra a label. Em telas pequenas, só mostra a label da aba ativa (ou shortLabel se existir) */}
+              <span className="hidden sm:inline text-md font-semibold">
                 {tab.label}
               </span>
-              <span className="sm:hidden text-sm font-medium">
+              <span className="sm:hidden text-sm font-semibold">
                 {isActive ? (tab.shortLabel || tab.label) : ''}
               </span>
             </button>
@@ -73,11 +73,11 @@ export const TabsCard: React.FC<TabsCardProps> = ({
         })}
       </div>
       <div
-        className="flex-1 tabs-content-transition"
-        style={{ minHeight: 0, overflow: 'auto' }}
+        className="content-container flex-1 tabs-content-transition"
+        style={{overflow: 'auto' }}
       >
         <div
-          className={`p-4 sm:p-10 card-fade${fade ? ' card-fade-active' : ''}`}
+          className={`card-fade${fade ? ' card-fade-active' : ''}`}
           ref={contentRef}
         >
           {children[tabs.findIndex(t => t.id === activeTab)]}

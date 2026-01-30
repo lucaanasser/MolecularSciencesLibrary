@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { BookOption } from "@/features/books/types/book";
+import { BookOption } from "@/types/book";
 
 /**
  * Componente de formulário de detalhes do livro.

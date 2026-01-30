@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { BookOption } from "../types/book";
+import { BookOption } from "@/types/book";
 
 const API_URL = '/api';
 

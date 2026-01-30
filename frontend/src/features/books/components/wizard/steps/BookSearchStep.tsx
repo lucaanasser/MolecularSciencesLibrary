@@ -1,4 +1,4 @@
-import { BookOption, AddBookType } from "@/features/books/types/book";
+import { BookOption, AddBookType } from "@/types/book";
 import BookList from "@/features/books/components/lists/BookSearchList";
 
 /**

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOption, AddBookType } from "@/features/books/types/book";
+import { BookOption, AddBookType } from "@/types/book";
 
 /**
  * Lista de busca e seleção de livros.

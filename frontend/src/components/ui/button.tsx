@@ -13,13 +13,13 @@ const buttonVariants = cva(
     font-semibold
     duration-300
     transition-transform
-    hover:scale-105
-    hover:shadow-lg`,
+    hover:scale-95
+    hover:shadow-md`,
   {
     variants: {
       variant: {
         default: 
-          "text-default-foreground",
+          "bg-background text-foreground border ",
         primary:
           "bg-primary text-primary-foreground",
         secondary:

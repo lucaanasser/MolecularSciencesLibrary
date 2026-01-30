@@ -1,5 +1,5 @@
-import useBookSearch from "../../books/hooks/useBookList";
-import { BookOption } from "../../books/types/book";
+import useBookSearch from "../../../hooks/useBookList";
+import { BookOption } from "@/types/book";
 
 /**
  * Hook para buscar livro por ID.

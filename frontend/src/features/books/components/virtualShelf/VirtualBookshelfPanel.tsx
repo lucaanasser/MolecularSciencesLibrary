@@ -7,7 +7,7 @@ import BookDetailsModal from "../modals/BookDetailsModal";
 import ShelfRenderer from "./ShelfRenderer";
 import { useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
-import useBookOptions from "../../hooks/useBookOptions"; // novo
+import useBookOptions from "@/hooks/useBookOptions"; // novo
 
 // Defina as estantes e prateleiras
 const NUM_SHELVES = 4; // estantes
@@ -149,7 +149,7 @@ const VirtualBookshelf = () => {
       <div className="flex justify-center items-center gap-2 mb-8">
         {isAdmin && (
           <Button
-            variant={editMode ? "default" : "outline"}
+            variant={editMode ? "default" : "default"}
             className={`ml-4 ${editMode ? "bg-cm-orange" : ""}`}
             onClick={() => setEditMode(e => !e)}
             title={editMode ? "Sair do modo edição" : "Entrar no modo edição"}

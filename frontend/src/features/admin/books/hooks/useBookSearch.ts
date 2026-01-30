@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import useBookOptions from "./useBookOptions";
-import useBookList from "./useBookList";
+import useBookOptions from "@/hooks/useBookOptions";
+import useBookList from "@/hooks/useBookList";
 
 /**
  * Hook de busca de livros com filtros (estado único).

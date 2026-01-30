@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { BookOption } from '@/features/books/types/book';
+import { BookOption } from '@/types/book';
 
 const API_BASE = '/api/books';
 

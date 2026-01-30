@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { AreaCode, SubareaCode } from "@/features/books/types/book";
+import { AreaCode, SubareaCode } from "@/types/book";
 
 /**
  * Componente de seleção de área e subárea do livro.

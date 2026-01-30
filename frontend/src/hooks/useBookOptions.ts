@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AreaCode, SubareaCode } from "../types/book";
+import { AreaCode, SubareaCode } from "@/types/book";
 
 const API_URL = '/api';
 
