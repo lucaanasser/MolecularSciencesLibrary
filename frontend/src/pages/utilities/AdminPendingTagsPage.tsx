@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-
 import { useNavigate } from "react-router-dom";
 import { Tag, CheckCircle, XCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";

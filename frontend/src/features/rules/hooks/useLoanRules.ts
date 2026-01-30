@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { LoanRules } from "../types/rules";
+import { LoanRules } from "@/features/rules/types/rules";
 
 export function useLoanRules() {
   const [rules, setRules] = useState<LoanRules | null>(null);

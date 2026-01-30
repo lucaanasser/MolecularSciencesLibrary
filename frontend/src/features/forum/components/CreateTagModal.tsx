@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Tag as TagIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import * as ForumService from '../../../services/ForumService';
+import * as ForumService from '@/services/ForumService';
 
 interface CreateTagModalProps {
   isOpen: boolean;

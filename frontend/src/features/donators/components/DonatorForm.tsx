@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useCreateDonator } from '../hooks/useCreatDonator';
-import { Donator } from '../types/Donator';
-import { useFindUser } from '../hooks/useFindUser';
-import { useFindBookById } from '../hooks/useFindBookById';
+import { useCreateDonator } from '@/features/donators/hooks/useCreatDonator';
+import { Donator } from '@/features/donators/types/Donator';
+import { useFindUser } from '@/features/donators/hooks/useFindUser';
+import { useFindBookById } from '@/features/donators/hooks/useFindBookById';
 
 interface DonatorFormProps {
   onSuccess?: () => void;

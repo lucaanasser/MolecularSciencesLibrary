@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-
-import Footer from "@/components/Footer";
 import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";

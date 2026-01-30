@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useNavigation } from "@/hooks/useNavigation";
 import { useNavigationStyles } from "@/hooks/useNavigationStyles";
-import ModeSwitcher from "./ModeSwitcher";
-import { NavigationLinks } from "../features/navigation/NavigationLinks";
-import { UserMenu } from "../features/navigation/UserMenu";
-import { MobileDrawer } from "../features/navigation/MobileDrawer";
+import ModeSwitcher from "@/components/ModeSwitcher";
+import { NavigationLinks } from "@/features/navigation/NavigationLinks";
+import { UserMenu } from "@/features/navigation/UserMenu";
+import { MobileDrawer } from "@/features/navigation/MobileDrawer";
 
 const Navigation: React.FC = () => {
   const user = useCurrentUser();

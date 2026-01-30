@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-import Footer from "@/components/Footer";
 import ForumHeader from "@/features/forum/components/ForumHeader";
 import ForumFilters, { SortOption } from "@/features/forum/components/ForumFilters";
 import ForumSidebar from "@/features/forum/components/ForumSidebar";

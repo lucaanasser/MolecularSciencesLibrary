@@ -1,6 +1,4 @@
 import { useState } from "react";
-
-
 import { BookOpen, Bell, History, Mail, Phone, Camera, X, Gift, BookMarked, TrendingUp } from "lucide-react";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 import LoanActive from "@/features/loans/components/LoanActive";

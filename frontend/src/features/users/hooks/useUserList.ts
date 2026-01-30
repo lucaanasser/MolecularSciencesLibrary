@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { User } from "../types/user";
+import { User } from "@/features/users/types/user";
 
 /**
  * Hook para buscar lista de usuários.

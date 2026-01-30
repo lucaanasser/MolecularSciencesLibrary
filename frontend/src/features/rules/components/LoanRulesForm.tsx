@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useLoanRules } from "../hooks/useLoanRules";
-import { LoanRules } from "../types/rules";
+import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
+import { LoanRules } from "@/features/rules/types/rules";
 import { Button } from "@/components/ui/button";
 
 interface LoanRulesFormProps {

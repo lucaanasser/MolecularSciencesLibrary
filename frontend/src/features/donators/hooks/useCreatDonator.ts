@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Donator } from '../types/Donator';
+import { Donator } from '@/features/donators/types/Donator';
 
 export function useCreateDonator() {
   const [loading, setLoading] = useState(false);

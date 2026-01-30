@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAddUser } from "../hooks/useCreateUser";
+import { useAddUser } from "@/features/users/hooks/useCreateUser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

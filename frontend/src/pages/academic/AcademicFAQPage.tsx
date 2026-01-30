@@ -1,4 +1,4 @@
-import FAQPage from "../../features/faq/FAQPage";
+import FAQPage from "@/features/faq/FAQPage";
 
 { /* FAQ Mockado */ }
 const faqs = [

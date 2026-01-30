@@ -182,7 +182,7 @@ CREATE TABLE forum_votes (
 - Rota adicionada em [App.tsx](../App.tsx)
 - Link na Navigation (substituindo "Pessoas" por "Fórum")  
 - Link no Footer
-- Card de acesso na [AcademicIndexPage](../pages/AcademicIndexPage.tsx)
+- Card de acesso na [AcademicIndexPage](.@/pages/AcademicIndexPage.tsx)
 - Utiliza componentes existentes: Navigation, Footer
 - Integrado com sistema de autenticação (futuro)
 

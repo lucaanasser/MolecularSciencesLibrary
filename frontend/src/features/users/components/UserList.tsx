@@ -1,4 +1,4 @@
-import { useUserList } from "../hooks/useUserList";
+import { useUserList } from "@/features/users/hooks/useUserList";
 
 /**
  * Lista de usuários cadastrados.

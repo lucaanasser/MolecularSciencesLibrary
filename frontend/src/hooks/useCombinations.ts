@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { DisciplineState } from './useDisciplineList';
+import { DisciplineState } from '@/hooks/useDisciplineList';
 import { 
   generateCombinations, 
   Combination,
   DisciplineWithClasses
 } from '@/utils/combinationsGenerator';
-import { GradeSlot } from './useGrade';
+import { GradeSlot } from '@/hooks/useGrade';
 
 /**
  * Hook para gerenciar combinações de turmas

@@ -1,5 +1,5 @@
 import React from "react";
-import { useLoanRules } from "../hooks/useLoanRules";
+import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
 
 export default function LoanRulesView() {
   const { rules, loading, error } = useLoanRules();

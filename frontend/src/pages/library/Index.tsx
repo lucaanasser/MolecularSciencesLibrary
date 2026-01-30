@@ -1,6 +1,3 @@
-// import Navigation from "@/components/Navigation";
-
-import { Link } from "react-router-dom";
 import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTypewriterAreas } from "@/hooks/useTypewriterAreas";

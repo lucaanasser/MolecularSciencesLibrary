@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRemoveUser } from "../hooks/useRemoveUser";
-import { User } from "../types/user";
+import { useRemoveUser } from "@/features/users/hooks/useRemoveUser";
+import { User } from "@/features/users/types/user";
 
 /**
  * Formulário para remover usuário.

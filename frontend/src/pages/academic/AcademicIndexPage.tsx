@@ -1,5 +1,3 @@
-
-
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
 import MolecoogleWindow from "@/features/index/helpers/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookFormData } from '../types/book';
+import { BookFormData } from '@/features/books/types/book';
 
 /**
  * Hook para adicionar livro.
