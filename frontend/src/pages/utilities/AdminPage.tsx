@@ -5,7 +5,7 @@ import ManageBooks from "@/features/admin/features/books/ManageBooks";
 import ManageUsers from "@/features/admin/features/users/ManageUsers";
 import ManageLoans from "@/features/admin/features/loans/ManageLoans";
 import ManageDonators from "@/features/admin/features/donators/ManageDonators";
-import ManageReserve from "@/features/admin/features/ManageReserve";
+import ManageReserve from "@/features/admin/features/reserve/ManageReserve";
 import Notifications from "@/features/admin/features/Notifications";
 import Reports from "@/features/admin/features/Reports";
 import Settings from "@/features/admin/features/settings/Settings";
