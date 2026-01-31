@@ -23,7 +23,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
   showCancel = true,
   showConfirm = true,
 }) => (
-  <div className="grid grid-cols-2 gap-4 mt-6">
+  <div className={`grid gap-4 mt-6 ${showCancel && showConfirm ? 'grid-cols-2' : 'grid-cols-1'}`}>
     {showCancel && (
       <Button
         type="button"
@@ -34,15 +34,17 @@ const ActionBar: React.FC<ActionBarProps> = ({
         {cancelLabel}
       </Button>
     )}
-    <Button
-      type="submit"
-      variant="wide"
-      className={confirmColor}
-      disabled={loading}
-      onClick={onConfirm}
-    >
-      {loading ? "Processando..." : confirmLabel}
-    </Button>
+    {showConfirm && (
+      <Button
+        type="submit"
+        variant="wide"
+        className={confirmColor}
+        disabled={loading}
+        onClick={onConfirm}
+      >
+        {loading ? "Processando..." : confirmLabel}
+      </Button>
+    )}
   </div>
 );
 

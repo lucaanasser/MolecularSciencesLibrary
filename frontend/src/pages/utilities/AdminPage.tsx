@@ -3,7 +3,7 @@ import { BookOpen, Users, Calendar, Heart, Bookmark, Bell, BarChart3, Settings a
 import { TabsCard } from "@/lib/TabsCard";
 import ManageBooks from "@/features/admin/features/books/ManageBooks";
 import ManageUsers from "@/features/admin/features/users/ManageUsers";
-import ManageLoans from "@/features/admin/features/ManageLoans";
+import ManageLoans from "@/features/admin/features/loans/ManageLoans";
 import ManageDonators from "@/features/admin/features/ManageDonators";
 import ManageReserve from "@/features/admin/features/ManageReserve";
 import Notifications from "@/features/admin/features/Notifications";

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import ActionGrid from "@/features/admin/components/ActionGrid";
 import AddBookForm from "@/features/admin/features/books/components/AddBookWizard";
 import RemoveBookForm from "@/features/admin/features/books/components/RemoveBookWizard";
 import BooksList from "@/features/admin/features/books/components/BooksList";
@@ -20,25 +21,35 @@ const ManageBooks = () => {
             Adicione, remova ou veja todos os livros no acervo. 
             Para adicionar vários livros de uma vez (batch import), escolha a opção "Importar CSV".
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[
-              { label: "Adicionar livro", tab: "add", color: "bg-cm-green" },
-              { label: "Remover livro", tab: "remove", color: "bg-cm-red" },
-              { label: "Ver todo o acervo", tab: "list", color: "bg-academic-blue" },
-              { label: "Importar CSV", tab: "import", color: "bg-library-purple" },
-            ].map(({ label, tab, color }) => (
-              <Button
-                key={tab}
-                variant="wide"
-                size="sm"
-                className={color}
-                onClick={() => setSelectedTab(tab as any)}
-                disabled={isLoading}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
+          <ActionGrid
+            columns={4}
+            actions={[
+              {
+                label: "Adicionar livro",
+                onClick: () => setSelectedTab("add"),
+                color: "bg-cm-green",
+                disabled: isLoading,
+              },
+              {
+                label: "Remover livro",
+                onClick: () => setSelectedTab("remove"),
+                color: "bg-cm-red",
+                disabled: isLoading,
+              },
+              {
+                label: "Ver todo o acervo",
+                onClick: () => setSelectedTab("list"),
+                color: "bg-academic-blue",
+                disabled: isLoading,
+              },
+              {
+                label: "Importar CSV",
+                onClick: () => setSelectedTab("import"),
+                color: "bg-library-purple",
+                disabled: isLoading,
+              },
+            ]}
+          />
         </>
       )}
       
