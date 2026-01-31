@@ -29,7 +29,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError, onBack })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !NUSP || !email || !phone || !userClass) {
-      alert("Preencha todos os campos obrigatórios, incluindo turma.");
+      alert("Preencha todos os campos obrigatórios.");
       return;
     }
     try {

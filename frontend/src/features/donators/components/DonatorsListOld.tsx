@@ -16,7 +16,7 @@ interface Donator {
   created_at?: string;
 }
 
-export default function DonatorsList() {
+export default function DonatorsListOld() {
   const [donators, setDonators] = useState<Donator[]>([]);
   const [filteredDonators, setFilteredDonators] = useState<Donator[]>([]);
   const [loading, setLoading] = useState(true);

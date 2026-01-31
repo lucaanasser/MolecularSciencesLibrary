@@ -20,7 +20,7 @@ interface ActiveLoan {
   is_overdue: boolean;
 }
 
-const ActiveLoans = ({ onBack }: { onBack: () => void }) => {
+const ActiveLoansList = ({ onBack }: { onBack: () => void }) => {
   const [loans, setLoans] = useState<ActiveLoan[]>([]);
   const [filteredLoans, setFilteredLoans] = useState<ActiveLoan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,4 +146,4 @@ const ActiveLoans = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-export default ActiveLoans;
+export default ActiveLoansList;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ActionGrid from "@/features/admin/components/ActionGrid";
 import LoanRegister from "@/features/admin/features/loans/components/LoanRegister";
-import ActiveLoans from "@/features/admin/features/loans/components/ActiveLoans";
+import ActiveLoansList from "@/features/admin/features/loans/components/ActiveLoansList";
 import InternalUse from "@/features/admin/features/loans/components/InternalUse";
 
 const ManageLoans = () => {
@@ -103,7 +103,7 @@ const ManageLoans = () => {
       )}
     
       {selectedTab === "list" && (
-        <ActiveLoans onBack={() => setSelectedTab(null)} />
+        <ActiveLoansList onBack={() => setSelectedTab(null)} />
       )}
     
       {selectedTab === "internal" && (
