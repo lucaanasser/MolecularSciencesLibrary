@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import AddBookForm from "@/features/admin/features/books/components/AddBookWizard";
-import RemoveBookForm from "@/features/admin/features/books/components/RemoveBookWizard";
-import BooksList from "@/features/admin/features/books/components/BooksList";
-import ImportBooksCSV from "@/features/admin/features/books/components/ImportBooksCSV";
+import AddBookForm from "@/features/admin/features/books/features/AddBookWizard";
+import RemoveBookForm from "@/features/admin/features/books/features/RemoveBookWizard";
+import BooksList from "@/features/admin/features/books/features/BooksList";
+import ImportBooksCSV from "@/features/admin/features/books/features/ImportBooksCSV";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const ManageBooks = () => {

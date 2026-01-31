@@ -24,7 +24,7 @@
     --destructive: theme(colors.cm-red);
     --destructive-foreground: theme(colors.white);
     
-    --accent: hsl(0, 0%, 80%);
+    --accent: hsl(0, 0%, 90%);
     --accent-foreground: hsl(0, 0%, 20%);
 
     --popover: white;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import LoanRulesForm from "@/features/admin/features/settings/components/LoanRulesForm";
-import LoanRulesView from "@/features/admin/features/settings/components/LoanRulesView";
+import LoanRulesForm from "@/features/admin/features/settings/features/LoanRulesForm";
+import LoanRulesView from "@/features/admin/features/settings/features/LoanRulesView";
 
 const Settings = () => {
   // Log de início de renderização das configurações

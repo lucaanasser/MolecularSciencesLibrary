@@ -76,8 +76,8 @@ export default {
         },
       },
       fontFamily: {
-        'bebas': ['"Bebas Neue"', 'sans-serif'],
         'dmsans': ['"DM Sans"', 'sans-serif'],
+        'bebas': ['"Bebas Neue"', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

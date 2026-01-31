@@ -1,15 +1,16 @@
 import { useState } from "react";
-import AddDonatorForm from "@/features/admin/features/donators/components/AddDonatorForm";
-import DonatorsList from "@/features/admin/features/donators/components/DonatorsList";
-import ImportDonators from "@/features/admin/features/donators/components/ImportDonators";
+import AddDonatorForm from "@/features/admin/features/donators/features/AddDonatorForm";
+import DonatorsList from "@/features/admin/features/donators/features/DonatorsList";
+import ImportDonators from "@/features/admin/features/donators/features/ImportDonators";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const ManageDonators = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showList, setShowList] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleExportCSV = async () => {
     try {
@@ -65,9 +66,9 @@ const ManageDonators = () => {
         </>
       )}
 
-      {successMsg && (
-        toast({ title: successMsg, variant: "default" })
-      )}
+
+      {/* Exibe toast via efeito colateral, não no JSX */}
+      {successMsg && (() => { toast({ title: successMsg, variant: "default" }); setSuccessMsg(null); })()}
 
       {showAddForm && (
         <AddDonatorForm

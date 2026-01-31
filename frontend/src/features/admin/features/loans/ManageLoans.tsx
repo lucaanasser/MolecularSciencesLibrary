@@ -1,8 +1,8 @@
 import { useState } from "react";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import LoanRegister from "@/features/admin/features/loans/components/LoanRegister";
-import ActiveLoansList from "@/features/admin/features/loans/components/ActiveLoansList";
-import InternalUse from "@/features/admin/features/loans/components/InternalUse";
+import LoanRegister from "@/features/admin/features/loans/features/LoanRegister";
+import ActiveLoansList from "@/features/admin/features/loans/features/ActiveLoansList";
+import InternalUse from "@/features/admin/features/loans/features/InternalUse";
 
 const ManageLoans = () => {
   const [selectedTab, setSelectedTab] = useState<string | null>(null);
