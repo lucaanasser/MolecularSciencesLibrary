@@ -1,9 +1,8 @@
 import { useState } from "react";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import { Button } from "@/components/ui/button";
-import AddUserForm from "@/features/admin/users/components/AddUserForm";
-import UserList from "@/features/admin/users/components/UserList";
-import RemoveUserForm from "@/features/admin/users/components/RemoveUserForm";
+import AddUserForm from "@/features/admin/features/users/components/AddUserForm";
+import UserList from "@/features/admin/features/users/components/UserList";
+import RemoveUserForm from "@/features/admin/features/users/components/RemoveUserForm";
 import { useToast } from "@/components/ui/use-toast";
 
 const ManageUsers = () => {

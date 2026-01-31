@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import useStep from "@/features/admin/books/hooks/useStep";
-import useAreaSelection from "@/features/admin/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/admin/books/hooks/useBookSearch";
-import useRemoveBook from "@/features/admin/books/hooks/useRemoveBook";
+import useStep from "@/features/admin/features/books/hooks/useStep";
+import useAreaSelection from "@/features/admin/features/books/hooks/useAreaSelection";
+import useBookSearch from "@/features/admin/features/books/hooks/useBookSearch";
+import useRemoveBook from "@/features/admin/features/books/hooks/useRemoveBook";
 import { BookOption } from "@/types/book";
-import BookAreaStep from "@/features/admin/books/utils/BookAreaStep";
-import BookSearchStep from "@/features/admin/books/utils/BookSearchStep";
+import BookAreaStep from "@/features/admin/features/books/utils/BookAreaStep";
+import BookSearchStep from "@/features/admin/features/books/utils/BookSearchStep";
 
 /**
  * Wizard para remoção de livro.

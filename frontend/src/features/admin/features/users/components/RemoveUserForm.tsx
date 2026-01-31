@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { useRemoveUser } from "@/features/users/hooks/useRemoveUser";
 import { User } from "@/features/users/types/user";

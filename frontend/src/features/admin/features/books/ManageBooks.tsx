@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import AddBookForm from "@/features/admin/books/components/AddBookWizard";
-import RemoveBookForm from "@/features/admin/books/components/RemoveBookWizard";
-import BooksList from "@/features/admin/books/components/BooksList";
-import ImportBooksCSV from "@/features/admin/books/components/ImportBooksCSV";
+import AddBookForm from "@/features/admin/features/books/components/AddBookWizard";
+import RemoveBookForm from "@/features/admin/features/books/components/RemoveBookWizard";
+import BooksList from "@/features/admin/features/books/components/BooksList";
+import ImportBooksCSV from "@/features/admin/features/books/components/ImportBooksCSV";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const ManageBooks = () => {

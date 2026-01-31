@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { BookOpen, Users, Calendar, Heart, Bookmark, Bell, BarChart3, Settings as SettingsIcon } from "lucide-react";
 import { TabsCard } from "@/lib/TabsCard";
-import ManageBooks from "@/features/admin/books/ManageBooks";
-import ManageUsers from "@/features/admin/users/ManageUsers";
+import ManageBooks from "@/features/admin/features/books/ManageBooks";
+import ManageUsers from "@/features/admin/features/users/ManageUsers";
 import ManageLoans from "@/features/admin/features/ManageLoans";
 import ManageDonators from "@/features/admin/features/ManageDonators";
 import ManageReserve from "@/features/admin/features/ManageReserve";
 import Notifications from "@/features/admin/features/Notifications";
 import Reports from "@/features/admin/features/Reports";
-import Settings from "@/features/admin/features/Settings";
+import Settings from "@/features/admin/features/settings/Settings";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const AdminPage = () => {

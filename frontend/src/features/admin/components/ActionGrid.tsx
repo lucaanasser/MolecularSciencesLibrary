@@ -20,7 +20,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({ actions, className = "", column
       <Button
         key={label}
         variant="wide"
-        size="sm"
+        size="default"
         className={color}
         onClick={onClick}
         disabled={disabled}
