@@ -224,12 +224,15 @@ class DisciplinesController {
      */
     async countDisciplines(req, res) {
         try {
-            const { campus, unidade } = req.query;
+            const { campus, unidade, search, hasValidClasses, isPostgrad } = req.query;
             console.log(`🔵 [DisciplinesController] Contando disciplinas`);
             
             const filters = {
                 campus: campus || null,
-                unidade: unidade || null
+                unidade: unidade || null,
+                searchTerm: search || null,
+                hasValidClasses: hasValidClasses === 'true' ? true : null,
+                isPostgrad: isPostgrad === 'true' ? true : null
             };
             
             const total = await disciplinesService.countDisciplines(filters);
@@ -238,6 +241,30 @@ class DisciplinesController {
         } catch (error) {
             console.error("🔴 [DisciplinesController] Erro ao contar disciplinas:", error.message);
             res.status(500).json({ error: 'Erro ao contar disciplinas' });
+        }
+    }
+
+    /**
+     * Verifica se existe match exato de código (case-insensitive)
+     * GET /api/disciplines/check-exact/:codigo
+     */
+    async checkExactMatch(req, res) {
+        try {
+            const { codigo } = req.params;
+            console.log(`🔵 [DisciplinesController] Verificando match exato: ${codigo}`);
+            
+            const discipline = await disciplinesService.getDisciplineByCodigo(codigo.toUpperCase());
+            
+            if (discipline) {
+                console.log(`🟢 [DisciplinesController] Match exato encontrado: ${codigo}`);
+                res.json({ exists: true, codigo: discipline.codigo });
+            } else {
+                console.log(`🟡 [DisciplinesController] Nenhum match exato: ${codigo}`);
+                res.json({ exists: false });
+            }
+        } catch (error) {
+            console.error("🔴 [DisciplinesController] Erro ao verificar match:", error.message);
+            res.status(500).json({ error: 'Erro ao verificar disciplina' });
         }
     }
 }

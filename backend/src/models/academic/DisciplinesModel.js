@@ -16,7 +16,7 @@ class DisciplinesModel {
     /**
      * Busca disciplinas com filtros opcionais
      */
-    async getDisciplines({ campus, unidade, searchTerm, limit, offset } = {}) {
+    async getDisciplines({ campus, unidade, searchTerm, hasValidClasses, isPostgrad, limit, offset } = {}) {
         console.log(`🔵 [DisciplinesModel] Buscando disciplinas: campus=${campus}, unidade=${unidade}, searchTerm=${searchTerm}`);
         let query = `SELECT * FROM disciplines`;
         const params = [];
@@ -33,6 +33,14 @@ class DisciplinesModel {
         if (searchTerm) {
             conditions.push(`(codigo LIKE ? COLLATE NOCASE OR nome LIKE ? COLLATE NOCASE)`);
             params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+        }
+        if (hasValidClasses !== undefined && hasValidClasses !== null) {
+            conditions.push(`has_valid_classes = ?`);
+            params.push(hasValidClasses ? 1 : 0);
+        }
+        if (isPostgrad !== undefined && isPostgrad !== null) {
+            conditions.push(`is_postgrad = ?`);
+            params.push(isPostgrad ? 1 : 0);
         }
 
         if (conditions.length > 0) {
@@ -180,6 +188,18 @@ class DisciplinesModel {
         if (filters.unidade) {
             conditions.push(`unidade = ?`);
             params.push(filters.unidade);
+        }
+        if (filters.searchTerm) {
+            conditions.push(`(codigo LIKE ? COLLATE NOCASE OR nome LIKE ? COLLATE NOCASE)`);
+            params.push(`%${filters.searchTerm}%`, `%${filters.searchTerm}%`);
+        }
+        if (filters.hasValidClasses !== undefined && filters.hasValidClasses !== null) {
+            conditions.push(`has_valid_classes = ?`);
+            params.push(filters.hasValidClasses ? 1 : 0);
+        }
+        if (filters.isPostgrad !== undefined && filters.isPostgrad !== null) {
+            conditions.push(`is_postgrad = ?`);
+            params.push(filters.isPostgrad ? 1 : 0);
         }
 
         if (conditions.length > 0) {

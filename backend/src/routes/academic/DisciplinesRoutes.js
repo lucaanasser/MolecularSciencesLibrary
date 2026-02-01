@@ -47,6 +47,12 @@ router.get('/unidades', (req, res) => {
     disciplinesController.getUnidades(req, res);
 });
 
+// Verifica se existe match exato de código - DEVE vir antes de /:codigo
+router.get('/check-exact/:codigo', (req, res) => {
+    console.log(`🔵 [DisciplinesRoutes] GET /check-exact/${req.params.codigo} - Verificar match exato`);
+    disciplinesController.checkExactMatch(req, res);
+});
+
 // Busca disciplinas com filtros opcionais
 router.get('/', (req, res) => {
     console.log("🔵 [DisciplinesRoutes] GET / - Buscar disciplinas");
