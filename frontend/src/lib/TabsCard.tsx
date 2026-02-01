@@ -35,7 +35,7 @@ export const TabsCard: React.FC<TabsCardProps> = ({
   return (
     <div
       className={`rounded-2xl border-b bg-white shadow-lg p-0 flex flex-col w-full justify-center h-full ${className}`}
-      style={{ height: '65vh', width: '100%' }}
+      style={{ width: '100%' }}
     >
       <div className="flex flex-row bg-white rounded-t-2xl overflow-y-auto">
         {tabs.map((tab, idx) => {
@@ -74,7 +74,7 @@ export const TabsCard: React.FC<TabsCardProps> = ({
       </div>
       <div
         className="p-6 md:p-10 flex-1 tabs-content-transition"
-        style={{overflow: 'auto' }}
+        style={{overflow: 'auto', maxHeight: '65vh'}}
       >
         <div
           className={`card-fade${fade ? ' card-fade-active' : ''}`}
