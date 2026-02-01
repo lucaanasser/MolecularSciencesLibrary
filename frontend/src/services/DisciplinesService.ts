@@ -57,6 +57,8 @@ export interface DisciplineFilters {
   campus?: string;
   unidade?: string;
   search?: string;
+  hasValidClasses?: boolean;
+  isPostgrad?: boolean;
   limit?: number;
   offset?: number;
 }
@@ -237,10 +239,18 @@ export async function getStats(): Promise<DisciplineStats> {
  * Conta total de disciplinas
  * GET /api/disciplines/count
  */
-export async function countDisciplines(): Promise<number> {
+export async function countDisciplines(filters: DisciplineFilters = {}): Promise<number> {
   console.log(`🔵 [DisciplinesService] Contando disciplinas`);
   
-  const response = await fetch(`/api/disciplines/count`);
+  const params = new URLSearchParams();
+  if (filters.campus) params.append("campus", filters.campus);
+  if (filters.unidade) params.append("unidade", filters.unidade);
+  if (filters.search) params.append("search", filters.search);
+  if (filters.hasValidClasses !== undefined) params.append("hasValidClasses", String(filters.hasValidClasses));
+  if (filters.isPostgrad !== undefined) params.append("isPostgrad", String(filters.isPostgrad));
+  
+  const url = `/api/disciplines/count${params.toString() ? `?${params.toString()}` : ""}`;
+  const response = await fetch(url);
   
   if (!response.ok) {
     console.error(`🔴 [DisciplinesService] Erro ao contar disciplinas`);
@@ -248,8 +258,50 @@ export async function countDisciplines(): Promise<number> {
   }
   
   const data = await response.json();
-  console.log(`🟢 [DisciplinesService] Total: ${data.count} disciplinas`);
-  return data.count;
+  console.log(`🟢 [DisciplinesService] Total: ${data.total} disciplinas`);
+  return data.total;
+}
+
+/**
+ * Busca disciplinas com paginação
+ * Retorna tanto os resultados quanto o total de registros
+ */
+export async function getDisciplinesWithPagination(
+  filters: DisciplineFilters = {},
+  page: number = 1,
+  limit: number = 15
+): Promise<{ disciplines: Discipline[]; total: number }> {
+  console.log(`🔵 [DisciplinesService] Buscando disciplinas paginadas: página ${page}`);
+  
+  const offset = (page - 1) * limit;
+  
+  // Buscar disciplinas
+  const disciplines = await getDisciplines({ ...filters, limit, offset });
+  
+  // Buscar total
+  const total = await countDisciplines(filters);
+  
+  console.log(`🟢 [DisciplinesService] ${disciplines.length} disciplinas retornadas (total: ${total})`);
+  return { disciplines, total };
+}
+
+/**
+ * Verifica se existe match exato de código (case-insensitive)
+ * GET /api/disciplines/check-exact/:codigo
+ */
+export async function checkExactMatch(codigo: string): Promise<{ exists: boolean; codigo?: string }> {
+  console.log(`🔵 [DisciplinesService] Verificando match exato: ${codigo}`);
+  
+  const response = await fetch(`/api/disciplines/check-exact/${encodeURIComponent(codigo)}`);
+  
+  if (!response.ok) {
+    console.error(`🔴 [DisciplinesService] Erro ao verificar match exato`);
+    throw new Error("Erro ao verificar disciplina");
+  }
+  
+  const data = await response.json();
+  console.log(`🟢 [DisciplinesService] Match exato: ${data.exists ? "Sim" : "Não"}`);
+  return data;
 }
 
 // ================ TIPOS PARA CRIAÇÃO ================

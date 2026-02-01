@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
-import { searchDisciplines, type SearchResult } from "@/services/DisciplinesService";
+import { searchDisciplines, checkExactMatch, type SearchResult } from "@/services/DisciplinesService";
 import { getAggregatedRatings } from "@/services/DisciplineEvaluationsService";
 
 type SearchMode = "disciplinas" | "usuarios";
@@ -128,7 +128,9 @@ const AcademicSearchPage: React.FC = () => {
   // Função para destacar o texto que coincide
   const highlightMatch = (text: string, query: string) => {
     if (!query) return text;
-    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    // Escapa caracteres especiais de regex
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp(`(${escapedQuery})`, 'gi'));
     return parts.map((part, i) => 
       part.toLowerCase() === query.toLowerCase() 
         ? <strong key={i} className="font-semibold">{part}</strong>
@@ -149,25 +151,36 @@ const AcademicSearchPage: React.FC = () => {
   };
 
   // Fazer busca
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      if (searchMode === "disciplinas") {
-        // Se tiver uma disciplina exata nos resultados, navega direto
-        const exact = disciplineSuggestions.find(d => 
-          d.nome.toLowerCase() === searchQuery.toLowerCase() ||
-          d.codigo.toLowerCase() === searchQuery.toLowerCase()
-        );
-        if (exact) {
-          handleSelectDiscipline(exact.codigo, exact.nome);
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    if (searchMode === "disciplinas") {
+      try {
+        // Verifica se existe match exato de código
+        const matchResult = await checkExactMatch(searchQuery.trim());
+        
+        if (matchResult.exists && matchResult.codigo) {
+          // Navega direto para a disciplina
+          saveRecentSearch(searchQuery.trim());
+          navigate(`/academico/disciplina/${matchResult.codigo}`);
+        } else {
+          // Navega para página de resultados
+          saveRecentSearch(searchQuery.trim());
+          navigate(`/academico/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);
         }
-      } else {
-        // Busca de usuários
-        const exact = allUsers.find(u => 
-          u.nome.toLowerCase() === searchQuery.toLowerCase()
-        );
-        if (exact) {
-          handleSelectUser(exact.id);
-        }
+      } catch (error) {
+        console.error("Erro ao verificar match exato:", error);
+        // Em caso de erro, vai para página de resultados
+        saveRecentSearch(searchQuery.trim());
+        navigate(`/academico/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);
+      }
+    } else {
+      // Busca de usuários (ainda mock)
+      const exact = allUsers.find(u => 
+        u.nome.toLowerCase() === searchQuery.toLowerCase()
+      );
+      if (exact) {
+        handleSelectUser(exact.id);
       }
     }
   };
