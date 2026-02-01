@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { searchDisciplines, checkExactMatch, type SearchResult } from "@/services/DisciplinesService";
 import { getAggregatedRatings } from "@/services/DisciplineEvaluationsService";
+import { searchUsers, type UserSearchResult } from "@/services/UsersService";
 
 type SearchMode = "disciplinas" | "usuarios";
 
@@ -24,6 +25,7 @@ const AcademicSearchPage: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [disciplineSuggestions, setDisciplineSuggestions] = useState<DisciplineWithRating[]>([]);
+  const [userSuggestions, setUserSuggestions] = useState<UserSearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -43,16 +45,6 @@ const AcademicSearchPage: React.FC = () => {
     { codigo: "MAC0110", nome: "Introdução à Computação" },
     { codigo: "MAT0111", nome: "Cálculo Diferencial e Integral I" },
     { codigo: "4302111", nome: "Física I" },
-  ];
-
-  // Mock de usuários (substituir por API real quando implementado)
-  const allUsers = [
-    { id: 1, nome: "Ana Silva", turma: "Turma 33", curso: "CM" },
-    { id: 2, nome: "João Santos", turma: "Turma 34", curso: "CM" },
-    { id: 3, nome: "Maria Oliveira", turma: "Turma 33", curso: "CM" },
-    { id: 4, nome: "Carlos Mendes", turma: "Turma 32", curso: "CM" },
-    { id: 5, nome: "Beatriz Costa", turma: "Turma 34", curso: "CM" },
-    { id: 6, nome: "Pedro Almeida", turma: "Turma 33", curso: "CM" },
   ];
 
   // Salvar busca recente
@@ -94,20 +86,42 @@ const AcademicSearchPage: React.FC = () => {
     }
   }, []);
 
+  // Buscar usuários na API com debounce
+  const searchUsersDebounced = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setUserSuggestions([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await searchUsers(query, 8);
+      setUserSuggestions(results);
+    } catch (error) {
+      console.error("🔴 [AcademicSearchPage] Erro ao buscar usuários:", error);
+      setUserSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Efeito para buscar com debounce
   useEffect(() => {
-    if (searchMode !== "disciplinas") return;
-    
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
     
     if (searchQuery.length >= 2) {
       searchTimeoutRef.current = setTimeout(() => {
-        searchDisciplinesDebounced(searchQuery);
+        if (searchMode === "disciplinas") {
+          searchDisciplinesDebounced(searchQuery);
+        } else {
+          searchUsersDebounced(searchQuery);
+        }
       }, 300);
     } else {
       setDisciplineSuggestions([]);
+      setUserSuggestions([]);
     }
     
     return () => {
@@ -115,15 +129,7 @@ const AcademicSearchPage: React.FC = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchQuery, searchMode, searchDisciplinesDebounced]);
-
-  // Filtrar sugestões de usuários (ainda usa mock)
-  const userSuggestions = searchQuery.length > 0 && searchMode === "usuarios"
-    ? allUsers.filter(u => 
-        u.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.turma.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 8)
-    : [];
+  }, [searchQuery, searchMode, searchDisciplinesDebounced, searchUsersDebounced]);
 
   // Função para destacar o texto que coincide
   const highlightMatch = (text: string, query: string) => {
@@ -144,10 +150,10 @@ const AcademicSearchPage: React.FC = () => {
     navigate(`/academico/disciplina/${codigo}`);
   };
 
-  // Navegar para usuário (TODO: criar página de perfil público)
-  const handleSelectUser = (id: number) => {
-    // navigate(`/academico/usuario/${id}`);
-    console.log("Ver perfil do usuário:", id);
+  // Navegar para perfil público do usuário
+  const handleSelectUser = (id: number, name?: string) => {
+    if (name) saveRecentSearch(name);
+    navigate(`/perfil/${id}`);
   };
 
   // Fazer busca
@@ -175,12 +181,10 @@ const AcademicSearchPage: React.FC = () => {
         navigate(`/academico/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);
       }
     } else {
-      // Busca de usuários (ainda mock)
-      const exact = allUsers.find(u => 
-        u.nome.toLowerCase() === searchQuery.toLowerCase()
-      );
-      if (exact) {
-        handleSelectUser(exact.id);
+      // Busca de usuários - navega para página de resultados
+      if (searchQuery.trim()) {
+        saveRecentSearch(searchQuery.trim());
+        navigate(`/academico/buscar/usuarios?q=${encodeURIComponent(searchQuery.trim())}`);
       }
     }
   };
@@ -190,6 +194,8 @@ const AcademicSearchPage: React.FC = () => {
     setSearchMode(mode);
     setSearchQuery("");
     setSelectedIndex(-1);
+    setDisciplineSuggestions([]);
+    setUserSuggestions([]);
     inputRef.current?.focus();
   };
 
@@ -212,7 +218,8 @@ const AcademicSearchPage: React.FC = () => {
           const disc = items[selectedIndex] as DisciplineWithRating;
           handleSelectDiscipline(disc.codigo, disc.nome);
         } else {
-          handleSelectUser((items[selectedIndex] as typeof allUsers[0]).id);
+          const user = items[selectedIndex] as UserSearchResult;
+          handleSelectUser(user.id, user.name);
         }
       } else {
         handleSearch();
@@ -451,40 +458,76 @@ const AcademicSearchPage: React.FC = () => {
               {/* MODO USUÁRIOS */}
               {searchMode === "usuarios" && (
                 <>
+                  {/* Loading */}
+                  {isLoading && (
+                    <div className="px-4 py-6 text-center">
+                      <Loader2 className="w-5 h-5 animate-spin text-library-purple mx-auto" />
+                    </div>
+                  )}
+
                   {/* Quando tem query - mostra sugestões filtradas */}
-                  {searchQuery.length > 0 && userSuggestions.length > 0 && (
+                  {!isLoading && searchQuery.length >= 2 && userSuggestions.length > 0 && (
                     <ul className="py-2">
                       {userSuggestions.map((user, index) => (
                         <li
                           key={user.id}
-                          onClick={() => handleSelectUser(user.id)}
+                          onClick={() => handleSelectUser(user.id, user.name)}
                           className={`
                             flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors
                             ${selectedIndex === index ? "bg-gray-100" : "hover:bg-gray-50"}
                           `}
                         >
-                          <div className="w-8 h-8 rounded-full bg-library-purple/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-library-purple font-semibold text-sm">
-                              {user.nome.charAt(0)}
-                            </span>
-                          </div>
+                          {user.profile_image ? (
+                            <img 
+                              src={user.profile_image} 
+                              alt={user.name}
+                              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-library-purple/10 flex items-center justify-center flex-shrink-0">
+                              <span className="text-library-purple font-semibold text-sm">
+                                {user.name.charAt(0)}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex-1 min-w-0">
-                            <span className="text-gray-800">
-                              {highlightMatch(user.nome, searchQuery)}
-                            </span>
-                            <span className="text-gray-400 text-sm ml-2">
-                              — {user.turma}
-                            </span>
+                            <div className="text-gray-800">
+                              {highlightMatch(user.name, searchQuery)}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {user.class && (
+                                <span className="text-gray-400 text-xs">
+                                  {user.class}
+                                </span>
+                              )}
+                              {user.tags && user.tags.length > 0 && (
+                                <>
+                                  {user.class && <span className="text-gray-300">•</span>}
+                                  <span className="text-gray-400 text-xs truncate">
+                                    {user.tags.slice(0, 2).join(", ")}
+                                    {user.tags.length > 2 && ` +${user.tags.length - 2}`}
+                                  </span>
+                                </>
+                              )}
+                            </div>
                           </div>
+                          <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         </li>
                       ))}
                     </ul>
                   )}
 
                   {/* Sem resultados */}
-                  {searchQuery.length > 0 && userSuggestions.length === 0 && (
+                  {!isLoading && searchQuery.length >= 2 && userSuggestions.length === 0 && (
                     <div className="px-4 py-8 text-center text-gray-500">
                       Nenhum usuário encontrado para "{searchQuery}"
+                    </div>
+                  )}
+
+                  {/* Digitando menos de 2 caracteres */}
+                  {searchQuery.length === 1 && (
+                    <div className="px-4 py-6 text-center text-gray-500">
+                      Digite pelo menos 2 caracteres para buscar
                     </div>
                   )}
 

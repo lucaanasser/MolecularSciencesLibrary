@@ -21,6 +21,7 @@ import { SiteModeProvider } from "@/hooks/useSiteMode";
 import { RenderPage } from "@/components/RenderPage";
 import AcademicSearchPage from "@/pages/academic/AcademicSearchPage";
 import AcademicSearchResultsPage from "@/pages/academic/AcademicSearchResultsPage";
+import AcademicUserSearchResultsPage from "@/pages/academic/AcademicUserSearchResultsPage";
 import GradePage from "@/pages/academic/GradePage";
 import AcademicFAQPage from "@/pages/academic/AcademicFAQPage";
 import AcademicIndexPage from "@/pages/academic/AcademicIndexPage";
@@ -94,6 +95,7 @@ const App = () => (
             <Route path="/academico" element={RenderPage(AcademicIndexPage)} />
             <Route path="/academico/buscar" element={RenderPage(AcademicSearchPage)} />
             <Route path="/academico/buscar/resultados" element={RenderPage(AcademicSearchResultsPage)} />
+            <Route path="/academico/buscar/usuarios" element={RenderPage(AcademicUserSearchResultsPage)} />
             <Route path="/academico/disciplina/:codigo" element={RenderPage(DisciplinePage)} />
             <Route path="/academico/criar-disciplina" element={RenderPage(CreateDisciplinePage)} />
             <Route path="/academico/grade" element={RenderPage(GradePage)} />
