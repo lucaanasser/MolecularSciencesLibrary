@@ -21,12 +21,14 @@ export type EditingMode = 'start' | 'end' | null;
 
 export interface Book {
   id: number;
-  title: string;
-  authors: string;
   code: string;
   area: string;
-  subarea: string;
-  available: boolean;
-  edition?: string;
-  language?: number;
+  subarea: number;
+  title: string;
+  subtitle?: string;
+  authors: string;
+  edition: number;
+  volume?: number;
+  language: number;
+  is_reserved?: number;
 }

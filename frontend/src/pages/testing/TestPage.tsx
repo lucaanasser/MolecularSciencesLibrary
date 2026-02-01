@@ -1,5 +1,5 @@
-import AdminListTest from "@/features/admin/pages/AdminListTest";
-
+import BookshelfRenderer from "@/features/bookshelf/BookshelfRenderer";
+import VirtualBookshelf from "@/features/bookshelf/VirtualBookshelf";
 export default function TestPage() {
-  return <AdminListTest />;
+  return <VirtualBookshelf />;
 }
