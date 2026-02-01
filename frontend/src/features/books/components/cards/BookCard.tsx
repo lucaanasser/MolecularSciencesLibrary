@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { getResolvedSubarea } from "@/utils/bookUtils";
 import { BookOption, SubareaCode } from "@/types/book";
 import NudgeButton from "./NudgeButton";
-import { BookOpen, Pi, Atom, Dna, Braces, Orbit  } from "lucide-react";
+import { BookOpen, Pi, Atom, Dna, Braces, Orbit, ExternalLink } from "lucide-react";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface BookCardProps {
   book: any;
@@ -41,6 +42,7 @@ const statusStyles = (book: BookCardProps["book"]) => {
 };
 
 const BookCard: React.FC<BookCardProps> = ({ book, areaCodes, subareaCodes, loadingBookDetails, onDetails }) => {
+  const navigate = useNavigate();
 
   const areaLabel = areaCodes[book.area] || "Área desconhecida";
   const areaStyle = areaIcon(book.area);
@@ -73,6 +75,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, areaCodes, subareaCodes, load
             disabled={loadingBookDetails}
           >
             {loadingBookDetails ? '...' : 'Detalhes'}
+          </button>
+          <button
+            className="rounded bg-library-purple text-white hover:bg-library-purple/90 px-2 py-1 text-xs flex items-center gap-1"
+            onClick={() => navigate(`/biblioteca/livro/${book.id}`)}
+          >
+            <ExternalLink size={12} />
+            Ver Página
           </button>
         </div>
         {/* Botão de nudge para livros atrasados ou na janela final ou estendidos*/}

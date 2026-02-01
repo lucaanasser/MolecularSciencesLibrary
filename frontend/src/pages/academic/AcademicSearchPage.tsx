@@ -1,31 +1,87 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus } from "lucide-react";
+import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate, Link } from "react-router-dom";
-import { searchDisciplines, checkExactMatch, type SearchResult } from "@/services/DisciplinesService";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import {
+  searchDisciplines,
+  checkExactMatch,
+  searchUsers,
+  searchBooks,
+  type DisciplineSearchResult,
+  type UserSearchResult,
+  type BookSearchResult,
+  type SearchMode,
+} from "@/services/SearchService";
 import { getAggregatedRatings } from "@/services/DisciplineEvaluationsService";
-import { searchUsers, type UserSearchResult } from "@/services/UsersService";
 
-type SearchMode = "disciplinas" | "usuarios";
+/**
+ * COMPONENTE REUTILIZÁVEL: MolecoogleSearchPage
+ * 
+ * Página de busca unificada estilo Google (Molecoogle) que suporta 3 modos:
+ * - Disciplinas (modo acadêmico)
+ * - Usuários (modo acadêmico)  
+ * - Livros (modo biblioteca)
+ * 
+ * REUSO:
+ * - Modo Acadêmico: <AcademicSearchPage /> (sem props, mostra todos os modos)
+ * - Modo Biblioteca: <AcademicSearchPage fixedMode="livros" hideModeSwitcher />
+ * 
+ * PROPS:
+ * - fixedMode: Fixa o modo de busca (desabilita troca)
+ * - hideModeSwitcher: Oculta os botões de seleção de modo
+ * 
+ * FEATURES:
+ * - Autocomplete em tempo real com debounce
+ * - Navegação por teclado (setas, Enter, Esc)
+ * - Buscas recentes (localStorage)
+ * - Logo animado Molecoooogle
+ * - Design minimalista estilo Google
+ */
 
-interface DisciplineWithRating extends SearchResult {
+interface DisciplineWithRating extends DisciplineSearchResult {
   avaliacao?: number | null;
 }
 
+interface BookWithAvailability extends BookSearchResult {
+  availability?: string;
+}
+
+interface SearchPageProps {
+  /** Força um modo específico (desabilita troca de modo) */
+  fixedMode?: SearchMode;
+  /** Oculta os botões de seleção de modo */
+  hideModeSwitcher?: boolean;
+}
+
 /**
- * Página de busca do modo acadêmico - Estilo Google.
+ * Página de busca unificada - Estilo Google (Molecoogle).
+ * Suporta 3 modos: disciplinas, usuários e livros.
+ * Pode ser configurada para modo fixo (ex: biblioteca só busca livros).
  */
-const AcademicSearchPage: React.FC = () => {
-  console.log("🔵 [AcademicSearchPage] Renderizando página de busca acadêmica");
+const AcademicSearchPage: React.FC<SearchPageProps> = ({ 
+  fixedMode,
+  hideModeSwitcher = false 
+}) => {
+  console.log("🔵 [AcademicSearchPage] Renderizando página de busca unificada", { fixedMode, hideModeSwitcher });
 
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Determina o modo inicial: fixedMode tem prioridade, senão baseado na rota
+  const getInitialMode = (): SearchMode => {
+    if (fixedMode) return fixedMode;
+    if (location.pathname.includes('/biblioteca/buscar')) return 'livros';
+    return 'disciplinas';
+  };
+  
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchMode, setSearchMode] = useState<SearchMode>("disciplinas");
+  const [searchMode, setSearchMode] = useState<SearchMode>(getInitialMode);
   const [isFocused, setIsFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [disciplineSuggestions, setDisciplineSuggestions] = useState<DisciplineWithRating[]>([]);
   const [userSuggestions, setUserSuggestions] = useState<UserSearchResult[]>([]);
+  const [bookSuggestions, setBookSuggestions] = useState<BookWithAvailability[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -105,6 +161,25 @@ const AcademicSearchPage: React.FC = () => {
     }
   }, []);
 
+  // Buscar livros na API com debounce
+  const searchBooksDebounced = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setBookSuggestions([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await searchBooks(query, 8);
+      setBookSuggestions(results);
+    } catch (error) {
+      console.error("🔴 [AcademicSearchPage] Erro ao buscar livros:", error);
+      setBookSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Efeito para buscar com debounce
   useEffect(() => {
     if (searchTimeoutRef.current) {
@@ -115,13 +190,16 @@ const AcademicSearchPage: React.FC = () => {
       searchTimeoutRef.current = setTimeout(() => {
         if (searchMode === "disciplinas") {
           searchDisciplinesDebounced(searchQuery);
-        } else {
+        } else if (searchMode === "usuarios") {
           searchUsersDebounced(searchQuery);
+        } else {
+          searchBooksDebounced(searchQuery);
         }
       }, 300);
     } else {
       setDisciplineSuggestions([]);
       setUserSuggestions([]);
+      setBookSuggestions([]);
     }
     
     return () => {
@@ -129,7 +207,7 @@ const AcademicSearchPage: React.FC = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchQuery, searchMode, searchDisciplinesDebounced, searchUsersDebounced]);
+  }, [searchQuery, searchMode, searchDisciplinesDebounced, searchUsersDebounced, searchBooksDebounced]);
 
   // Função para destacar o texto que coincide
   const highlightMatch = (text: string, query: string) => {
@@ -156,6 +234,12 @@ const AcademicSearchPage: React.FC = () => {
     navigate(`/perfil/${id}`);
   };
 
+  // Navegar para detalhes do livro
+  const handleSelectBook = (id: number, title?: string) => {
+    if (title) saveRecentSearch(title);
+    navigate(`/biblioteca/livro/${id}`);
+  };
+
   // Fazer busca
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -180,30 +264,49 @@ const AcademicSearchPage: React.FC = () => {
         saveRecentSearch(searchQuery.trim());
         navigate(`/academico/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);
       }
-    } else {
+    } else if (searchMode === "usuarios") {
       // Busca de usuários - navega para página de resultados
       if (searchQuery.trim()) {
         saveRecentSearch(searchQuery.trim());
         navigate(`/academico/buscar/usuarios?q=${encodeURIComponent(searchQuery.trim())}`);
+      }
+    } else {
+      // Busca de livros - navega para página de resultados
+      if (searchQuery.trim()) {
+        saveRecentSearch(searchQuery.trim());
+        navigate(`/biblioteca/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);
       }
     }
   };
 
   // Trocar modo de busca
   const handleModeChange = (mode: SearchMode) => {
+    // Se modo está fixado, não permite mudança
+    if (fixedMode) return;
+    
     setSearchMode(mode);
     setSearchQuery("");
     setSelectedIndex(-1);
     setDisciplineSuggestions([]);
     setUserSuggestions([]);
+    setBookSuggestions([]);
     inputRef.current?.focus();
+    
+    // Navega para a rota correta ao mudar de modo
+    if (mode === 'livros') {
+      navigate('/biblioteca/buscar');
+    } else if (mode === 'disciplinas' || mode === 'usuarios') {
+      navigate('/academico/buscar');
+    }
   };
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const items = searchMode === "disciplinas"
       ? (disciplineSuggestions.length > 0 ? disciplineSuggestions : (isFocused && !searchQuery ? popularDisciplines : []))
-      : userSuggestions;
+      : searchMode === "usuarios" 
+        ? userSuggestions
+        : bookSuggestions;
     
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -217,9 +320,12 @@ const AcademicSearchPage: React.FC = () => {
         if (searchMode === "disciplinas") {
           const disc = items[selectedIndex] as DisciplineWithRating;
           handleSelectDiscipline(disc.codigo, disc.nome);
-        } else {
+        } else if (searchMode === "usuarios") {
           const user = items[selectedIndex] as UserSearchResult;
           handleSelectUser(user.id, user.name);
+        } else {
+          const book = items[selectedIndex] as BookWithAvailability;
+          handleSelectBook(book.id, book.title);
         }
       } else {
         handleSearch();
@@ -248,7 +354,8 @@ const AcademicSearchPage: React.FC = () => {
 
   const showDropdown = isFocused && (
     (searchMode === "disciplinas" && (disciplineSuggestions.length > 0 || searchQuery.length >= 0 || isLoading)) ||
-    (searchMode === "usuarios" && (userSuggestions.length > 0 || searchQuery.length > 0))
+    (searchMode === "usuarios" && (userSuggestions.length > 0 || searchQuery.length > 0)) ||
+    (searchMode === "livros" && (bookSuggestions.length > 0 || searchQuery.length > 0 || isLoading))
   );
 
   return (
@@ -295,8 +402,10 @@ const AcademicSearchPage: React.FC = () => {
             <div className="flex items-center px-4 py-3">
               {searchMode === "disciplinas" ? (
                 <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-              ) : (
+              ) : searchMode === "usuarios" ? (
                 <Users className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+              ) : (
+                <BookOpen className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
               )}
               <input
                 ref={inputRef}
@@ -305,7 +414,13 @@ const AcademicSearchPage: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onKeyDown={handleKeyDown}
-                placeholder={searchMode === "disciplinas" ? "Buscar disciplinas..." : "Buscar usuários..."}
+                placeholder={
+                  searchMode === "disciplinas" 
+                    ? "Buscar disciplinas..." 
+                    : searchMode === "usuarios"
+                      ? "Buscar usuários..."
+                      : "Buscar livros..."
+                }
                 className="flex-1 text-base outline-none bg-transparent"
                 autoComplete="off"
               />
@@ -539,38 +654,122 @@ const AcademicSearchPage: React.FC = () => {
                   )}
                 </>
               )}
+
+              {/* MODO LIVROS */}
+              {searchMode === "livros" && (
+                <>
+                  {/* Loading */}
+                  {isLoading && searchQuery.length >= 2 && (
+                    <div className="px-4 py-6 flex items-center justify-center gap-2 text-gray-500">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Buscando livros...</span>
+                    </div>
+                  )}
+
+                  {/* Quando tem query - mostra sugestões filtradas */}
+                  {!isLoading && searchQuery.length >= 2 && bookSuggestions.length > 0 && (
+                    <ul className="py-2">
+                      {bookSuggestions.map((book, index) => (
+                        <li
+                          key={book.id}
+                          onClick={() => handleSelectBook(book.id, book.title)}
+                          className={`
+                            flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors
+                            ${selectedIndex === index ? "bg-gray-100" : "hover:bg-gray-50"}
+                          `}
+                        >
+                          <BookOpen className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-gray-800">
+                              {highlightMatch(book.title, searchQuery)}
+                            </span>
+                            <div className="text-gray-400 text-sm mt-0.5">
+                              {book.authors}
+                              {book.code && <span className="ml-2">— {book.code}</span>}
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Sem resultados */}
+                  {!isLoading && searchQuery.length >= 2 && bookSuggestions.length === 0 && (
+                    <div className="px-4 py-8 text-center text-gray-500">
+                      Nenhum livro encontrado para "{searchQuery}"
+                    </div>
+                  )}
+
+                  {/* Digitando menos de 2 caracteres */}
+                  {searchQuery.length === 1 && (
+                    <div className="px-4 py-6 text-center text-gray-500">
+                      Digite pelo menos 2 caracteres para buscar
+                    </div>
+                  )}
+
+                  {/* Quando não tem query */}
+                  {searchQuery.length === 0 && (
+                    <div className="px-4 py-6 text-center text-gray-500">
+                      Digite o título ou autor de um livro para encontrá-lo
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </motion.div>
 
-        {/* Botões de seleção de modo (estilo Google) */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex gap-3 mt-8"
-        >
-          <button
-            onClick={() => handleModeChange("disciplinas")}
-            className={`px-4 py-2 text-sm rounded transition-colors border ${
-              searchMode === "disciplinas"
-                ? "bg-academic-blue text-white border-academic-blue"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
-            }`}
+        {/* Botões de seleção de modo (estilo Google) - Oculto se hideModeSwitcher */}
+        {!hideModeSwitcher && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="flex gap-3 mt-8"
           >
-            Buscar Disciplinas
-          </button>
-          <button
-            onClick={() => handleModeChange("usuarios")}
-            className={`px-4 py-2 text-sm rounded transition-colors border ${
-              searchMode === "usuarios"
-                ? "bg-academic-blue text-white border-academic-blue"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
-            }`}
-          >
-            Buscar Usuários
-          </button>
-        </motion.div>
+            {/* Botões acadêmicos - apenas quando NÃO estiver na biblioteca */}
+            {!location.pathname.includes('/biblioteca') && (
+              <>
+                <button
+                  onClick={() => handleModeChange("disciplinas")}
+                  disabled={fixedMode !== undefined}
+                  className={`px-4 py-2 text-sm rounded transition-colors border ${
+                    searchMode === "disciplinas"
+                      ? "bg-academic-blue text-white border-academic-blue"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
+                  } ${fixedMode ? 'cursor-not-allowed opacity-50' : ''}`}
+                >
+                  Buscar Disciplinas
+                </button>
+                <button
+                  onClick={() => handleModeChange("usuarios")}
+                  disabled={fixedMode !== undefined}
+                  className={`px-4 py-2 text-sm rounded transition-colors border ${
+                    searchMode === "usuarios"
+                      ? "bg-academic-blue text-white border-academic-blue"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
+                  } ${fixedMode ? 'cursor-not-allowed opacity-50' : ''}`}
+                >
+                  Buscar Usuários
+                </button>
+              </>
+            )}
+            {/* Botão de livros - apenas quando estiver na biblioteca */}
+            {location.pathname.includes('/biblioteca') && (
+              <button
+                onClick={() => handleModeChange("livros")}
+                disabled={fixedMode !== undefined}
+                className={`px-4 py-2 text-sm rounded transition-colors border ${
+                  searchMode === "livros"
+                    ? "bg-library-green text-white border-library-green"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-100 hover:border-gray-300"
+                } ${fixedMode ? 'cursor-not-allowed opacity-50' : ''}`}
+              >
+                Buscar Livros
+              </button>
+            )}
+          </motion.div>
+        )}
 
         {/* Tags de sugestão rápida */}
         <motion.div
@@ -605,4 +804,8 @@ const AcademicSearchPage: React.FC = () => {
   );
 };
 
+// Export default para uso direto
 export default AcademicSearchPage;
+
+// Export nomeado para facilitar reuso em outros contextos
+export { AcademicSearchPage as MolecoogleSearchPage };

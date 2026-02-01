@@ -96,6 +96,14 @@ const BookDetailsModal: React.FC<BookDetailsModalProps> = ({
               Ver na Estante
             </button>
           )}
+          <button
+            onClick={() => {
+              navigate(`/biblioteca/livro/${book.id}`);
+            }}
+            className="bg-library-purple text-white px-4 py-2 rounded-xl hover:bg-library-purple-muted"
+          >
+            Ver Página
+          </button>
           <div className="flex-1 flex justify-end">
             <button
               onClick={onClose}

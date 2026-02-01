@@ -7,6 +7,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import Index from "@/pages/library/Index";
 import NotFound from "@/pages/utilities/NotFound";
 import SearchPage from "@/pages/library/SearchPage";
+import LibrarySearchResultsPage from "@/pages/library/LibrarySearchResultsPage";
 import VirtualShelfPage from "@/pages/library/VirtualBookShelfPage";
 import LoginPage from "@/pages/utilities/LoginPage";
 import ProfilePage from "@/pages/library/ProfilePage";
@@ -32,6 +33,7 @@ import QuestionDetailPage from "@/pages/academic/QuestionDetailPage";
 import NewQuestionPage from "@/pages/academic/NewQuestionPage";
 import AdminPendingTagsPage from "@/pages/utilities/AdminPendingTagsPage";
 import TransparencyPortalPage from "@/pages/library/TransparencyPortalPage";
+import BookPage from "@/pages/library/BookPage";
 
 import TestPage from "@/pages/testing/TestPage";
 
@@ -52,7 +54,13 @@ const App = () => (
             {/* Rota de teste */}
             <Route path="/test" element={RenderPage(TestPage)} />
             <Route path="/" element={RenderPage(Index)} />
-            <Route path="/buscar" element={RenderPage(SearchPage)} />
+            
+            {/* Rotas de busca */}
+            <Route path="/biblioteca/buscar" element={RenderPage(SearchPage)} />
+            <Route path="/biblioteca/buscar/resultados" element={RenderPage(LibrarySearchResultsPage)} />
+            <Route path="/biblioteca/livro/:id" element={RenderPage(BookPage)} />
+            <Route path="/buscar" element={RenderPage(SearchPage)} /> {/* Rota antiga para compatibilidade */}
+            
             <Route path="/estante-virtual" element={RenderPage(VirtualShelfPage)} />
             <Route path="/entrar" element={RenderPage(LoginPage)} />
             <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
