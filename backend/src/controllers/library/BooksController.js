@@ -69,6 +69,41 @@ class BooksController {
     }
 
     /**
+     * Busca livros para autocomplete
+     * @param {string} query - Termo de busca
+     * @param {number} limit - Limite de resultados
+     * @returns {Promise<Array>} Lista simplificada de livros
+     */
+    async searchBooks(query, limit = 10) {
+        try {
+            console.log(`🔵 [BooksController] Autocomplete: query="${query}", limit=${limit}`);
+            const results = await booksService.searchBooks(query, limit);
+            console.log(`🟢 [BooksController] ${results.length} resultados de autocomplete`);
+            return results;
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro no autocomplete:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Conta total de livros com filtros
+     * @param {Object} filters - Filtros de busca
+     * @returns {Promise<number>} Total de livros
+     */
+    async countBooks(filters) {
+        try {
+            console.log(`🔵 [BooksController] Contando livros com filtros:`, filters);
+            const count = await booksService.countBooks(filters);
+            console.log(`🟢 [BooksController] Total: ${count} livros`);
+            return count;
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao contar livros:", error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Busca livros por categoria e subcategoria, delegando ao serviço
      * @param {string} category - Nome da categoria
      * @param {string|number} subcategory - Código da subcategoria

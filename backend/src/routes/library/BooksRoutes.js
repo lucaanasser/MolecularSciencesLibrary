@@ -16,6 +16,39 @@ const upload = multer({ storage: storage });
  * 🔴 Erro
  */
 
+// Busca livros para autocomplete (usado no campo de busca)
+router.get('/search', async (req, res) => {
+    try {
+        console.log("🔵 [BooksRoutes] GET /search - Autocomplete de livros");
+        const { q, limit = 10 } = req.query;
+        
+        if (!q || q.length < 2) {
+            return res.json([]);
+        }
+        
+        const results = await booksController.searchBooks(q, parseInt(limit));
+        console.log(`🟢 [BooksRoutes] ${results.length} resultados de autocomplete retornados`);
+        res.json(results);
+    } catch (error) {
+        console.error("🔴 [BooksRoutes] Erro ao buscar autocomplete:", error.message);
+        res.status(500).json({ message: 'Error searching books: ' + error.message });
+    }
+});
+
+// Conta total de livros com filtros
+router.get('/count', async (req, res) => {
+    try {
+        console.log("🔵 [BooksRoutes] GET /count - Contar livros");
+        const filters = { ...req.query };
+        const count = await booksController.countBooks(filters);
+        console.log(`🟢 [BooksRoutes] Total de livros: ${count}`);
+        res.json({ count });
+    } catch (error) {
+        console.error("🔴 [BooksRoutes] Erro ao contar livros:", error.message);
+        res.status(500).json({ message: 'Error counting books: ' + error.message });
+    }
+});
+
 // Adiciona um novo livro
 router.post('/', async (req, res) => {
     try {
@@ -34,10 +67,11 @@ router.post('/', async (req, res) => {
 });
 
 // Busca livros, com filtros opcionais de categoria e subcategoria
+// Suporta paginação com offset e limit
 router.get('/', async (req, res) => {
     try {
         console.log("[BooksRoutes] GET / - Buscar livros");
-        // Recebe todos os filtros da query
+        // Recebe todos os filtros da query, incluindo offset e limit para paginação
         const filters = { ...req.query };
         const books = await booksController.getBooks(filters);
         console.log(`[BooksRoutes] Livros encontrados: ${books.length}`);

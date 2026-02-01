@@ -12,6 +12,7 @@ const http = require('http');
 const fs = require('fs');
 
 const booksRouter = require('./routes/library/BooksRoutes');
+const bookEvaluationsRouter = require('./routes/library/BookEvaluationsRoutes');
 const usersRouter = require('./routes/library/UsersRoutes');
 const loansRouter = require('./routes/library/LoansRoutes');
 const badgesRouter = require('./routes/library/BadgesRoutes');
@@ -54,6 +55,7 @@ console.log('🟢 [main] Arquivos estáticos configurados em /images -> public/i
 
 // Rotas da API
 app.use('/api/books', booksRouter);
+app.use('/api/books', bookEvaluationsRouter); // Rotas de avaliações de livros
 app.use('/api/users', usersRouter);
 app.use('/api/loans', loansRouter);
 app.use('/api/notifications', notificationsRouter);

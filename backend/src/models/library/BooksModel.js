@@ -11,8 +11,88 @@ const { executeQuery, getQuery, allQuery } = require('../../database/db'); // Ca
  * 🔴 Erro
  */
 class BooksModel {
-    async getBooks(category, subcategory, searchTerm, onlyReserved = null) {
-        console.log(`🔵 [BooksModel] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}, onlyReserved=${onlyReserved}`);
+    /**
+     * Busca livros para autocomplete (busca simplificada por título/autor/código)
+     * @param {string} query - Termo de busca
+     * @param {number} limit - Limite de resultados
+     * @returns {Promise<Array>} Lista de livros
+     */
+    async searchBooks(query, limit = 10) {
+        console.log(`🔵 [BooksModel] Autocomplete: query="${query}", limit=${limit}`);
+        const sql = `
+            SELECT id, code, title, authors, area, subarea
+            FROM books
+            WHERE title LIKE ? COLLATE NOCASE 
+               OR authors LIKE ? COLLATE NOCASE 
+               OR code LIKE ? COLLATE NOCASE
+            ORDER BY CASE 
+                WHEN title LIKE ? THEN 1
+                WHEN code LIKE ? THEN 2
+                ELSE 3
+            END, title ASC
+            LIMIT ?
+        `;
+        const searchTerm = `%${query}%`;
+        const startsWith = `${query}%`;
+        const params = [searchTerm, searchTerm, searchTerm, startsWith, startsWith, limit];
+        
+        try {
+            const books = await allQuery(sql, params);
+            console.log(`🟢 [BooksModel] ${books.length} livros encontrados no autocomplete`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro no autocomplete:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Conta total de livros com filtros
+     * @param {string} category - Categoria do livro
+     * @param {number} subcategory - Subcategoria do livro
+     * @param {string} searchTerm - Termo de busca
+     * @param {boolean|null} onlyReserved - Se deve buscar apenas reservados
+     * @returns {Promise<number>} Total de livros
+     */
+    async countBooks(category, subcategory, searchTerm, onlyReserved = null) {
+        console.log(`🔵 [BooksModel] Contando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}, onlyReserved=${onlyReserved}`);
+        let query = `SELECT COUNT(*) as count FROM books`;
+        const params = [];
+        const conditions = [];
+
+        if (category) {
+            conditions.push(`area = ?`);
+            params.push(category);
+        }
+        if (subcategory) {
+            conditions.push(`subarea = ?`);
+            params.push(parseInt(subcategory, 10));
+        }
+        if (searchTerm) {
+            conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE)`);
+            params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
+        }
+        if (onlyReserved !== null) {
+            conditions.push(`is_reserved = ?`);
+            params.push(onlyReserved ? 1 : 0);
+        }
+        if (conditions.length > 0) {
+            query += ` WHERE ` + conditions.join(' AND ');
+        }
+
+        try {
+            const result = await getQuery(query, params);
+            const count = result?.count || 0;
+            console.log(`🟢 [BooksModel] Total de livros: ${count}`);
+            return count;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao contar livros:", error.message);
+            throw error;
+        }
+    }
+
+    async getBooks(category, subcategory, searchTerm, onlyReserved = null, limit = null, offset = 0) {
+        console.log(`🔵 [BooksModel] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}, onlyReserved=${onlyReserved}, limit=${limit}, offset=${offset}`);
         let query = `SELECT * FROM books`;
         const params = [];
         const conditions = [];
@@ -46,6 +126,13 @@ class BooksModel {
             WHEN 'Computação' THEN 5
             WHEN 'Variados' THEN 6
             ELSE 999 END, subarea ASC, code ASC`;
+        
+        // Adiciona paginação se limit for fornecido
+        if (limit !== null) {
+            query += ` LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        }
+        
         try {
             const books = await allQuery(query, params);
             console.log(`🟢 [BooksModel] Livros encontrados: ${books.length}`);

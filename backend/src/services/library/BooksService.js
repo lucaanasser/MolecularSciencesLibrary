@@ -103,6 +103,64 @@ async function generateUniqueEAN13() {
 }
 
 class BooksService {
+    /**
+     * Busca livros para autocomplete (retorna apenas informações básicas)
+     * @param {string} query - Termo de busca
+     * @param {number} limit - Limite de resultados
+     * @returns {Promise<Array>} Lista simplificada de livros
+     */
+    async searchBooks(query, limit = 10) {
+        try {
+            console.log(`🔵 [BooksService] Autocomplete: query="${query}", limit=${limit}`);
+            
+            if (!query || query.length < 2) {
+                return [];
+            }
+            
+            const books = await booksModel.searchBooks(query, limit);
+            
+            // Retorna apenas informações essenciais para autocomplete
+            const results = books.map(book => ({
+                id: book.id,
+                code: book.code,
+                title: book.title,
+                authors: book.authors,
+                area: book.area,
+                subarea: book.subarea
+            }));
+            
+            console.log(`🟢 [BooksService] ${results.length} resultados de autocomplete`);
+            return results;
+        } catch (error) {
+            console.error("🔴 [BooksService] Erro no autocomplete:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Conta total de livros com filtros aplicados
+     * @param {Object} filters - Filtros de busca
+     * @returns {Promise<number>} Total de livros
+     */
+    async countBooks(filters) {
+        try {
+            console.log(`🔵 [BooksService] Contando livros com filtros:`, filters);
+            
+            const category = filters.category || null;
+            const subcategory = filters.subcategory || null;
+            const searchTerm = filters.q || filters.search || null;
+            const onlyReserved = filters.reserved === 'true' ? true : (filters.reserved === 'false' ? false : null);
+            
+            const count = await booksModel.countBooks(category, subcategory, searchTerm, onlyReserved);
+            
+            console.log(`🟢 [BooksService] Total: ${count} livros`);
+            return count;
+        } catch (error) {
+            console.error("🔴 [BooksService] Erro ao contar livros:", error.message);
+            throw error;
+        }
+    }
+
     async generateBookCode({ area, subarea, addType, selectedBook, volume }) {
         console.log(`🔵 [BooksService] Gerando código para livro: area=${area}, subarea=${subarea}, addType=${addType}, volume=${volume}`);
         const areaCode = areaCodes[area] || "XXX";
@@ -211,8 +269,13 @@ class BooksService {
             const subcategory = filters.subcategory || null;
             const searchTerm = filters.q || filters.search || null;
             const onlyReserved = filters.reserved === 'true' ? true : (filters.reserved === 'false' ? false : null);
-            // Busca livros do banco
-            const books = await booksModel.getBooks(category, subcategory, searchTerm, onlyReserved);
+            
+            // Paginação
+            const limit = filters.limit ? parseInt(filters.limit) : null;
+            const offset = filters.offset ? parseInt(filters.offset) : 0;
+            
+            // Busca livros do banco (com paginação se limit for fornecido)
+            const books = await booksModel.getBooks(category, subcategory, searchTerm, onlyReserved, limit, offset);
             const borrowed = await booksModel.getBorrowedBooks();
             const rules = await RulesService.getRules();
             const windowDays = rules?.extension_window_days ?? 3;
