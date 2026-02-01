@@ -97,6 +97,105 @@ class UsersModel {
             [imagePath, id]
         );
     }
+
+    /**
+     * Busca usuários por nome, NUSP ou turma (para autocomplete)
+     * Retorna apenas dados públicos: id, name, class, profile_image, tags, curso_origem
+     * 
+     * @param {string} searchTerm - Termo de busca
+     * @param {number} limit - Limite de resultados
+     * @param {object} filters - Filtros opcionais: { tags: [], curso: string, disciplina: string, turma: string }
+     */
+    async searchUsers(searchTerm, limit = 1000, filters = {}) {
+        console.log("🔵 [searchUsers] searchTerm:", searchTerm, "filters:", filters);
+        
+        let whereConditions = [];
+        let params = [];
+        
+        // Condição de busca por termo
+        if (searchTerm && searchTerm.length >= 2) {
+            whereConditions.push(`(
+                u.name LIKE ? COLLATE NOCASE 
+                OR u.NUSP LIKE ? COLLATE NOCASE 
+                OR u.class LIKE ? COLLATE NOCASE
+            )`);
+            params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
+        }
+        
+        // Filtro por turma
+        if (filters.turma) {
+            whereConditions.push(`u.class = ?`);
+            params.push(filters.turma);
+        }
+        
+        // Filtro por curso de origem
+        if (filters.curso) {
+            whereConditions.push(`pp.curso_origem = ?`);
+            params.push(filters.curso);
+        }
+        
+        // Busca base com LEFT JOIN no perfil público
+        const whereClause = whereConditions.length > 0 
+            ? `WHERE ${whereConditions.join(' AND ')}`
+            : '';
+        
+        const users = await allQuery(
+            `SELECT DISTINCT u.id, u.name, u.class, u.profile_image, pp.curso_origem
+             FROM users u
+             LEFT JOIN public_profiles pp ON pp.user_id = u.id
+             ${whereClause}
+             LIMIT ?`,
+            [...params, limit]
+        );
+        
+        // Para cada usuário, busca tags e disciplinas
+        let usersWithData = await Promise.all(
+            users.map(async (user) => {
+                const tags = await allQuery(
+                    `SELECT label FROM area_tags 
+                     WHERE entity_type = 'profile' AND entity_id = ?
+                     ORDER BY created_at`,
+                    [user.id]
+                );
+                
+                const disciplines = await allQuery(
+                    `SELECT DISTINCT codigo FROM profile_disciplines
+                     WHERE user_id = ?
+                     ORDER BY ano DESC, semestre DESC
+                     LIMIT 20`,
+                    [user.id]
+                );
+                
+                return {
+                    ...user,
+                    tags: tags.map(t => t.label),
+                    disciplines: disciplines.map(d => d.codigo)
+                };
+            })
+        );
+        
+        // Filtro por tags (client-side após buscar todos)
+        if (filters.tags && filters.tags.length > 0) {
+            usersWithData = usersWithData.filter(user => 
+                filters.tags.some(filterTag => 
+                    user.tags.some(userTag => 
+                        userTag.toLowerCase().includes(filterTag.toLowerCase())
+                    )
+                )
+            );
+        }
+        
+        // Filtro por disciplina (client-side após buscar todos)
+        if (filters.disciplina) {
+            usersWithData = usersWithData.filter(user => 
+                user.disciplines.some(d => 
+                    d.toLowerCase().includes(filters.disciplina.toLowerCase())
+                )
+            );
+        }
+        
+        return usersWithData;
+    }
 }
 
 module.exports = new UsersModel();

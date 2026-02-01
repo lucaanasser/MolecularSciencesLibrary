@@ -199,6 +199,42 @@ class UsersController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    /**
+     * Busca usuários por termo (autocomplete).
+     * Query params: 
+     *   - q: termo de busca
+     *   - limit: limite de resultados (opcional)
+     *   - tags: filtro por tags (array)
+     *   - curso: filtro por curso de origem
+     *   - disciplina: filtro por disciplina cursada
+     *   - turma: filtro por turma
+     */
+    async searchUsers(req, res) {
+        try {
+            const { q, limit, tags, curso, disciplina, turma } = req.query;
+            
+            // Monta objeto de filtros
+            const filters = {};
+            if (tags) {
+                filters.tags = Array.isArray(tags) ? tags : [tags];
+            }
+            if (curso) filters.curso = curso;
+            if (disciplina) filters.disciplina = disciplina;
+            if (turma) filters.turma = turma;
+            
+            const results = await usersService.searchUsers(
+                q || '', 
+                limit ? parseInt(limit) : 1000,
+                filters
+            );
+            console.log("🟢 [searchUsers] Retornando", results.length, "resultados");
+            res.json(results);
+        } catch (error) {
+            console.error("🔴 [searchUsers] Erro:", error.message);
+            res.status(500).json({ error: 'Erro ao buscar usuários' });
+        }
+    }
 }
 
 module.exports = new UsersController();

@@ -26,6 +26,12 @@ router.put('/me/profile-image', authenticateToken, (req, res) => {
     usersController.updateProfileImage(req, res);
 });
 
+// Buscar usuários (autocomplete) - DEVE vir antes de /:id
+router.get('/search', authenticateToken, (req, res) => {
+    console.log("🔵 [UsersRoutes] GET /search - Buscar usuários:", req.query.q);
+    usersController.searchUsers(req, res);
+});
+
 // Buscar usuário por ID
 router.get('/:id', (req, res) => {
     console.log("🔵 [UsersRoutes] GET /:id - Buscar usuário por ID:", req.params.id);
