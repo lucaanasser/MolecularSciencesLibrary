@@ -1,14 +1,11 @@
-import { useState, useEffect } from "react";
-import useStep from "@/features/admin/features/books/hooks/useStep";
-import useAreaSelection from "@/features/admin/features/books/hooks/useAreaSelection";
-import useBookSearch from "@/features/admin/features/books/hooks/useBookSearch";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, X } from "lucide-react";
 import useRemoveBook from "@/features/admin/features/books/hooks/useRemoveBook";
-import { BookOption } from "@/types/book";
-import BookAreaStep from "@/features/admin/features/books/components/BookAreaStep";
-import BookSearchStep from "@/features/admin/features/books/components/BookSearchStep";
 
 /**
- * Wizard para remoção de livro.
+ * Formulário simplificado para remoção de livro por código de barras.
  * Padrão de logs:
  * 🔵 Início de operação
  * 🟢 Sucesso
@@ -21,47 +18,64 @@ interface RemoveBookFormProps {
   onError?: (error: Error) => void;
 }
 
+interface Book {
+  id: number;
+  title: string;
+  authors: string;
+  edition: string;
+  volume: string;
+  area: string;
+  subarea: string;
+  publisher: string;
+  year: number;
+}
+
 export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveBookFormProps) {
-  const { step, setStep } = useStep(1);
-
-  const {
-    category,
-    setCategory,
-    subcategory,
-    setSubcategory,
-    areaCodes,
-    subareaCodes
-  } = useAreaSelection(onError);
-
-  const [selectedBook, setSelectedBook] = useState<BookOption | null>(null);
-
-  const {
-    books,
-    isLoading,
-    search,
-    setSearch,
-  } = useBookSearch(onError);
-
-  // Sincronizar filtros do hook com seleção do wizard
-  // (mantém categoria/subcategoria do wizard no filtro de busca)
-  useEffect(() => {
-    if (step === 2) {
-      // Atualiza filtros do hook de busca
-      setSearch(""); // Limpa busca ao entrar
-    }
-  }, [step, setSearch]);
+  const [barcode, setBarcode] = useState("");
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  
   const { removeBook, isSubmitting } = useRemoveBook();
 
-  const handleSelectBook = (book: BookOption) => {
-    console.log("🟢 [RemoveBookForm] Livro selecionado para remoção:", book);
-    setSelectedBook(book);
-    setStep(3);
+  const handleSearch = async () => {
+    if (!barcode.trim()) {
+      setSearchError("Digite um código de barras");
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError(null);
+    console.log("🔵 [RemoveBookForm] Buscando livro por código de barras:", barcode);
+
+    try {
+      const response = await fetch(`/api/books/${barcode}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          setSearchError("Livro não encontrado");
+        } else {
+          setSearchError("Erro ao buscar livro");
+        }
+        console.error("🔴 [RemoveBookForm] Erro ao buscar livro:", response.statusText);
+        return;
+      }
+
+      const book = await response.json();
+      console.log("🟢 [RemoveBookForm] Livro encontrado:", book);
+      setSelectedBook(book);
+    } catch (error) {
+      console.error("🔴 [RemoveBookForm] Erro ao buscar livro:", error);
+      setSearchError("Erro ao buscar livro");
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleRemoveBook = async () => {
     if (selectedBook) {
       console.log("🔵 [RemoveBookForm] Removendo livro:", selectedBook);
-      const result = await removeBook(selectedBook.id);
+      const result = await removeBook(selectedBook.id.toString());
       if (result.success) {
         console.log("🟢 [RemoveBookForm] Livro removido com sucesso");
         onSuccess();
@@ -72,71 +86,149 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
     }
   };
 
-  switch (step) {
-    case 1:
-      return (
-        <BookAreaStep
-          areaCodes={areaCodes}
-          subareaCodes={subareaCodes}
-          category={category}
-          subcategory={subcategory}
-          onCategoryChange={setCategory}
-          onSubcategoryChange={setSubcategory}
-          onNext={() => setStep(2)}
-          onCancel={onCancel}
-        />
-      );
+  const handleReset = () => {
+    setBarcode("");
+    setSelectedBook(null);
+    setSearchError(null);
+  };
 
-    case 2:
-      return (
-        <BookSearchStep
-          books={books.filter(
-            b => b.area === category && (subcategory ? String(b.subarea) === subcategory : true)
-          )}
-          isLoading={isLoading}
-          search={search}
-          onSearchChange={setSearch}
-          onSelectBook={handleSelectBook}
-          onPrevious={() => setStep(1)}
-          onCancel={onCancel}
-          mode="remove"
-        />
-      );
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !selectedBook) {
+      handleSearch();
+    }
+  };
 
-    case 3:
-      return (
+  return (
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Remover Livro</h2>
+        <p className="text-gray-600">Digite o código de barras do livro que deseja remover do acervo</p>
+      </div>
+
+      {!selectedBook ? (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Confirmar Remoção</h2>
-          {selectedBook && (
-            <div>
-              <p><strong>Título:</strong> {selectedBook.title}</p>
-              <p><strong>Autores:</strong> {selectedBook.authors}</p>
-              <p><strong>Edição:</strong> {selectedBook.edition}</p>
-              <p><strong>Volume:</strong> {selectedBook.volume}</p>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
+                type="text"
+                placeholder="Digite o código de barras (ex: 9780134685991)"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isSearching}
+                className="text-lg"
+              />
+            </div>
+            <Button
+              onClick={handleSearch}
+              disabled={isSearching || !barcode.trim()}
+              className="bg-cm-blue hover:bg-cm-blue/90 px-6"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Buscar
+            </Button>
+          </div>
+
+          {searchError && (
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+              {searchError}
             </div>
           )}
-          <div className="flex gap-2">
-            <button 
-              className="bg-red-500 text-white px-4 py-2 rounded" 
-              onClick={handleRemoveBook} 
-              disabled={isSubmitting}
+
+          <div className="flex justify-end">
+            <Button
+              variant="secondary"
+              onClick={onCancel}
             >
-              Remover Livro
-            </button>
-            <button 
-              className="bg-gray-300 px-4 py-2 rounded" 
-              onClick={() => {
-                console.warn("🟡 [RemoveBookForm] Voltar clicado");
-                setStep(2);
-              }}
-            >
-              Voltar
-            </button>
+              Cancelar
+            </Button>
           </div>
         </div>
-      );
+      ) : (
+        <div className="space-y-4">
+          <div className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Informações do Livro</h3>
+              <button
+                onClick={handleReset}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                title="Buscar outro livro"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-2">
+                <span className="font-medium text-gray-600">Código:</span>
+                <span className="col-span-2 text-gray-800">{selectedBook.id}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <span className="font-medium text-gray-600">Título:</span>
+                <span className="col-span-2 text-gray-800">{selectedBook.title}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <span className="font-medium text-gray-600">Autores:</span>
+                <span className="col-span-2 text-gray-800">{selectedBook.authors}</span>
+              </div>
+              {selectedBook.edition && (
+                <div className="grid grid-cols-3 gap-2">
+                  <span className="font-medium text-gray-600">Edição:</span>
+                  <span className="col-span-2 text-gray-800">{selectedBook.edition}</span>
+                </div>
+              )}
+              {selectedBook.volume && (
+                <div className="grid grid-cols-3 gap-2">
+                  <span className="font-medium text-gray-600">Volume:</span>
+                  <span className="col-span-2 text-gray-800">{selectedBook.volume}</span>
+                </div>
+              )}
+              {selectedBook.publisher && (
+                <div className="grid grid-cols-3 gap-2">
+                  <span className="font-medium text-gray-600">Editora:</span>
+                  <span className="col-span-2 text-gray-800">{selectedBook.publisher}</span>
+                </div>
+              )}
+              {selectedBook.year && (
+                <div className="grid grid-cols-3 gap-2">
+                  <span className="font-medium text-gray-600">Ano:</span>
+                  <span className="col-span-2 text-gray-800">{selectedBook.year}</span>
+                </div>
+              )}
+            </div>
+          </div>
 
-    default:
-      return null;
-  }
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-800 font-medium">
+              ⚠️ Atenção: Esta ação é permanente e não pode ser desfeita.
+            </p>
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="secondary"
+              onClick={handleReset}
+              disabled={isSubmitting}
+            >
+              Buscar Outro
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleRemoveBook}
+              disabled={isSubmitting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isSubmitting ? "Removendo..." : "Confirmar Remoção"}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
