@@ -9,7 +9,7 @@ const buttonVariants = cva(
     items-center justify-center 
     gap-2
     whitespace-nowrap
-    rounded-2xl 
+    rounded-xl 
     font-semibold
     duration-300
     transition-transform

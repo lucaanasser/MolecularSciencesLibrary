@@ -3,12 +3,14 @@ import { useCountUp } from "../../../hooks/useCountUp";
 
 export type StatsType = Record<string, number | null>;
 
+const ICON_STYLE = "h-8 w-8 text-default-bg";
+
 const ICONS: Record<string, JSX.Element> = {
-  users: <Users className="h-8 w-8 text-default-bg" />,
-  books: <BookMarked className="h-8 w-8 text-default-bg" />,
-  subareas: <Lightbulb className="h-8 w-8 text-default-bg" />,
-  disciplines: <BookOpen className="h-8 w-8 text-default-bg" />,
-  areas: <Lightbulb className="h-8 w-8 text-default-bg" />,
+  users: <Users className={ICON_STYLE} />,
+  books: <BookMarked className={ICON_STYLE} />,
+  subareas: <Lightbulb className={ICON_STYLE} />,
+  disciplines: <BookOpen className={ICON_STYLE} />,
+  areas: <Lightbulb className={ICON_STYLE} />,
 };
 
 const LABELS: Record<string, string> = {
@@ -29,21 +31,21 @@ const DESCRIPTIONS: Record<string, string> = {
 
 export function StatsGrid({ stats, order }: { stats: StatsType, order: string[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mx-auto">
       {order.map((key) => (
-        <div className="text-center" key={key}>
-          <div className="flex justify-center mb-6">
-            <div className="h-16 w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
+        <div className="text-center flex flex-col items-center" key={key}>
+          <div className="flex justify-center mb-4 md:mb-6">
+            <div className="h-14 w-14 md:h-16 md:w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
               {ICONS[key]}
             </div>
           </div>
-          <p className="prose-lg mb-2 font-bold text-default-bg">
+          <p className="mb-1 md:mb-2 font-bold text-white prose-lg">
             {stats[key] == null ? '-' : useCountUp(stats[key], 1200)}
           </p>
-          <p className="prose-lg text-default-bg">
+          <p className="font-semibold text-white prose-lg">
             {LABELS[key]}
           </p>
-          <p className="text-default-bg leading-tight">
+          <p className="text-white leading-tight">
             {DESCRIPTIONS[key]}
           </p>
         </div>

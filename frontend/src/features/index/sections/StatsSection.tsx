@@ -20,21 +20,17 @@ export function StatsSection({
   diagonal?: boolean;
 }) {
   return (
-    <section className={`relative py-40 ${bgClass}`}>
-      {diagonal && (
-        <>
-          <div className="absolute top-0 left-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-top-left"></div>
-          <div className="absolute bottom-0 right-0 w-full h-24 bg-default-bg transform -skew-y-3 origin-bottom-right"></div>
-        </>
-      )}
-      <div className="content-container mx-auto">
-        <div className="text-center mb-16">
-          <h2 className={textClass}>{title}</h2>
+    <section
+      className={`${bgClass} diagonal-section`}
+    >
+      <div className="content-container">
+        <div className="text-center mb-8 md:mb-12 lg:mb-16">
+          <h2 className={`${textClass}`}>{title}</h2>
         </div>
         {loading ? (
-          <div className={`text-center ${textClass} text-xl`}>Carregando...</div>
+          <p className={`text-center ${textClass}`}>Carregando...</p>
         ) : error ? (
-          <div className="text-center text-red-200 text-xl">{error}</div>
+          <p className="text-center text-red-200">{error}</p>
         ) : (
           <StatsGrid stats={stats} order={order} />
         )}
