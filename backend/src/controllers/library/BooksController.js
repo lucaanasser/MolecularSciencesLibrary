@@ -275,43 +275,41 @@ class BooksController {
             console.log('🔵 [BooksController] Exportando catálogo de livros em CSV');
             const books = await BooksModel.getAll();
             
-            // Cabeçalhos do CSV
+            // Cabeçalho solicitado
             const headers = [
-                'ID',
-                'Código',
-                'Título',
-                'Autores',
-                'Editora',
-                'Edição',
-                'ISBN',
-                'Ano',
-                'Código de Barras',
-                'Área',
-                'Subárea',
-                'Disponível',
-                'Reserva Didática',
-                'Observações'
+                'code',
+                'title',
+                'authors',
+                'area',
+                'subarea',
+                'edition',
+                'language',
+                'volume',
+                'subtitle',
+                'isbn',
+                'year',
+                'publisher',
+                'barcode'
             ];
-            
+
             // Converter livros para linhas CSV
             const csvRows = [headers.join(',')];
-            
+
             for (const book of books) {
                 const row = [
-                    book.id || '',
                     escapeCSV(book.code || ''),
                     escapeCSV(book.title || ''),
                     escapeCSV(book.authors || ''),
-                    escapeCSV(book.publisher || ''),
-                    escapeCSV(book.edition || ''),
-                    escapeCSV(book.isbn || ''),
-                    book.year || '',
-                    escapeCSV(book.barcode || ''),
                     escapeCSV(book.area || ''),
-                    escapeCSV(book.sub_area || ''),
-                    book.available ? 'Sim' : 'Não',
-                    book.is_reserved === 1 ? 'Sim' : 'Não',
-                    escapeCSV(book.observations || '')
+                    book.subarea || '',
+                    book.edition || '',
+                    book.language || '',
+                    book.volume || '',
+                    escapeCSV(book.subtitle || ''),
+                    '',  // isbn - não disponível no banco
+                    '',  // year - não disponível no banco
+                    '',  // publisher - não disponível no banco
+                    book.id || ''  // barcode = id
                 ];
                 csvRows.push(row.join(','));
             }
@@ -359,10 +357,7 @@ class BooksController {
                     edition: bookData.edition.trim(),
                     language: parseInt(bookData.language),
                     volume: bookData.volume.trim(),
-                    isbn: bookData.isbn?.trim() || '',
-                    year: bookData.year?.trim() || '',
-                    publisher: bookData.publisher?.trim() || '',
-                    observations: bookData.observations?.trim() || '',
+                    // isbn, year, publisher não existem no banco e são ignorados
                     barcode: bookData.barcode?.trim() || '',
                     addType: 'csv_import'
                 }),

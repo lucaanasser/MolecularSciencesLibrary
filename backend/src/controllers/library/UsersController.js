@@ -235,6 +235,139 @@ class UsersController {
             res.status(500).json({ error: 'Erro ao buscar usuários' });
         }
     }
+
+    /**
+     * Exporta todos os usuários para CSV com TODAS as informações incluindo password_hash
+     */
+    async exportUsersToCSV(req, res) {
+        try {
+            console.log("🔵 [exportUsersToCSV] Iniciando exportação de usuários");
+            const usersModel = require('../../models/library/UsersModel');
+            const { escapeCSV } = require('../../utils/csvUtils');
+            
+            const users = await usersModel.getAllUsersForExport();
+            console.log("🟢 [exportUsersToCSV] Total de usuários:", users.length);
+            
+            // Cabeçalhos do CSV - todas as colunas da tabela users
+            const headers = ['id', 'name', 'NUSP', 'email', 'phone', 'password_hash', 'role', 'profile_image', 'class', 'created_at'];
+            const csvRows = [headers.join(',')];
+            
+            // Gera linhas do CSV
+            for (const user of users) {
+                const row = [
+                    escapeCSV(user.id || ''),
+                    escapeCSV(user.name || ''),
+                    escapeCSV(user.NUSP || ''),
+                    escapeCSV(user.email || ''),
+                    escapeCSV(user.phone || ''),
+                    escapeCSV(user.password_hash || ''),
+                    escapeCSV(user.role || ''),
+                    escapeCSV(user.profile_image || ''),
+                    escapeCSV(user.class || ''),
+                    escapeCSV(user.created_at || '')
+                ];
+                csvRows.push(row.join(','));
+            }
+            
+            const csvContent = csvRows.join('\n');
+            const date = new Date().toISOString().split('T')[0];
+            
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="usuarios_${date}.csv"`);
+            res.send('\ufeff' + csvContent); // BOM para UTF-8
+            
+            console.log("🟢 [exportUsersToCSV] CSV exportado com sucesso");
+        } catch (error) {
+            console.error("🔴 [exportUsersToCSV] Erro ao exportar CSV:", error.message);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    /**
+     * Importa usuários via CSV
+     * Se password_hash estiver vazio, cria usuário e envia email de boas-vindas
+     * Se password_hash estiver preenchido, usa o hash diretamente (para migrations)
+     */
+    async importUsersFromCSV(req, res) {
+        try {
+            console.log("🔵 [importUsersFromCSV] Iniciando importação de usuários");
+            
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'Nenhum arquivo CSV fornecido' });
+            }
+            
+            const { importFromCSV } = require('../../utils/csvUtils');
+            const usersModel = require('../../models/library/UsersModel');
+            
+            const requiredFields = ['name', 'NUSP', 'email', 'phone', 'role', 'class'];
+            
+            const results = await importFromCSV({
+                fileBuffer: req.file.buffer,
+                requiredFields,
+                mapRow: (rowData) => {
+                    // Limpa e valida os dados
+                    const userData = {
+                        name: rowData.name?.trim(),
+                        NUSP: parseInt(rowData.NUSP),
+                        email: rowData.email?.trim(),
+                        phone: rowData.phone?.trim(),
+                        role: rowData.role?.trim(),
+                        class: rowData.class?.trim() || null,
+                        profile_image: rowData.profile_image?.trim() || null,
+                        password_hash: rowData.password_hash?.trim() || null,
+                        hasPassword: !!(rowData.password_hash?.trim())
+                    };
+                    
+                    // Validações
+                    if (!/^\+?\d{10,15}$/.test(userData.phone)) {
+                        throw new Error(`Telefone inválido: ${userData.phone}`);
+                    }
+                    
+                    if (!['admin', 'aluno', 'proaluno'].includes(userData.role)) {
+                        throw new Error(`Role inválido: ${userData.role}. Use: admin, aluno ou proaluno`);
+                    }
+                    
+                    if (isNaN(userData.NUSP)) {
+                        throw new Error(`NUSP inválido: ${rowData.NUSP}`);
+                    }
+                    
+                    return userData;
+                },
+                addFn: async (userData) => {
+                    const { hasPassword, ...userDataClean } = userData;
+                    
+                    // Se tem password_hash, insere direto no banco (migration/backup)
+                    if (hasPassword) {
+                        console.log("🟡 [importUsersFromCSV] Usuário com senha hash:", userDataClean.email);
+                        const userId = await usersModel.createUser(userDataClean);
+                        return userId;
+                    }
+                    
+                    // Se NÃO tem password_hash, usa o service para enviar email de boas-vindas
+                    console.log("🟡 [importUsersFromCSV] Usuário sem senha (enviará email):", userDataClean.email);
+                    const { password_hash: _, ...userDataForService } = userDataClean;
+                    const createdUser = await usersService.createUser(userDataForService);
+                    return createdUser;
+                },
+                logger: {
+                    success: (user, row) => {
+                        console.log(`🟢 [importUsersFromCSV] Linha ${row}: Usuário ${user.email || user.name} importado com sucesso`);
+                    },
+                    error: (error, row, line) => {
+                        console.error(`🔴 [importUsersFromCSV] Linha ${row}: Erro - ${error.message}`);
+                    },
+                    finish: (results) => {
+                        console.log(`🟢 [importUsersFromCSV] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`);
+                    }
+                }
+            });
+            
+            res.status(200).json(results);
+        } catch (error) {
+            console.error('🔴 [importUsersFromCSV] Erro ao importar CSV:', error.message);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new UsersController();

@@ -355,6 +355,26 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela user_schedules criada com sucesso');
     });
 
+    // USER_SCHEDULE_CLASSES TABLE - Turmas selecionadas no plano do usuário
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_schedule_classes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            schedule_id INTEGER NOT NULL,
+            class_id INTEGER NOT NULL,
+            color TEXT DEFAULT '#14b8a6',
+            is_visible INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(schedule_id) REFERENCES user_schedules(id) ON DELETE CASCADE,
+            FOREIGN KEY(class_id) REFERENCES discipline_classes(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela user_schedule_classes:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela user_schedule_classes criada com sucesso');
+    });
+
     // USER_SCHEDULE_DISCIPLINES TABLE - Disciplinas na lista do plano (sidebar)
     db.run(`
         CREATE TABLE IF NOT EXISTS user_schedule_disciplines (
@@ -418,6 +438,7 @@ db.serialize(() => {
             is_closed INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_anonymous INTEGER DEFAULT 0,
             FOREIGN KEY(autor_id) REFERENCES users(id) ON DELETE CASCADE
         )
     `, (err) => {
@@ -439,6 +460,7 @@ db.serialize(() => {
             is_accepted INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_anonymous INTEGER DEFAULT 0,
             FOREIGN KEY(question_id) REFERENCES forum_questions(id) ON DELETE CASCADE,
             FOREIGN KEY(autor_id) REFERENCES users(id) ON DELETE CASCADE
         )
@@ -455,7 +477,7 @@ db.serialize(() => {
         CREATE TABLE IF NOT EXISTS forum_tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT UNIQUE NOT NULL,
-            topico TEXT NOT NULL,
+            topico TEXT NOT NULL DEFAULT 'geral',
             descricao TEXT,
             created_by_user INTEGER,
             approved INTEGER DEFAULT 1,
@@ -547,7 +569,7 @@ db.serialize(() => {
             entity_type TEXT NOT NULL CHECK(entity_type IN ('profile', 'advanced_cycle', 'post_cm')),
             entity_id INTEGER NOT NULL,
             label TEXT NOT NULL,
-            category TEXT NOT NULL CHECK(category IN ('grande-area', 'area', 'subarea', 'custom')),
+            category TEXT NOT NULL CHECK(category IN ('grande-area', 'area', 'subarea')),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `, (err) => {
@@ -692,6 +714,108 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela profile_follows criada com sucesso');
     });
 
+    // =====================================================
+    // EVALUATION TABLES - Sistema de avaliações
+    // =====================================================
+
+    // DISCIPLINE_EVALUATIONS TABLE - Avaliações de disciplinas
+    db.run(`
+        CREATE TABLE IF NOT EXISTS discipline_evaluations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            discipline_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            turma_codigo TEXT,
+            semestre TEXT,
+            rating_geral REAL CHECK (rating_geral IS NULL OR (rating_geral >= 0.5 AND rating_geral <= 5.0)),
+            rating_dificuldade REAL CHECK (rating_dificuldade IS NULL OR (rating_dificuldade >= 0.5 AND rating_dificuldade <= 5.0)),
+            rating_carga_trabalho REAL CHECK (rating_carga_trabalho IS NULL OR (rating_carga_trabalho >= 0.5 AND rating_carga_trabalho <= 5.0)),
+            rating_professores REAL CHECK (rating_professores IS NULL OR (rating_professores >= 0.5 AND rating_professores <= 5.0)),
+            rating_clareza REAL CHECK (rating_clareza IS NULL OR (rating_clareza >= 0.5 AND rating_clareza <= 5.0)),
+            rating_utilidade REAL CHECK (rating_utilidade IS NULL OR (rating_utilidade >= 0.5 AND rating_utilidade <= 5.0)),
+            rating_organizacao REAL CHECK (rating_organizacao IS NULL OR (rating_organizacao >= 0.5 AND rating_organizacao <= 5.0)),
+            comentario TEXT,
+            is_anonymous INTEGER DEFAULT 0,
+            helpful_count INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(discipline_id) REFERENCES disciplines(id) ON DELETE CASCADE,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(discipline_id, user_id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela discipline_evaluations:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela discipline_evaluations criada com sucesso');
+    });
+
+    // EVALUATION_VOTES TABLE - Votos úteis em avaliações de disciplinas
+    db.run(`
+        CREATE TABLE IF NOT EXISTS evaluation_votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            evaluation_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(evaluation_id) REFERENCES discipline_evaluations(id) ON DELETE CASCADE,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(evaluation_id, user_id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela evaluation_votes:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela evaluation_votes criada com sucesso');
+    });
+
+    // BOOK_EVALUATIONS TABLE - Avaliações de livros
+    db.run(`
+        CREATE TABLE IF NOT EXISTS book_evaluations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            book_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            rating_geral REAL CHECK (rating_geral IS NULL OR (rating_geral >= 0.5 AND rating_geral <= 5.0)),
+            rating_qualidade REAL CHECK (rating_qualidade IS NULL OR (rating_qualidade >= 0.5 AND rating_qualidade <= 5.0)),
+            rating_legibilidade REAL CHECK (rating_legibilidade IS NULL OR (rating_legibilidade >= 0.5 AND rating_legibilidade <= 5.0)),
+            rating_utilidade REAL CHECK (rating_utilidade IS NULL OR (rating_utilidade >= 0.5 AND rating_utilidade <= 5.0)),
+            rating_precisao REAL CHECK (rating_precisao IS NULL OR (rating_precisao >= 0.5 AND rating_precisao <= 5.0)),
+            comentario TEXT,
+            is_anonymous INTEGER DEFAULT 0,
+            helpful_count INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(book_id, user_id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela book_evaluations:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela book_evaluations criada com sucesso');
+    });
+
+    // BOOK_EVALUATION_VOTES TABLE - Votos úteis em avaliações de livros
+    db.run(`
+        CREATE TABLE IF NOT EXISTS book_evaluation_votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            evaluation_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(evaluation_id) REFERENCES book_evaluations(id) ON DELETE CASCADE,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(evaluation_id, user_id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela book_evaluation_votes:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela book_evaluation_votes criada com sucesso');
+    });
+
     // Criar índices para melhor performance do fórum
     db.run(`CREATE INDEX IF NOT EXISTS idx_forum_questions_autor ON forum_questions(autor_id)`, (err) => {
         if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_questions_autor:', err.message);
@@ -707,6 +831,38 @@ db.serialize(() => {
     });
     db.run(`CREATE INDEX IF NOT EXISTS idx_forum_votes_votable ON forum_votes(votable_type, votable_id)`, (err) => {
         if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_forum_votes_votable:', err.message);
+    });
+
+    // Criar índices para as tabelas de avaliações
+    db.run(`CREATE INDEX IF NOT EXISTS idx_evaluations_discipline ON discipline_evaluations(discipline_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_evaluations_discipline:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_evaluations_user ON discipline_evaluations(user_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_evaluations_user:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_evaluations_helpful ON discipline_evaluations(helpful_count DESC)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_evaluations_helpful:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_votes_evaluation ON evaluation_votes(evaluation_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_votes_evaluation:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_votes_user ON evaluation_votes(user_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_votes_user:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_book_evaluations_book ON book_evaluations(book_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_book_evaluations_book:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_book_evaluations_user ON book_evaluations(user_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_book_evaluations_user:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_book_evaluations_helpful ON book_evaluations(helpful_count DESC)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_book_evaluations_helpful:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_book_eval_votes_evaluation ON book_evaluation_votes(evaluation_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_book_eval_votes_evaluation:', err.message);
+    });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_book_eval_votes_user ON book_evaluation_votes(user_id)`, (err) => {
+        if (err) console.warn('🟡 [initDb] Aviso ao criar índice idx_book_eval_votes_user:', err.message);
     });
 
     // Função para gerar código de livro no padrão BooksService

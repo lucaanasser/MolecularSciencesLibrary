@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const usersController = require('../../controllers/library/UsersController');
 const authenticateToken = require('../../middlewares/authenticateToken');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * Rotas relacionadas a usuários.
@@ -72,6 +74,18 @@ router.get('/', (req, res) => {
 router.delete('/:id', (req, res) => {
     console.log("🔵 [UsersRoutes] DELETE /:id - Deletar usuário por ID:", req.params.id);
     usersController.deleteUserById(req, res);
+});
+
+// Exportar todos os usuários para CSV (apenas admin)
+router.get('/export/csv', (req, res) => {
+    console.log("🔵 [UsersRoutes] GET /export/csv - Exportar usuários para CSV");
+    usersController.exportUsersToCSV(req, res);
+});
+
+// Importar usuários via CSV (apenas admin)
+router.post('/import/csv', upload.single('csvFile'), (req, res) => {
+    console.log("🔵 [UsersRoutes] POST /import/csv - Importar usuários via CSV");
+    usersController.importUsersFromCSV(req, res);
 });
 
 module.exports = router;

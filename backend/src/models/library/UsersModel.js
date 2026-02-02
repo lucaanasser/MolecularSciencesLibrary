@@ -49,6 +49,16 @@ class UsersModel {
     }
 
     /**
+     * Lista todos os usuários COM password_hash (apenas para export CSV).
+     */
+    async getAllUsersForExport() {
+        console.log("🟢 [getAllUsersForExport] Listando todos os usuários com password_hash para export.");
+        return await allQuery(
+            `SELECT id, name, NUSP, email, phone, password_hash, role, profile_image, class, created_at FROM users`
+        );
+    }
+
+    /**
      * Deleta usuário por ID.
      */
     async deleteUserById(id) {
