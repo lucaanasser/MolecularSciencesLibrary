@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { BookOption } from "@/types/book";
+import { Book } from "@/types/book";
 
 /**
  * Componente de formulário de detalhes do livro.
@@ -18,7 +18,7 @@ interface BookDetailsStepProps {
   volume: string;
   isExemplar: boolean;
   addType?: string;
-  selectedBook?: BookOption | null;
+  selectedBook?: Book | null;
   onTitleChange: (value: string) => void;
   onSubtitleChange: (value: string) => void;
   onAuthorsChange: (value: string) => void;

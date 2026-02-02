@@ -6,7 +6,7 @@
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
-export interface BookOption {
+export interface Book {
   id: string;
   code: string;
   title: string;

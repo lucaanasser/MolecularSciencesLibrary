@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
-import { BookOption } from '@/types/book';
+import { Book } from '@/types/book';
 
 const API_BASE = '/api/books';
 
 export function useBookReserve() {
-  const [books, setBooks] = useState<BookOption[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

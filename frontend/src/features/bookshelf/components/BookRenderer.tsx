@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import BookInfoCard from './BookInfoCard';
-import { Book } from '@/types/VirtualBookshelf';
+import BookInfoCard from '@/features/bookshelf/components/BookInfoCard';
+import { Book } from '@/types/book';
 
 export interface BookRendererProps {
   book: Book;
@@ -26,7 +26,7 @@ const BookRenderer: React.FC<BookRendererProps> = ({
   const bookRef = useRef<HTMLDivElement>(null);
   const [cardPos, setCardPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
 
-  const { is_reserved, area } = book;
+  const { area, available, is_reserved } = book;
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     setHover(true);
@@ -41,7 +41,7 @@ const BookRenderer: React.FC<BookRendererProps> = ({
   const handleMouseLeave = () => setHover(false);
 
   const areaClass = area && AREA_CLASSES[area] ? AREA_CLASSES[area] : 'bg-gray-400';
-  const unavailableClass = is_reserved ? 'opacity-50 grayscale' : '';
+  const unavailableClass = (!available || is_reserved) ? 'opacity-50 grayscale' : '';
 
   return (
     <>
@@ -51,7 +51,7 @@ const BookRenderer: React.FC<BookRendererProps> = ({
         style={{
           height: `${height}px`,
           width: `${width}px`,
-          transform: hover ? 'translateY(-8px)' : 'translateY(0)',
+          transform: hover ? 'translateY(-6px)' : 'translateY(0)',
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

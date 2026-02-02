@@ -1,4 +1,3 @@
-// Types para o sistema de estante virtual
 export interface VirtualShelf {
   id?: number;
   shelf_number: number;
@@ -18,17 +17,3 @@ export interface ShelfConfigUpdate {
 }
 
 export type EditingMode = 'start' | 'end' | null;
-
-export interface Book {
-  id: number;
-  code: string;
-  area: string;
-  subarea: number;
-  title: string;
-  subtitle?: string;
-  authors: string;
-  edition: number;
-  volume?: number;
-  language: number;
-  is_reserved?: number;
-}

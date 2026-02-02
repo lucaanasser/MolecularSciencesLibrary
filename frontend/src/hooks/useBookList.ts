@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { BookOption } from "@/types/book";
+import { Book } from "@/types/book";
 
 const API_URL = '/api';
 
@@ -8,7 +8,7 @@ const API_URL = '/api';
  * Hook para buscar livros da API com filtros dinâmicos.
  */
 export default function useBookList(filters: Record<string, string>, enabled = false, onError?: (error: Error) => void) {
-  const [books, setBooks] = useState<BookOption[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const latestRequestId = useRef<number>(0);
   const requestSeq = useRef<number>(0);

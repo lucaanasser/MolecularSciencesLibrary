@@ -1,6 +1,6 @@
 import React from "react";
-import ShelfRenderer from "./ShelfRenderer";
-import { Book } from "@/types/VirtualBookshelf";
+import ShelfRenderer from "@/features/bookshelf/components/ShelfRenderer";
+import { Book } from "@/types/book";
 
 interface BookshelfRendererProps {
   width?: number;
@@ -10,7 +10,7 @@ interface BookshelfRendererProps {
 
 const BookshelfRenderer: React.FC<BookshelfRendererProps> = ({
   width,
-  height = 90,
+  height = 86,
   booksByShelf,
 }) => {
   return (
@@ -22,12 +22,14 @@ const BookshelfRenderer: React.FC<BookshelfRendererProps> = ({
       width: '100%',
     }}>
       {booksByShelf.map((books, idx) => (
+        <>
         <ShelfRenderer
           key={idx}
           books={books}
           width={width}
           height={height}
         />
+        </>
       ))}
     </div>
   );

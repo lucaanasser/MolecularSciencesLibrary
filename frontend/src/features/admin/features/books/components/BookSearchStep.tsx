@@ -1,4 +1,4 @@
-import { BookOption, AddBookType } from "@/types/book";
+import { Book, AddBookType } from "@/types/book";
 import BookList from "@/features/books/components/lists/BookSearchList";
 
 /**
@@ -10,13 +10,13 @@ import BookList from "@/features/books/components/lists/BookSearchList";
  * 🔴 Erro
  */
 export interface BookSearchStepProps {
-  books: BookOption[];
+  books: Book[];
   isLoading: boolean;
   search: string;
   onSearchChange: (value: string) => void;
-  onSelectBook: (book: BookOption, type?: AddBookType) => void;
+  onSelectBook: (book: Book, type?: AddBookType) => void;
   onAddNewBook?: () => void;
-  onAddNewVolume?: (book: BookOption) => void;
+  onAddNewVolume?: (book: Book) => void;
   onPrevious: () => void;
   onCancel?: () => void;
   mode?: "add" | "remove";

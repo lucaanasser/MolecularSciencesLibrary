@@ -1,7 +1,6 @@
-
 import React, { useRef, useState, useLayoutEffect } from "react";
-import BookRenderer from "@/features/bookshelf/BookRenderer";
-import { Book } from "@/types/VirtualBookshelf";
+import BookRenderer from "@/features/bookshelf/components/BookRenderer";
+import { Book } from "@/types/book";
 
 interface BookWithDimensions extends Book {
   width: number;
@@ -31,33 +30,29 @@ function calculateBookDimensions(
   const minHeight = Math.round(shelfHeight * 0.7);
   const maxHeight = Math.round(shelfHeight * 0.98);
 
-  // Ocupar ~90% da largura disponível
-  const targetWidth = availableWidth * 0.9;
-  
-  // Calcula a largura base por livro
-  const baseWidth = targetWidth / books.length;
+  // Ocupar 95% da largura disponível
+  const targetWidth = availableWidth * 0.95;
   
   // Define limites absolutos para parecer com livros reais
-  const absoluteMinWidth = 16;
-  const absoluteMaxWidth = 30;
+  const absoluteMinWidth = 12;
+  const absoluteMaxWidth = 35;
+
+  // Gera fatores de variação aleatórios para cada livro (entre 0.8 e 1.2)
+  const variationFactors = books.map(() => 0.8 + Math.random() * 0.4);
   
-  // Limites dinâmicos (com variação de ±30%) respeitando os absolutos
-  const minBookWidth = Math.max(absoluteMinWidth, baseWidth * 0.7);
-  const maxBookWidth = Math.min(absoluteMaxWidth, baseWidth * 1.3);
-
-  // Gera larguras iniciais com variação
-  const initialWidths = books.map(() => {
-    const variation = (Math.random() - 0.5) * 0.4; // ±20% de variação
-    const width = baseWidth * (1 + variation);
-    return Math.max(minBookWidth, Math.min(maxBookWidth, width));
+  // Calcula a largura base necessária para atingir targetWidth
+  const totalVariation = variationFactors.reduce((sum, f) => sum + f, 0);
+  const baseWidth = targetWidth / totalVariation;
+  
+  // Aplica os fatores de variação, respeitando os limites absolutos
+  const widths = variationFactors.map((factor) => {
+    const width = baseWidth * factor;
+    return Math.max(absoluteMinWidth, Math.min(absoluteMaxWidth, width));
   });
-
-  // Calcula o total e ajusta proporcionalmente para atingir o targetWidth
-  const totalInitialWidth = initialWidths.reduce((sum, w) => sum + w, 0);
 
   // Gera larguras e alturas finais
   return books.map((book, i) => {
-    const width = Math.round(initialWidths[i]);
+    const width = Math.round(widths[i]);
     const height = Math.round(minHeight + Math.random() * (maxHeight - minHeight));
     return { ...book, width, height };
   });
@@ -104,11 +99,11 @@ const ShelfRenderer: React.FC<ShelfProps> = ({ books, width, height = 160 }) => 
       {/* Área dos livros */}
       <div
         style={{
-          height: `${height}px`,
+          height: `${height + 8}px`,
           display: 'flex',
           alignItems: 'flex-end',
           justifyContent: isEmpty ? 'center' : 'flex-start',
-          padding: '0 8px',
+          padding: '8px 8px 2px 20px',
           overflowX: 'auto',
         }}
       >

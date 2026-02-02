@@ -1,4 +1,5 @@
-import { VirtualShelf, ShelfConfigUpdate, Book } from '@/types/VirtualBookshelf';
+import { VirtualShelf } from '@/features/bookshelf/types/virtualbookshelf';
+import { Book } from '@/types/book';
 
 /**
  * Serviço para gerenciar operações da estante virtual

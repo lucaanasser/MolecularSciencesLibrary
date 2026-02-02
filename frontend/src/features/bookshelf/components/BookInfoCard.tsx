@@ -1,5 +1,5 @@
 import React from "react";
-import { Book } from "@/types/VirtualBookshelf";
+import { Book } from "@/types/book";
 
 interface BookInfoCardProps {
   book: Book;
@@ -7,15 +7,18 @@ interface BookInfoCardProps {
 }
 
 const BookInfoCard: React.FC<BookInfoCardProps> = ({ book, style }) => {
-   const { title, volume, authors, code, is_reserved } = book;
+   const { title, volume, authors, code, is_reserved, available } = book;
    let statusLabel = '';
    let statusColor = '#228B22';
-   if (!is_reserved) {
-     statusLabel = 'Disponível';
-     statusColor = '#228B22';
+   if (is_reserved) {
+      statusLabel = 'Reservado';
+      statusColor = '#b657b3';
+   } else if (available) {
+      statusLabel = 'Disponível';
+      statusColor = '#00c80e';
    } else {
-     statusLabel = 'Reservado';
-     statusColor = '#DAA520';
+      statusLabel = 'Emprestado';
+      statusColor = '#eb0000';
    }
    return (
     <div

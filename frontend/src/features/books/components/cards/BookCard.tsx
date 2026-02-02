@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { getResolvedSubarea } from "@/utils/bookUtils";
-import { BookOption, SubareaCode } from "@/types/book";
+import { Book, SubareaCode } from "@/types/book";
 import NudgeButton from "./NudgeButton";
 import { BookOpen, Pi, Atom, Dna, Braces, Orbit, ExternalLink } from "lucide-react";
 import React from "react";

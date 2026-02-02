@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOption, AddBookType } from "@/types/book";
+import { Book, AddBookType } from "@/types/book";
 
 /**
  * Lista de busca e seleção de livros.
@@ -13,8 +13,8 @@ import { BookOption, AddBookType } from "@/types/book";
  */
 
 // Agrupa livros por código
-function groupBooksByCode(books: BookOption[]) {
-  const groups: Record<string, BookOption[]> = {};
+function groupBooksByCode(books: Book[]) {
+  const groups: Record<string, Book[]> = {};
   books.forEach(book => {
     if (!groups[book.code]) groups[book.code] = [];
     groups[book.code].push(book);
@@ -30,13 +30,13 @@ const LANGUAGE_MAP: Record<number, string> = {
 };
 
 interface BookSearchListProps {
-  books: BookOption[];
+  books: Book[];
   isLoading: boolean;
   search: string;
   onSearchChange: (value: string) => void;
-  onSelectBook: (book: BookOption, type?: AddBookType) => void;
+  onSelectBook: (book: Book, type?: AddBookType) => void;
   onAddNewBook?: () => void;
-  onAddNewVolume?: (book: BookOption) => void;
+  onAddNewVolume?: (book: Book) => void;
   onPrevious: () => void;
   onCancel?: () => void;
   mode?: "add" | "remove"; 
