@@ -41,13 +41,17 @@ Os seguintes campos **devem** estar presentes e preenchidos para cada livro:
 Estes campos podem ser deixados vazios:
 
 - `subtitle` - Subtítulo do livro
-- `isbn` - Código ISBN
-- `year` - Ano de publicação
-- `publisher` - Editora
-- `observations` - Observações adicionais
-- `barcode` - Código de barras EAN-13
+- `barcode` - Código de barras EAN-13 (será usado como ID do livro)
 
 **Importante:** Se o campo `barcode` não for fornecido ou estiver vazio, o sistema **gerará automaticamente** um código de barras único EAN-13 para o livro.
+
+### Campos Aceitos mas Não Salvos
+
+Os seguintes campos são aceitos no CSV para compatibilidade (ex: ao exportar e reimportar), mas **não são salvos** no banco de dados:
+
+- `isbn` - Código ISBN (aceito mas ignorado)
+- `year` - Ano de publicação (aceito mas ignorado)
+- `publisher` - Editora (aceito mas ignorado)
 
 ### Exemplo de Cabeçalho CSV
 
@@ -60,9 +64,9 @@ code,title,authors,area,subarea,edition,language,volume,subtitle,isbn,year,publi
 ### Exemplo de Dados
 
 ```csv
-MAT01-001,Cálculo Volume 1,James Stewart,MAT,1,7ª edição,1,1,Early Transcendentals,978-1285741550,2015,Cengage Learning,,Material de apoio
-QUI01-045,Química Geral,Raymond Chang,QUI,1,10ª edição,1,1,Conceitos essenciais,978-0073402758,2010,McGraw-Hill,,
-FIS02-120,Física para Cientistas,Paul Tipler,FIS,2,6ª edição,1,1,,978-1429201322,2008,W.H. Freeman,1234567890123,
+MAT01-001,Cálculo Volume 1,James Stewart,MAT,1,7,1,1,Early Transcendentals,,,,1234567890001
+QUI01-045,Química Geral,Raymond Chang,QUI,1,10,1,1,Conceitos essenciais,,,,1234567890002
+FIS02-120,Física para Cientistas,Paul Tipler,FIS,2,6,1,1,,,,,1234567890003
 ```
 
 **Nota**: Os códigos acima são exemplos. Consulte os [Padrões da Biblioteca](./padroes_codigo_livros.pdf) para criar códigos corretos.
