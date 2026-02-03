@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import AdminListContainer, { Column } from "@/features/admin/components/ListRenderer";
 import { useDonatorsList } from "@/features/donators/hooks/useDonatorsList";
 import { Donator } from "@/features/donators/types/Donator";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 
-interface DonatorsListProps {
-  onBack: () => void;
-  onExportCSV: () => void;
-}
-
-
-const DonatorsList: React.FC<DonatorsListProps> = ({ onBack, onExportCSV }) => {
+const DonatorsList: React.FC<TabComponentProps> = ({ onBack }) => {
   const { donators, loading, error, fetchDonators } = useDonatorsList();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedUserType, setSelectedUserType] = useState<string>("all");
   const [filteredDonators, setFilteredDonators] = useState<Donator[]>([]);
-
+  const { exportCSV } = useExportCSV({
+    endpoint: "/api/donators/export/csv",
+    filename: "donators_list.csv"
+  });
   useEffect(() => {
     fetchDonators();
     // eslint-disable-next-line
@@ -109,13 +107,6 @@ const DonatorsList: React.FC<DonatorsListProps> = ({ onBack, onExportCSV }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
             />
-            <Button
-              variant="default"
-              onClick={onExportCSV}
-              className="flex items-center gap-2"
-            >
-              Exportar CSV
-            </Button>
           </div>
           <div className="flex gap-2">
             <Select value={selectedType} onValueChange={setSelectedType}>
@@ -148,6 +139,7 @@ const DonatorsList: React.FC<DonatorsListProps> = ({ onBack, onExportCSV }) => {
           emptyMessage="Nenhum doador encontrado"
           footer={<span className="text-sm text-gray-600">Total: {filteredDonators.length} de {donators.length} doador{donators.length !== 1 ? 'es' : ''}</span>}
           onBack={onBack}
+          exportCSV={exportCSV}
         />
     </>
   );

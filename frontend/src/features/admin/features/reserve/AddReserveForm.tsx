@@ -2,13 +2,9 @@ import React, { useState } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from "@/components/ui/input";
 import { useBookReserve } from '@/features/books/hooks/useBookReserve';
-import { toast } from '@/components/ui/use-toast';
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-interface AddReserveProps {
-  onBack: () => void;
-}
-
-const AddReserve: React.FC<AddReserveProps> = ({ onBack }) => {
+const AddReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {
   const { setBookReserved, loading, error, books, fetchBooks } = useBookReserve();
   const [bookCode, setBookCode] = useState('');
   // Removido success, usaremos toast
@@ -35,12 +31,8 @@ const AddReserve: React.FC<AddReserveProps> = ({ onBack }) => {
     }
     try {
       await setBookReserved(found.id, true);
-      toast({
-        title: 'Livro reservado com sucesso!',
-        description: `O livro "${found.title}" foi adicionado à reserva didática.`,
-      });
       setBookCode('');
-      setTimeout(() => onBack(), 100);
+      onSuccess(`Livro "${found.title}" adicionado à reserva didática.`);
     } catch (err: any) {
       setInputError(err?.message || 'Erro ao adicionar à reserva.');
     }
@@ -56,7 +48,7 @@ const AddReserve: React.FC<AddReserveProps> = ({ onBack }) => {
               type="text"
               value={bookCode}
               onChange={(e) => setBookCode(e.target.value)}
-              placeholder="Digite o código do livro"
+              placeholder="Escaneie ou digite o código de barras"
               disabled={loading}
               required
             />
@@ -65,7 +57,7 @@ const AddReserve: React.FC<AddReserveProps> = ({ onBack }) => {
           <ActionBar
             onCancel={onBack}
             onConfirm={undefined}
-            confirmLabel="Adicionar à Reserva"
+            confirmLabel="Adicionar"
             loading={loading}
           />
         </form>
@@ -74,4 +66,4 @@ const AddReserve: React.FC<AddReserveProps> = ({ onBack }) => {
   );
 };
 
-export default AddReserve;
+export default AddReserveForm;

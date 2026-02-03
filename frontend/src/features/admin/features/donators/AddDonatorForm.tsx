@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,14 +7,9 @@ import { Donator } from '@/features/donators/types/Donator';
 import { useFindUser } from '@/features/donators/hooks/useFindUser';
 import { useFindBookById } from '@/features/donators/hooks/useFindBookById';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-interface AddDonatorFormProps {
-  onBack: () => void;
-  onSuccess?: () => void;
-  onError?: (err: Error) => void;
-}
-
-const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onError }) => {
+const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   const [form, setForm] = useState<Donator>({ donation_type: 'book' });
   const [isUser, setIsUser] = useState(false);
   const { createDonator, loading, error } = useCreateDonator();
@@ -61,20 +55,20 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
         book_id: form.donation_type === 'book' ? Number(form.book_id) : null,
         amount: form.donation_type === 'money' ? Number(form.amount) : null,
       });
-      if (onSuccess) onSuccess();
+      onSuccess("Doador adicionado com sucesso!");
     } catch (err: any) {
-      if (onError) onError(err);
+      onError(err);
     }
   };
 
   const handleSave = () => formRef.current?.requestSubmit ? formRef.current.requestSubmit() : formRef.current?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
 
   return (
-    <div className="mt-6">
+    <div>
       <form ref={formRef} onSubmit={handleSubmit}>
-        <div className="">
+        <div>
           <p>Preencha os dados a seguir para adicionar um novo doador.</p>
-          <Label htmlFor="name">Nome do doador</Label>
+          <Label htmlFor="name">Nome do doador:</Label>
           <Input
             id="name"
             name="name"
@@ -82,7 +76,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
             onChange={handleChange}
             required
           />
-          <Label htmlFor="contact">Contato</Label>
+          <Label htmlFor="contact">Contato:</Label>
           <Input
             id="contact"
             name="contact"
@@ -90,7 +84,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
             onChange={handleChange}
           />
           <div className="flex items-center gap-2">
-            <input
+            <Input
               type="checkbox"
               id="isUser"
               checked={isUser}
@@ -103,7 +97,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
           </div>
           {isUser && (
             <div>
-              <Label htmlFor="user_id">NUSP do usuário</Label>
+              <Label htmlFor="user_id">NUSP do usuário:</Label>
               <Input
                 id="user_id"
                 name="user_id"
@@ -116,7 +110,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
               {userError && <p className="text-cm-red font-xs space-y-0">{userError}</p>}
             </div>
           )}
-          <Label htmlFor="donation_type">Tipo de doação</Label>
+          <Label htmlFor="donation_type">Tipo de doação:</Label>
           <Select
             value={form.donation_type}
             onValueChange={(value) => setForm((f) => ({ ...f, donation_type: value as 'book' | 'money' }))}
@@ -131,7 +125,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
           </Select>
           {form.donation_type === 'book' && (
             <>
-              <Label htmlFor="book_id">ID do Livro</Label>
+              <Label htmlFor="book_id">ID do Livro:</Label>
               <Input
                 id="book_id"
                 name="book_id"
@@ -146,7 +140,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
           )}
           {form.donation_type === 'money' && (
             <>
-              <Label htmlFor="amount" className="mt-3">Valor da doação (R$)</Label>
+              <Label htmlFor="amount" className="mt-3">Valor da doação (R$):</Label>
               <Input
                 id="amount"
                 name="amount"

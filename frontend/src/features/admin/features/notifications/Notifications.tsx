@@ -1,10 +1,10 @@
 import { useState } from "react";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import SendNotification from "@/features/notifications/components/Sendnotification";
-import NotificationList from "@/features/notifications/components/NotificationList";
-import InboxList from "@/features/notifications/components/InboxList";
-import { useAdminNotifications } from "@/features/notifications/hooks/useAdminNotifications";
-import { useInbox } from "@/features/notifications/hooks/useInbox";
+import SendNotification from "@/features/admin/features/notifications/components/Sendnotification";
+import NotificationList from "@/features/admin/features/notifications/components/NotificationList";
+import InboxList from "@/features/admin/features/notifications/components/InboxList";
+import { useAdminNotifications } from "@/features/admin/features/notifications/hooks/useAdminNotifications";
+import { useInbox } from "@/features/admin/features/notifications/hooks/useInbox";
 
 
 const Notifications = () => {

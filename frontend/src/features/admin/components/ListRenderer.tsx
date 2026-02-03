@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
+import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 
 type Column<T> = {
   label: string;
@@ -16,6 +17,7 @@ interface AdminListContainerProps<T = any> {
   emptyMessage?: ReactNode | string;
   footer?: ReactNode;
   onBack?: () => void;
+  exportCSV?: () => void;
 }
 
 /*
@@ -30,6 +32,7 @@ function AdminListContainer<T = any>({
   emptyMessage = "Nenhum item encontrado.",
   footer,
   onBack = () => window.history.back(),
+  exportCSV,
 } : AdminListContainerProps<T>) {
   return (
     <>
@@ -52,7 +55,7 @@ function AdminListContainer<T = any>({
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="max-h-[50vh] overflow-y-auto">
               {data.map((row, i) => (
                 <tr key={i} className="hover:bg-gray-50">
                   {columns.map((col, j) => (
@@ -79,7 +82,10 @@ function AdminListContainer<T = any>({
       <ActionBar
         onCancel={onBack}
         showCancel={true}
-        showConfirm={false}
+        showConfirm={!!exportCSV}
+        confirmLabel="Exportar CSV"
+        onConfirm={exportCSV}
+        confirmColor="bg-cm-blue"
         cancelLabel="Voltar"
       />
     </>

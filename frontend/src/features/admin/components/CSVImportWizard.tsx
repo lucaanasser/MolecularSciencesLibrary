@@ -129,14 +129,14 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
 
     <>
       <div className="mb-4">
-        <p className="font-semibold mb-2">Formato do CSV:</p>
+        <p className="font-semibold mb-2">Formato do CSV</p>
         {instructions}
         {templateCsv && (
           <Button
             variant="primary"
             size="sm"
             onClick={handleDownloadTemplate}
-            className="mt-2 bg-academic-blue"
+            className="mt-2 bg-cm-blue"
           >
             Baixar Template
           </Button>
@@ -248,7 +248,7 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
           onCancel={result ? onCancel : onCancel}
           onConfirm={handleUpload}
           loading={isUploading}
-          confirmColor={!file ? "bg-gray-400" : "bg-cm-green"}
+          confirmColor={!file ? "bg-gray-400" : "bg-cm-blue"}
         />
       </div>
     </>

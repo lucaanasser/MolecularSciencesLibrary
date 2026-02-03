@@ -1,5 +1,5 @@
 import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
-import { loanRulesFields } from "../utils/loanRulesFields";
+import { loanRulesFields } from "./loanRulesFields";
 import ActionBar from "@/features/admin/components/ActionBar";
 
 interface LoanRulesViewProps {

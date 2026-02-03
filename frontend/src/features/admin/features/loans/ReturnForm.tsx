@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { useReturnOperation } from "@/features/admin/hooks/useReturnOperation";
 import { useLoanValidation } from "@/features/admin/hooks/useLoanValidation";
-import { useToast } from "@/hooks/useToast";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 /**
  * Feature para processar devoluções usando os hooks reutilizáveis.
@@ -16,12 +16,11 @@ import { useToast } from "@/hooks/useToast";
  * 🔴 Erro
  */
 
-const ReturnBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () => void }) => {
+const ReturnForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {
   const [bookCode, setBookCode] = useState("");
   const [error, setError] = useState("");
 
-  const { toast } = useToast();
-  const { returnBook, loading: returnLoading, result } = useReturnOperation();
+  const { returnBook, loading: returnLoading } = useReturnOperation();
   const { validateBook, loading: validationLoading } = useLoanValidation();
 
   const loading = returnLoading || validationLoading;
@@ -54,14 +53,9 @@ const ReturnBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () 
 
       console.log("🟢 [ReturnBook] Devolução processada com sucesso:", returnResult);
       
-      toast({
-        title: "Devolução registrada!",
-        description: "Devolução processada com sucesso.",
-      });
-
       // Reset form
       setBookCode("");
-      if (onSuccess) onSuccess();
+      onSuccess("Devolução processada com sucesso.");
     } catch (err: any) {
       console.error("🔴 [ReturnBook] Erro ao processar devolução:", err);
       setError(err.message || "Erro ao processar devolução");
@@ -99,4 +93,4 @@ const ReturnBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () 
   );
 };
 
-export default ReturnBook;
+export default ReturnForm;

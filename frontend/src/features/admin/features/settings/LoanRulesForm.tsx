@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { loanRulesFields } from "../utils/loanRulesFields";
+import { loanRulesFields } from "./loanRulesFields";
 import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
 import { LoanRules } from "@/features/rules/types/rules";
 import ActionBar from "@/features/admin/components/ActionBar";

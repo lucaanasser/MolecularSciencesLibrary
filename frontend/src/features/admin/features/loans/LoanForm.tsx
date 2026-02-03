@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { useLoanOperation } from "@/features/admin/hooks/useLoanOperation";
 import { useLoanValidation } from "@/features/admin/hooks/useLoanValidation";
-import { useToast } from "@/hooks/useToast";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 /**
  * Feature para registrar empréstimos usando os hooks reutilizáveis.
@@ -17,13 +17,12 @@ import { useToast } from "@/hooks/useToast";
  * 🔴 Erro
  */
 
-const LoanBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () => void }) => {
+const LoanForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {
   const [nusp, setNusp] = useState("");
   const [bookCode, setBookCode] = useState("");
   const [error, setError] = useState("");
 
-  const { toast } = useToast();
-  const { createLoanAdmin, loading: loanLoading, result } = useLoanOperation();
+  const { createLoanAdmin, loading: loanLoading } = useLoanOperation();
   const { 
     findUserByNusp, 
     validateBook, 
@@ -78,16 +77,11 @@ const LoanBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () =>
       });
 
       console.log("🟢 [LoanBook] Empréstimo criado com sucesso:", loan);
-            
-      toast({
-        title: "Empréstimo registrado!",
-        description: "Empréstimo criado com sucesso.",
-      });
 
       // Reset form
       setNusp("");
       setBookCode("");
-      if (onSuccess) onSuccess();
+      onSuccess("Empréstimo registrado com sucesso.");
     } catch (err: any) {
       console.error("🔴 [LoanBook] Erro ao criar empréstimo:", err);
       setError(err.message || "Erro ao registrar empréstimo");
@@ -97,23 +91,22 @@ const LoanBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () =>
   return (
     <>
       <p>
-        Preencha os dados abaixo para registrar o empréstimo:
+        Preencha os dados abaixo para registrar o empréstimo.
       </p>
 
       <div className="">
-        <Label>Número USP:</Label>
+        <Label>Número USP do usuário:</Label>
         <Input
-          type="text"
+          type="number"
           value={nusp}
           onChange={e => setNusp(e.target.value)}
-          placeholder="Ex: 12345678"
           disabled={loading}
           autoFocus
         />
 
         <Label>ID do Livro:</Label>
         <Input
-          type="text"
+          type="number"
           value={bookCode}
           onChange={e => setBookCode(e.target.value)}
           placeholder="Escaneie ou digite o código de barras"
@@ -134,4 +127,4 @@ const LoanBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () =>
   );
 };
 
-export default LoanBook;
+export default LoanForm;

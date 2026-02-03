@@ -1,15 +1,10 @@
 import React, { useState } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useBookReserve } from '@/features/books/hooks/useBookReserve';
-import { toast } from '@/components/ui/use-toast';
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-interface RemoveReserveProps {
-  onBack: () => void;
-}
-
-const RemoveReserve: React.FC<RemoveReserveProps> = ({ onBack }) => {
+const RemoveReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {
   const { setBookReserved, loading, error, books, fetchBooks } = useBookReserve();
   const [bookCode, setBookCode] = useState('');
   const [inputError, setInputError] = useState<string | null>(null);
@@ -34,30 +29,10 @@ const RemoveReserve: React.FC<RemoveReserveProps> = ({ onBack }) => {
     }
     try {
       await setBookReserved(found.id, false);
-      toast({
-        title: 'Livro removido da reserva!',
-        description: `O livro "${found.title}" foi removido da reserva didática.`,
-      });
       setBookCode('');
-      setTimeout(() => onBack(), 400);
+      onSuccess(`Livro "${found.title}" removido da reserva didática.`);
     } catch (err: any) {
       setInputError(err?.message || 'Erro ao remover da reserva.');
-    }
-  };
-
-  const handleClearAll = async () => {
-    setInputError(null);
-    try {
-      const response = await fetch('/api/books/reserved/clear', { method: 'DELETE' });
-      if (!response.ok) throw new Error('Erro ao limpar reserva');
-      toast({
-        title: 'Reserva limpa!',
-        description: 'Todos os livros foram removidos da reserva didática.',
-      });
-      setConfirmClearAll(false);
-      setTimeout(() => onBack(), 400);
-    } catch (err: any) {
-      setInputError('Erro ao limpar reserva');
     }
   };
 
@@ -69,14 +44,14 @@ const RemoveReserve: React.FC<RemoveReserveProps> = ({ onBack }) => {
           type="text"
           value={bookCode}
           onChange={(e) => setBookCode(e.target.value)}
-          placeholder="Digite o código do livro"
+          placeholder="Escaneie ou digite o código de barras"
           disabled={loading}
         />
         {inputError && <p className="text-cm-red prose-sm">{inputError}</p>}
         <ActionBar
           onCancel={onBack}
           onConfirm={undefined}
-          confirmLabel="Remover da Reserva"
+          confirmLabel="Remover"
           confirmColor="bg-cm-red"
           loading={loading}
         />
@@ -86,4 +61,4 @@ const RemoveReserve: React.FC<RemoveReserveProps> = ({ onBack }) => {
   );
 };
 
-export default RemoveReserve;
+export default RemoveReserveForm;

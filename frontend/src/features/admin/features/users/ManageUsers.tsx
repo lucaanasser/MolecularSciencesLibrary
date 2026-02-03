@@ -1,111 +1,28 @@
-import { useState } from "react";
-import ActionGrid from "@/features/admin/components/ActionGrid";
-import AddUserForm from "@/features/admin/features/users/features/AddUserForm";
-import UserList from "@/features/admin/features/users/features/UserList";
-import RemoveUserForm from "@/features/admin/features/users/features/RemoveUserForm";
-import ImportUsers from "@/features/admin/features/users/features/ImportUsers";
-import { useToast } from "@/components/ui/use-toast";
+import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
+import AddUserForm from "@/features/admin/features/users/AddUserForm";
+import UserList from "@/features/admin/features/users/UserList";
+import RemoveUserForm from "@/features/admin/features/users/RemoveUserForm";
+import ImportUsers from "@/features/admin/features/users/ImportUsers";
 
 const ManageUsers = () => {
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [selectedTab, setSelectedTab] = useState<"add" | "remove" | "list" | "import" | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  
-  const handleSuccess = () => {
-    setSelectedTab(null);
-    toast({
-      title: "Sucesso!",
-      description: successMsg,
-    });
-  };
-
   return (
-    <>
-      {!selectedTab && (
-        <>
-          <h3>Gerenciamento de Usuários</h3>
-          <p>Cadastre, busque ou remova usuários do sistema.</p>
-          <ActionGrid
-            actions={[
-              { label: "Adicionar usuário", onClick: () => setSelectedTab("add"), color: "bg-cm-green", disabled: isLoading },
-              { label: "Remover usuário", onClick: () => setSelectedTab("remove"), color: "bg-cm-red", disabled: isLoading },
-              { label: "Ver lista de usuários", onClick: () => setSelectedTab("list"), color: "bg-academic-blue", disabled: isLoading },
-              { label: "Importar usuários CSV", onClick: () => setSelectedTab("import"), color: "bg-library-purple", disabled: isLoading },
-            ]}
-            columns={3}
-          />
-        </>
-      )}
-
-      {selectedTab === "add" && (
-        <>
-          <p>Preencha os dados do usuário a ser adicionado:</p>
-          <AddUserForm
-            onSuccess={() => {
-              setSelectedTab(null);
-              setSuccessMsg("Usuário adicionado com sucesso!");
-            }}
-            onError={(err) => {
-              setSuccessMsg(`Erro: ${err.message}`);
-            }}
-            onBack={() => setSelectedTab(null)}
-          />
-        </>
-      )}
-
-      {selectedTab === "list" && (
-        <>
-          <p>Esses são todos os usuários cadastrados no site:</p>
-          <UserList onClose={() => setSelectedTab(null)} />
-        </>
-      )}
-
-      {selectedTab === "remove" && (
-        <>
-          <p>Digite nome, email ou NUSP do usuário a ser removido:</p>
-          <RemoveUserForm
-            onSuccess={() => {
-              setSelectedTab(null);
-              setSuccessMsg("Usuário removido com sucesso!");
-            }}
-            onError={(err) => {
-              setSuccessMsg(`Erro: ${err.message}`);
-            }}
-            onBack={() => setSelectedTab(null)}
-          />
-        </>
-      )}
-
-      {selectedTab === "import" && (
-        <>
-          <p>Importe usuários em lote através de um arquivo CSV:</p>
-          <ImportUsers
-            onSuccess={(results) => {
-              setSelectedTab(null);
-              const msg = `Importação concluída: ${results.success} usuário(s) importado(s) com sucesso${results.failed > 0 ? `, ${results.failed} falharam` : ''}`;
-              setSuccessMsg(msg);
-              toast({
-                title: "Importação concluída!",
-                description: msg,
-              });
-            }}
-            onError={(err) => {
-              setSuccessMsg(`Erro na importação: ${err.message}`);
-              toast({
-                title: "Erro",
-                description: `Erro na importação: ${err.message}`,
-                variant: "destructive",
-              });
-            }}
-            onCancel={() => setSelectedTab(null)}
-            onBack={() => setSelectedTab(null)}
-          />
-        </>
-      )}
-
-      {successMsg && handleSuccess()}
-    </>
+    <AdminTabRenderer
+      title="Gerenciamento de Usuários"
+      description="Adicione, remova ou busque usuários no sistema. Para adicionar múltiplos usuários (batch import), utilize a opção de 'Importar CSV'."
+      actions={[
+        { id: "add", label: "Adicionar usuário", color: "bg-cm-green" },
+        { id: "remove", label: "Remover usuário", color: "bg-cm-red" },
+        { id: "list", label: "Ver lista de usuários", color: "bg-cm-blue" },
+        { id: "import", label: "Importar CSV", color: "bg-library-purple" },
+      ]}
+      tabComponents={[
+        { id: "add", component: AddUserForm },
+        { id: "remove", component: RemoveUserForm },
+        { id: "list", component: UserList },
+        { id: "import", component: ImportUsers },
+      ]}
+      columns={4}
+    />
   );
 };
 

@@ -8,7 +8,7 @@ import ManageDonators from "@/features/admin/features/donators/ManageDonators";
 import ManageReserve from "@/features/admin/features/reserve/ManageReserve";
 import Notifications from "@/features/admin/features/notifications/Notifications";
 import Reports from "@/features/admin/features/Reports";
-import Settings from "@/features/admin/features/settings/Settings";
+import Settings from "@/features/admin/features/settings/ManageSettings";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const AdminPage = () => {

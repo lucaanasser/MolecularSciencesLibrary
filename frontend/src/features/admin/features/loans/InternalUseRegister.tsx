@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-const InternalUse = ({ onBack }: { onBack: () => void }) => {
+const InternalUseRegister: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   const [internalUseCode, setInternalUseCode] = useState("");
   const [internalUseLoading, setInternalUseLoading] = useState(false);
   const [internalUseError, setInternalUseError] = useState("");
-  const [internalUseSuccess, setInternalUseSuccess] = useState("");
 
   const handleInternalUse = async () => {
     if (!internalUseCode) {
@@ -15,7 +15,6 @@ const InternalUse = ({ onBack }: { onBack: () => void }) => {
     }
     setInternalUseLoading(true);
     setInternalUseError("");
-    setInternalUseSuccess("");
     try {
       const res = await fetch("/api/loans/internal-use", {
         method: "POST",
@@ -26,9 +25,8 @@ const InternalUse = ({ onBack }: { onBack: () => void }) => {
         const data = await res.json();
         throw new Error(data.error || "Erro ao registrar uso interno");
       }
-      setInternalUseSuccess("Uso interno registrado com sucesso!");
       setInternalUseCode("");
-      setTimeout(() => setInternalUseSuccess(""), 3000);
+      onSuccess("Uso interno registrado com sucesso!");
     } catch (err: any) {
       setInternalUseError(err.message);
     } finally {
@@ -40,14 +38,14 @@ const InternalUse = ({ onBack }: { onBack: () => void }) => {
     <>
       <p>
         Insira o código do livro para registrar 
-        um exemplar usado internamente na biblioteca (sem empréstimo externo):
+        um exemplar usado por alunos na própria biblioteca (sem empréstimo externo):
       </p>
       <div>
         <Input
           type="text"
           value={internalUseCode}
           onChange={e => setInternalUseCode(e.target.value)}
-          placeholder="Ex: BIO-01.01"
+          placeholder="Escaneie ou digite o código de barras"
           disabled={internalUseLoading}
           onKeyPress={e => {
             if (e.key === "Enter") handleInternalUse();
@@ -55,7 +53,6 @@ const InternalUse = ({ onBack }: { onBack: () => void }) => {
         />
       </div>
       {internalUseError && <p className="text-red-600 prose-sm mt-4">{internalUseError}</p>}
-      {internalUseSuccess && <p className="text-green-600 prose-sm mt-4">{internalUseSuccess}</p>}
       <ActionBar
         onConfirm={handleInternalUse}
         onCancel={onBack}
@@ -70,4 +67,4 @@ const InternalUse = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-export default InternalUse;
+export default InternalUseRegister;

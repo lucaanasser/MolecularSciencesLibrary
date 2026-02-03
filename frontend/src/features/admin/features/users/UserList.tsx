@@ -1,9 +1,9 @@
 import { useUserList } from "@/features/users/hooks/useUserList";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 
 /**
  * Lista de usuários cadastrados.
@@ -13,14 +13,14 @@ import { useToast } from "@/components/ui/use-toast";
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
-interface UserListProps {
-  onClose?: () => void;
-}
 
-const UserList: React.FC<UserListProps> = ({ onClose }) => {
+const UserList: React.FC<TabComponentProps> = ({ onBack }) => {
   const { users, loading, error } = useUserList();
   const [searchTerm, setSearchTerm] = useState("");
-  const { toast } = useToast();
+  const { exportCSV } = useExportCSV({
+    endpoint: "/api/users/export/csv",
+    filename: "usuarios.csv"
+  });
 
   const columns: Column<any>[] = [
     { label: "Nome", accessor: "name" },
@@ -38,34 +38,6 @@ const UserList: React.FC<UserListProps> = ({ onClose }) => {
     );
   });
 
-  const handleExportCSV = async () => {
-    try {
-      console.log("🔵 [UserList] Iniciando exportação CSV");
-      const response = await fetch('/api/users/export/csv');
-      if (!response.ok) throw new Error('Erro ao exportar CSV');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `usuarios_${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      
-      toast({
-        title: "Sucesso!",
-        description: "CSV exportado com sucesso!",
-      });
-      console.log("🟢 [UserList] CSV exportado com sucesso");
-    } catch (error) {
-      console.error('🔴 [UserList] Erro ao exportar CSV:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao exportar CSV",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <>
@@ -76,13 +48,6 @@ const UserList: React.FC<UserListProps> = ({ onClose }) => {
           onChange={e => setSearchTerm(e.target.value)}
           className="w-full"
         />
-        <Button
-          variant="default"
-          onClick={handleExportCSV}
-          className="flex items-center gap-2"
-        >
-          Exportar CSV
-        </Button>
       </div>
       <ListRenderer
         data={filteredUsers}
@@ -95,7 +60,8 @@ const UserList: React.FC<UserListProps> = ({ onClose }) => {
             {filteredUsers.length} de {users.length} usuário{users.length !== 1 ? 's' : ''} cadastrado{users.length !== 1 ? 's' : ''}
           </span>
         }
-        onBack={onClose || (() => {})}
+        onBack={onBack}
+        exportCSV={exportCSV}
       />
     </>
   );

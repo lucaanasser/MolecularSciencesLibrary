@@ -13,9 +13,7 @@ interface Book {
   is_reserved: number;
 }
 
-interface ListReserveProps {
-  onBack: () => void;
-}
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 const columns: Column<Book>[] = [
   { label: "Código", accessor: "code" },
@@ -25,7 +23,7 @@ const columns: Column<Book>[] = [
   { label: "Subárea", accessor: "subarea" },
 ];
 
-const ListReserve: React.FC<ListReserveProps> = ({ onBack }) => {
+const ListReserve: React.FC<TabComponentProps> = ({ onBack }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,39 +1,27 @@
 import React, { useState } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
-import { toast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-interface ClearReserveTabProps {
-  onBack: () => void;
-}
-
-const ClearReserve: React.FC<ClearReserveTabProps> = ({ onBack }) => {
+const ClearReserve: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
 
   const handleClearAll = async () => {
-    setError(null);
     setLoading(true);
     try {
       const response = await fetch('/api/books/reserved/clear', { method: 'DELETE' });
       if (!response.ok) throw new Error('Erro ao limpar reserva');
-      toast({
-        title: 'Reserva limpa!',
-        description: 'Todos os livros foram removidos da reserva didática.',
-      });
-      setTimeout(() => onBack(), 100);
+      onSuccess('Todos os livros foram removidos da reserva didática.');
     } catch (err: any) {
-      setError('Erro ao limpar reserva');
+      onError(err?.message || 'Erro ao limpar reserva');
     } finally {
       setLoading(false);
     }
@@ -68,7 +56,6 @@ const ClearReserve: React.FC<ClearReserveTabProps> = ({ onBack }) => {
                 onCancel={() => setAlertOpen(false)}
                 onConfirm={async () => {
                   setAlertOpen(false);
-                  setConfirm(false);
                   await handleClearAll();
                 }}
                 confirmLabel="Sim, Limpar Tudo"
@@ -80,8 +67,6 @@ const ClearReserve: React.FC<ClearReserveTabProps> = ({ onBack }) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
     </>
   );
 };

@@ -1,17 +1,10 @@
 
 import React from "react";
 import CSVImportWizard from "@/features/admin/components/CSVImportWizard";
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 
-interface ImportDonatorsProps {
-  onBack: () => void;
-  onCancel: () => void;
-  onSuccess: (results: any) => void;
-  onError: (err: Error) => void;
-}
-
-
-const ImportDonators: React.FC<ImportDonatorsProps> = ({ onBack, onCancel, onSuccess, onError }) => {
+const ImportDonators: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   // Template CSV para doadores
   const templateCsv = `name,user_id,book_id,donation_type,amount,contact,notes\nJoão Silva,,1,book,,joao@email.com,Doou livro de Física\nMaria Santos,12345,,money,50.00,maria@email.com,Doação financeira\nPedro Costa,,2,book,,pedro@email.com,Doação de livro de Química`;
 
@@ -36,8 +29,8 @@ const ImportDonators: React.FC<ImportDonatorsProps> = ({ onBack, onCancel, onSuc
         endpoint="/api/donators/import/csv"
         requiredFields={["name", "donation_type"]}
         instructions={instructions}
-        onCancel={onCancel}
-        onSuccess={onSuccess}
+        onCancel={onBack}
+        onSuccess={(results: any) => onSuccess(`Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)}
         onError={onError}
         templateCsv={templateCsv}
         templateName="template_doadores.csv"

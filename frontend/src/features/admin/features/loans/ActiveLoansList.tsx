@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
-
+import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 
 interface ActiveLoan {
   loan_id: number;
@@ -20,12 +21,16 @@ interface ActiveLoan {
   is_overdue: boolean;
 }
 
-const ActiveLoansList = ({ onBack }: { onBack: () => void }) => {
+const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
   const [loans, setLoans] = useState<ActiveLoan[]>([]);
   const [filteredLoans, setFilteredLoans] = useState<ActiveLoan[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "overdue" | "extended" | "renewed">("all");
+  const { exportCSV } = useExportCSV({
+    endpoint: "/api/loans/active/export/csv",
+    filename: "emprestimos_ativos.csv"
+  });
 
   useEffect(() => {
     fetchActiveLoans();
@@ -136,11 +141,10 @@ const ActiveLoansList = ({ onBack }: { onBack: () => void }) => {
         error={undefined}
         emptyMessage="Nenhum empréstimo encontrado"
         footer={
-          <span className="text-xs text-gray-600">
-            {filteredLoans.length} de {loans.length} empréstimos
-          </span>
+          <span> {filteredLoans.length} empréstimos exibidos </span>
         }
         onBack={onBack}
+        exportCSV={exportCSV}
       />
     </>
   );
