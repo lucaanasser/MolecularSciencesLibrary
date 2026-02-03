@@ -322,17 +322,58 @@ class UserSchedulesModel {
     // ===================== CUSTOM DISCIPLINES (Disciplinas manuais) =====================
 
     /**
-     * Lista disciplinas customizadas de um plano
+     * Lista disciplinas customizadas de um plano com seus horários
      */
     async getCustomDisciplines(scheduleId) {
         console.log(`🔵 [UserSchedulesModel] Buscando disciplinas customizadas do plano ${scheduleId}`);
         const query = `SELECT * FROM user_custom_disciplines WHERE schedule_id = ? ORDER BY nome ASC`;
         try {
             const disciplines = await allQuery(query, [scheduleId]);
+            
+            // Para cada disciplina, buscar seus horários
+            for (const discipline of disciplines) {
+                const schedulesQuery = `
+                    SELECT dia, horario_inicio, horario_fim 
+                    FROM user_custom_discipline_schedules 
+                    WHERE custom_discipline_id = ?
+                    ORDER BY 
+                        CASE dia 
+                            WHEN 'seg' THEN 1
+                            WHEN 'ter' THEN 2
+                            WHEN 'qua' THEN 3
+                            WHEN 'qui' THEN 4
+                            WHEN 'sex' THEN 5
+                            WHEN 'sab' THEN 6
+                            ELSE 7
+                        END
+                `;
+                discipline.schedules = await allQuery(schedulesQuery, [discipline.id]);
+            }
+            
             console.log(`🟢 [UserSchedulesModel] Disciplinas customizadas encontradas: ${disciplines.length}`);
             return disciplines;
         } catch (error) {
             console.error("🔴 [UserSchedulesModel] Erro ao buscar disciplinas customizadas:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Busca uma disciplina customizada por ID
+     */
+    async getCustomDisciplineById(id) {
+        console.log(`🔵 [UserSchedulesModel] Buscando disciplina customizada ${id}`);
+        const query = `SELECT * FROM user_custom_disciplines WHERE id = ?`;
+        try {
+            const discipline = await getQuery(query, [id]);
+            if (discipline) {
+                console.log(`🟢 [UserSchedulesModel] Disciplina customizada encontrada`);
+            } else {
+                console.log(`🟡 [UserSchedulesModel] Disciplina customizada não encontrada`);
+            }
+            return discipline;
+        } catch (error) {
+            console.error("🔴 [UserSchedulesModel] Erro ao buscar disciplina customizada:", error.message);
             throw error;
         }
     }
@@ -351,6 +392,17 @@ class UserSchedulesModel {
         `;
         try {
             const disciplines = await allQuery(query, [userId]);
+            
+            // Para cada disciplina, buscar seus horários
+            for (const discipline of disciplines) {
+                const schedulesQuery = `
+                    SELECT dia, horario_inicio, horario_fim 
+                    FROM user_custom_discipline_schedules 
+                    WHERE custom_discipline_id = ?
+                `;
+                discipline.schedules = await allQuery(schedulesQuery, [discipline.id]);
+            }
+            
             console.log(`🟢 [UserSchedulesModel] Disciplinas customizadas encontradas: ${disciplines.length}`);
             return disciplines;
         } catch (error) {
@@ -360,35 +412,69 @@ class UserSchedulesModel {
     }
 
     /**
-     * Adiciona uma disciplina customizada
+     * Adiciona uma disciplina customizada com múltiplos horários
+     * @param {number} scheduleId - ID do plano
+     * @param {object} data - { nome, codigo, creditos_aula, creditos_trabalho, color, schedules: [{dia, horario_inicio, horario_fim}] }
      */
-    async addCustomDiscipline(scheduleId, { nome, codigo, dia, horario_inicio, horario_fim, color = '#14b8a6' }) {
+    async addCustomDiscipline(scheduleId, { nome, codigo, creditos_aula, creditos_trabalho, color = '#14b8a6', schedules = [] }) {
         console.log(`🔵 [UserSchedulesModel] Adicionando disciplina customizada: ${nome}`);
-        const query = `
-            INSERT INTO user_custom_disciplines 
-            (schedule_id, nome, codigo, dia, horario_inicio, horario_fim, color, is_visible, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
-        `;
+        
         try {
-            const result = await executeQuery(query, [scheduleId, nome, codigo, dia, horario_inicio, horario_fim, color]);
-            console.log(`🟢 [UserSchedulesModel] Disciplina customizada criada com ID: ${result.lastID}`);
+            // 1. Criar entrada na tabela user_custom_disciplines
+            const query = `
+                INSERT INTO user_custom_disciplines 
+                (schedule_id, nome, codigo, creditos_aula, creditos_trabalho, color, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `;
+            const result = await executeQuery(query, [scheduleId, nome, codigo, creditos_aula, creditos_trabalho, color]);
+            const customDisciplineId = result.lastID;
+            console.log(`🟢 [UserSchedulesModel] Disciplina customizada criada com ID: ${customDisciplineId}`);
             
-            // Atualiza updated_at do plano
+            // 2. Inserir horários na tabela separada
+            if (schedules && schedules.length > 0) {
+                const scheduleQuery = `
+                    INSERT INTO user_custom_discipline_schedules 
+                    (custom_discipline_id, dia, horario_inicio, horario_fim, created_at)
+                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                `;
+                
+                for (const schedule of schedules) {
+                    await executeQuery(scheduleQuery, [
+                        customDisciplineId,
+                        schedule.dia,
+                        schedule.horario_inicio,
+                        schedule.horario_fim
+                    ]);
+                }
+                console.log(`🟢 [UserSchedulesModel] ${schedules.length} horários adicionados`);
+            }
+            
+            // 3. Adicionar à lista de disciplinas do plano (user_schedule_disciplines)
+            // Usa ID negativo para diferenciar de disciplinas regulares
+            const addToListQuery = `
+                INSERT INTO user_schedule_disciplines 
+                (schedule_id, discipline_id, selected_class_id, is_visible, is_expanded, color, created_at)
+                VALUES (?, ?, NULL, 1, 0, ?, CURRENT_TIMESTAMP)
+            `;
+            await executeQuery(addToListQuery, [scheduleId, -customDisciplineId, color]);
+            console.log(`🟢 [UserSchedulesModel] Disciplina customizada adicionada à lista do plano`);
+            
+            // 4. Atualiza updated_at do plano
             await executeQuery(
                 `UPDATE user_schedules SET updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
                 [scheduleId]
             );
             
+            // Retornar disciplina com schedules
             return { 
-                id: result.lastID, 
+                id: customDisciplineId, 
                 schedule_id: scheduleId, 
                 nome, 
-                codigo, 
-                dia, 
-                horario_inicio, 
-                horario_fim, 
+                codigo,
+                creditos_aula,
+                creditos_trabalho,
                 color, 
-                is_visible: 1 
+                schedules
             };
         } catch (error) {
             console.error("🔴 [UserSchedulesModel] Erro ao adicionar disciplina customizada:", error.message);
@@ -398,29 +484,62 @@ class UserSchedulesModel {
 
     /**
      * Atualiza uma disciplina customizada
+     * @param {number} id - ID da disciplina customizada
+     * @param {object} data - { nome, codigo, creditos_aula, creditos_trabalho, color, is_visible, schedules }
      */
-    async updateCustomDiscipline(id, { nome, codigo, dia, horario_inicio, horario_fim, color, is_visible }) {
+    async updateCustomDiscipline(id, { nome, codigo, creditos_aula, creditos_trabalho, color, is_visible, schedules }) {
         console.log(`🔵 [UserSchedulesModel] Atualizando disciplina customizada ${id}`);
         const updates = [];
         const params = [];
 
         if (nome !== undefined) { updates.push('nome = ?'); params.push(nome); }
         if (codigo !== undefined) { updates.push('codigo = ?'); params.push(codigo); }
-        if (dia !== undefined) { updates.push('dia = ?'); params.push(dia); }
-        if (horario_inicio !== undefined) { updates.push('horario_inicio = ?'); params.push(horario_inicio); }
-        if (horario_fim !== undefined) { updates.push('horario_fim = ?'); params.push(horario_fim); }
+        if (creditos_aula !== undefined) { updates.push('creditos_aula = ?'); params.push(creditos_aula); }
+        if (creditos_trabalho !== undefined) { updates.push('creditos_trabalho = ?'); params.push(creditos_trabalho); }
         if (color !== undefined) { updates.push('color = ?'); params.push(color); }
         if (is_visible !== undefined) { updates.push('is_visible = ?'); params.push(is_visible ? 1 : 0); }
 
-        if (updates.length === 0) {
+        if (updates.length === 0 && !schedules) {
             return null;
         }
 
-        params.push(id);
-        const query = `UPDATE user_custom_disciplines SET ${updates.join(', ')} WHERE id = ?`;
         try {
-            await executeQuery(query, params);
-            console.log(`🟢 [UserSchedulesModel] Disciplina customizada ${id} atualizada`);
+            // Atualizar campos básicos
+            if (updates.length > 0) {
+                params.push(id);
+                const query = `UPDATE user_custom_disciplines SET ${updates.join(', ')} WHERE id = ?`;
+                await executeQuery(query, params);
+                console.log(`🟢 [UserSchedulesModel] Disciplina customizada ${id} atualizada`);
+            }
+            
+            // Atualizar horários se fornecidos
+            if (schedules !== undefined) {
+                // Remover horários existentes
+                await executeQuery(
+                    `DELETE FROM user_custom_discipline_schedules WHERE custom_discipline_id = ?`,
+                    [id]
+                );
+                
+                // Inserir novos horários
+                if (schedules.length > 0) {
+                    const scheduleQuery = `
+                        INSERT INTO user_custom_discipline_schedules 
+                        (custom_discipline_id, dia, horario_inicio, horario_fim, created_at)
+                        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                    `;
+                    
+                    for (const schedule of schedules) {
+                        await executeQuery(scheduleQuery, [
+                            id,
+                            schedule.dia,
+                            schedule.horario_inicio,
+                            schedule.horario_fim
+                        ]);
+                    }
+                    console.log(`🟢 [UserSchedulesModel] ${schedules.length} horários atualizados`);
+                }
+            }
+            
             return true;
         } catch (error) {
             console.error("🔴 [UserSchedulesModel] Erro ao atualizar disciplina customizada:", error.message);
@@ -429,14 +548,18 @@ class UserSchedulesModel {
     }
 
     /**
-     * Remove uma disciplina customizada
+     * Remove uma disciplina customizada (soft delete via user_schedule_disciplines)
      */
-    async deleteCustomDiscipline(id) {
-        console.log(`🔵 [UserSchedulesModel] Removendo disciplina customizada ${id}`);
-        const query = `DELETE FROM user_custom_disciplines WHERE id = ?`;
+    async deleteCustomDiscipline(id, scheduleId) {
+        console.log(`🔵 [UserSchedulesModel] Removendo disciplina customizada ${id} do plano ${scheduleId}`);
         try {
-            await executeQuery(query, [id]);
-            console.log(`🟢 [UserSchedulesModel] Disciplina customizada removida`);
+            // Soft delete: marca como invisível em user_schedule_disciplines
+            await executeQuery(
+                `UPDATE user_schedule_disciplines SET is_visible = 0 WHERE schedule_id = ? AND discipline_id = ?`,
+                [scheduleId, -id]
+            );
+            
+            console.log(`🟢 [UserSchedulesModel] Disciplina customizada marcada como invisível`);
             return true;
         } catch (error) {
             console.error("🔴 [UserSchedulesModel] Erro ao remover disciplina customizada:", error.message);
@@ -460,19 +583,46 @@ class UserSchedulesModel {
                 usd.is_visible,
                 usd.is_expanded,
                 usd.color,
-                d.codigo as discipline_codigo,
-                d.nome as discipline_nome,
-                d.unidade,
-                d.campus,
-                d.creditos_aula,
-                d.creditos_trabalho
+                CASE 
+                    WHEN usd.discipline_id < 0 THEN ucd.codigo
+                    ELSE d.codigo
+                END as discipline_codigo,
+                CASE 
+                    WHEN usd.discipline_id < 0 THEN ucd.nome
+                    ELSE d.nome
+                END as discipline_nome,
+                COALESCE(d.unidade, '') as unidade,
+                COALESCE(d.campus, '') as campus,
+                CASE 
+                    WHEN usd.discipline_id < 0 THEN ucd.creditos_aula
+                    ELSE d.creditos_aula
+                END as creditos_aula,
+                CASE 
+                    WHEN usd.discipline_id < 0 THEN ucd.creditos_trabalho
+                    ELSE d.creditos_trabalho
+                END as creditos_trabalho
             FROM user_schedule_disciplines usd
-            JOIN disciplines d ON usd.discipline_id = d.id
+            LEFT JOIN disciplines d ON usd.discipline_id = d.id AND usd.discipline_id > 0
+            LEFT JOIN user_custom_disciplines ucd ON -usd.discipline_id = ucd.id AND usd.discipline_id < 0
             WHERE usd.schedule_id = ?
             ORDER BY usd.created_at ASC
         `;
         try {
             const disciplines = await allQuery(query, [scheduleId]);
+            
+            // Para disciplinas customizadas, buscar os horários
+            for (const disc of disciplines) {
+                if (disc.discipline_id < 0) {
+                    const customId = -disc.discipline_id;
+                    const schedulesQuery = `
+                        SELECT dia, horario_inicio, horario_fim 
+                        FROM user_custom_discipline_schedules 
+                        WHERE custom_discipline_id = ?
+                    `;
+                    disc.customSchedules = await allQuery(schedulesQuery, [customId]);
+                }
+            }
+            
             console.log(`🟢 [UserSchedulesModel] Disciplinas encontradas: ${disciplines.length}`);
             return disciplines;
         } catch (error) {

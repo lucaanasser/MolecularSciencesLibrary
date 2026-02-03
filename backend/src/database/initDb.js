@@ -406,9 +406,8 @@ db.serialize(() => {
             schedule_id INTEGER NOT NULL,
             nome TEXT NOT NULL,
             codigo TEXT,
-            dia TEXT NOT NULL,
-            horario_inicio TEXT NOT NULL,
-            horario_fim TEXT NOT NULL,
+            creditos_aula INTEGER,
+            creditos_trabalho INTEGER,
             color TEXT DEFAULT '#14b8a6',
             is_visible INTEGER DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -420,6 +419,25 @@ db.serialize(() => {
             process.exit(1);
         }
         console.log('🟢 [initDb] Tabela user_custom_disciplines criada com sucesso');
+    });
+
+    // USER_CUSTOM_DISCIPLINE_SCHEDULES TABLE - Horários das disciplinas customizadas (normalizado)
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_custom_discipline_schedules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            custom_discipline_id INTEGER NOT NULL,
+            dia TEXT NOT NULL,
+            horario_inicio TEXT NOT NULL,
+            horario_fim TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(custom_discipline_id) REFERENCES user_custom_disciplines(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('🔴 [initDb] Erro ao criar tabela user_custom_discipline_schedules:', err.message);
+            process.exit(1);
+        }
+        console.log('🟢 [initDb] Tabela user_custom_discipline_schedules criada com sucesso');
     });
 
     // =====================================================

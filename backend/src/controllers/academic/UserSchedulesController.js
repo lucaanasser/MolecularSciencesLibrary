@@ -259,15 +259,26 @@ class UserSchedulesController {
         try {
             const userId = req.user.id;
             const scheduleId = parseInt(req.params.scheduleId);
-            const { nome, codigo, dia, horario_inicio, horario_fim, color } = req.body;
+            const { nome, codigo, creditos_aula, creditos_trabalho, color, schedules } = req.body;
             console.log(`🔵 [UserSchedulesController] Adicionando disciplina customizada ao plano ${scheduleId}`);
             
-            if (!nome || !dia || !horario_inicio || !horario_fim) {
-                return res.status(400).json({ error: 'nome, dia, horario_inicio e horario_fim são obrigatórios' });
+            if (!nome) {
+                return res.status(400).json({ error: 'nome é obrigatório' });
+            }
+            
+            if (!schedules || !Array.isArray(schedules) || schedules.length === 0) {
+                return res.status(400).json({ error: 'schedules deve ser um array com pelo menos um horário' });
+            }
+            
+            // Validar cada schedule
+            for (const schedule of schedules) {
+                if (!schedule.dia || !schedule.horario_inicio || !schedule.horario_fim) {
+                    return res.status(400).json({ error: 'Cada schedule deve ter dia, horario_inicio e horario_fim' });
+                }
             }
 
             const result = await userSchedulesService.addCustomDiscipline(scheduleId, userId, {
-                nome, codigo, dia, horario_inicio, horario_fim, color
+                nome, codigo, creditos_aula, creditos_trabalho, color, schedules
             });
             
             if (!result) {
@@ -415,15 +426,26 @@ class UserSchedulesController {
     async createCustomDiscipline(req, res) {
         try {
             const userId = req.user.id;
-            const { nome, codigo, dia, horario_inicio, horario_fim, color, schedule_id } = req.body;
+            const { nome, codigo, creditos_aula, creditos_trabalho, color, schedule_id, schedules } = req.body;
             console.log(`🔵 [UserSchedulesController] Criando disciplina customizada para usuário ${userId}`);
             
-            if (!nome || !dia || !horario_inicio || !horario_fim) {
-                return res.status(400).json({ error: 'nome, dia, horario_inicio e horario_fim são obrigatórios' });
+            if (!nome) {
+                return res.status(400).json({ error: 'nome é obrigatório' });
+            }
+            
+            if (!schedules || !Array.isArray(schedules) || schedules.length === 0) {
+                return res.status(400).json({ error: 'schedules deve ser um array com pelo menos um horário' });
+            }
+            
+            // Validar cada schedule
+            for (const schedule of schedules) {
+                if (!schedule.dia || !schedule.horario_inicio || !schedule.horario_fim) {
+                    return res.status(400).json({ error: 'Cada schedule deve ter dia, horario_inicio e horario_fim' });
+                }
             }
 
             const result = await userSchedulesService.addCustomDiscipline(schedule_id, userId, {
-                nome, codigo, dia, horario_inicio, horario_fim, color
+                nome, codigo, creditos_aula, creditos_trabalho, color, schedules
             });
             
             console.log(`🟢 [UserSchedulesController] Disciplina customizada criada: ${result.id}`);

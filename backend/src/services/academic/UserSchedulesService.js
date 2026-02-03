@@ -268,8 +268,19 @@ class UserSchedulesService {
     async deleteCustomDiscipline(customId, userId) {
         console.log(`🔵 [UserSchedulesService] Removendo disciplina customizada ${customId}`);
         try {
-            // TODO: Validar propriedade
-            await userSchedulesModel.deleteCustomDiscipline(customId);
+            // Busca a disciplina customizada para obter o schedule_id
+            const custom = await userSchedulesModel.getCustomDisciplineById(customId);
+            if (!custom) {
+                throw new Error('Disciplina customizada não encontrada');
+            }
+            
+            // Valida que pertence ao usuário
+            const schedule = await userSchedulesModel.getScheduleById(custom.schedule_id);
+            if (!schedule || schedule.user_id !== userId) {
+                throw new Error('Acesso negado');
+            }
+            
+            await userSchedulesModel.deleteCustomDiscipline(customId, custom.schedule_id);
             console.log(`🟢 [UserSchedulesService] Disciplina customizada removida`);
             return true;
         } catch (error) {
@@ -367,7 +378,7 @@ class UserSchedulesService {
     }
 
     /**
-     * Calcula total de créditos de um plano
+     * Calcula total de créditos de um plano (incluindo disciplinas customizadas)
      */
     async calculateCredits(scheduleId, userId) {
         console.log(`🔵 [UserSchedulesService] Calculando créditos do plano ${scheduleId}`);
@@ -388,6 +399,13 @@ class UserSchedulesService {
                 disciplineIds.add(cls.discipline_id);
                 creditos_aula += cls.creditos_aula || 0;
                 creditos_trabalho += cls.creditos_trabalho || 0;
+            }
+
+            // Soma créditos das disciplinas customizadas (apenas visíveis)
+            for (const custom of fullSchedule.customDisciplines) {
+                if (!custom.is_visible) continue;
+                creditos_aula += custom.creditos_aula || 0;
+                creditos_trabalho += custom.creditos_trabalho || 0;
             }
 
             console.log(`🟢 [UserSchedulesService] Créditos: aula=${creditos_aula}, trabalho=${creditos_trabalho}`);
@@ -438,15 +456,18 @@ class UserSchedulesService {
             // Coleta slots das disciplinas customizadas
             for (const custom of fullSchedule.customDisciplines) {
                 if (!custom.is_visible) continue;
-                existingSlots.push({
-                    type: 'custom',
-                    id: custom.id,
-                    discipline_codigo: custom.codigo || 'CUSTOM',
-                    discipline_nome: custom.nome,
-                    dia: custom.dia,
-                    horario_inicio: custom.horario_inicio,
-                    horario_fim: custom.horario_fim
-                });
+                // Agora custom.schedules é um array de horários
+                for (const schedule of custom.schedules || []) {
+                    existingSlots.push({
+                        type: 'custom',
+                        id: custom.id,
+                        discipline_codigo: custom.codigo || 'CUSTOM',
+                        discipline_nome: custom.nome,
+                        dia: schedule.dia,
+                        horario_inicio: schedule.horario_inicio,
+                        horario_fim: schedule.horario_fim
+                    });
+                }
             }
 
             // Verifica conflitos da nova turma com as existentes
