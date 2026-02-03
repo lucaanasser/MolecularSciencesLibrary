@@ -1,8 +1,9 @@
 import { useState } from "react";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import LoanRegister from "@/features/admin/features/loans/features/LoanRegister";
 import ActiveLoansList from "@/features/admin/features/loans/features/ActiveLoansList";
 import InternalUse from "@/features/admin/features/loans/features/InternalUse";
+import LoanBook from "@/features/admin/features/loans/features/LoanBook";
+import ReturnBook from "@/features/admin/features/loans/features/ReturnBook";
 
 const ManageLoans = () => {
   const [selectedTab, setSelectedTab] = useState<string | null>(null);
@@ -68,12 +69,20 @@ const ManageLoans = () => {
             <ActionGrid
               actions={[
                 {
-                  label: "Registrar empréstimo/devolução",
+                  label: "Registrar empréstimo",
                   onClick: () => {
                     console.log("🔵 [AdminPage/ManageLoans] Selecionado: Registrar Empréstimo");
                     setSelectedTab("loan");
                   },
                   color: "bg-cm-green",
+                },
+                {
+                  label: "Registrar devolução",
+                  onClick: () => {
+                    console.log("🔵 [AdminPage/ManageLoans] Selecionado: Registrar Devolução");
+                    setSelectedTab("return");
+                  },
+                  color: "bg-cm-red",
                 },
                 {
                   label: "Registrar Uso Interno",
@@ -92,14 +101,18 @@ const ManageLoans = () => {
                   color: "bg-academic-blue",
                 },
               ]}
-              columns={3}
+              columns={4}
             />
           </>
         </>
       )}
     
       {selectedTab === "loan" && (
-        <LoanRegister onBack={() => setSelectedTab(null)} onSuccess={handleLoanSuccess} />
+        <LoanBook onBack={() => setSelectedTab(null)} onSuccess={handleLoanSuccess} />
+      )}
+
+      {selectedTab === "return" && (
+        <ReturnBook onBack={() => setSelectedTab(null)} onSuccess={handleLoanSuccess} />
       )}
     
       {selectedTab === "list" && (
