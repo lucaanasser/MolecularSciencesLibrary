@@ -17,6 +17,10 @@ interface DisciplineState {
   isVisible: boolean;
   selectedClassId: number | null;
   isExpanded: boolean;
+  isCustom?: boolean; // Flag para disciplinas customizadas
+  customDisciplineId?: number; // ID da disciplina customizada
+  creditos_aula?: number; // Créditos das customizadas
+  creditos_trabalho?: number;
 }
 
 interface DisciplineListNewProps {
@@ -46,8 +50,8 @@ export function DisciplineListNew({
   const totalCredits = disciplines
     .filter(d => d.isVisible)
     .reduce((acc, d) => ({
-      aula: acc.aula + d.discipline.creditos_aula,
-      trabalho: acc.trabalho + d.discipline.creditos_trabalho
+      aula: acc.aula + (d.isCustom ? (d.creditos_aula || 0) : d.discipline.creditos_aula),
+      trabalho: acc.trabalho + (d.isCustom ? (d.creditos_trabalho || 0) : d.discipline.creditos_trabalho)
     }), { aula: 0, trabalho: 0 });
 
   // Formata horários
@@ -92,8 +96,8 @@ export function DisciplineListNew({
         <div className="flex-1 overflow-y-auto space-y-1.5">
           <AnimatePresence>
           {disciplines.map((state) => {
-            const { discipline, isVisible, selectedClassId, isExpanded } = state;
-            const selectedClass = discipline.classes.find(c => c.id === selectedClassId);
+            const { discipline, isVisible, selectedClassId, isExpanded, isCustom, customDisciplineId } = state;
+            const selectedClass = !isCustom ? discipline.classes.find(c => c.id === selectedClassId) : null;
 
             return (
               <motion.div
@@ -125,20 +129,28 @@ export function DisciplineListNew({
 
                   {/* Info da disciplina */}
                   <button
-                    onClick={() => onToggleExpanded(discipline.id)}
+                    onClick={() => !isCustom && onToggleExpanded(discipline.id)}
                     className="flex-1 min-w-0 text-left"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-academic-blue">
                         {discipline.codigo}
                       </span>
-                      <span className="text-xs text-gray-500">
-                        {discipline.classes.length} {discipline.classes.length === 1 ? 'turma' : 'turmas'}
-                      </span>
-                      {selectedClass && (
-                        <span className="text-xs bg-academic-blue text-white px-1.5 py-0.5 rounded">
-                          {selectedClass.codigo_turma?.substring(4)}
+                      {isCustom ? (
+                        <span className="text-xs bg-purple-500 text-white px-1.5 py-0.5 rounded">
+                          Manual
                         </span>
+                      ) : (
+                        <>
+                          <span className="text-xs text-gray-500">
+                            {discipline.classes.length} {discipline.classes.length === 1 ? 'turma' : 'turmas'}
+                          </span>
+                          {selectedClass && (
+                            <span className="text-xs bg-academic-blue text-white px-1.5 py-0.5 rounded">
+                              {selectedClass.codigo_turma?.substring(4)}
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
@@ -147,16 +159,18 @@ export function DisciplineListNew({
                   </button>
 
                   {/* Botões */}
-                  <button
-                    onClick={() => onToggleExpanded(discipline.id)}
-                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                  >
-                    {isExpanded ? (
-                      <ChevronUp className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
+                  {!isCustom && (
+                    <button
+                      onClick={() => onToggleExpanded(discipline.id)}
+                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                    >
+                      {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                  )}
 
                   <button
                     onClick={() => onRemoveDiscipline(discipline.id)}
@@ -167,9 +181,9 @@ export function DisciplineListNew({
                   </button>
                 </div>
 
-                {/* Lista de turmas (expandida) */}
+                {/* Lista de turmas (expandida) - apenas para disciplinas regulares */}
                 <AnimatePresence>
-                  {isExpanded && (
+                  {!isCustom && isExpanded && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}

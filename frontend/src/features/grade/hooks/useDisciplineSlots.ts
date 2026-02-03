@@ -45,7 +45,50 @@ export function useDisciplineSlots(
     const conflictList: SlotConflict[] = [];
     
     disciplineStates.forEach((state, index) => {
-      if (!state.isVisible || !state.selectedClassId) return;
+      if (!state.isVisible) return;
+
+      // Se for disciplina customizada, processa diferentemente
+      if (state.isCustom) {
+        const color = scheduleColors[index % scheduleColors.length];
+        
+        // Para customizadas, todas as classes são os horários
+        state.discipline.classes.forEach(fakeClass => {
+          fakeClass.schedules.forEach(schedule => {
+            const newSlot: GradeSlot = {
+              type: 'custom',
+              id: state.customDisciplineId || state.discipline.id,
+              color,
+              dia: schedule.dia,
+              horario_inicio: schedule.horario_inicio,
+              horario_fim: schedule.horario_fim,
+              disciplina_nome: state.discipline.nome,
+              disciplina_codigo: state.discipline.codigo,
+              isVisible: true
+            };
+
+            // Verifica conflitos com slots existentes
+            slots.forEach(existingSlot => {
+              if (
+                existingSlot.dia === newSlot.dia &&
+                timeOverlaps(
+                  existingSlot.horario_inicio,
+                  existingSlot.horario_fim,
+                  newSlot.horario_inicio,
+                  newSlot.horario_fim
+                )
+              ) {
+                conflictList.push({ slot1: existingSlot, slot2: newSlot });
+              }
+            });
+
+            slots.push(newSlot);
+          });
+        });
+        return;
+      }
+
+      // Disciplina regular
+      if (!state.selectedClassId) return;
 
       const selectedClass = state.discipline.classes.find(c => c.id === state.selectedClassId);
       if (!selectedClass) return;
@@ -99,13 +142,13 @@ export function useDisciplineSlots(
     return ids;
   }, [conflicts]);
 
-  // Créditos das disciplinas visíveis
+  // Créditos das disciplinas visíveis (incluindo customizadas)
   const credits = useMemo(() => {
     return disciplineStates
       .filter(d => d.isVisible)
       .reduce((acc, d) => ({
-        creditos_aula: acc.creditos_aula + (d.discipline.creditos_aula || 0),
-        creditos_trabalho: acc.creditos_trabalho + (d.discipline.creditos_trabalho || 0)
+        creditos_aula: acc.creditos_aula + (d.isCustom ? (d.creditos_aula || 0) : (d.discipline.creditos_aula || 0)),
+        creditos_trabalho: acc.creditos_trabalho + (d.isCustom ? (d.creditos_trabalho || 0) : (d.discipline.creditos_trabalho || 0))
       }), { creditos_aula: 0, creditos_trabalho: 0 });
   }, [disciplineStates]);
 

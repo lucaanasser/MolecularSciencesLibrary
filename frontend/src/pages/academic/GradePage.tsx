@@ -48,6 +48,7 @@ const GradePage: React.FC = () => {
     isAuthenticated,
     editingScheduleName,
     scheduleDisciplines,
+    customDisciplines,
     setActiveScheduleId,
     setEditingScheduleName,
     setError,
@@ -73,12 +74,14 @@ const GradePage: React.FC = () => {
   const {
     disciplineStates,
     handleAddDiscipline,
+    handleAddCustomDiscipline,
     handleToggleVisibility,
     handleSelectClass,
     handleToggleExpanded,
     handleRemoveDiscipline,
     loadDisciplines,
-    clearList
+    clearList,
+    setDisciplineStates
   } = useDisciplineList(
     isAuthenticated,
     activeScheduleId,
@@ -88,7 +91,11 @@ const GradePage: React.FC = () => {
   );
 
   // Hook para carregar disciplinas salvas do banco
-  useLoadSavedDisciplines(isAuthenticated, scheduleDisciplines, loadDisciplines);
+  useLoadSavedDisciplines(
+    isAuthenticated, 
+    scheduleDisciplines, 
+    loadDisciplines
+  );
 
   // Hook para gerar slots da grade a partir das disciplinas
   const { 
@@ -126,19 +133,27 @@ const GradePage: React.FC = () => {
     }
   }, [activeScheduleId]); // Removido clearList das dependências para não causar loop
 
-  // Handler para remover slot
+  // Handler para remover slot da grade diretamente (quando clica no X na grade)
   const handleRemoveSlot = async (slot: GradeSlot) => {
     if (isAuthenticated) {
       if (slot.type === 'class') {
         await removeClass(slot.id);
       } else {
+        // Remove customizada do banco
         await removeCustomDiscipline(slot.id);
+        // Remove da lista também
+        setDisciplineStates(prev => prev.filter(d => d.customDisciplineId !== slot.id));
       }
       reloadActiveScheduleData();
     } else {
       removeLocalSlot(slot.id);
     }
   };
+  
+  // Handler wrapper para remover disciplina da lista
+  const handleRemoveDisciplineFromList = useCallback((disciplineId: number) => {
+    return handleRemoveDiscipline(disciplineId, removeCustomDiscipline);
+  }, [handleRemoveDiscipline, removeCustomDiscipline]);
 
   // Handler para adicionar turma (modo busca individual)
   const handleAddClass = async (classId: number): Promise<{ success: boolean; conflicts?: any[] }> => {
@@ -155,26 +170,50 @@ const GradePage: React.FC = () => {
   const handleAddCustom = async (data: {
     nome: string;
     codigo?: string;
-    dia: string;
-    horario_inicio: string;
-    horario_fim: string;
+    schedules: Array<{
+      dia: string;
+      horario_inicio: string;
+      horario_fim: string;
+    }>;
+    creditos_aula?: number;
+    creditos_trabalho?: number;
     color?: string;
   }) => {
     if (!isAuthenticated) {
-      addLocalSlot({
-        type: 'custom',
-        color: data.color || SCHEDULE_COLORS[gradeSlots.length % SCHEDULE_COLORS.length],
-        dia: data.dia,
-        horario_inicio: data.horario_inicio,
-        horario_fim: data.horario_fim,
-        disciplina_nome: data.nome,
-        disciplina_codigo: data.codigo || 'CUSTOM',
-        isVisible: true
+      // Modo local (sem autenticação)
+      data.schedules.forEach(schedule => {
+        addLocalSlot({
+          type: 'custom',
+          color: data.color || SCHEDULE_COLORS[gradeSlots.length % SCHEDULE_COLORS.length],
+          dia: schedule.dia,
+          horario_inicio: schedule.horario_inicio,
+          horario_fim: schedule.horario_fim,
+          disciplina_nome: data.nome,
+          disciplina_codigo: data.codigo || 'CUSTOM',
+          isVisible: true
+        });
       });
       return;
     }
     
+    // Adiciona no backend
     const result = await addCustomDiscipline(data);
+    
+    if (result) {
+      // Adiciona à lista de disciplinas para poder selecionar/desselecionar
+      handleAddCustomDiscipline({
+        id: result.id,
+        nome: result.nome,
+        codigo: result.codigo,
+        creditos_aula: result.creditos_aula,
+        creditos_trabalho: result.creditos_trabalho,
+        color: result.color,
+        schedules: result.schedules
+      });
+      
+      toast.success(`Disciplina "${data.nome}" adicionada com sucesso!`);
+    }
+    
     return result;
   };
 
@@ -184,9 +223,45 @@ const GradePage: React.FC = () => {
     codigo: string; 
     nome: string; 
     creditos_aula: number; 
-    creditos_trabalho: number 
+    creditos_trabalho: number;
+    isCustom?: boolean;
+    customId?: number;
+    color?: string;
+    schedules?: Array<{
+      dia: string;
+      horario_inicio: string;
+      horario_fim: string;
+    }>;
   }) => {
-    // Busca as turmas da disciplina
+    // Se for disciplina customizada, duplica para o plano atual
+    if (discipline.isCustom && discipline.customId) {
+      try {
+        console.log(`🔵 [GradePage] Duplicando disciplina customizada ${discipline.codigo} para plano ${activeScheduleId}`);
+        
+        const newCustom = await addCustomDiscipline({
+          nome: discipline.nome,
+          codigo: discipline.codigo,
+          creditos_aula: discipline.creditos_aula,
+          creditos_trabalho: discipline.creditos_trabalho,
+          color: discipline.color || '#14b8a6',
+          schedules: discipline.schedules || []
+        });
+
+        if (newCustom) {
+          console.log(`🟢 [GradePage] Disciplina customizada duplicada com ID ${newCustom.id}`);
+          toast.success(`Disciplina "${discipline.nome}" adicionada ao plano`);
+        } else {
+          console.error('🔴 [GradePage] Erro ao duplicar disciplina customizada');
+          toast.error('Erro ao adicionar disciplina');
+        }
+      } catch (error) {
+        console.error('🔴 [GradePage] Erro ao duplicar disciplina customizada:', error);
+        toast.error('Erro ao adicionar disciplina');
+      }
+      return;
+    }
+
+    // Busca as turmas da disciplina regular
     try {
       const response = await fetch(`/api/disciplines/${discipline.codigo}/full`);
       if (response.ok) {
@@ -217,7 +292,7 @@ const GradePage: React.FC = () => {
     } catch (error) {
       console.error('Erro ao carregar turmas:', error);
     }
-  }, [handleAddDiscipline]);
+  }, [handleAddDiscipline, activeScheduleId, addCustomDiscipline]);
 
   // Aplica a combinação selecionada - seleciona as turmas correspondentes nas disciplinas
   const handleApplyCombination = useCallback((index: number, combination: any) => {
@@ -306,6 +381,7 @@ const GradePage: React.FC = () => {
     if (showCombinationPreview && combinations.length > 0) {
       return combinationCredits;
     }
+    // Usa créditos da lista (que agora inclui customizadas)
     return disciplineCredits;
   }, [showCombinationPreview, combinations.length, combinationCredits, disciplineCredits]);
 
@@ -394,7 +470,7 @@ const GradePage: React.FC = () => {
                 disciplines={disciplineStates}
                 onToggleVisibility={handleToggleVisibility}
                 onSelectClass={handleSelectClass}
-                onRemoveDiscipline={handleRemoveDiscipline}
+                onRemoveDiscipline={handleRemoveDisciplineFromList}
                 onToggleExpanded={handleToggleExpanded}
                 disabled={isSaving}
                 maxDisciplines={10}

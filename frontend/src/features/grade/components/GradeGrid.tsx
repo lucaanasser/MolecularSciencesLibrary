@@ -1,8 +1,9 @@
 import { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GradeSlot, DIAS_SEMANA, DIA_LABELS } from '@/hooks/useGrade';
+import { useNavigate } from 'react-router-dom';
 
 interface GradeGridProps {
   slots: GradeSlot[];
@@ -28,6 +29,8 @@ export function GradeGrid({
   readOnly = false,
   conflictingSlotIds = new Set()
 }: GradeGridProps) {
+  const navigate = useNavigate();
+  
   // Converte horário para posição vertical em pixels
   const timeToPosition = useCallback((time: string): number => {
     const [h, m] = time.split(':').map(Number);
@@ -129,7 +132,12 @@ export function GradeGrid({
                         height: height - 1,
                         backgroundColor: hasConflict ? '#ef4444' : slot.color,
                       }}
-                      onClick={() => onSlotClick?.(slot)}
+                      onClick={() => {
+                        // Só navega se for disciplina real
+                        if (slot.type === 'class' && slot.disciplina_codigo) {
+                          navigate(`/academico/disciplina/${slot.disciplina_codigo}`);
+                        }
+                      }}
                       title={hasConflict ? '⚠️ Conflito de horário!' : `${slot.disciplina_nome} - T${slot.turma_codigo}`}
                     >
                       <div className="h-full flex flex-col justify-center px-1 py-0.5 text-white">
@@ -160,19 +168,6 @@ export function GradeGrid({
                           </div>
                         )}
                       </div>
-
-                      {/* Botão de remover (hover) */}
-                      {!readOnly && onRemoveSlot && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onRemoveSlot(slot);
-                          }}
-                          className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/40"
-                        >
-                          <X className="w-3 h-3 text-white" />
-                        </button>
-                      )}
                     </motion.div>
                   );
                 })}

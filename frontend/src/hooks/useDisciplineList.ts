@@ -9,6 +9,10 @@ export interface DisciplineState {
   isVisible: boolean;
   selectedClassId: number | null;
   isExpanded: boolean;
+  isCustom?: boolean; // Flag para disciplinas customizadas
+  customDisciplineId?: number; // ID da disciplina customizada no banco
+  creditos_aula?: number; // Créditos das customizadas
+  creditos_trabalho?: number;
 }
 
 /**
@@ -74,8 +78,56 @@ export function useDisciplineList(
     }
   }, [isAuthenticated, activeScheduleId, addDisciplineToList]); // Removida dependência de disciplineStates
 
-  // Toggle visibilidade de uma disciplina
-  const handleToggleVisibility = useCallback(async (disciplineId: number) => {
+  // Adiciona disciplina customizada à lista
+  const handleAddCustomDiscipline = useCallback((customDisciplineData: {
+    id: number;
+    nome: string;
+    codigo?: string;
+    creditos_aula?: number;
+    creditos_trabalho?: number;
+    color: string;
+    schedules: Array<{ dia: string; horario_inicio: string; horario_fim: string }>;
+  }) => {
+    console.log(`🔵 [useDisciplineList] Adicionando disciplina customizada ${customDisciplineData.nome}`);
+
+    // Cria uma "disciplina falsa" para encaixar na estrutura existente
+    const fakeDiscipline: DisciplineWithClasses = {
+      id: -customDisciplineData.id, // ID negativo para diferenciar
+      codigo: customDisciplineData.codigo || 'CUSTOM',
+      nome: customDisciplineData.nome,
+      creditos_aula: customDisciplineData.creditos_aula || 0,
+      creditos_trabalho: customDisciplineData.creditos_trabalho || 0,
+      classes: customDisciplineData.schedules.map((schedule, idx) => ({
+        id: -customDisciplineData.id * 1000 - idx, // ID único negativo
+        codigo_turma: 'MANUAL',
+        tipo: 'TEÓRICA',
+        inicio: '',
+        fim: '',
+        discipline_id: -customDisciplineData.id,
+        discipline_codigo: customDisciplineData.codigo || 'CUSTOM',
+        discipline_nome: customDisciplineData.nome,
+        schedules: [schedule],
+        professors: []
+      }))
+    };
+
+    const newState: DisciplineState = {
+      discipline: fakeDiscipline,
+      isVisible: true,
+      selectedClassId: null,
+      isExpanded: false,
+      isCustom: true,
+      customDisciplineId: customDisciplineData.id,
+      creditos_aula: customDisciplineData.creditos_aula,
+      creditos_trabalho: customDisciplineData.creditos_trabalho
+    };
+
+    setDisciplineStates(prev => [...prev, newState]);
+    console.log(`🟢 [useDisciplineList] Disciplina customizada adicionada`);
+  }, []);
+
+  // Toggle visibilidade de uma disciplina (regular ou customizada)
+  const handleToggleVisibility = useCallback(async (disciplineId: number, customId?: number) => {
     let newIsVisible = false;
     
     // Usa setter funcional para obter estado atual
@@ -92,6 +144,7 @@ export function useDisciplineList(
     });
 
     // Salva no banco se autenticado (em background)
+    // Agora todas as disciplinas (regulares e customizadas) usam updateDisciplineInList
     if (isAuthenticated && activeScheduleId) {
       try {
         await updateDisciplineInList(disciplineId, { isVisible: newIsVisible });
@@ -150,14 +203,15 @@ export function useDisciplineList(
     }
   }, [isAuthenticated, activeScheduleId, updateDisciplineInList]); // Removido disciplineStates
 
-  // Remove disciplina da lista
-  const handleRemoveDiscipline = useCallback(async (disciplineId: number) => {
+  // Remove disciplina da lista (regular ou customizada)
+  const handleRemoveDiscipline = useCallback(async (disciplineId: number, removeCustomDiscipline?: (id: number) => Promise<boolean>) => {
     console.log(`🔵 [useDisciplineList] Removendo disciplina ${disciplineId}`);
 
     // Atualiza estado local IMEDIATAMENTE
     setDisciplineStates(prev => prev.filter(d => d.discipline.id !== disciplineId));
 
     // Salva no banco se autenticado (em background)
+    // Agora todas as disciplinas (regulares e customizadas) estão em user_schedule_disciplines
     if (isAuthenticated && activeScheduleId) {
       try {
         await removeDisciplineFromList(disciplineId);
@@ -186,6 +240,7 @@ export function useDisciplineList(
   return {
     disciplineStates,
     handleAddDiscipline,
+    handleAddCustomDiscipline,
     handleToggleVisibility,
     handleSelectClass,
     handleToggleExpanded,

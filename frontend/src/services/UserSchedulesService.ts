@@ -54,13 +54,17 @@ export interface CustomDiscipline {
   schedule_id: number;
   nome: string;
   codigo?: string;
-  dia: string;
-  horario_inicio: string;
-  horario_fim: string;
+  creditos_aula?: number;
+  creditos_trabalho?: number;
   color: string;
   is_visible: boolean;
   created_at: string;
   schedule_name?: string;
+  schedules: Array<{
+    dia: string;
+    horario_inicio: string;
+    horario_fim: string;
+  }>;
 }
 
 export interface ScheduleDiscipline {

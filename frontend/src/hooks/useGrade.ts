@@ -288,9 +288,13 @@ export function useGrade() {
   const addCustomDiscipline = useCallback(async (data: {
     nome: string;
     codigo?: string;
-    dia: string;
-    horario_inicio: string;
-    horario_fim: string;
+    schedules: Array<{
+      dia: string;
+      horario_inicio: string;
+      horario_fim: string;
+    }>;
+    creditos_aula?: number;
+    creditos_trabalho?: number;
     color?: string;
   }) => {
     if (!activeScheduleId) return null;
@@ -301,7 +305,10 @@ export function useGrade() {
         ...data,
         schedule_id: activeScheduleId
       });
-      setCustomDisciplines(prev => [...prev, discipline]);
+      
+      // Recarrega scheduleDisciplines para incluir a nova customizada
+      await reloadActiveScheduleData();
+      
       return discipline;
     } catch (err) {
       console.error('Erro ao adicionar disciplina:', err);
@@ -310,13 +317,14 @@ export function useGrade() {
     } finally {
       setIsSaving(false);
     }
-  }, [activeScheduleId]);
+  }, [activeScheduleId, reloadActiveScheduleData]);
 
   const removeCustomDiscipline = useCallback(async (disciplineId: number) => {
     setIsSaving(true);
     try {
       await userSchedulesService.deleteCustomDiscipline(disciplineId);
-      setCustomDisciplines(prev => prev.filter(d => d.id !== disciplineId));
+      // Recarrega scheduleDisciplines para remover a customizada
+      await reloadActiveScheduleData();
       return true;
     } catch (err) {
       console.error('Erro ao remover disciplina:', err);
@@ -325,7 +333,7 @@ export function useGrade() {
     } finally {
       setIsSaving(false);
     }
-  }, []);
+  }, [reloadActiveScheduleData]);
 
   // ================ OPERAÇÕES COM DISCIPLINAS DA LISTA (SIDEBAR) ================
 
@@ -415,10 +423,12 @@ export function useGrade() {
     
     // Verifica disciplinas customizadas
     customDisciplines.forEach(disc => {
-      const startHour = parseInt(disc.horario_inicio.split(':')[0]);
-      const endHour = parseInt(disc.horario_fim.split(':')[0]);
-      if (startHour < minHour) minHour = startHour;
-      if (endHour > maxHour) maxHour = endHour;
+      disc.schedules?.forEach(schedule => {
+        const startHour = parseInt(schedule.horario_inicio.split(':')[0]);
+        const endHour = parseInt(schedule.horario_fim.split(':')[0]);
+        if (startHour < minHour) minHour = startHour;
+        if (endHour > maxHour) maxHour = endHour;
+      });
     });
     
     // Gera array de horários
@@ -430,11 +440,11 @@ export function useGrade() {
     return { minHour, maxHour, hours };
   }, [classes, customDisciplines]);
 
-  // Converte turmas e disciplinas customizadas para slots de exibição
+  // Converte turmas para slots de exibição (SEM disciplinas customizadas - elas vão via lista)
   const gradeSlots = useMemo((): GradeSlot[] => {
     const slots: GradeSlot[] = [];
     
-    // Turmas
+    // Apenas turmas regulares
     classes.forEach(cls => {
       cls.schedules?.forEach(schedule => {
         slots.push({
@@ -453,30 +463,18 @@ export function useGrade() {
       });
     });
     
-    // Disciplinas customizadas
-    customDisciplines.forEach(disc => {
-      slots.push({
-        type: 'custom',
-        id: disc.id,
-        color: disc.color,
-        dia: disc.dia,
-        horario_inicio: disc.horario_inicio,
-        horario_fim: disc.horario_fim,
-        disciplina_nome: disc.nome,
-        disciplina_codigo: disc.codigo || 'CUSTOM',
-        isVisible: disc.is_visible === true || (disc.is_visible as unknown) === 1
-      });
-    });
+    // REMOVIDO: Disciplinas customizadas agora são controladas apenas via lista
     
     return slots;
-  }, [classes, customDisciplines]);
+  }, [classes]);
 
-  // Calcula créditos totais
+  // Calcula créditos totais (incluindo customizadas)
   const credits = useMemo(() => {
     const disciplineIds = new Set<number>();
     let creditos_aula = 0;
     let creditos_trabalho = 0;
     
+    // Créditos das turmas oficiais
     classes.forEach(cls => {
       if (!cls.is_visible) return;
       if (disciplineIds.has(cls.discipline_id)) return;
@@ -484,6 +482,8 @@ export function useGrade() {
       creditos_aula += cls.creditos_aula || 0;
       creditos_trabalho += cls.creditos_trabalho || 0;
     });
+    
+    // REMOVIDO: Créditos customizados agora vêm via disciplineCredits (da lista)
     
     return { creditos_aula, creditos_trabalho };
   }, [classes]);

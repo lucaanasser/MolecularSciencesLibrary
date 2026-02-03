@@ -107,11 +107,11 @@ const CreateDisciplinePage: React.FC = () => {
         >
           <Button
             variant="ghost"
-            onClick={() => navigate("/academico/buscar")}
+            onClick={() => navigate(-1)}
             className="mb-4 text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
-            Voltar para busca
+            Voltar
           </Button>
 
           <h1 className="text-3xl font-bebas text-gray-900 mb-2">

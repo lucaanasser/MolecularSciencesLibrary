@@ -4,6 +4,7 @@ import { Search, Plus, AlertTriangle, Loader2, ChevronDown, ChevronUp, Clock, Us
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import userSchedulesService from '@/services/UserSchedulesService';
 
 // Tipos para disciplinas vindas da API
 interface DisciplineClass {
@@ -34,6 +35,14 @@ interface Discipline {
   creditos_aula: number;
   creditos_trabalho: number;
   classes?: DisciplineClass[];
+  isCustom?: boolean;
+  customId?: number;
+  color?: string;
+  schedules?: Array<{
+    dia: string;
+    horario_inicio: string;
+    horario_fim: string;
+  }>;
 }
 
 interface DisciplineSearchProps {
@@ -72,11 +81,45 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
     searchTimeout.current = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const response = await fetch(`/api/disciplines/search?q=${encodeURIComponent(query)}&limit=10`);
-        if (response.ok) {
-          const data = await response.json();
-          setResults(data);
+        // Busca disciplinas regulares
+        const regularResponse = await fetch(`/api/disciplines/search?q=${encodeURIComponent(query)}&limit=10`);
+        let regularDisciplines: Discipline[] = [];
+        if (regularResponse.ok) {
+          regularDisciplines = await regularResponse.json();
         }
+
+        // Busca disciplinas customizadas do usuário
+        let customDisciplines: Discipline[] = [];
+        try {
+          const customs = await userSchedulesService.getCustomDisciplines();
+          console.log(`🔵 [DisciplineSearch] ${customs.length} disciplinas customizadas encontradas`);
+          
+          // Filtra disciplinas customizadas que correspondem à busca
+          customDisciplines = customs
+            .filter((custom) => 
+              custom.nome.toLowerCase().includes(query.toLowerCase()) ||
+              (custom.codigo && custom.codigo.toLowerCase().includes(query.toLowerCase()))
+            )
+            .map((custom) => ({
+              id: custom.id,
+              customId: custom.id, // Guarda o ID original da customizada
+              codigo: custom.codigo || 'CUSTOM',
+              nome: custom.nome,
+              unidade: 'Personalizada',
+              campus: 'Manual',
+              creditos_aula: custom.creditos_aula || 0,
+              creditos_trabalho: custom.creditos_trabalho || 0,
+              isCustom: true,
+              color: custom.color,
+              schedules: custom.schedules || []
+            }));
+          console.log(`🟢 [DisciplineSearch] ${customDisciplines.length} disciplinas customizadas correspondem à busca`);
+        } catch (error) {
+          console.log(`🔴 [DisciplineSearch] Erro ao buscar disciplinas customizadas:`, error);
+        }
+
+        // Combina resultados - customizadas primeiro
+        setResults([...customDisciplines, ...regularDisciplines]);
       } catch (error) {
         console.error('Erro na busca:', error);
       } finally {
@@ -197,6 +240,11 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {discipline.creditos_aula}+{discipline.creditos_trabalho}c
                         </span>
+                        {discipline.isCustom && (
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">
+                            Manual
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-gray-700 dark:text-gray-300 truncate">
                         {discipline.nome}
@@ -223,8 +271,12 @@ export function DisciplineSearch({ onAddClass, onAddToBoard, disabled }: Discipl
                         size="sm"
                         variant="ghost"
                         onClick={async () => {
-                          console.log(`🔵 [DisciplineSearch] Adicionando disciplina ${discipline.codigo} ao quadro`);
-                          // Chama onAddToBoard que vai buscar as turmas
+                          if (discipline.isCustom) {
+                            console.log(`🔵 [DisciplineSearch] Adicionando disciplina customizada ${discipline.codigo} ao quadro`);
+                          } else {
+                            console.log(`🔵 [DisciplineSearch] Adicionando disciplina ${discipline.codigo} ao quadro`);
+                          }
+                          // Chama onAddToBoard que vai buscar as turmas (ou adicionar custom direto)
                           onAddToBoard(discipline);
                         }}
                         disabled={disabled}
