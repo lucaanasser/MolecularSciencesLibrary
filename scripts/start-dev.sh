@@ -133,7 +133,7 @@ case $choice in
             
             # Criar sessão tmux com backend e frontend
             tmux new-session -d -s biblioteca-dev -n dev
-            tmux send-keys -t biblioteca-dev:dev "cd '$PROJECT_DIR/backend' && echo '🔧 Backend rodando em http://localhost:3001' && npm run dev" C-m
+            tmux send-keys -t biblioteca-dev:dev "cd '$PROJECT_DIR/backend' && echo '🔧 Backend rodando em http://localhost:3001' && NODE_ENV=development npm run dev" C-m
             tmux split-window -t biblioteca-dev:dev -h
             tmux send-keys -t biblioteca-dev:dev "cd '$PROJECT_DIR/frontend' && echo '🎨 Frontend rodando em http://localhost:8080' && npm run dev" C-m
             
@@ -157,7 +157,7 @@ case $choice in
             echo ""
             
             # Backend em background
-            screen -dmS backend bash -c "cd '$PROJECT_DIR/backend' && npm run dev"
+            screen -dmS backend bash -c "cd '$PROJECT_DIR/backend' && NODE_ENV=development npm run dev"
             
             # Frontend no foreground
             echo -e "${GREEN}✅ Backend iniciado em background (screen -r backend para ver logs)${NC}"
@@ -189,7 +189,7 @@ case $choice in
             
             # Iniciar backend em background
             cd "$PROJECT_DIR/backend"
-            npm run dev > /tmp/backend.log 2>&1 &
+            NODE_ENV=development npm run dev > /tmp/backend.log 2>&1 &
             BACKEND_PID=$!
             
             echo -e "${GREEN}✅ Backend iniciado (PID: $BACKEND_PID)${NC}"
@@ -252,7 +252,7 @@ case $choice in
             npm install
         fi
         
-        npm run dev
+        NODE_ENV=development npm run dev
         ;;
         
     4)
@@ -289,7 +289,7 @@ case $choice in
             node src/database/initDb.js
         fi
         
-        npm run dev
+        NODE_ENV=development npm run dev
         ;;
         
     0)
