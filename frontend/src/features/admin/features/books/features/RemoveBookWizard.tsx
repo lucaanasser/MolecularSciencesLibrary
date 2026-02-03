@@ -106,7 +106,7 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
       </div>
 
       {!selectedBook ? (
-        <div className="space-y-4">
+        <div className="">
           <div className="flex gap-2">
             <div className="flex-1">
               <Input
@@ -145,7 +145,7 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="">
           <div className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-800">Informações do Livro</h3>

@@ -100,7 +100,7 @@ const LoanBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () =>
         Preencha os dados abaixo para registrar o empréstimo:
       </p>
 
-      <div className="space-y-4">
+      <div className="">
         <Label>Número USP:</Label>
         <Input
           type="text"

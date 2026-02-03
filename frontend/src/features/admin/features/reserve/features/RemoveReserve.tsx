@@ -64,7 +64,7 @@ const RemoveReserve: React.FC<RemoveReserveProps> = ({ onBack }) => {
   return (
     <>
       <p>Insira o código de barras do livro que deseja remover da reserva:</p>
-      <form onSubmit={handleRemoveFromReserve} className="space-y-4">
+      <form onSubmit={handleRemoveFromReserve} className="">
         <Input
           type="text"
           value={bookCode}

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/useToast";
 import { useSiteMode } from "@/hooks/useSiteMode";
 
@@ -112,73 +112,77 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center p-6">
-      <Card className="w-full max-w-md p-6 rounded-2xl shadow-lg">
-        <div className="text-center mb-6">
-          <h3>Login</h3>
+    <>
+    <div className="bg-white rounded-2xl shadow-md flex items-center justify-center p-4 md:p-8 w-[80%] mx-auto">
+      <form onSubmit={handleSubmit} className="w-full">
+        <h2 className="text-center"> Login </h2>
+        { /* Campo de identificação */ }
+        <Label htmlFor="matricula">Número USP ou Email:</Label>
+        <Input
+          id="matricula"
+          value={matricula}
+          onChange={(e) => setMatricula(e.target.value)}
+          required
+        />
+        
+        { /* Campo de senha */ }
+        <Label htmlFor="password">Senha:</Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button
+            type="button"
+            style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            className={`text-gray-500 hover:text-${modeColor} focus:outline-none`}
+            onClick={() => setShowPassword((v) => !v)}
+            tabIndex={1}
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+          >
+            {showPassword ? <Eye size={22} /> : <EyeOff size={22} />}
+          </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="matricula">Número USP ou Email</Label>
-              <Input
-                id="matricula"
-                placeholder="Ex: 123456789 ou seuemail@usp.br"
-                value={matricula}
-                onChange={(e) => setMatricula(e.target.value)}
-                className="rounded-xl"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label htmlFor="password">Senha</Label>
-              </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="rounded-xl pr-12"
-                  required
-                />
-                <button
-                  type="button"
-                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                  className={`text-gray-500 hover:text-${modeColor} focus:outline-none`}
-                  onClick={() => setShowPassword((v) => !v)}
-                  tabIndex={0}
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                >
-                  {showPassword ? (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                  ) : (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-7 0-11-7-11-7a20.13 20.13 0 0 1 5.06-6.06"/><path d="M1 1l22 22"/><circle cx="12" cy="12" r="3"/></svg>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end mt-2">
+
+        { /* Botões de ação */ }
+        <div className="flex flex-col-reverse">
+          <Button
+            type="submit"
+            variant="wide"
+            className={`bg-${modeColor}`}
+            disabled={isLoading}
+            tabIndex={0}
+          >
+            {isLoading ? "Entrando..." : "Entrar"}
+          </Button>
+          <div className="flex justify-end mb-4">
             <Button
-              className={`text-${modeColor} px-0 text-sm`}
+              variant="transparent"
+              size="sm"
+              className={`text-${modeColor} transparent`}
               onClick={handleForgotPassword}
               disabled={forgotLoading}
+              type="button"
             >
               {forgotLoading ? "Enviando..." : "Esqueci minha senha"}
             </Button>
           </div>
-          <Button
-            type="submit"
-            variant="wide"
-            disabled={isLoading}
-          >
-            {isLoading ? "Entrando..." : "Entrar"}
-          </Button>
-        </form>
-      </Card>
+          
+        </div>
+      </form>
     </div>
+
+    {/* Link para criação conta */}
+    <p className="text-center mt-8 md:mt-4">
+      Ainda não possui uma conta? {' '} 
+      <br className="md:hidden" />
+      <a className="link" href="/404">Crie uma aqui</a>
+    </p>
+
+    </>
   );
 };
 

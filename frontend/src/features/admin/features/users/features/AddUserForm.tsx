@@ -49,7 +49,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSuccess, onError, onBack })
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="">
       
       <div>
         <Label htmlFor="name">Nome</Label>

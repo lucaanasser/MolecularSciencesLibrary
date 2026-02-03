@@ -11,10 +11,11 @@
     --radius: 0.5rem;
     --x-padding: 1.5rem;
 
-    /* Button and theme colors */
+    /* Default colors */
     --background: theme(colors.white);
     --foreground: theme(colors.black);
 
+    /* Button colors */
     --primary: theme(colors.library-purple);
     --primary-foreground: theme(colors.white);
     
@@ -29,6 +30,10 @@
 
     --popover: white;
     --popover-foreground: theme(colors.default-text);
+
+    /* Input colors */
+    --input-background: hsl(0, 0%, 100%);
+    --input-foreground: hsl(0, 0%, 30%);
   }
 
   body { @apply 
@@ -86,10 +91,16 @@
   .prose-lg { @apply text-xl md:text-2xl lg:text-3xl; }
 
   .link {
-    @apply
-    underline
-    hover:no-underline
-    hover:text-academic-blue/80;
+    @apply underline hover:no-underline;
+    transition: color 0.2s;
+  }
+  
+  /* Hover do link depende do modo do site */
+  html.mode-academico .link:hover {
+    color: theme('colors.academic-blue');
+  }
+  html.mode-biblioteca .link:hover {
+    color: theme('colors.library-purple');
   }
 }
 

@@ -74,7 +74,7 @@ const ReturnBook = ({ onBack, onSuccess }: { onBack: () => void; onSuccess?: () 
         Preencha os dados abaixo para registrar a devolução:
       </p>
 
-      <div className="space-y-4">
+      <div className="">
         <Label>ID do Livro:</Label>
         <Input
           type="text"

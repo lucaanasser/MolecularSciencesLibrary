@@ -72,7 +72,7 @@ const AddDonatorForm: React.FC<AddDonatorFormProps> = ({ onBack, onSuccess, onEr
   return (
     <div className="mt-6">
       <form ref={formRef} onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className="">
           <p>Preencha os dados a seguir para adicionar um novo doador.</p>
           <Label htmlFor="name">Nome do doador</Label>
           <Input

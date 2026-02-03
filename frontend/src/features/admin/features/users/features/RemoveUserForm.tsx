@@ -83,7 +83,7 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: RemoveUse
   return (
     <div>
       {!foundUser && (
-        <form onSubmit={handleSearch} className="space-y-4">
+        <form onSubmit={handleSearch} className="">
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}

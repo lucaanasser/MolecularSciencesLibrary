@@ -20,7 +20,7 @@ const FAQPage = ({ faqs, color, imageSrc, intro }: FAQPageProps) => {
                 <FaqList faqs={faqs} color={color} />
             </div>
             <p className={`mt-4 md:mt-8 mb-0 text-center`}>
-                Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className={`underline hover:${textColor}`}>Fale conosco</a>!
+                Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="link">Fale conosco</a>!
             </p>
         </div>
     );

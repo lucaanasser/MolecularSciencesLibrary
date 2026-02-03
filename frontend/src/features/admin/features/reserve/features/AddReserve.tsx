@@ -50,7 +50,7 @@ const AddReserve: React.FC<AddReserveProps> = ({ onBack }) => {
     <>
       <>
         <p>Insira o código de barras do livro que deseja adicionar à reserva:</p>
-        <form onSubmit={handleAddToReserve} className="space-y-4">
+        <form onSubmit={handleAddToReserve} className="">
           <div>
             <Input
               type="text"

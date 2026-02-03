@@ -129,7 +129,7 @@ export default function BooksList({ onClose }: BooksListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="">
       {/* Botão exportar */}
       <div className="flex justify-start items-center">
         <Button

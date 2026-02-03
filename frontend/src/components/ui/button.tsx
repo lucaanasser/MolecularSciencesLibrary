@@ -30,6 +30,8 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground",
         wide: 
           "bg-primary text-primary-foreground w-full rounded-xl",
+        transparent:
+          "shadow-none border-none hover:shadow-none"
       },
       size: {
         default: "h-10 px-4 py-2 text-lg",
