@@ -1,4 +1,4 @@
-const { getQuery, allQuery, runQuery } = require('../../database/db');
+const { getQuery, allQuery, executeQuery } = require('../../database/db');
 
 /**
  * Model responsável pelo acesso ao banco de dados para empréstimos de livros.
@@ -42,7 +42,7 @@ module.exports = {
         if (due_date && typeof due_date === 'string') {
             dueDateSql = due_date.replace('T', ' ').replace(/\..*$/, '');
         }
-        return runQuery(
+        return executeQuery(
             `INSERT INTO loans (book_id, student_id, due_date, renewals, returned_at) 
              VALUES (?, 0, ?, 0, CURRENT_TIMESTAMP)`,
             [book_id, dueDateSql]
@@ -125,7 +125,7 @@ module.exports = {
     // Registra devolução de um empréstimo
     returnLoan: (loan_id) => {
         console.log(`🔵 [LoansModel] Registrando devolução do empréstimo: loan_id=${loan_id}`);
-        return runQuery(
+        return executeQuery(
             `UPDATE loans SET returned_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL`,
             [loan_id]
         ).then((result) => {
@@ -140,7 +140,7 @@ module.exports = {
     // Devolve um empréstimo
     returnBook: (loan_id) => {
         console.log(`🔵 [LoansModel] Devolvendo empréstimo: loan_id=${loan_id}`);
-        return runQuery(
+        return executeQuery(
             `UPDATE loans SET returned_at = CURRENT_TIMESTAMP WHERE id = ? AND returned_at IS NULL`,
             [loan_id]
         ).then((result) => {
@@ -259,7 +259,7 @@ module.exports = {
     renewLoan: (loan_id, renewal_days) => {
         console.log(`🔵 [LoansModel] Renovando empréstimo: loan_id=${loan_id}, renewal_days=${renewal_days}`);
         // Atualiza due_date para a data atual + renewal_days (sempre a partir de agora)
-        return runQuery(
+        return executeQuery(
             `UPDATE loans SET renewals = renewals + 1, due_date = datetime('now', '+' || ? || ' days') WHERE id = ? AND returned_at IS NULL`,
             [renewal_days, loan_id]
         ).then((result) => {
@@ -314,7 +314,7 @@ module.exports = {
     },
     // Estende o prazo de um empréstimo
     extendLoanBlock: (loan_id, added_days) => {
-        return runQuery(
+        return executeQuery(
             `UPDATE loans SET is_extended = 1, due_date = datetime(due_date, '+'|| ? ||' days') WHERE id = ? AND returned_at IS NULL AND is_extended = 0`,
             [added_days, loan_id]
         ).then((result) => {
@@ -328,7 +328,7 @@ module.exports = {
     // ...existing code...
     // Registra o último nudge enviado para um empréstimo
     setLastNudged: (loan_id) => {
-        return runQuery(
+        return executeQuery(
             `UPDATE loans SET last_nudged_at = CURRENT_TIMESTAMP WHERE id = ?`,
             [loan_id]
         ).then(() => {
@@ -339,7 +339,7 @@ module.exports = {
     },
     // Encurta o prazo de um empréstimo estendido para 5 dias a partir de agora (apenas se prazo atual for maior que 5 dias)
     shortenDueDateIfLongerThan: (loan_id, targetDaysFromNow) => {
-        return runQuery(
+        return executeQuery(
             `UPDATE loans
                     SET due_date = datetime('now', '+'|| ? ||' days')
                     WHERE id = ?
