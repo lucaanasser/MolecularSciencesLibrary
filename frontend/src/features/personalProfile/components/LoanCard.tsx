@@ -1,4 +1,4 @@
-import { Loan } from "../../loans/types/loan";
+import { Loan } from "../../../types/loan";
 import { Clock } from "lucide-react";
 import { AreaIcon } from "./AreaIcon";
 import { LoanStatusDot } from "./LoanStatusDot";

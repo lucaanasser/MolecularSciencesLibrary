@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RotateCcw } from "lucide-react";
-import { Loan } from "../../loans/types/loan";
+import { Loan } from "../../../types/loan";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCreateLoan } from "../hooks/useCreateLoan";
+import { useCreateLoan } from "./useCreateLoan";
 
 /**
  * Formulário para registrar novo empréstimo.

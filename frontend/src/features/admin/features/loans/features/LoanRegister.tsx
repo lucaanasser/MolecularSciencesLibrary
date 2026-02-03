@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import LoanForm from "@/features/loans/components/LoanForm";
+import LoanForm from "@/features/admin/features/loans/LoanForm";
 
 const LoanRegister = ({ onBack, onSuccess }: { onBack: () => void; onSuccess: () => void }) => (
   <>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import LoanForm from "@/features/loans/components/LoanForm";
+import LoanForm from "@/features/admin/features/loans/LoanForm";
 
 // Log de início de renderização da página Pró-Aluno
 console.log("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");

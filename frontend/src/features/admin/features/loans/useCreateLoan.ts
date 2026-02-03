@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loan } from "../types/loan";
+import { Loan } from "../../../../types/loan";
 
 /**
  * Hook para registrar novo empréstimo.

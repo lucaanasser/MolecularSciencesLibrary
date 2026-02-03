@@ -1,4 +1,4 @@
-import { Loan } from "../../loans/types/loan";
+import { Loan } from "../../../types/loan";
 
 export function LoanStatusDot({ loan }: { loan: Loan }) {
   let color = "";

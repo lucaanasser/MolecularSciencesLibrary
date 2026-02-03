@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loan } from "../types/loan";
+import { Loan } from "../../../types/loan";
 
 /**
  * Hook para buscar histórico de empréstimos do usuário.

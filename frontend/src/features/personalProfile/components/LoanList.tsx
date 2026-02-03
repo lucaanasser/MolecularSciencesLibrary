@@ -1,4 +1,4 @@
-import { useGetUserLoans } from "../../loans/hooks/useGetUserLoans";
+import { useGetUserLoans } from "./useGetUserLoans";
 import { useState } from "react";
 import LoanCard from "@/features/personalProfile/components/LoanCard";
 
