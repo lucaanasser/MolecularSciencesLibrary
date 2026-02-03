@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
-import { useReturnOperation } from "@/hooks/useReturnOperation";
-import { useLoanValidation } from "@/hooks/useLoanValidation";
-import { useToast } from "@/hooks/use-toast";
+import { useReturnOperation } from "@/features/admin/hooks/useReturnOperation";
+import { useLoanValidation } from "@/features/admin/hooks/useLoanValidation";
+import { useToast } from "@/hooks/useToast";
 
 /**
  * Feature para processar devoluções usando os hooks reutilizáveis.

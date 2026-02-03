@@ -1,6 +1,6 @@
-import { ExampleAdminLoan } from "@/hooks/examples/useLoanHooksExamples";
+import ProAlunoPageRefactored from "../../features/admin/features/proaluno/ProAlunoPageRefactored";
 export default function TestPage() {
   return (
-    <ExampleAdminLoan />
+    <ProAlunoPageRefactored />
   );
 }

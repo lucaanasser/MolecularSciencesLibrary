@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
-import { useLoanOperation } from "@/hooks/useLoanOperation";
-import { useLoanValidation } from "@/hooks/useLoanValidation";
-import { useToast } from "@/hooks/use-toast";
+import { useLoanOperation } from "@/features/admin/hooks/useLoanOperation";
+import { useLoanValidation } from "@/features/admin/hooks/useLoanValidation";
+import { useToast } from "@/hooks/useToast";
 
 /**
  * Feature para registrar empréstimos usando os hooks reutilizáveis.
