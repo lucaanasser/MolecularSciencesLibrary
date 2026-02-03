@@ -1,12 +1,16 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { useSiteMode } from "@/hooks/useSiteMode";
 import { Button } from "@/components/ui/button";
 
 // Log de início de renderização da página 404
 console.log("🔵 [NotFound] Renderizando página 404");
 
+
 const NotFound = () => {
   const location = useLocation();
+  const { isAcademico } = useSiteMode();
+  const accentClass = isAcademico ? "academic-blue" : "library-purple";
 
   useEffect(() => {
     console.error(
@@ -26,7 +30,7 @@ const NotFound = () => {
         />
 
         <div className="text-center md:mx-20">
-          <h1 className="text-academic-blue"> ERRO 404 </h1>
+          <h1 className={`text-${accentClass}`}> ERRO 404 </h1>
           <p className="prose-lg text-black font-semibold">
             Uau, está um deserto por aqui...
           </p>
@@ -35,9 +39,11 @@ const NotFound = () => {
           </p>
           <Button 
             asChild
-            variant="secondary" 
-            className="mt-4">
-            <Link to="/">Voltar para a página inicial</Link>
+            variant="primary" 
+            className={`mt-4 bg-${accentClass}`}>
+            <Link to={isAcademico ? "/academico" : "/"}>
+              Voltar para a página inicial
+            </Link>
           </Button>
         </div>
 
