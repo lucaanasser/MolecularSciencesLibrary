@@ -80,11 +80,17 @@
     padding-inline: var(--x-padding);
   }
 
+  .prose-xs { @apply text-sm md:text-base; }
   .prose-sm { @apply text-base md:text-lg; }
   .prose-md { @apply text-lg md:text-xl; }
   .prose-lg { @apply text-xl md:text-2xl lg:text-3xl; }
 
-  .link { @apply underline hover:text-academic-blue; }
+  .link {
+    @apply
+    underline
+    hover:no-underline
+    hover:text-academic-blue/80;
+  }
 }
 
 /* Removidas classes de botão duplicadas. Use variantes do componente Button para estilos de botão. */

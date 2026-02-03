@@ -1,11 +1,11 @@
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
-import MolecoogleWindow from "@/features/index/helpers/MolecoogleWindow";
+import MolecoogleWindow from "@/features/index/components/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";
-import { TextSection } from "@/features/index/sections/TextSection";
-import { StatsSection } from "@/features/index/sections/StatsSection";
-import type { StatsType } from "@/features/index/helpers/StatsGrid";
-import { FeatureSection } from "@/features/index/sections/FeaturesSection";
-import { HeroSection } from "@/features/index/sections/HeroSection";
+import { TextSection } from "@/features/index/features/TextSection";
+import { StatsSection } from "@/features/index/features/StatsSection";
+import type { StatsType } from "@/features/index/components/StatsGrid";
+import { FeatureSection } from "@/features/index/features/FeaturesSection";
+import { HeroSection } from "@/features/index/features/HeroSection";
 
 // Log de início de renderização da página inicial acadêmica
 console.log("🔵 [AcademicIndex] Renderizando página inicial acadêmica");

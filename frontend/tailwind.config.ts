@@ -9,6 +9,15 @@ export default {
     "./src/**/*.{ts,tsx}",
     "./src/index.css",
   ],
+  safelist: [
+    'border-cm-red', 'bg-cm-red',
+    'border-cm-orange', 'bg-cm-orange',
+    'border-cm-yellow', 'bg-cm-yellow',
+    'border-cm-green', 'bg-cm-green',
+    'border-cm-blue', 'bg-cm-blue',
+    'border-library-purple', 'bg-library-purple',
+    'border-academic-blue', 'bg-academic-blue',
+  ],
   prefix: "",
   theme: {
     container: {

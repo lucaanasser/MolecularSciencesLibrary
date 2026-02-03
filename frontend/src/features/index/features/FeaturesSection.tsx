@@ -1,4 +1,4 @@
-import { FeatureCard, FeatureCardType } from "../helpers/FeatureCard";
+import { FeatureCard, FeatureCardType } from "../components/FeatureCard";
 
 export function FeatureSection({
   title,

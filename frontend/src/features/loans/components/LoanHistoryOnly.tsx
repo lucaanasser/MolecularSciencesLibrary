@@ -1,5 +1,6 @@
 import { Book, Clock } from "lucide-react";
-import { useUserLoans } from "../hooks/useUserLoans";
+import { getLoanStatusProps } from "../utils/getLoanStatusProps.tsx";
+import { useGetUserLoans } from "../hooks/useGetUserLoans";
 import { Loan } from "../types/loan";
 
 interface LoanHistoryOnlyProps {
@@ -13,7 +14,7 @@ const formatDate = (dateString: string | null | undefined) => {
 };
 
 export default function LoanHistoryOnly({ userId }: LoanHistoryOnlyProps) {
-  const { loans, loading, error } = useUserLoans(userId);
+  const { loans, loading, error } = useGetUserLoans(userId);
 
   const returnedLoans = (loans || []).filter((loan: Loan) => !!loan.returned_at);
 
@@ -40,8 +41,8 @@ export default function LoanHistoryOnly({ userId }: LoanHistoryOnlyProps) {
             </div>
             <div className="min-w-0">
               <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 min-w-0">
-                <span className="text-md font-medium text-black truncate block max-w-[12rem]" title={loan.book_title || `Livro ID: ${loan.book_id}`}>{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
-                <span className="text-sm text-gray-500 truncate block max-w-[10rem] sm:before:content-[',_'] before:content-['']" title={loan.book_authors || "Autor desconhecido"}>{loan.book_authors || "Autor desconhecido"}</span>
+                <span className="text-md font-medium text-black truncate block max-w-[12rem]" title={loan.book.title || `Livro ID: ${loan.book_id}`}>{loan.book.title || `Livro ID: ${loan.book_id}`}</span>
+                <span className="text-sm text-gray-500 truncate block max-w-[10rem] sm:before:content-[',_'] before:content-['']" title={loan.book.authors || "Autor desconhecido"}>{loan.book.authors || "Autor desconhecido"}</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-1">
                 <span className="flex items-center text-sm text-gray-500">
@@ -58,11 +59,7 @@ export default function LoanHistoryOnly({ userId }: LoanHistoryOnlyProps) {
             </div>
           </div>
           <div className="text-center sm:text-right flex flex-col items-center sm:items-end min-w-[8rem]">
-            <span
-              className={`inline-block px-3 py-2 rounded-full text-sm font-medium bg-cm-green/20 text-cm-green`}
-            >
-              Devolvido
-            </span>
+            {getLoanStatusProps(loan)}
           </div>
         </div>
       ))}

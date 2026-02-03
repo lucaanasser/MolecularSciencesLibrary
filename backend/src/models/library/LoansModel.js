@@ -82,13 +82,16 @@ module.exports = {
     getLoansWithDetails: () => {
         console.log("🔵 [LoansModel] Buscando todos os empréstimos com detalhes");
         return allQuery(
-            `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
                     u.name as user_name, u.email as user_email,
-                    b.title as book_title, b.authors as book_authors
-             FROM loans l
-             LEFT JOIN users u ON l.student_id = u.id
-             LEFT JOIN books b ON l.book_id = b.id
-             ORDER BY l.borrowed_at DESC`,
+                    b.id as id, b.code as code, b.title as title, b.authors as authors, 
+                    b.area as area, b.subarea as subarea, b.edition as edition, 
+                    b.volume as volume, b.subtitle as subtitle, b.language as language, 
+                    b.is_reserved as is_reserved
+                 FROM loans l
+                 LEFT JOIN users u ON l.student_id = u.id
+                 LEFT JOIN books b ON l.book_id = b.id
+                 ORDER BY l.borrowed_at DESC`,
             []
         ).then((rows) => {
             console.log(`🟢 [LoansModel] Empréstimos encontrados: ${rows.length}`);
@@ -103,12 +106,15 @@ module.exports = {
     getLoansByUser: (user_id) => {
         console.log(`🔵 [LoansModel] Buscando empréstimos do usuário: ${user_id}`);
         return allQuery(
-            `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
-                    b.title as book_title, b.authors as book_authors
-             FROM loans l
-             LEFT JOIN books b ON l.book_id = b.id
-             WHERE l.student_id = ?
-             ORDER BY l.borrowed_at DESC`,
+                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at,
+                    b.id as id, b.code as code, b.title as title, b.authors as authors, 
+                    b.area as area, b.subarea as subarea, b.edition as edition, 
+                    b.volume as volume, b.subtitle as subtitle, b.language as language, 
+                    b.is_reserved as is_reserved
+                 FROM loans l
+                 LEFT JOIN books b ON l.book_id = b.id
+                 WHERE l.student_id = ?
+                 ORDER BY l.borrowed_at DESC`,
             [user_id]
         ).then((rows) => {
             // Corrige o tipo de returned_at para null se vier como string 'null'

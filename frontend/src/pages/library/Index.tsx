@@ -1,11 +1,11 @@
 import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTypewriterAreas } from "@/hooks/useTypewriterAreas";
-import { TextSection } from "@/features/index/sections/TextSection";
-import { StatsSection } from "@/features/index/sections/StatsSection";
-import { FeatureSection } from "@/features/index/sections/FeaturesSection";
-import { HeroSection } from "@/features/index/sections/HeroSection";
-import { LibraryHeroText } from "@/features/index/helpers/LibraryHeroText";
+import { TextSection } from "@/features/index/features/TextSection";
+import { StatsSection } from "@/features/index/features/StatsSection";
+import { FeatureSection } from "@/features/index/features/FeaturesSection";
+import { HeroSection } from "@/features/index/features/HeroSection";
+import { LibraryHeroText } from "@/features/index/components/LibraryHeroText";
 import { Button } from "@/components/ui/button";
 
 // Log de início de renderização da página inicial

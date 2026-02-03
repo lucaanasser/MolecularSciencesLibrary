@@ -6,6 +6,37 @@ const RulesService = require('../utilities/RulesService');
 const EmailService = require('../utilities/EmailService');
 
 /**
+ * Transforma os dados do empréstimo, agrupando campos do livro em um objeto aninhado
+ */
+function transformLoanData(loan) {
+    if (!loan) return loan;
+    
+    const book = {
+        id: loan.id,
+        code: loan.code,
+        title: loan.title,
+        authors: loan.authors,
+        area: loan.area,
+        subarea: loan.subarea,
+        edition: loan.edition,
+        volume: loan.volume,
+        subtitle: loan.subtitle,
+        language: loan.language,
+        is_reserved: loan.is_reserved
+    };
+    
+    // Remove campos do livro do objeto loan
+    const { id, code, title, authors, area, subarea, edition, volume, subtitle, language, is_reserved, ...loanData } = loan;
+    
+    // Adiciona o objeto book se houver dados válidos
+    if (book.id || book.title) {
+        loanData.book = book;
+    }
+    
+    return loanData;
+}
+
+/**
  * Service responsável pela lógica de negócio dos empréstimos de livros.
  * Padrão de logs:
  * 🔵 Início de operação
@@ -159,15 +190,16 @@ class LoansService {
     async listLoansByUser(userId) {
         console.log(`🔵 [LoansService] Listando empréstimos do usuário: userId=${userId}`);
         const loans = await LoansModel.getLoansByUser(userId);
-        console.log(`🟢 [LoansService] Empréstimos do usuário ${userId} encontrados: ${loans.length}`);
-        return loans;
+        const transformedLoans = loans.map(transformLoanData);
+        console.log(`🟢 [LoansService] Empréstimos do usuário ${userId} encontrados: ${transformedLoans.length}`);
+        return transformedLoans;
     }
 
     // Lista empréstimos ativos de um usuário específico
     async listActiveLoansByUser(userId) {
         console.log(`🔵 [LoansService] Listando empréstimos ativos do usuário: userId=${userId}`);
         const loans = await LoansModel.getLoansByUser(userId);
-        const activeLoans = loans.filter(l => !l.returned_at);
+        const activeLoans = loans.filter(l => !l.returned_at).map(transformLoanData);
         console.log(`🟢 [LoansService] Empréstimos ativos do usuário ${userId} encontrados: ${activeLoans.length}`);
         return activeLoans;
     }

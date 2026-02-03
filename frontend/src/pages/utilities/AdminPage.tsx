@@ -47,10 +47,10 @@ const AdminPage = () => {
       case "users": return "cm-orange";
       case "loans": return "cm-yellow";
       case "donators": return "cm-green";
-      case "reserve": return "purple-600";
-      case "notifications": return "cm-green";
-      case "reports": return "cm-blue";
-      case "settings": return "gray-700";
+      case "reserve": return "cm-blue";
+      case "notifications": return "library-purple";
+      case "reports": return "cm-red";
+      case "settings": return "cm-orange";
       default: return "library-purple";
     }
   };

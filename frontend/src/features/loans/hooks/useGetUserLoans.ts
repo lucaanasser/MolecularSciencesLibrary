@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loan } from "../types/loan"; // Assuming your Loan type is in this path
+import { Loan } from "../types/loan";
 
 /**
  * Hook para buscar histórico de empréstimos do usuário.
@@ -9,7 +9,7 @@ import { Loan } from "../types/loan"; // Assuming your Loan type is in this path
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
-export function useUserLoans(userId: number | undefined) {
+export function useGetUserLoans(userId: number | undefined) {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

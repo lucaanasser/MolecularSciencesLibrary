@@ -1,5 +1,5 @@
 import { Book, Clock } from "lucide-react";
-import { useUserLoans } from "../hooks/useUserLoans";
+import { useGetUserLoans } from "../hooks/useGetUserLoans";
 import { Loan } from "../types/loan";
 import { getLoanStatusProps } from "../utils/getLoanStatusProps";
 
@@ -18,7 +18,7 @@ interface LoanHistoryProps {
 // Usa o formatDate do LoanItem
 
 export default function LoanHistory({ userId }: LoanHistoryProps) {
-  const { loans, loading, error } = useUserLoans(userId);
+  const { loans, loading, error } = useGetUserLoans(userId);
 
   if (loading) {
     console.log("🔵 [LoanHistory] Carregando histórico de empréstimos...");
@@ -42,8 +42,6 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
   return (
     <div className="space-y-3">
       {loans.map((loan: Loan) => {
-        const overdue = loan.due_date ? new Date() > new Date(loan.due_date) : false;
-        const { statusText } = getLoanStatusProps(loan);
         return (
           <div
             key={loan.loan_id}
@@ -55,8 +53,8 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
               </div>
               <div>
                 <div className="flex flex-row flex-wrap items-center gap-x-1">
-                  <span className="text-md font-medium text-gray-900">{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
-                  <span className="text-sm text-gray-500">{loan.book_authors ? `, ${loan.book_authors}` : ", Autor desconhecido"}</span>
+                  <span className="text-md font-medium text-gray-900">{loan.book.title || `Livro ID: ${loan.book_id}`}</span>
+                  <span className="text-sm text-gray-500">{loan.book.authors ? `, ${loan.book.authors}` : ", Autor desconhecido"}</span>
                 </div>
                 <div className="flex flex-row gap-4 mt-1">
                   <span className="flex items-center text-sm text-gray-500">
@@ -77,17 +75,7 @@ export default function LoanHistory({ userId }: LoanHistoryProps) {
               </div>
             </div>
             <div className="text-right">
-              <span
-                className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                  loan.returned_at
-                    ? "bg-cm-green/20 text-cm-green"
-                    : overdue
-                    ? "bg-cm-yellow/20 text-cm-orange"
-                    : "bg-library-purple/10 text-library-purple"
-                }`}
-              >
-                {loan.returned_at ? "Devolvido" : overdue ? "Atrasado" : statusText}
-              </span>
+              {getLoanStatusProps(loan)}
             </div>
           </div>
         );

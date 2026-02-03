@@ -49,7 +49,7 @@ export const TabsCard: React.FC<TabsCardProps> = ({
               className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 transition-transform duration-200
                 ${isActive
                   ? `text-white border-b-4 border-${color} bg-${color}`
-                  : `text-gray-500 border-b-4 hover:text-${color}`}
+                  : `text-gray-500 border-b-4 border-${color} hover:text-${color}`}
               `}
               style={{ zIndex: isActive ? 1 : 0 }}
             >

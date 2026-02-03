@@ -1,10 +1,9 @@
 import { RotateCcw, Book, Clock } from "lucide-react";
-import { useUserLoans } from "../hooks/useUserLoans";
+import { useGetUserLoans } from "../hooks/useGetUserLoans";
 import { Loan } from "../types/loan";
 import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { LoanItem } from "./LoanItem";
-import { getLoanStatusProps } from "../utils/getLoanStatusProps";
+import { getLoanStatusProps } from "../utils/getLoanStatusProps.tsx";
 import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
 
 interface LoanActiveProps { userId: number | undefined; }
@@ -13,7 +12,7 @@ const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return "N/A"; const date = new Date(dateString); return date.toLocaleDateString("pt-BR"); };
 
 export default function LoanActive({ userId }: LoanActiveProps) {
-  const { loans, loading, error, refetch } = useUserLoans(userId);
+  const { loans, loading, error, refetch } = useGetUserLoans(userId);
   const { rules } = useLoanRules();
   const [renewLoading, setRenewLoading] = useState<number | null>(null);
   const [renewError, setRenewError] = useState<string>("");
@@ -41,7 +40,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       const prev = previousDueDatesRef.current[l.loan_id];
       if (prev && l.due_date && new Date(l.due_date) < new Date(prev) && l.is_extended === 1) {
         setDialogTitle("Prazo reduzido");
-        setDialogDescription(`Seu prazo do livro '${l.book_title}' foi reduzido após uma cutucada. Nova data: ${formatDate(l.due_date)}`);
+        setDialogDescription(`Seu prazo do livro '${l.book.title}' foi reduzido após uma cutucada. Nova data: ${formatDate(l.due_date)}`);
         setDialogOpen(true);
       }
       if (l.due_date) previousDueDatesRef.current[l.loan_id] = l.due_date;
@@ -60,7 +59,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       const res = await fetch(`/api/loans/${loan.loan_id}/preview-renew`, { method: "POST", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), }, body: JSON.stringify({ user_id: loan.student_id }), });
       const data = await res.json();
       if (!res.ok) { setDialogTitle("Limite de renovações atingido"); setDialogDescription(data.error || "Você não pode mais renovar este empréstimo."); setDialogOpen(true); throw new Error(data.error || "Erro ao renovar empréstimo"); }
-      setDialogTitle("Confirmação de renovação"); setDialogDescription(`Você está renovando o livro '${loan.book_title}' para a nova data: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}. Confirmar?`); setDialogOpen(true); setPendingRenew({ loan, due_date: data.due_date });
+      setDialogTitle("Confirmação de renovação"); setDialogDescription(`Você está renovando o livro '${loan.book.title}' para a nova data: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}. Confirmar?`); setDialogOpen(true); setPendingRenew({ loan, due_date: data.due_date });
     } catch (err: any) { setRenewError(err.message || "Erro ao renovar empréstimo"); } finally { setRenewLoading(null); }
   }
 
@@ -71,7 +70,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       const res = await fetch(`/api/loans/${pendingRenew.loan.loan_id}/renew`, { method: "PUT", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), }, body: JSON.stringify({ user_id: pendingRenew.loan.student_id }), });
       const data = await res.json();
       if (!res.ok) { setDialogTitle("Limite de renovações atingido"); setDialogDescription(data.error || "Você não pode mais renovar este empréstimo."); setDialogOpen(true); throw new Error(data.error || "Erro ao renovar empréstimo"); }
-      setDialogTitle("Renovação realizada"); setDialogDescription(`Você renovou o livro '${pendingRenew.loan.book_title}'. Nova data: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}`); setDialogOpen(true); setRenewSuccess("Empréstimo renovado com sucesso!"); refetch && refetch();
+      setDialogTitle("Renovação realizada"); setDialogDescription(`Você renovou o livro '${pendingRenew.loan.book.title}'. Nova data: ${data.due_date ? formatDate(data.due_date) : "(desconhecida)"}`); setDialogOpen(true); setRenewSuccess("Empréstimo renovado com sucesso!"); refetch && refetch();
     } catch (err: any) { setRenewError(err.message || "Erro ao renovar empréstimo"); } finally { setRenewLoading(null); setPendingRenew(null); }
   }
 
@@ -124,7 +123,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
       <div className="flex flex-col gap-4">
         {activeLoans.map((loan) => {
           const overdue = isOverdue(loan);
-          const { statusText } = getLoanStatusProps(loan);
+          const statusBadge = getLoanStatusProps(loan);
           const reachedMaxRenewals = rules ? (loan.renewals ?? 0) >= rules.max_renewals : false;
           // Bloqueia renovação/extensão se houver qualquer empréstimo atrasado
           const showRenew = !hasOverdueLoans && !overdue && (loan.is_extended !== 1) && !reachedMaxRenewals;
@@ -140,8 +139,8 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 min-w-0">
-                    <span className="text-md font-medium text-black truncate block max-w-[12rem]" title={loan.book_title || `Livro ID: ${loan.book_id}`}>{loan.book_title || `Livro ID: ${loan.book_id}`}</span>
-                    <span className="text-sm text-gray-500 truncate block max-w-[10rem] sm:before:content-[',_'] before:content-['']" title={loan.book_authors || "Autor desconhecido"}>{loan.book_authors || "Autor desconhecido"}</span>
+                    <span className="text-md font-medium text-black truncate block max-w-[12rem]" title={loan.book.title || `Livro ID: ${loan.book_id}`}>{loan.book.title || `Livro ID: ${loan.book_id}`}</span>
+                    <span className="text-sm text-gray-500 truncate block max-w-[10rem] sm:before:content-[',_'] before:content-['']" title={loan.book.authors || "Autor desconhecido"}>{loan.book.authors || "Autor desconhecido"}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-1">
                     <span className="flex items-center text-sm text-gray-500">
@@ -156,17 +155,7 @@ export default function LoanActive({ userId }: LoanActiveProps) {
                 </div>
               </div>
               <div className="text-center sm:text-right flex flex-col items-center sm:items-end min-w-[8rem]">
-                <span
-                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    loan.returned_at
-                      ? "bg-cm-green/20 text-cm-green"
-                      : overdue
-                      ? "bg-cm-red/20 text-cm-red"
-                      : "bg-cm-yellow/20 text-cm-orange"
-                  }`}
-                >
-                  {loan.returned_at ? "Devolvido" : overdue ? "Atrasado" : statusText}
-                </span>
+                {statusBadge}
                 {/* Botões de ação */}
                 <div className="flex flex-col gap-1 items-center sm:items-end w-full mt-2">
                   {showRenew && (

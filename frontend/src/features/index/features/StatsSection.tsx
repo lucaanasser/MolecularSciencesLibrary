@@ -1,4 +1,4 @@
-import { StatsGrid, StatsType } from "../helpers/StatsGrid";
+import { StatsGrid, StatsType } from "../components/StatsGrid";
 
 export function StatsSection({
   stats,
