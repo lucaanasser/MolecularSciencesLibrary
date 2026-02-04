@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 
 import { GraduationCap, Briefcase, BookMarked, Globe } from "lucide-react";
 import ProfileService from "@/services/ProfileService";
-import { useUserProfile } from "@/features/users/hooks/useUserProfile";
+import { useUserProfile } from "@/features/publicProfile/hooks/useUserProfile";
 import { usePublicProfile } from "@/features/publicProfile/hooks/usePublicProfile";
 import { useProfileEdit } from "@/features/publicProfile/hooks/useProfileEdit";
 import { ProfileHeader } from "@/features/publicProfile/components/ProfileHeader";

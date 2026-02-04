@@ -1,4 +1,4 @@
-import { useUserList } from "@/features/users/hooks/useUserList";
+import { useUserList } from "@/features/admin/features/users/hooks/useUserList";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -23,8 +23,8 @@ const UserList: React.FC<TabComponentProps> = ({ onBack }) => {
   });
 
   const columns: Column<any>[] = [
+    { label: "NUSP", accessor: "NUSP", className: "font-mono" },
     { label: "Nome", accessor: "name" },
-    { label: "NUSP", accessor: "NUSP" },
     { label: "Email", accessor: "email" },
     { label: "Tipo", accessor: (row) => <span className="capitalize">{row.role}</span> },
   ];

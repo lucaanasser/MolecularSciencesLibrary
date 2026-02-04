@@ -7,12 +7,14 @@
 
 const booksModel = require('../../models/library/BooksModel');
 const DonatorsModel = require('../../models/library/DonatorsModel');
-const bwipjs = require('bwip-js');
-const { PDFDocument, rgb } = require('pdf-lib');
 const RulesService = require('../utilities/RulesService');
 
-// Mapeamento de códigos de área (ex: Física -> FIS)
-const areaCodes = {
+// ==================== MAPEAMENTOS ====================
+// A DB armazena: area = "FIS", subarea = 1
+// O Frontend usa: area = "Física", subarea = "Física Geral"
+
+// Nome amigável -> Código da DB
+const areaNameToCode = {
     "Física": "FIS",
     "Química": "QUI",
     "Biologia": "BIO",
@@ -21,9 +23,14 @@ const areaCodes = {
     "Variados": "VAR"
 };
 
-// Mapeamento de códigos de subárea para cada área
-const subareaCodes = {
-    "Física": { 
+// Código da DB -> Nome amigável
+const areaCodeToName = Object.fromEntries(
+    Object.entries(areaNameToCode).map(([name, code]) => [code, name])
+);
+
+// Subáreas por área (nome amigável -> número da DB)
+const subareaNameToCode = {
+    "FIS": { 
         "Física Geral": 1, 
         "Mecânica": 2, 
         "Termodinâmica": 3,
@@ -32,14 +39,14 @@ const subareaCodes = {
         "Física Matemática": 6, 
         "Astronomia e Astrofísica": 7,
     },
-    "Química": { 
+    "QUI": { 
         "Química Geral": 1, 
         "Fisico-Química": 2, 
         "Química Inorgânica": 3,
         "Química Orgânica": 4,
         "Química Experimental": 5, 
     },
-    "Biologia": { 
+    "BIO": { 
         "Bioquímica": 1, 
         "Biologia Molecular e Celular": 2, 
         "Genética e Evolução": 3,
@@ -48,7 +55,7 @@ const subareaCodes = {
         "Ecologia": 6,
         "Botânica": 7,
     },
-    "Matemática": { 
+    "MAT": { 
         "Cálculo": 1,
         "Geometria Analítica": 2,
         "Álgebra Linear": 3,
@@ -57,7 +64,7 @@ const subareaCodes = {
         "Topologia e Geometria": 6,
         "Lógica e Fundamentos": 7
     },
-    "Computação": { 
+    "CMP": { 
         "Fundamentos de Computação": 1,
         "Algorítmos e Estruturas de Dados": 2,
         "Análise Numérica": 3,
@@ -66,7 +73,7 @@ const subareaCodes = {
         "Programação": 6,
         "Sistemas e Redes": 7
     },
-    "Variados": { 
+    "VAR": { 
         "Divulgação Científica": 1,
         "Filosofia e História da Ciência": 2,
         "Handbooks e Manuais": 3,
@@ -74,6 +81,102 @@ const subareaCodes = {
         "Miscelânea": 5, 
     }
 };
+
+// Gera mapeamento inverso: número -> nome por área
+const subareaCodeToName = {};
+for (const [areaCode, subareas] of Object.entries(subareaNameToCode)) {
+    subareaCodeToName[areaCode] = Object.fromEntries(
+        Object.entries(subareas).map(([name, code]) => [code, name])
+    );
+}
+
+// ==================== FUNÇÕES DE CONVERSÃO ====================
+
+/**
+ * Converte nome amigável da área para código da DB
+ * @param {string} areaName - Nome amigável (ex: "Física")
+ * @returns {string} Código da DB (ex: "FIS") ou o próprio valor se já for código
+ */
+function toAreaCode(areaName) {
+    if (!areaName) return null;
+    // Se já é um código válido, retorna ele mesmo
+    if (areaCodeToName[areaName]) return areaName;
+    // Senão, converte nome -> código
+    return areaNameToCode[areaName] || areaName;
+}
+
+/**
+ * Converte código da área da DB para nome amigável
+ * @param {string} areaCode - Código da DB (ex: "FIS")
+ * @returns {string} Nome amigável (ex: "Física") ou o próprio valor se já for nome
+ */
+function toAreaName(areaCode) {
+    if (!areaCode) return null;
+    // Se já é um nome válido, retorna ele mesmo
+    if (areaNameToCode[areaCode]) return areaCode;
+    // Senão, converte código -> nome
+    return areaCodeToName[areaCode] || areaCode;
+}
+
+/**
+ * Converte nome da subárea para código numérico
+ * @param {string} areaCode - Código da área (ex: "FIS")
+ * @param {string|number} subareaName - Nome ou número da subárea
+ * @returns {number|null} Código numérico da subárea
+ */
+function toSubareaCode(areaCode, subareaName) {
+    if (subareaName === null || subareaName === undefined) return null;
+    // Se já é número, retorna como número
+    if (typeof subareaName === 'number') return subareaName;
+    const num = parseInt(subareaName, 10);
+    if (!isNaN(num)) return num;
+    // Senão, converte nome -> código
+    const resolvedAreaCode = toAreaCode(areaCode);
+    return subareaNameToCode[resolvedAreaCode]?.[subareaName] || null;
+}
+
+/**
+ * Converte código numérico da subárea para nome amigável
+ * @param {string} areaCode - Código da área (ex: "FIS")
+ * @param {number} subareaCode - Código numérico da subárea
+ * @returns {string|null} Nome amigável da subárea
+ */
+function toSubareaName(areaCode, subareaCode) {
+    if (subareaCode === null || subareaCode === undefined) return null;
+    const resolvedAreaCode = toAreaCode(areaCode);
+    return subareaCodeToName[resolvedAreaCode]?.[subareaCode] || String(subareaCode);
+}
+
+/**
+ * Converte um livro da DB para formato do frontend (com nomes amigáveis)
+ * @param {Object} book - Livro com dados da DB
+ * @returns {Object} Livro com nomes amigáveis
+ */
+function bookToFrontend(book) {
+    if (!book) return null;
+    return {
+        ...book,
+        areaCode: book.area, // mantém código original
+        subareaCode: book.subarea, // mantém código original
+        area: toAreaName(book.area),
+        subarea: toSubareaName(book.area, book.subarea)
+    };
+}
+
+/**
+ * Converte dados do frontend para formato da DB (com códigos)
+ * @param {Object} data - Dados com nomes amigáveis
+ * @returns {Object} Dados com códigos da DB
+ */
+function frontendToDB(data) {
+    if (!data) return null;
+    const areaCode = toAreaCode(data.area);
+    return {
+        ...data,
+        area: areaCode,
+        subarea: toSubareaCode(areaCode, data.subarea)
+    };
+}
 
 // Função para calcular o dígito verificador EAN-13
 function ean13Checksum(number12) {
@@ -119,14 +222,16 @@ class BooksService {
             
             const books = await booksModel.searchBooks(query, limit);
             
-            // Retorna apenas informações essenciais para autocomplete
+            // Retorna informações essenciais com nomes amigáveis para o frontend
             const results = books.map(book => ({
                 id: book.id,
                 code: book.code,
                 title: book.title,
                 authors: book.authors,
-                area: book.area,
-                subarea: book.subarea
+                areaCode: book.area,
+                subareaCode: book.subarea,
+                area: toAreaName(book.area),
+                subarea: toSubareaName(book.area, book.subarea)
             }));
             
             console.log(`🟢 [BooksService] ${results.length} resultados de autocomplete`);
@@ -146,12 +251,13 @@ class BooksService {
         try {
             console.log(`🔵 [BooksService] Contando livros com filtros:`, filters);
             
-            const category = filters.category || null;
-            const subcategory = filters.subcategory || null;
+            // Converte filtros do frontend para códigos da DB
+            const areaCode = toAreaCode(filters.category);
+            const subareaCode = toSubareaCode(areaCode, filters.subcategory);
             const searchTerm = filters.q || filters.search || null;
             const onlyReserved = filters.reserved === 'true' ? true : (filters.reserved === 'false' ? false : null);
             
-            const count = await booksModel.countBooks(category, subcategory, searchTerm, onlyReserved);
+            const count = await booksModel.countBooks(areaCode, subareaCode, searchTerm, onlyReserved);
             
             console.log(`🟢 [BooksService] Total: ${count} livros`);
             return count;
@@ -163,8 +269,10 @@ class BooksService {
 
     async generateBookCode({ area, subarea, addType, selectedBook, volume }) {
         console.log(`🔵 [BooksService] Gerando código para livro: area=${area}, subarea=${subarea}, addType=${addType}, volume=${volume}`);
-        const areaCode = areaCodes[area] || "XXX";
-        const subareaCode = String(subarea).padStart(2, "0");
+        // Converte para códigos da DB
+        const areaCode = toAreaCode(area) || "XXX";
+        const subareaNum = toSubareaCode(areaCode, subarea);
+        const subareaCode = String(subareaNum || subarea).padStart(2, "0");
 
         // NOVO EXEMPLAR: retorna o mesmo código do livro base
         if (addType === "exemplar" && selectedBook && selectedBook.code) {
@@ -220,7 +328,9 @@ class BooksService {
                 code: providedCode
             } = bookData;
 
-            const subareaInt = parseInt(subarea, 10);
+            // Converte área e subárea do frontend para códigos da DB
+            const areaCode = toAreaCode(area);
+            const subareaNum = toSubareaCode(areaCode, subarea);
             
             // Se o código foi fornecido (ex: importação CSV), usa ele
             // Caso contrário, gera automaticamente
@@ -239,8 +349,8 @@ class BooksService {
 
             const bookToInsert = {
                 id,
-                area,
-                subarea: subareaInt,
+                area: areaCode,
+                subarea: subareaNum,
                 authors,
                 edition,
                 language,
@@ -264,9 +374,10 @@ class BooksService {
     async getBooks(filters) {
         try {
             console.log(`[BooksService] Buscando livros:`, filters);
-            // Extrai filtros principais
-            const category = filters.category || null;
-            const subcategory = filters.subcategory || null;
+            
+            // Converte filtros do frontend para códigos da DB
+            const areaCode = toAreaCode(filters.category);
+            const subareaCode = toSubareaCode(areaCode, filters.subcategory);
             const searchTerm = filters.q || filters.search || null;
             const onlyReserved = filters.reserved === 'true' ? true : (filters.reserved === 'false' ? false : null);
             
@@ -275,7 +386,7 @@ class BooksService {
             const offset = filters.offset ? parseInt(filters.offset) : 0;
             
             // Busca livros do banco (com paginação se limit for fornecido)
-            const books = await booksModel.getBooks(category, subcategory, searchTerm, onlyReserved, limit, offset);
+            const books = await booksModel.getBooks(areaCode, subareaCode, searchTerm, onlyReserved, limit, offset);
             const borrowed = await booksModel.getBorrowedBooks();
             const rules = await RulesService.getRules();
             const windowDays = rules?.extension_window_days ?? 3;
@@ -303,6 +414,11 @@ class BooksService {
                 }
                 return {
                     ...book,
+                    // Converte área e subárea para nomes amigáveis no frontend
+                    areaCode: book.area,
+                    subareaCode: book.subarea,
+                    area: toAreaName(book.area),
+                    subarea: toSubareaName(book.area, book.subarea),
                     available: !loan,
                     overdue,
                     status,
@@ -334,16 +450,28 @@ class BooksService {
             console.log(`🔵 [BooksService] Buscando livro por id: ${id}`);
             const book = await booksModel.getBookById(id);
             
-            // Se o livro existe, buscar informações do doador
-            if (book) {
-                const donator = await DonatorsModel.getDonatorByBookId(id);
-                if (donator) {
-                    book.donator_name = donator.name;
-                }
+            if (!book) {
+                console.log(`🟡 [BooksService] Livro não encontrado: ${id}`);
+                return null;
             }
             
-            console.log(`🟢 [BooksService] Livro encontrado: ${book ? book.title : 'não encontrado'}`);
-            return book;
+            // Buscar informações do doador
+            const donator = await DonatorsModel.getDonatorByBookId(id);
+            if (donator) {
+                book.donator_name = donator.name;
+            }
+            
+            // Converte para formato do frontend
+            const result = {
+                ...book,
+                areaCode: book.area,
+                subareaCode: book.subarea,
+                area: toAreaName(book.area),
+                subarea: toSubareaName(book.area, book.subarea)
+            };
+            
+            console.log(`🟢 [BooksService] Livro encontrado: ${result.title}`);
+            return result;
         } catch (error) {
             console.error(`🔴 [BooksService] Erro ao buscar livro por id: ${error.message}`);
             throw error;
@@ -399,9 +527,32 @@ class BooksService {
 
     getCategoryMappings() {
         console.log("🔵 [BooksService] Obtendo mapeamentos de categorias e subcategorias");
+        
+        // Formato para o frontend: usa nomes amigáveis
+        // areas: { "Física": "Física", ... } - chave = valor para facilitar uso no Select
+        // subareas: { "Física": { "Física Geral": "Física Geral", ... } }
+        const areas = {};
+        const subareas = {};
+        
+        for (const [areaName, areaCode] of Object.entries(areaNameToCode)) {
+            areas[areaName] = areaName;
+            
+            // Converte subáreas para formato nome: nome
+            subareas[areaName] = {};
+            const areaSubareas = subareaNameToCode[areaCode] || {};
+            for (const subareaName of Object.keys(areaSubareas)) {
+                subareas[areaName][subareaName] = subareaName;
+            }
+        }
+        
         const mappings = {
-            areaCodes,
-            subareaCodes
+            areas,
+            subareas,
+            // Mantém mapeamentos internos para compatibilidade
+            areaNameToCode,
+            areaCodeToName,
+            subareaNameToCode,
+            subareaCodeToName
         };
         console.log("🟢 [BooksService] Mapeamentos obtidos");
         return mappings;

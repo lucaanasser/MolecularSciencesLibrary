@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
-import { useRemoveUser } from "@/features/users/hooks/useRemoveUser";
-import { User } from "@/features/users/types/user";
+import { useRemoveUser } from "@/features/admin/features/users/hooks/useRemoveUser";
+import { User } from "@/types/user";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 /**

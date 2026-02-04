@@ -1,7 +1,7 @@
 import { Notification } from "../types/notification";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useUserList } from "@/features/users/hooks/useUserList";
+import { useUserList } from "@/features/admin/features/users/hooks/useUserList";
 
 type Props = {
   notifications: Notification[];

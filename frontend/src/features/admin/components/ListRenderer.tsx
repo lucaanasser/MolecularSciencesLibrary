@@ -18,6 +18,7 @@ interface AdminListContainerProps<T = any> {
   footer?: ReactNode;
   onBack?: () => void;
   exportCSV?: () => void;
+  maxHeight?: string | number; // nova prop para altura máxima
 }
 
 /*
@@ -33,6 +34,7 @@ function AdminListContainer<T = any>({
   footer,
   onBack = () => window.history.back(),
   exportCSV,
+  maxHeight = "36vh",
 } : AdminListContainerProps<T>) {
   return (
     <>
@@ -44,7 +46,10 @@ function AdminListContainer<T = any>({
         <p>{emptyMessage}</p>
       ) : (
         <>
-        <div className="overflow-x-auto rounded-t-xl border border-gray-200">
+        <div
+          className="overflow-x-auto rounded-t-xl border border-gray-200"
+          style={{ maxHeight, overflowY: "auto" }}
+        >
           <table className="w-full text-left">
             <thead className="sticky top-0 z-10 bg-gray-100">
               <tr>

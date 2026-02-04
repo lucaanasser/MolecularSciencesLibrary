@@ -51,7 +51,7 @@ const DonatorsList: React.FC<TabComponentProps> = ({ onBack }) => {
     {
       label: "ID",
       accessor: "id",
-      className: "font-mono text-sm",
+      className: "font-mono",
     },
     {
       label: "Nome",
@@ -99,8 +99,8 @@ const DonatorsList: React.FC<TabComponentProps> = ({ onBack }) => {
   return (
     <>
         <p>Esses são os doadores cadastrados no sistema:</p>
-        <div className="mb-4 flex flex-col gap-2">
-          <div className="flex gap-2 mb-2">
+        <div className="flex flex-col gap-2 mb-4">
+          <div className="flex gap-2">
             <Input
               placeholder="Buscar por ID, nome, NUSP, contato..."
               value={searchTerm}
@@ -137,7 +137,7 @@ const DonatorsList: React.FC<TabComponentProps> = ({ onBack }) => {
           loading={loading}
           error={error}
           emptyMessage="Nenhum doador encontrado"
-          footer={<span className="text-sm text-gray-600">Total: {filteredDonators.length} de {donators.length} doador{donators.length !== 1 ? 'es' : ''}</span>}
+          footer={<span>Total: {filteredDonators.length} de {donators.length} doador{donators.length !== 1 ? 'es' : ''}</span>}
           onBack={onBack}
           exportCSV={exportCSV}
         />

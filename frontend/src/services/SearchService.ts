@@ -50,6 +50,8 @@ export {
 
 // ================ TIPOS PARA LIVROS ================
 
+import { Book } from "@/types/book";
+
 export interface BookSearchResult {
   id: number;
   code: string;
@@ -57,28 +59,6 @@ export interface BookSearchResult {
   authors: string;
   area: string;
   subarea: number;
-}
-
-export interface Book {
-  id: number;
-  code: string;
-  title: string;
-  subtitle?: string;
-  authors: string;
-  edition?: string;
-  language: string;
-  area: string;
-  subarea: number;
-  volume?: number;
-  is_reserved: number;
-  available: boolean;
-  overdue: boolean;
-  status: string;
-  student_id?: number;
-  loan_id?: number;
-  due_in_window?: boolean;
-  is_extended?: boolean;
-  due_date?: string;
 }
 
 export interface BookFilters {
@@ -204,8 +184,15 @@ export async function countBooks(filters: BookFilters = {}): Promise<number> {
 /**
  * Obtém opções de categorias e subcategorias de livros
  * GET /api/books/options
+ * 
+ * O backend retorna nomes amigáveis para exibição no frontend:
+ * - areas: { "Física": "Física", ... }
+ * - subareas: { "Física": { "Mecânica": "Mecânica", ... } }
  */
-export async function getBookOptions(): Promise<{ areaCodes: Record<string, string>; subareaCodes: Record<string, Record<string, number>> }> {
+export async function getBookOptions(): Promise<{ 
+  areas: Record<string, string>;
+  subareas: Record<string, Record<string, string>>;
+}> {
   console.log(`🔵 [SearchService] Buscando opções de categorias`);
   
   const response = await fetch("/api/books/options");

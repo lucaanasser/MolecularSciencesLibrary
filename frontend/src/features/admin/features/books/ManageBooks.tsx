@@ -1,8 +1,8 @@
 import AdminTabRenderer, { AdminAction, TabComponent } from "@/features/admin/components/AdminTabRenderer";
 import AddBookForm from "@/features/admin/features/books/features/AddBookWizard";
 import RemoveBookForm from "@/features/admin/features/books/features/RemoveBookWizard";
-import BooksList from "@/features/admin/features/books/features/BooksList";
-import ImportBooksCSV from "@/features/admin/features/books/features/ImportBooksCSV";
+import BooksList from "@/features/admin/features/books/BooksList";
+import ImportBooks from "@/features/admin/features/books/ImportBooks";
 
 const ManageBooks = () => {
   const actions: AdminAction[] = [
@@ -15,7 +15,7 @@ const ManageBooks = () => {
   const tabComponents: TabComponent[] = [
     { id: "add", component: (props) => <AddBookForm onCancel={props.onBack} onSuccess={props.onSuccess} onError={props.onError} /> },
     { id: "remove", component: (props) => <RemoveBookForm onCancel={props.onBack} onSuccess={props.onSuccess} onError={props.onError} /> },
-    { id: "import", component: (props) => <ImportBooksCSV onCancel={props.onBack} onSuccess={props.onSuccess} onError={props.onError} /> },
+    { id: "import", component: (props) => <ImportBooks {...props} /> },
     { id: "list", component: (props) => <BooksList onClose={props.onBack} /> },
   ];
 

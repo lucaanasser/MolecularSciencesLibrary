@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUserProfile } from "@/features/users/hooks/useUserProfile";
+import { useUserProfile } from "@/features/publicProfile/hooks/useUserProfile";
 import { ProfileHeader, ProfileImageSelector } from "@/features/personalProfile/features/ProfileHeader";
 import { ProfileStatsSidebar } from "@/features/personalProfile/features/ProfileStatsSidebar";
 import { ProfileTabsCard } from "@/features/personalProfile/features/ProfileTabsCard";

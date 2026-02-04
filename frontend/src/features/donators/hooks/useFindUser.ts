@@ -1,5 +1,5 @@
-import { useUserList } from "../../users/hooks/useUserList";
-import { User } from "../../users/types/user";
+import { useUserList } from "../../admin/features/users/hooks/useUserList";
+import { User } from "../../../types/user";
 
 /**
  * Hook para buscar usuário por NUSP, email ou nome.

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUserList } from "@/features/users/hooks/useUserList";
+import { useUserList } from "@/features/admin/features/users/hooks/useUserList";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 

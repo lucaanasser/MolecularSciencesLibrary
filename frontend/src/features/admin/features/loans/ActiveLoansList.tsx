@@ -144,7 +144,6 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
           <span> {filteredLoans.length} empréstimos exibidos </span>
         }
         onBack={onBack}
-        exportCSV={exportCSV}
       />
     </>
   );

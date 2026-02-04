@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAddUser } from "@/features/users/hooks/useCreateUser";
+import { useAddUser } from "@/features/admin/features/users/hooks/useCreateUser";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";

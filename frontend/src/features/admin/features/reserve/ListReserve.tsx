@@ -16,11 +16,10 @@ interface Book {
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 const columns: Column<Book>[] = [
-  { label: "Código", accessor: "code" },
+  { label: "Código", accessor: "code", className: "font-mono" },
   { label: "Título", accessor: "title" },
   { label: "Autores", accessor: "authors" },
   { label: "Área", accessor: "area" },
-  { label: "Subárea", accessor: "subarea" },
 ];
 
 const ListReserve: React.FC<TabComponentProps> = ({ onBack }) => {

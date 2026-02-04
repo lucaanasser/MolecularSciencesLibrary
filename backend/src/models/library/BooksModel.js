@@ -64,9 +64,9 @@ class BooksModel {
             conditions.push(`area = ?`);
             params.push(category);
         }
-        if (subcategory) {
+        if (subcategory !== null && subcategory !== undefined) {
             conditions.push(`subarea = ?`);
-            params.push(parseInt(subcategory, 10));
+            params.push(typeof subcategory === 'number' ? subcategory : parseInt(subcategory, 10));
         }
         if (searchTerm) {
             conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE)`);
@@ -101,9 +101,9 @@ class BooksModel {
             conditions.push(`area = ?`);
             params.push(category);
         }
-        if (subcategory) {
+        if (subcategory !== null && subcategory !== undefined) {
             conditions.push(`subarea = ?`);
-            params.push(parseInt(subcategory, 10));
+            params.push(typeof subcategory === 'number' ? subcategory : parseInt(subcategory, 10));
         }
         if (searchTerm) {
             conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE)`);

@@ -7,24 +7,27 @@
  * 🔴 Erro
  */
 export interface Book {
-  id: string;
+  id: number;
   code: string;
   title: string;
-  authors?: string;
-  edition?: string;
-  volume?: string;
   subtitle?: string;
-  language?: string;
-  exemplar?: number; 
-  area: string;        
-  subarea: string | number;
+  authors: string;
+  edition?: string;
+  language: string;
+  area: string;
+  subarea: number;
+  volume?: number;
+  exemplar?: number;
+  is_reserved: number;
   available: boolean;
-  is_reserved?: number;
-  status?: string;
-  overdue?: boolean;
-  student_id?: string;
+  overdue: boolean;
+  status: string;
+  student_id?: number;
+  loan_id?: number;
+  due_in_window?: boolean;
+  is_extended?: boolean;
+  due_date?: string;
 }
-
 
 export interface BookFormData {
   title: string;

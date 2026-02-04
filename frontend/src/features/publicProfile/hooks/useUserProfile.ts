@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { User } from "@/features/users/types/user";
+import { User } from "@/types/user";
 
 /**
  * Hook para buscar perfil do usuário autenticado.
