@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 
 
 import { useParams, Link, useNavigate } from "react-router-dom";
@@ -55,7 +56,7 @@ const QuestionDetailPage: React.FC = () => {
         const data = await ForumService.getQuestionById(Number(id));
         setQuestion(data);
       } catch (err: any) {
-        console.error("Erro ao carregar pergunta:", err);
+        logger.error("Erro ao carregar pergunta:", err);
         setError(err.message || "Erro ao carregar pergunta");
       } finally {
         setLoading(false);
@@ -86,7 +87,7 @@ const QuestionDetailPage: React.FC = () => {
         toast.success("Voto registrado!");
       }
     } catch (err: any) {
-      console.error("Erro ao votar:", err);
+      logger.error("Erro ao votar:", err);
       toast.error(err.message || "Erro ao registrar voto");
     }
   };
@@ -113,7 +114,7 @@ const QuestionDetailPage: React.FC = () => {
       const data = await ForumService.getQuestionById(Number(id));
       setQuestion(data);
     } catch (err: any) {
-      console.error("Erro ao enviar resposta:", err);
+      logger.error("Erro ao enviar resposta:", err);
       toast.error(err.message || "Erro ao enviar resposta");
     } finally {
       setSubmitting(false);
@@ -134,7 +135,7 @@ const QuestionDetailPage: React.FC = () => {
       const data = await ForumService.getQuestionById(Number(id));
       setQuestion(data);
     } catch (err: any) {
-      console.error("Erro ao aceitar resposta:", err);
+      logger.error("Erro ao aceitar resposta:", err);
       toast.error(err.message || "Erro ao aceitar resposta");
     }
   };

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from "@/utils/logger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, BookMarked, BookX, Users, UserCheck, TrendingUp, Clock, BarChart3 } from "lucide-react";
 import {
@@ -54,7 +55,7 @@ export default function TransparencyPortalPage() {
       if (usersRes.ok) setUsersData(await usersRes.json());
       if (booksRes.ok) setBooksData(await booksRes.json());
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      logger.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }

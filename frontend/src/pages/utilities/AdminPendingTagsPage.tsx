@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 import { useNavigate } from "react-router-dom";
 import { Tag, CheckCircle, XCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
@@ -31,7 +32,7 @@ const AdminPendingTagsPage: React.FC = () => {
       const tags = await ForumService.getPendingTags();
       setPendingTags(tags);
     } catch (error) {
-      console.error("Erro ao buscar tags pendentes:", error);
+      logger.error("Erro ao buscar tags pendentes:", error);
       toast.error("Erro ao carregar tags pendentes");
     } finally {
       setIsLoading(false);
@@ -45,7 +46,7 @@ const AdminPendingTagsPage: React.FC = () => {
       toast.success(`Tag "${tagName}" aprovada com sucesso!`);
       setPendingTags(pendingTags.filter(tag => tag.id !== tagId));
     } catch (error: any) {
-      console.error("Erro ao aprovar tag:", error);
+      logger.error("Erro ao aprovar tag:", error);
       toast.error(error.message || "Erro ao aprovar tag");
     } finally {
       setProcessingTagId(null);
@@ -63,7 +64,7 @@ const AdminPendingTagsPage: React.FC = () => {
       toast.success(`Tag "${tagName}" deletada com sucesso!`);
       setPendingTags(pendingTags.filter(tag => tag.id !== tagId));
     } catch (error: any) {
-      console.error("Erro ao deletar tag:", error);
+      logger.error("Erro ao deletar tag:", error);
       toast.error(error.message || "Erro ao deletar tag");
     } finally {
       setProcessingTagId(null);

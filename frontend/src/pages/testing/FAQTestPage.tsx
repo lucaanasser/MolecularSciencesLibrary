@@ -1,4 +1,5 @@
 import FAQPage from "@/features/faq/FAQPage";
+import { logger } from "@/utils/logger";
 
 const faqs = [
   {

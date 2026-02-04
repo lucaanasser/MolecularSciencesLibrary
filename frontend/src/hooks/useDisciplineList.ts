@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { DisciplineWithClasses } from '@/utils/combinationsGenerator';
+import { logger } from '@/utils/logger';
 
 /**
  * Interface para o estado de uma disciplina na lista
@@ -29,7 +30,7 @@ export function useDisciplineList(
 
   // Adiciona disciplina à lista
   const handleAddDiscipline = useCallback(async (discipline: DisciplineWithClasses) => {
-    console.log(`🔵 [useDisciplineList] Tentando adicionar disciplina ${discipline.codigo} (ID: ${discipline.id})`);
+    logger.info(`🔵 [useDisciplineList] Tentando adicionar disciplina ${discipline.codigo} (ID: ${discipline.id})`);
     
     // Usa o setter funcional para verificar duplicatas com estado atualizado
     let isDuplicate = false;
@@ -37,12 +38,12 @@ export function useDisciplineList(
     setDisciplineStates(prev => {
       // Verifica se já existe
       if (prev.some(d => d.discipline.id === discipline.id)) {
-        console.log(`🟡 [useDisciplineList] Disciplina ${discipline.codigo} já está na lista`);
+        logger.info(`🟡 [useDisciplineList] Disciplina ${discipline.codigo} já está na lista`);
         isDuplicate = true;
         return prev; // Retorna o estado atual sem mudanças
       }
 
-      console.log(`🔵 [useDisciplineList] Adicionando disciplina ${discipline.codigo} à lista`);
+      logger.info(`🔵 [useDisciplineList] Adicionando disciplina ${discipline.codigo} à lista`);
 
       // Seleciona automaticamente a primeira turma disponível
       const firstClass = discipline.classes[0];
@@ -53,7 +54,7 @@ export function useDisciplineList(
         isExpanded: false
       };
 
-      console.log(`🟢 [useDisciplineList] Disciplina ${discipline.codigo} adicionada (total: ${prev.length + 1})`);
+      logger.info(`🟢 [useDisciplineList] Disciplina ${discipline.codigo} adicionada (total: ${prev.length + 1})`);
       return [...prev, newState];
     });
 
@@ -69,9 +70,9 @@ export function useDisciplineList(
           isVisible: true,
           isExpanded: false
         });
-        console.log(`🟢 [useDisciplineList] Disciplina ${discipline.codigo} salva no banco`);
+        logger.info(`🟢 [useDisciplineList] Disciplina ${discipline.codigo} salva no banco`);
       } catch (error) {
-        console.error(`🔴 [useDisciplineList] Erro ao salvar disciplina ${discipline.codigo}:`, error);
+        logger.error(`🔴 [useDisciplineList] Erro ao salvar disciplina ${discipline.codigo}:`, error);
         // Remove do estado local se falhar
         setDisciplineStates(prev => prev.filter(d => d.discipline.id !== discipline.id));
       }
@@ -88,7 +89,7 @@ export function useDisciplineList(
     color: string;
     schedules: Array<{ dia: string; horario_inicio: string; horario_fim: string }>;
   }) => {
-    console.log(`🔵 [useDisciplineList] Adicionando disciplina customizada ${customDisciplineData.nome}`);
+    logger.info(`🔵 [useDisciplineList] Adicionando disciplina customizada ${customDisciplineData.nome}`);
 
     // Cria uma "disciplina falsa" para encaixar na estrutura existente
     const fakeDiscipline: DisciplineWithClasses = {
@@ -123,7 +124,7 @@ export function useDisciplineList(
     };
 
     setDisciplineStates(prev => [...prev, newState]);
-    console.log(`🟢 [useDisciplineList] Disciplina customizada adicionada`);
+    logger.info(`🟢 [useDisciplineList] Disciplina customizada adicionada`);
   }, []);
 
   // Toggle visibilidade de uma disciplina (regular ou customizada)
@@ -136,7 +137,7 @@ export function useDisciplineList(
       if (!discipline) return prev;
 
       newIsVisible = !discipline.isVisible;
-      console.log(`🔵 [useDisciplineList] Toggle visibilidade disciplina ${disciplineId}: ${newIsVisible}`);
+      logger.info(`🔵 [useDisciplineList] Toggle visibilidade disciplina ${disciplineId}: ${newIsVisible}`);
 
       return prev.map(d =>
         d.discipline.id === disciplineId ? { ...d, isVisible: newIsVisible } : d
@@ -148,9 +149,9 @@ export function useDisciplineList(
     if (isAuthenticated && activeScheduleId) {
       try {
         await updateDisciplineInList(disciplineId, { isVisible: newIsVisible });
-        console.log(`🟢 [useDisciplineList] Visibilidade salva no banco`);
+        logger.info(`🟢 [useDisciplineList] Visibilidade salva no banco`);
       } catch (error) {
-        console.error(`🔴 [useDisciplineList] Erro ao salvar visibilidade:`, error);
+        logger.error(`🔴 [useDisciplineList] Erro ao salvar visibilidade:`, error);
         // Reverte o estado se falhar
         setDisciplineStates(prev => prev.map(d =>
           d.discipline.id === disciplineId ? { ...d, isVisible: !newIsVisible } : d
@@ -161,7 +162,7 @@ export function useDisciplineList(
 
   // Seleciona turma específica
   const handleSelectClass = useCallback(async (disciplineId: number, classId: number) => {
-    console.log(`🔵 [useDisciplineList] Selecionando turma ${classId} para disciplina ${disciplineId}`);
+    logger.info(`🔵 [useDisciplineList] Selecionando turma ${classId} para disciplina ${disciplineId}`);
 
     // Atualiza estado local IMEDIATAMENTE
     setDisciplineStates(prev => prev.map(d =>
@@ -172,9 +173,9 @@ export function useDisciplineList(
     if (isAuthenticated && activeScheduleId) {
       try {
         await updateDisciplineInList(disciplineId, { selectedClassId: classId });
-        console.log(`🟢 [useDisciplineList] Turma selecionada salva no banco`);
+        logger.info(`🟢 [useDisciplineList] Turma selecionada salva no banco`);
       } catch (error) {
-        console.error(`🔴 [useDisciplineList] Erro ao salvar turma selecionada:`, error);
+        logger.error(`🔴 [useDisciplineList] Erro ao salvar turma selecionada:`, error);
       }
     }
   }, [isAuthenticated, activeScheduleId, updateDisciplineInList]);
@@ -198,14 +199,14 @@ export function useDisciplineList(
       try {
         await updateDisciplineInList(disciplineId, { isExpanded: newIsExpanded });
       } catch (error) {
-        console.error(`🔴 [useDisciplineList] Erro ao salvar expansão:`, error);
+        logger.error(`🔴 [useDisciplineList] Erro ao salvar expansão:`, error);
       }
     }
   }, [isAuthenticated, activeScheduleId, updateDisciplineInList]); // Removido disciplineStates
 
   // Remove disciplina da lista (regular ou customizada)
   const handleRemoveDiscipline = useCallback(async (disciplineId: number, removeCustomDiscipline?: (id: number) => Promise<boolean>) => {
-    console.log(`🔵 [useDisciplineList] Removendo disciplina ${disciplineId}`);
+    logger.info(`🔵 [useDisciplineList] Removendo disciplina ${disciplineId}`);
 
     // Atualiza estado local IMEDIATAMENTE
     setDisciplineStates(prev => prev.filter(d => d.discipline.id !== disciplineId));
@@ -215,22 +216,22 @@ export function useDisciplineList(
     if (isAuthenticated && activeScheduleId) {
       try {
         await removeDisciplineFromList(disciplineId);
-        console.log(`🟢 [useDisciplineList] Disciplina removida do banco`);
+        logger.info(`🟢 [useDisciplineList] Disciplina removida do banco`);
       } catch (error) {
-        console.error(`🔴 [useDisciplineList] Erro ao remover disciplina:`, error);
+        logger.error(`🔴 [useDisciplineList] Erro ao remover disciplina:`, error);
       }
     }
   }, [isAuthenticated, activeScheduleId, removeDisciplineFromList]);
 
   // Limpa a lista (útil ao trocar de plano)
   const clearList = useCallback(() => {
-    console.log(`🔵 [useDisciplineList] Limpando lista de disciplinas`);
+    logger.info(`🔵 [useDisciplineList] Limpando lista de disciplinas`);
     setDisciplineStates([]);
   }, []);
 
   // Carrega disciplinas do banco (substitui lista atual)
   const loadDisciplines = useCallback((disciplines: DisciplineState[]) => {
-    console.log(`🔵 [useDisciplineList] Carregando ${disciplines.length} disciplinas do banco`);
+    logger.info(`🔵 [useDisciplineList] Carregando ${disciplines.length} disciplinas do banco`);
     
     // Simplesmente substitui toda a lista
     // O clearList já foi chamado ao trocar de plano

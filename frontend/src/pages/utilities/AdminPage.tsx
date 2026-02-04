@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 import { BookOpen, Users, Calendar, Heart, Bookmark, Bell, BarChart3, Settings as SettingsIcon } from "lucide-react";
 import { TabsCard } from "@/lib/TabsCard";
 import ManageBooks from "@/features/admin/features/books/ManageBooks";
@@ -15,7 +16,7 @@ const AdminPage = () => {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   // Log de início de renderização do componente principal do Admin
-  console.log("🔵 [AdminPage] Renderizando componente principal do painel admin");
+  logger.info("🔵 [AdminPage] Renderizando componente principal do painel admin");
 
   // Ensure the page is fully loaded before rendering content
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AreaCode, SubareaCode } from "@/types/book";
+import { logger } from "@/utils/logger";
 
 const API_URL = '/api';
 
@@ -18,17 +19,17 @@ export default function useBookOptions(onError?: (error: Error) => void) {
 
   useEffect(() => {
     setIsLoading(true);
-    console.log("🔵 [useBookOptions] Buscando opções de área e subárea");
+    logger.info("🔵 [useBookOptions] Buscando opções de área e subárea");
     fetch(`${API_URL}/books/options`)
       .then(res => res.json())
       .then(data => {
         setAreaCodes(data.areaCodes || {});
         setSubareaCodes(data.subareaCodes || {});
         setIsLoading(false);
-        console.log("🟢 [useBookOptions] Opções carregadas");
+        logger.info("🟢 [useBookOptions] Opções carregadas");
       })
       .catch(error => {
-        console.error("🔴 [useBookOptions] Erro ao buscar opções:", error);
+        logger.error("🔴 [useBookOptions] Erro ao buscar opções:", error);
         if (onError) onError(new Error("Falha ao carregar opções. Tente novamente."));
         setIsLoading(false);
       });

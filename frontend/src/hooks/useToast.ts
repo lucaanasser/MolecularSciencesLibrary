@@ -1,4 +1,5 @@
 import * as React from "react"
+import { logger } from "@/utils/logger";
 
 import type {
   ToastActionElement,
@@ -83,14 +84,14 @@ const addToRemoveQueue = (toastId: string) => {
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
-      console.log("🔵 [use-toast] Adicionando toast:", action.toast.title || action.toast.description);
+      logger.info("🔵 [use-toast] Adicionando toast:", action.toast.title || action.toast.description);
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
       }
 
     case "UPDATE_TOAST":
-      console.log("🟢 [use-toast] Atualizando toast:", action.toast.id);
+      logger.info("🟢 [use-toast] Atualizando toast:", action.toast.id);
       return {
         ...state,
         toasts: state.toasts.map((t) =>
@@ -102,11 +103,11 @@ export const reducer = (state: State, action: Action): State => {
       const { toastId } = action
 
       if (toastId) {
-        console.warn("🟡 [use-toast] Dismiss toast:", toastId);
+        logger.warn("🟡 [use-toast] Dismiss toast:", toastId);
         addToRemoveQueue(toastId)
       } else {
         state.toasts.forEach((toast) => {
-          console.warn("🟡 [use-toast] Dismiss all toasts");
+          logger.warn("🟡 [use-toast] Dismiss all toasts");
           addToRemoveQueue(toast.id)
         })
       }
@@ -125,13 +126,13 @@ export const reducer = (state: State, action: Action): State => {
     }
     case "REMOVE_TOAST":
       if (action.toastId === undefined) {
-        console.log("🟢 [use-toast] Removendo todos os toasts");
+        logger.info("🟢 [use-toast] Removendo todos os toasts");
         return {
           ...state,
           toasts: [],
         }
       }
-      console.log("🟢 [use-toast] Removendo toast:", action.toastId);
+      logger.info("🟢 [use-toast] Removendo toast:", action.toastId);
       return {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.toastId),

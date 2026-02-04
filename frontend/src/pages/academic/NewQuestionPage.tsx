@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, HelpCircle, AlertCircle, Lightbulb, Loader2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -37,7 +38,7 @@ const NewQuestionPage: React.FC = () => {
         const tagsData = await ForumService.getTags();
         setAvailableTags(tagsData);
       } catch (error) {
-        console.error("Erro ao carregar tags:", error);
+        logger.error("Erro ao carregar tags:", error);
         toast.error("Erro ao carregar tags sugeridas");
       } finally {
         setIsLoadingTags(false);
@@ -125,7 +126,7 @@ const NewQuestionPage: React.FC = () => {
       toast.success("Pergunta publicada com sucesso!");
       navigate(`/forum/${newQuestion.id}`);
     } catch (error: any) {
-      console.error("Erro ao criar pergunta:", error);
+      logger.error("Erro ao criar pergunta:", error);
       toast.error(error.message || "Erro ao publicar pergunta. Tente novamente.");
     } finally {
       setSubmitting(false);

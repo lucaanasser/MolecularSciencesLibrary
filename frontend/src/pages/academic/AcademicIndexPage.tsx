@@ -1,4 +1,5 @@
 import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
+import { logger } from "@/utils/logger";
 import MolecoogleWindow from "@/features/index/components/MolecoogleWindow";
 import { useState, useEffect, useRef } from "react";
 import { TextSection } from "@/features/index/features/TextSection";
@@ -8,7 +9,7 @@ import { FeatureSection } from "@/features/index/features/FeaturesSection";
 import { HeroSection } from "@/features/index/features/HeroSection";
 
 // Log de início de renderização da página inicial acadêmica
-console.log("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
+logger.info("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
 
 
 const AcademicIndexPage = () => {

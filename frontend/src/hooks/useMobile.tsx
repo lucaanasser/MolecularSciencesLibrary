@@ -1,4 +1,5 @@
 import * as React from "react"
+import { logger } from "@/utils/logger";
 
 /**
  * Hook para detectar se está em modo mobile.
@@ -14,11 +15,11 @@ export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
   React.useEffect(() => {
-    console.log("🔵 [useIsMobile] Detectando modo mobile");
+    logger.info("🔵 [useIsMobile] Detectando modo mobile");
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
     const onChange = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-      console.log("🟢 [useIsMobile] Estado mobile atualizado:", window.innerWidth < MOBILE_BREAKPOINT)
+      logger.info("🟢 [useIsMobile] Estado mobile atualizado:", window.innerWidth < MOBILE_BREAKPOINT)
     }
     mql.addEventListener("change", onChange)
     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)

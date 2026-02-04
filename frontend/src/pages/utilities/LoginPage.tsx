@@ -1,8 +1,9 @@
 import LoginForm from "@/components/LoginForm";
+import { logger } from "@/utils/logger";
 import { useSiteMode } from "@/contexts/SiteModeContext";
 
 // Log de início de renderização da página de login
-console.log("🔵 [LoginPage] Renderizando página de login");
+logger.info("🔵 [LoginPage] Renderizando página de login");
 
 const LoginPage = () => {
   const { isAcademico } = useSiteMode();

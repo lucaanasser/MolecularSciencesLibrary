@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { logger } from "@/utils/logger";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -111,7 +112,7 @@ const BookPage: React.FC = () => {
       }
       setBook(data);
     } catch (err) {
-      console.error("Erro ao carregar livro:", err);
+      logger.error("Erro ao carregar livro:", err);
       setError("Erro ao carregar livro");
     } finally {
       setIsLoading(false);
@@ -143,7 +144,7 @@ const BookPage: React.FC = () => {
         }
       }
     } catch (err) {
-      console.error("Erro ao carregar avaliações:", err);
+      logger.error("Erro ao carregar avaliações:", err);
     } finally {
       setIsLoadingEvaluations(false);
     }

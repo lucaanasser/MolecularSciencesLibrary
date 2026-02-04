@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { logger } from "@/utils/logger";
 import { useSearchParams } from "react-router-dom";
 import { BookOpen } from "lucide-react";
 import { UnifiedSearchResultsLayout } from "@/components/shared/UnifiedSearchResultsLayout";
 import { BookResultsList } from "@/components/library/BookResultsList";
 import { BookFiltersPanel } from "@/components/library/BookFiltersPanel";
 import { MobileBookFiltersDrawer } from "@/components/library/MobileBookFiltersDrawer";
-import {
-  getBooks,
-  countBooks,
-  type Book,
-} from "@/services/SearchService";
+import { getBooks, countBooks } from "@/services/SearchService";
+import { Book } from "@/types/book";
 
 /**
  * Página de resultados de busca de LIVROS estilo Google
@@ -89,7 +87,7 @@ const LibrarySearchResultsPage: React.FC = () => {
         ).sort();
         setAvailableLanguages(uniqueLanguages);
       } catch (error) {
-        console.error("Erro ao buscar livros:", error);
+        logger.error("Erro ao buscar livros:", error);
         setAllBooks([]);
         setTotalCount(0);
       } finally {

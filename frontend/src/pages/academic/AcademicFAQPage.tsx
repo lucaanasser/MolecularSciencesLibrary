@@ -29,7 +29,6 @@ export default function FAQAcademic() {
   return (
     <FAQPage
       faqs={faqs}
-      color="academic-blue"
       imageSrc="/images/faqAcademic.png"
       intro="Aqui você encontra respostas para as dúvidas mais comuns sobre o funcionamento da modalidade acadêmica desse site."
     />

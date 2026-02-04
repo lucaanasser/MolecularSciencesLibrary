@@ -6,6 +6,7 @@ import {
   DisciplineWithClasses
 } from '@/utils/combinationsGenerator';
 import { GradeSlot } from '@/hooks/useGrade';
+import { logger } from "@/utils/logger";
 
 /**
  * Hook para gerenciar combinações de turmas
@@ -33,13 +34,13 @@ export function useCombinations(
       return;
     }
 
-    console.log(`🔵 [useCombinations] Gerando combinações para ${visibleDisciplines.length} disciplinas`);
+    logger.info(`🔵 [useCombinations] Gerando combinações para ${visibleDisciplines.length} disciplinas`);
     setIsGenerating(true);
     
     // Usa setTimeout para não travar a UI
     const timer = setTimeout(() => {
       const newCombinations = generateCombinations(visibleDisciplines, 100);
-      console.log(`🟢 [useCombinations] ${newCombinations.length} combinações geradas`);
+      logger.info(`🟢 [useCombinations] ${newCombinations.length} combinações geradas`);
       setCombinations(newCombinations);
       setCurrentCombinationIndex(0);
       
@@ -92,7 +93,7 @@ export function useCombinations(
 
   // Aplica a combinação selecionada
   const applyCombination = useCallback((index: number, combination: Combination) => {
-    console.log(`🔵 [useCombinations] Aplicando combinação ${index + 1}/${combinations.length}`);
+    logger.info(`🔵 [useCombinations] Aplicando combinação ${index + 1}/${combinations.length}`);
     setCurrentCombinationIndex(index);
     setShowPreview(false);
     

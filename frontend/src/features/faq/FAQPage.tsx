@@ -1,10 +1,23 @@
-import { FaqList } from ".";
-import type { FAQ } from ".";
+import { FaqList } from "@/features/faq/FaqList";
+import type { FAQ } from "@/features/faq/FaqItem";
+import { logger } from "@/utils/logger";
 
-type FAQPageProps = { faqs: FAQ[]; color: string; imageSrc: string; intro?: string };
+/**
+ * Página de FAQ da Biblioteca.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 
-const FAQPage = ({ faqs, color, imageSrc, intro }: FAQPageProps) => {
-    const textColor = `text-${color}`;
+type FAQPageProps = { faqs: FAQ[]; imageSrc: string; intro?: string };
+
+const FAQPage = ({ faqs, imageSrc, intro }: FAQPageProps) => {
+    
+    // Log de início de renderização da página
+    logger.info("🔵 [FAQPage] Renderizando página de FAQ");
+        
     return (
         <div className="content-container">
             <h2>Perguntas Frequentes</h2>
@@ -17,7 +30,7 @@ const FAQPage = ({ faqs, color, imageSrc, intro }: FAQPageProps) => {
                         className="object-contain rounded-2xl max-w-[220px] w-full md:max-w-full"
                     />
                 </div>
-                <FaqList faqs={faqs} color={color} />
+                <FaqList faqs={faqs} />
             </div>
             <p className={`mt-4 md:mt-8 mb-0 text-center`}>
                 Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="link">Fale conosco</a>!

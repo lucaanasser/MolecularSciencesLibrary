@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { logger } from "@/utils/logger";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, Plus } from "lucide-react";
 import { UnifiedSearchResultsLayout } from "@/components/shared/UnifiedSearchResultsLayout";
@@ -67,7 +68,7 @@ const AcademicSearchResultsPage: React.FC = () => {
         setAvailableCampi(campiData);
         setAvailableUnidades(unidadesData);
       } catch (error) {
-        console.error("Erro ao carregar opções de filtros:", error);
+        logger.error("Erro ao carregar opções de filtros:", error);
       }
     };
     loadFilterOptions();
@@ -107,7 +108,7 @@ const AcademicSearchResultsPage: React.FC = () => {
         setDisciplines(withRatings);
         setTotalCount(total);
       } catch (error) {
-        console.error("Erro ao buscar disciplinas:", error);
+        logger.error("Erro ao buscar disciplinas:", error);
         setDisciplines([]);
         setTotalCount(0);
       } finally {

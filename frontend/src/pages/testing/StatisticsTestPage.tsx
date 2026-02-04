@@ -1,4 +1,5 @@
 import DashboardPage from "@/features/transparency-portal/DashboardPage";
+import { logger } from "@/utils/logger";
 import { DashboardConfig } from "@/types/dashboard";
 import { BookOpen, BookMarked, BookX, Users, UserCheck, TrendingUp, Clock, BarChart3 } from "lucide-react";
 

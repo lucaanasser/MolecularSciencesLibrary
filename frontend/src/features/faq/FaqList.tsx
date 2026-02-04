@@ -1,15 +1,12 @@
 import React, { useState } from "react";
-import { FAQ } from "../types";
-import { FaqItem } from "./FaqItem";
+import { FAQ, FaqItem } from "@/features/faq/FaqItem";
 
 interface FaqListProps {
   faqs: FAQ[];
-  color: string;
 }
 
 export const FaqList: React.FC<FaqListProps> = ({
   faqs,
-  color,
 }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
@@ -26,7 +23,6 @@ export const FaqList: React.FC<FaqListProps> = ({
           index={idx}
           isOpen={openIndex === idx}
           onToggle={() => handleToggle(idx)}
-          color={color}
         />
       ))}
     </div>

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { logger } from "@/utils/logger";
 import { Gift } from "lucide-react";
 
 import { useEffect, useState, useRef } from "react";

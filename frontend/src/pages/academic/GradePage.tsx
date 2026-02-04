@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useCallback, useRef } from "react";
+import { logger } from "@/utils/logger";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Info, AlertCircle, Loader2, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -31,7 +32,7 @@ import { toast } from "sonner";
  * Layout: Sidebar (busca + lista) | Grade + Combinações embaixo | Créditos
  */
 const GradePage: React.FC = () => {
-  console.log("🔵 [GradePage] Renderizando página da grade interativa");
+  logger.info("🔵 [GradePage] Renderizando página da grade interativa");
 
   // Ref para o elemento da grade (para captura de PDF)
   const gradeRef = useRef<HTMLDivElement>(null);
@@ -128,7 +129,7 @@ const GradePage: React.FC = () => {
     // Limpa apenas se não há disciplinas do banco sendo carregadas
     // O hook useLoadSavedDisciplines vai popular depois
     if (activeScheduleId !== null) {
-      console.log(`🔵 [GradePage] Plano ativo mudou para ${activeScheduleId}, limpando lista local`);
+      logger.info(`🔵 [GradePage] Plano ativo mudou para ${activeScheduleId}, limpando lista local`);
       clearList();
     }
   }, [activeScheduleId]); // Removido clearList das dependências para não causar loop
@@ -236,7 +237,7 @@ const GradePage: React.FC = () => {
     // Se for disciplina customizada, duplica para o plano atual
     if (discipline.isCustom && discipline.customId) {
       try {
-        console.log(`🔵 [GradePage] Duplicando disciplina customizada ${discipline.codigo} para plano ${activeScheduleId}`);
+        logger.info(`🔵 [GradePage] Duplicando disciplina customizada ${discipline.codigo} para plano ${activeScheduleId}`);
         
         const newCustom = await addCustomDiscipline({
           nome: discipline.nome,
@@ -248,14 +249,14 @@ const GradePage: React.FC = () => {
         });
 
         if (newCustom) {
-          console.log(`🟢 [GradePage] Disciplina customizada duplicada com ID ${newCustom.id}`);
+          logger.info(`🟢 [GradePage] Disciplina customizada duplicada com ID ${newCustom.id}`);
           toast.success(`Disciplina "${discipline.nome}" adicionada ao plano`);
         } else {
-          console.error('🔴 [GradePage] Erro ao duplicar disciplina customizada');
+          logger.error('🔴 [GradePage] Erro ao duplicar disciplina customizada');
           toast.error('Erro ao adicionar disciplina');
         }
       } catch (error) {
-        console.error('🔴 [GradePage] Erro ao duplicar disciplina customizada:', error);
+        logger.error('🔴 [GradePage] Erro ao duplicar disciplina customizada:', error);
         toast.error('Erro ao adicionar disciplina');
       }
       return;
@@ -290,13 +291,13 @@ const GradePage: React.FC = () => {
         handleAddDiscipline(disciplineWithClasses);
       }
     } catch (error) {
-      console.error('Erro ao carregar turmas:', error);
+      logger.error('Erro ao carregar turmas:', error);
     }
   }, [handleAddDiscipline, activeScheduleId, addCustomDiscipline]);
 
   // Aplica a combinação selecionada - seleciona as turmas correspondentes nas disciplinas
   const handleApplyCombination = useCallback((index: number, combination: any) => {
-    console.log(`🔵 [GradePage] Aplicando combinação ${index + 1}`);
+    logger.info(`🔵 [GradePage] Aplicando combinação ${index + 1}`);
     
     // Primeiro, aplica a combinação para atualizar o índice e preview
     applyCombination(index, combination);
@@ -311,7 +312,7 @@ const GradePage: React.FC = () => {
         );
         
         if (disciplineState && cls.id !== disciplineState.selectedClassId) {
-          console.log(`🔵 [GradePage] Selecionando turma ${cls.codigo_turma} para ${cls.discipline_codigo}`);
+          logger.info(`🔵 [GradePage] Selecionando turma ${cls.codigo_turma} para ${cls.discipline_codigo}`);
           handleSelectClass(cls.discipline_id, cls.id);
         }
       });
@@ -346,7 +347,7 @@ const GradePage: React.FC = () => {
       toast.dismiss();
       toast.success('PDF gerado com sucesso!');
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
+      logger.error('Erro ao gerar PDF:', error);
       toast.dismiss();
       toast.error('Erro ao gerar PDF');
     }

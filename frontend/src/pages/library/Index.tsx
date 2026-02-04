@@ -7,9 +7,16 @@ import { FeatureSection } from "@/features/index/features/FeaturesSection";
 import { HeroSection } from "@/features/index/features/HeroSection";
 import { LibraryHeroText } from "@/features/index/components/LibraryHeroText";
 import { Button } from "@/components/ui/button";
+import { logger } from "@/utils/logger";
 
-// Log de início de renderização da página inicial
-console.log("🔵 [Index] Renderizando página inicial");
+/**
+ * Página de FAQ da Biblioteca.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 
 const HERO_AREAS = [
   { name: "Matemática", color: "text-cm-red" },
@@ -21,6 +28,8 @@ const HERO_AREAS = [
 ];
 
 const Index = () => {
+  // Log de início de renderização da página inicial
+  logger.info("🔵 [Index] Renderizando página inicial");
   const { areaIndex, displayText } = useTypewriterAreas(HERO_AREAS);
 
   // Estados para estatísticas
@@ -77,7 +86,6 @@ const Index = () => {
         ]}
         buttonText="Ajude a biblioteca"
         buttonLink="/ajude"
-        buttonVariant="primary"
         imageSrc="/images/prateleira.png"
         imageAlt="Ciências Moleculares"
         reverse={true}
@@ -101,7 +109,6 @@ const Index = () => {
         ]}
         buttonText="Biblioteca em Dados"
         buttonLink="/transparencia"
-        buttonVariant="primary"
         imageSrc="/images/image.png"
         imageAlt=""
         reverse={false}

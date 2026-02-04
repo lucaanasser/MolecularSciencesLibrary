@@ -1,19 +1,20 @@
 import { useLocation, Link } from "react-router-dom";
+import { logger } from "@/utils/logger";
 import { useEffect } from "react";
 import { useSiteMode } from "@/contexts/SiteModeContext";
 import { Button } from "@/components/ui/button";
 
 // Log de início de renderização da página 404
-console.log("🔵 [NotFound] Renderizando página 404");
+logger.info("🔵 [PageNotFound] Renderizando página 404");
 
 
-const NotFound = () => {
+const PageNotFound = () => {
   const location = useLocation();
   const { isAcademico } = useSiteMode();
   const accentClass = isAcademico ? "academic-blue" : "library-purple";
 
   useEffect(() => {
-    console.error(
+    logger.error(
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
@@ -52,15 +53,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
-
-{/*
-<a
-  href="https://en.wikipedia.org/wiki/Towel"
-  target="_blank"
-  rel="noopener noreferrer"
-  className=" hover:text-academic-blue transition"
->
-Não entre em pânico!
-</a>
-*/}
+export default PageNotFound;

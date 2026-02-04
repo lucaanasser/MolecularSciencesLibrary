@@ -1,19 +1,21 @@
 import React from "react";
-import { FAQ } from "../types";
+
+export interface FAQ {
+  question: string;
+  answer: string | React.ReactNode;
+}
 
 interface FaqItemProps {
   faq: FAQ;
   index: number;
   isOpen: boolean;
   onToggle: () => void;
-  color?: string;
 }
 
 export const FaqItem: React.FC<FaqItemProps> = ({
   faq,
   isOpen,
   onToggle,
-  color,
 }) => {
   const [hovered, setHovered] = React.useState(false);
   
@@ -21,7 +23,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
     <>
     {/* Card da pergunta*/}
     <div
-      className={`rounded-xl bg-${color}`}
+      className="rounded-xl primary-bg"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -43,7 +45,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({
     {/* Resposta (fora do card) */}
     {isOpen && (
       <div className="flex mt-0 pl-4 w-full">
-        <div className={`border-l-4 border-${color} pr-3 flex-shrink-0`} />
+        <div className={`border-l-4 primary-border pr-3 flex-shrink-0`} />
         <p className="prose-sm mb-0 break-words w-full">
           {faq.answer}
         </p>

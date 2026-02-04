@@ -33,7 +33,7 @@ import AdminPendingTagsPage from "@/pages/utilities/AdminPendingTagsPage";
 import LoginPage from "@/pages/utilities/LoginPage";
 import ProAlunoPage from "@/pages/utilities/ProAlunoPage";
 import ResetPasswordPage from "@/pages/utilities/ResetPasswordPage";
-import NotFound from "@/pages/utilities/NotFound";
+import PageNotFound from "@/pages/utilities/PageNotFound";
 
 import TestPage from "@/pages/testing/TestPage";
 
@@ -97,7 +97,7 @@ const routes: RouteObject[] = [
     )) },
 
   // Catch all
-  { path: "*", element: <NotFound /> },
+  { path: "*", element: <PageNotFound /> },
 ];
 
 export default routes;

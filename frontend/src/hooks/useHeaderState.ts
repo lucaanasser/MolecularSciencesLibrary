@@ -4,11 +4,19 @@ import { useSiteMode } from "@/contexts/SiteModeContext";
 import { LIBRARY_NAV_LINKS, ACADEMIC_NAV_LINKS, ROUTES } from "@/constants/navigation";
 import { User } from "@/types/user";
 import { useIsMobile } from "./useMobile";
+import { logger } from "@/utils/logger";
 
 /**
  * Hook consolidado para todo o estado e lógica do Header.
  * Combina estado UI, estilos, navegação e lógica de negócio.
+ * 
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
  */
+
 export const useHeaderState = (user: User | null) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,6 +60,7 @@ export const useHeaderState = (user: User | null) => {
   // Ações de navegação
   const navigateToProfile = () => {
     if (!user) {
+      logger.info("🟡 [useHeaderState] Usuário não autenticado, redirecionando para login");
       navigate(ROUTES.LOGIN);
       return;
     }
@@ -61,12 +70,16 @@ export const useHeaderState = (user: User | null) => {
       proaluno: ROUTES.PROALUNO,
     };
 
-    navigate(roleRoutes[user.role?.toLowerCase()] || ROUTES.PROFILE);
+    const destination = roleRoutes[user.role?.toLowerCase()] || ROUTES.PROFILE;
+    logger.info(`🔵 [useHeaderState] Navegando para perfil: ${destination}`, { role: user.role });
+    navigate(destination);
   };
 
   const handleLogout = () => {
+    logger.info("🔵 [useHeaderState] Usuário fazendo logout", { userName: user?.name });
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    logger.info("🟢 [useHeaderState] Logout concluído, redirecionando para login");
     navigate(ROUTES.LOGIN);
   };
 

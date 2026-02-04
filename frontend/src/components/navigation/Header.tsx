@@ -3,10 +3,25 @@ import { useHeaderState } from "@/hooks/useHeaderState";
 import { DesktopNav } from "./DesktopNav";
 import { MobileNav } from "./MobileNav";
 import { cn } from "@/lib/utils";
+import { logger } from "@/utils/logger";
 
+/**
+ * Componente de navegação principal (Header).
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 const Navigation: React.FC = () => {
   const user = useCurrentUser();
   const headerState = useHeaderState(user);
+  
+  // Log de renderização
+  logger.info("🔵 [Header] Renderizando barra de navegação", { 
+    userRole: user?.role, 
+    isMobileMenuOpen: headerState.isMobileMenuOpen 
+  });
 
   return (
     <nav className={cn("sticky top-0 z-50 w-full transition-colors duration-300", headerState.navbarBg, headerState.textColor)}>

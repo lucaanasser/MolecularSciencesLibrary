@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { logger } from "@/utils/logger";
 import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -62,7 +63,7 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
   fixedMode,
   hideModeSwitcher = false 
 }) => {
-  console.log("🔵 [AcademicSearchPage] Renderizando página de busca unificada", { fixedMode, hideModeSwitcher });
+  logger.info("🔵 [AcademicSearchPage] Renderizando página de busca unificada", { fixedMode, hideModeSwitcher });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -135,7 +136,7 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
       
       setDisciplineSuggestions(resultsWithRatings);
     } catch (error) {
-      console.error("🔴 [AcademicSearchPage] Erro ao buscar disciplinas:", error);
+      logger.error("🔴 [AcademicSearchPage] Erro ao buscar disciplinas:", error);
       setDisciplineSuggestions([]);
     } finally {
       setIsLoading(false);
@@ -154,7 +155,7 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
       const results = await searchUsers(query, 8);
       setUserSuggestions(results);
     } catch (error) {
-      console.error("🔴 [AcademicSearchPage] Erro ao buscar usuários:", error);
+      logger.error("🔴 [AcademicSearchPage] Erro ao buscar usuários:", error);
       setUserSuggestions([]);
     } finally {
       setIsLoading(false);
@@ -173,7 +174,7 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
       const results = await searchBooks(query, 8);
       setBookSuggestions(results);
     } catch (error) {
-      console.error("🔴 [AcademicSearchPage] Erro ao buscar livros:", error);
+      logger.error("🔴 [AcademicSearchPage] Erro ao buscar livros:", error);
       setBookSuggestions([]);
     } finally {
       setIsLoading(false);
@@ -259,7 +260,7 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
           navigate(`/academico/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);
         }
       } catch (error) {
-        console.error("Erro ao verificar match exato:", error);
+        logger.error("Erro ao verificar match exato:", error);
         // Em caso de erro, vai para página de resultados
         saveRecentSearch(searchQuery.trim());
         navigate(`/academico/buscar/resultados?q=${encodeURIComponent(searchQuery.trim())}`);

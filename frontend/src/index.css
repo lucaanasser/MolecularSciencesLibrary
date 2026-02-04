@@ -21,6 +21,7 @@
     --accent-foreground: hsl(0, 0%, 20%);
     --popover: white;
     --popover-foreground: theme(colors.default-text);
+
     /* Input colors */
     --input-background: hsl(0, 0%, 100%);
     --input-foreground: hsl(0, 0%, 30%);
@@ -48,6 +49,10 @@
 
   .primary-text {
     color: var(--primary-color);
+  }
+
+  .primary-border {
+    border-color: var(--primary-color);
   }
 
   body { @apply 

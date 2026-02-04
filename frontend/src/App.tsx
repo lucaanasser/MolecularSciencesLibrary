@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import ScrollToTop from "@/components/ScrollToTop";
 import { SiteModeProvider } from "@/contexts/SiteModeContext";
+import { Toaster } from "@/components/ui/toaster";
 import routes from "@/routes";
 
 // Log de início de Renderização do App
@@ -17,6 +18,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <RoutesWrapper />
+          <Toaster />
         </BrowserRouter>
       </TooltipProvider>
     </SiteModeProvider>

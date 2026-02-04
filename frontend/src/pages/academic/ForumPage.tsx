@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 import ForumHeader from "@/features/forum/components/ForumHeader";
 import ForumFilters, { SortOption } from "@/features/forum/components/ForumFilters";
 import ForumSidebar from "@/features/forum/components/ForumSidebar";
@@ -36,7 +37,7 @@ const ForumPage: React.FC = () => {
         });
         setQuestions(data.questions);
       } catch (err) {
-        console.error("Erro ao carregar perguntas:", err);
+        logger.error("Erro ao carregar perguntas:", err);
         setError("Erro ao carregar perguntas. Tente novamente.");
       } finally {
         setLoading(false);

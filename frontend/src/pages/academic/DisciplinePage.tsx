@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { logger } from "@/utils/logger";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -103,7 +104,7 @@ const DisciplinePage: React.FC = () => {
       }
       setDisciplina(data);
     } catch (err) {
-      console.error("Erro ao carregar disciplina:", err);
+      logger.error("Erro ao carregar disciplina:", err);
       setError("Erro ao carregar disciplina");
     } finally {
       setIsLoading(false);
@@ -135,7 +136,7 @@ const DisciplinePage: React.FC = () => {
         }
       }
     } catch (err) {
-      console.error("Erro ao carregar avaliações:", err);
+      logger.error("Erro ao carregar avaliações:", err);
     } finally {
       setIsLoadingEvaluations(false);
     }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 import { useParams } from "react-router-dom";
 
 
@@ -15,7 +16,7 @@ import { DisciplinesTab } from "@/features/publicProfile/components/tabs/Discipl
 import { InternationalTab } from "@/features/publicProfile/components/tabs/InternationalTab";
 import { PostCMTab } from "@/features/publicProfile/components/tabs/PostCMTab";
 
-console.log("🔵 [PublicProfilePage] Renderizando página pessoal pública");
+logger.info("🔵 [PublicProfilePage] Renderizando página pessoal pública");
 
 const PublicProfilePage = () => {
   const { userId: userIdParam } = useParams();
@@ -37,7 +38,7 @@ const PublicProfilePage = () => {
   }, [user?.profile_image]);
 
   useEffect(() => {
-    console.log('🔵 [PublicProfilePage] Profile atualizado:', {
+    logger.info('🔵 [PublicProfilePage] Profile atualizado:', {
       ciclosAvancados: profile.ciclosAvancados.length,
       disciplinas: profile.disciplinas.length,
       experiencias: profile.experienciasInternacionais.length,
@@ -91,7 +92,7 @@ const PublicProfilePage = () => {
       await profile.refetch(); // Reload profile to get new avatar path
       setAvatarTimestamp(Date.now()); // Force avatar refresh
     } catch (err) {
-      console.error('Erro ao fazer upload de avatar:', err);
+      logger.error('Erro ao fazer upload de avatar:', err);
       alert('Erro ao fazer upload de avatar');
     }
   };
@@ -102,23 +103,23 @@ const PublicProfilePage = () => {
       await profile.refetch(); // Reload profile to get new avatar
       setAvatarTimestamp(Date.now()); // Force avatar refresh
     } catch (err) {
-      console.error('Erro ao selecionar avatar padrão:', err);
+      logger.error('Erro ao selecionar avatar padrão:', err);
       alert('Erro ao selecionar avatar padrão');
     }
   };
 
   const handleBannerChange = async (bannerChoice: string) => {
     try {
-      console.log('🎨 [PublicProfilePage] Atualizando banner para:', bannerChoice);
+      logger.info('🎨 [PublicProfilePage] Atualizando banner para:', bannerChoice);
       await ProfileService.updateBanner(userId, bannerChoice);
-      console.log('✅ [PublicProfilePage] Banner atualizado no backend');
+      logger.info('✅ [PublicProfilePage] Banner atualizado no backend');
       await profile.refetch(); // Reload to get new banner
-      console.log('✅ [PublicProfilePage] Profile refetchado');
+      logger.info('✅ [PublicProfilePage] Profile refetchado');
       const newTimestamp = Date.now();
       setBannerTimestamp(newTimestamp); // Force banner refresh
-      console.log('✅ [PublicProfilePage] Timestamp atualizado:', newTimestamp);
+      logger.info('✅ [PublicProfilePage] Timestamp atualizado:', newTimestamp);
     } catch (err) {
-      console.error('❌ [PublicProfilePage] Erro ao atualizar banner:', err);
+      logger.error('❌ [PublicProfilePage] Erro ao atualizar banner:', err);
       alert('Erro ao atualizar banner');
     }
   };
@@ -134,7 +135,7 @@ const PublicProfilePage = () => {
       }
       await profile.refetch(); // Reload to update counts
     } catch (err) {
-      console.error('Erro ao atualizar follow:', err);
+      logger.error('Erro ao atualizar follow:', err);
       alert(err instanceof Error ? err.message : 'Erro ao atualizar follow');
     }
   };

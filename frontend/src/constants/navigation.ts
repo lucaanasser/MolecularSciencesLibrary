@@ -35,3 +35,17 @@ export const ROUTES = {
   PROALUNO: "/proaluno",
   MY_PAGE: "/minha-pagina",
 } as const;
+
+export interface ContactInfo {
+  organization: string;
+  department: string;
+  location: string;
+  email: string;
+}
+
+export const CONTACT_INFO: ContactInfo = {
+  organization: "Universidade de São Paulo",
+  department: "InovaUSP",
+  location: "Cidade Universitária",
+  email: "bibliotecamoleculares@gmail.com",
+};

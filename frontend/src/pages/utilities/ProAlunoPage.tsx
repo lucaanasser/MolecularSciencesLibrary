@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { logger } from "@/utils/logger";
 import LoanForm from "@/features/books/LoanForm";
 
 // Log de início de renderização da página Pró-Aluno
-console.log("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");
+logger.info("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");
 
 // Implementar lógica de autenticação/autorização para garantir
 // que apenas usuários "Pró-Aluno" possam acessar esta página.

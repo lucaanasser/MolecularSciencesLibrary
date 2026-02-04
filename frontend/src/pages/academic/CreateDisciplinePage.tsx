@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { logger } from "@/utils/logger";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,12 +69,12 @@ const CreateDisciplinePage: React.FC = () => {
     setError(null);
     setExistingDiscipline(null);
 
-    console.log('🔵 [CreateDisciplinePage] Enviando formData:', formData);
-    console.log('🔵 [CreateDisciplinePage] is_postgrad:', formData.is_postgrad, typeof formData.is_postgrad);
+    logger.info('🔵 [CreateDisciplinePage] Enviando formData:', formData);
+    logger.info('🔵 [CreateDisciplinePage] is_postgrad:', formData.is_postgrad, typeof formData.is_postgrad);
 
     try {
       const discipline = await createDiscipline(formData);
-      console.log('🟢 [CreateDisciplinePage] Disciplina criada:', discipline);
+      logger.info('🟢 [CreateDisciplinePage] Disciplina criada:', discipline);
       // Redireciona para a página da disciplina criada
       navigate(`/academico/disciplina/${discipline.codigo}`);
     } catch (err) {

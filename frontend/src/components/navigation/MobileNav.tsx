@@ -5,8 +5,6 @@ import { User } from "@/types/user";
 import { ROUTES } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 import { useHeaderState } from "@/hooks/useHeaderState";
-import { link } from "fs";
-import { hover } from "framer-motion";
 
 interface MobileNavProps {
   user: User | null;

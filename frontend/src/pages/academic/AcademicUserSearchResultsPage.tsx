@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { logger } from "@/utils/logger";
 import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { UnifiedSearchResultsLayout } from "@/components/shared/UnifiedSearchResultsLayout";
@@ -85,7 +86,7 @@ const AcademicUserSearchResultsPage: React.FC = () => {
           .slice(0, 50); // Limita a 50 tags mais comuns
         setAvailableTags(uniqueTags);
       } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+        logger.error("Erro ao buscar usuários:", error);
         setAllUsers([]);
         setAvailableTurmas([]);
         setAvailableTags([]);

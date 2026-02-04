@@ -1,9 +1,18 @@
 import { useState } from "react";
+import { logger } from "@/utils/logger";
 import { useUserProfile } from "@/features/publicProfile/hooks/useUserProfile";
 import { ProfileHeader, ProfileImageSelector } from "@/features/personalProfile/features/ProfileHeader";
 import { ProfileStatsSidebar } from "@/features/personalProfile/features/ProfileStatsSidebar";
 import { ProfileTabsCard } from "@/features/personalProfile/features/ProfileTabsCard";
 
+/**
+ * Página de perfil do usuário.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 
 const MOCK_DONATIONS = [
   { id: 1, title: "Cálculo Vol. 1", author: "James Stewart", date: "2025-08-15", status: "aceita" },
@@ -12,6 +21,9 @@ const MOCK_DONATIONS = [
 ];
 
 const ProfilePage = () => {
+  // Log de início de renderização da página de perfil
+  logger.info("🔵 [ProfilePage] Renderizando página de perfil");
+  
   const [activeTab, setActiveTab] = useState("ativos");
   const { user, loading: userLoading, error: userError } = useUserProfile();
   const [showImageSelector, setShowImageSelector] = useState(false);
@@ -36,21 +48,30 @@ const ProfilePage = () => {
     setSelectedImage(imagePath);
     setShowImageSelector(false);
     const token = localStorage.getItem("token");
-    await fetch("/api/users/me/profile-image", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ profile_image: imagePath }),
-    });
+    try {
+      const response = await fetch("/api/users/me/profile-image", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ profile_image: imagePath }),
+      });
+      if (!response.ok) {
+        logger.error("🔴 [ProfilePage] Erro ao salvar imagem de perfil:", await response.text());
+      } else {
+        logger.info("🟢 [ProfilePage] Imagem de perfil salva com sucesso");
+      }
+    } catch (err) {
+      logger.error("🔴 [ProfilePage] Erro inesperado ao salvar imagem de perfil:", err);
+    }
     window.location.reload();
   };
 
   if (userLoading) {
+    logger.info("🔵 [ProfilePage] Carregando perfil do usuário");
     return (
       <div className="min-h-screen flex flex-col">
-        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-gray-500">Carregando perfil...</div>
         </div>
@@ -60,9 +81,9 @@ const ProfilePage = () => {
   }
 
   if (userError) {
+    logger.error("🔴 [ProfilePage] Erro ao carregar perfil do usuário:", userError);
     return (
       <div className="min-h-screen flex flex-col">
-        
         <div className="flex-grow flex items-center justify-center">
           <div className="text-red-600">{userError}</div>
         </div>

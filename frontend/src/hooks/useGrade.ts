@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { logger } from '@/utils/logger';
 import userSchedulesService, { 
   Schedule, 
   ScheduleClass, 
@@ -97,7 +98,7 @@ export function useGrade() {
         setActiveScheduleId(null);
       }
     } catch (err) {
-      console.error('Erro ao carregar planos:', err);
+      logger.error('Erro ao carregar planos:', err);
       setError('Erro ao carregar planos');
     } finally {
       setIsLoading(false);
@@ -115,7 +116,7 @@ export function useGrade() {
       setCustomDisciplines(fullSchedule.customDisciplines || []);
       setScheduleDisciplines(fullSchedule.scheduleDisciplines || []);
     } catch (err) {
-      console.error('Erro ao recarregar dados do plano:', err);
+      logger.error('Erro ao recarregar dados do plano:', err);
       setError('Erro ao recarregar dados do plano');
     }
   }, [isAuthenticated, activeScheduleId]);
@@ -138,7 +139,7 @@ export function useGrade() {
         setCustomDisciplines(fullSchedule.customDisciplines || []);
         setScheduleDisciplines(fullSchedule.scheduleDisciplines || []);
       } catch (err) {
-        console.error('Erro ao carregar dados do plano:', err);
+        logger.error('Erro ao carregar dados do plano:', err);
       }
     };
     
@@ -157,7 +158,7 @@ export function useGrade() {
       setActiveScheduleId(newSchedule.id);
       return newSchedule;
     } catch (err) {
-      console.error('Erro ao criar plano:', err);
+      logger.error('Erro ao criar plano:', err);
       setError('Erro ao criar plano');
       return null;
     } finally {
@@ -166,7 +167,7 @@ export function useGrade() {
   }, [isAuthenticated]);
 
   const renameSchedule = useCallback(async (scheduleId: number, name: string) => {
-    console.log(`🔵 [useGrade] Renomeando plano ${scheduleId} para: ${name}`);
+    logger.info(`🔵 [useGrade] Renomeando plano ${scheduleId} para: ${name}`);
     setIsSaving(true);
     try {
       await userSchedulesService.updateSchedule(scheduleId, { name });
@@ -174,9 +175,9 @@ export function useGrade() {
         s.id === scheduleId ? { ...s, name } : s
       ));
       setEditingScheduleName(null);
-      console.log(`🟢 [useGrade] Plano renomeado com sucesso`);
+      logger.info(`🟢 [useGrade] Plano renomeado com sucesso`);
     } catch (err) {
-      console.error('🔴 [useGrade] Erro ao renomear plano:', err);
+      logger.error('🔴 [useGrade] Erro ao renomear plano:', err);
       setError('Erro ao renomear plano');
     } finally {
       setIsSaving(false);
@@ -200,7 +201,7 @@ export function useGrade() {
         setActiveScheduleId(remaining.length > 0 ? remaining[0].id : null);
       }
     } catch (err) {
-      console.error('Erro ao deletar plano:', err);
+      logger.error('Erro ao deletar plano:', err);
       setError('Erro ao deletar plano');
     } finally {
       setIsSaving(false);
@@ -243,7 +244,7 @@ export function useGrade() {
       
       return { success: true, color: result.color };
     } catch (err) {
-      console.error('Erro ao adicionar turma:', err);
+      logger.error('Erro ao adicionar turma:', err);
       setError('Erro ao adicionar turma');
       return { success: false, error: err };
     } finally {
@@ -260,7 +261,7 @@ export function useGrade() {
       setClasses(prev => prev.filter(c => c.class_id !== classId));
       return true;
     } catch (err) {
-      console.error('Erro ao remover turma:', err);
+      logger.error('Erro ao remover turma:', err);
       setError('Erro ao remover turma');
       return false;
     } finally {
@@ -278,7 +279,7 @@ export function useGrade() {
       ));
       return true;
     } catch (err) {
-      console.error('Erro ao atualizar cor:', err);
+      logger.error('Erro ao atualizar cor:', err);
       return false;
     }
   }, [activeScheduleId]);
@@ -311,7 +312,7 @@ export function useGrade() {
       
       return discipline;
     } catch (err) {
-      console.error('Erro ao adicionar disciplina:', err);
+      logger.error('Erro ao adicionar disciplina:', err);
       setError('Erro ao adicionar disciplina');
       return null;
     } finally {
@@ -327,7 +328,7 @@ export function useGrade() {
       await reloadActiveScheduleData();
       return true;
     } catch (err) {
-      console.error('Erro ao remover disciplina:', err);
+      logger.error('Erro ao remover disciplina:', err);
       setError('Erro ao remover disciplina');
       return false;
     } finally {
@@ -358,7 +359,7 @@ export function useGrade() {
       });
       return result;
     } catch (err) {
-      console.error('Erro ao adicionar disciplina à lista:', err);
+      logger.error('Erro ao adicionar disciplina à lista:', err);
       setError('Erro ao adicionar disciplina à lista');
       return null;
     } finally {
@@ -381,7 +382,7 @@ export function useGrade() {
       ));
       return true;
     } catch (err) {
-      console.error('Erro ao atualizar disciplina na lista:', err);
+      logger.error('Erro ao atualizar disciplina na lista:', err);
       setError('Erro ao atualizar disciplina na lista');
       return false;
     }
@@ -396,7 +397,7 @@ export function useGrade() {
       setScheduleDisciplines(prev => prev.filter(d => d.discipline_id !== disciplineId));
       return true;
     } catch (err) {
-      console.error('Erro ao remover disciplina da lista:', err);
+      logger.error('Erro ao remover disciplina da lista:', err);
       setError('Erro ao remover disciplina da lista');
       return false;
     } finally {

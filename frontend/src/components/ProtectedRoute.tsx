@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { logger } from "@/utils/logger";
 
 /**
  * Rota protegida por autenticação e autorização.
@@ -21,18 +22,18 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
 
   // Não autenticado
   if (!user || !user.token) {
-    console.warn("🟡 [ProtectedRoute] Usuário não autenticado. Redirecionando para login.");
+    logger.warn("🟡 [ProtectedRoute] Usuário não autenticado. Redirecionando para login.");
     return <Navigate to="/entrar" state={{ from: location }} replace />;
   }
 
   // Não autorizado
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    console.warn("🟡 [ProtectedRoute] Usuário não autorizado. Redirecionando para home.");
+    logger.warn("🟡 [ProtectedRoute] Usuário não autorizado. Redirecionando para home.");
     return <Navigate to="/" replace />;
   }
 
   // Autenticado e autorizado
-  console.log("🟢 [ProtectedRoute] Usuário autenticado e autorizado:", user);
+  logger.info("🟢 [ProtectedRoute] Usuário autenticado e autorizado:", user);
   return <>{children}</>;
 };
 

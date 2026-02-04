@@ -88,7 +88,6 @@ export default function FAQLibrary() {
   return (
     <FAQPage
       faqs={faqs}
-      color="library-purple"
       imageSrc="/images/faqLibrary.png"
       intro="Aqui você encontra respostas para as dúvidas mais comuns sobre o funcionamento da biblioteca e seus serviços."
     />
