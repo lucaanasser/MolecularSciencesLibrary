@@ -162,7 +162,7 @@ const BookSearch: React.FC = () => {
                 <div className="p-4">
                   <BookFiltersPanel {...filterPanelProps} />
                   <DrawerClose asChild>
-                    <Button variant="secondary" className="mt-4 w-full">Fechar</Button>
+                    <Button variant="primary" className="mt-4 w-full">Fechar</Button>
                   </DrawerClose>
                 </div>
               </DrawerContent>

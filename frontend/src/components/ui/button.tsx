@@ -18,20 +18,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 
-          "bg-background text-foreground border ",
-        primary:
-          "bg-primary text-primary-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground",
-        destructive:
-          "bg-destructive text-destructive-foreground",
-        ghost: 
-          "hover:bg-accent hover:text-accent-foreground",
-        wide: 
-          "bg-primary text-primary-foreground w-full rounded-xl",
-        transparent:
-          "shadow-none border-none hover:shadow-none"
+        default:"shadow-none hover:shadow-none",
+        primary:"primary-bg text-white",
+        destructive:"bg-destructive text-destructive-foreground",
+        ghost:"hover:bg-accent hover:text-accent-foreground",
+        wide:"primary-bg text-white w-full rounded-xl",
       },
       size: {
         default: "h-10 px-4 py-2 text-lg",

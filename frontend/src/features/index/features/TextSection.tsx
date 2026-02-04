@@ -7,7 +7,6 @@ export function TextSection({
   paragraphs,
   buttonText,
   buttonLink,
-  buttonVariant,
   imageSrc,
   imageAlt = "",
   reverse = false,
@@ -16,7 +15,6 @@ export function TextSection({
   paragraphs: string[];
   buttonText: string;
   buttonLink: string;
-  buttonVariant: VariantProps<typeof buttonVariants>["variant"];
   imageSrc: string;
   imageAlt?: string;
   reverse?: boolean;
@@ -41,7 +39,7 @@ export function TextSection({
           {paragraphs.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
-          <Button variant={buttonVariant}>
+          <Button variant="primary">
             <Link to={buttonLink}>{buttonText}</Link>
           </Button>
         </div>

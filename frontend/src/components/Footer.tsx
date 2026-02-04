@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useSiteMode } from "@/hooks/useSiteMode";
+import { useSiteMode } from "@/contexts/SiteModeContext";
 
 /**
  * Rodapé do site.

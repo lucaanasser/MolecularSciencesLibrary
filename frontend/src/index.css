@@ -10,29 +10,44 @@
     --radius: 0.5rem;
     --x-padding: 1.5rem;
 
-    /* Default colors */
-    --background: theme(colors.white);
-    --foreground: theme(colors.black);
+    /* Cor primária padrão */
+    --primary-color: theme(colors.library-purple);
+    --secondary-color: theme(colors.library-purple-muted);
 
-    /* Button colors */
-    --primary: theme(colors.library-purple);
-    --primary-foreground: theme(colors.white);
-    
-    --secondary: theme(colors.academic-blue);
-    --secondary-foreground: theme(colors.white);
-    
+    /* Outras cores */
     --destructive: theme(colors.cm-red);
     --destructive-foreground: theme(colors.white);
-    
     --accent: hsl(0, 0%, 90%);
     --accent-foreground: hsl(0, 0%, 20%);
-
     --popover: white;
     --popover-foreground: theme(colors.default-text);
-
     /* Input colors */
     --input-background: hsl(0, 0%, 100%);
     --input-foreground: hsl(0, 0%, 30%);
+  }
+
+  /* Cor de acordo com o modo do site */
+  html.mode-academico {
+    --primary-color: theme(colors.academic-blue);
+    --secondary-color: theme(colors.academic-blue-muted);
+  }
+
+  html.mode-biblioteca {
+    --primary-color: theme(colors.library-purple);
+    --secondary-color: theme(colors.library-purple-muted);
+  }
+
+  /* Utilitários para usar a cor primária */
+  .primary-bg {
+    background-color: var(--primary-color);
+  }
+
+  .secondary-bg {
+    background-color: var(--secondary-color);
+  }
+
+  .primary-text {
+    color: var(--primary-color);
   }
 
   body { @apply 
@@ -113,8 +128,6 @@
     color: theme('colors.library-purple');
   }
 }
-
-/* Removidas classes de botão duplicadas. Use variantes do componente Button para estilos de botão. */
 
 @layer components {
   .card {

@@ -134,7 +134,7 @@ export const PostCMTab = ({ posCM, isEditing, onAdd, onSave, onRemove, onUpdate 
                   {(item.areas && item.areas.length > 0) && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {item.areas.map((tag) => (
-                        <Badge key={tag.id} variant="secondary">
+                        <Badge key={tag.id} variant="primary">
                           {tag.label}
                         </Badge>
                       ))}

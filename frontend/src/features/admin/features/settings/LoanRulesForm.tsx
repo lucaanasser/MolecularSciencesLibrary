@@ -5,6 +5,7 @@ import { useLoanRules } from "@/features/rules/hooks/useLoanRules";
 import { LoanRules } from "@/features/rules/types/rules";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface LoanRulesFormProps {
   onSuccess?: () => void;
@@ -59,10 +60,10 @@ export default function LoanRulesForm({ onSuccess, onCancel }: LoanRulesFormProp
 
   return (
     <form onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
-      <ul className="flex flex-col gap-3 mb-4 prose-md">
+      <ul className="flex flex-col mb-4 prose-md">
         {fields.map(field => (
-          <li key={field.name} className="flex items-center gap-2">
-            <label htmlFor={field.name}>{field.label}:</label>
+          <li key={field.name} className="flex flex-row items-baseline gap-2">
+            <Label htmlFor={field.name}>{field.label}:</Label>
             <Input
               id={field.name}
               type="number"
@@ -71,17 +72,17 @@ export default function LoanRulesForm({ onSuccess, onCancel }: LoanRulesFormProp
               onChange={handleChange}
               min={field.min}
               required
-              className="h-7 w-20"
+              className="h-7 w-10 p-0 m-0 text-center"
             />
-            <span className="text-gray-500">{field.unit}</span>
+            <span className="prose-sm">{field.unit}</span>
           </li>
         ))}
       </ul>
-      <div className="mt-6">
+      <div>
         <ActionBar
           onConfirm={handleSubmit}
           onCancel={onCancel}
-          confirmLabel={loading ? "Salvando..." : "Salvar Edições"}
+          confirmLabel={loading ? "Salvando..." : "Editar"}
           loading={loading}
           showCancel={!!onCancel}
         />

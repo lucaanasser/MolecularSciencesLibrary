@@ -228,7 +228,7 @@ export const AdvancedCycleModal = ({
               {formData.coorientadores && formData.coorientadores.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.coorientadores.map((coorientador, idx) => (
-                    <Badge key={idx} variant="secondary" className="flex items-center gap-1">
+                    <Badge key={idx} variant="primary" className="flex items-center gap-1">
                       {coorientador}
                       <button
                         onClick={() => removeCoorientador(idx)}

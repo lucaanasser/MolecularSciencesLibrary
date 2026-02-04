@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
+import { logger } from "@/utils/logger";
 
 /**
  * Hook para obter o usuário atual autenticado.
@@ -13,14 +14,20 @@ export function useCurrentUser() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    console.log("🔵 [useCurrentUser] Buscando usuário atual do localStorage");
+    logger.log("🔵 [useCurrentUser] Buscando usuário atual do localStorage");
     const userStr = localStorage.getItem("user");
     if (userStr) {
-      setUser(JSON.parse(userStr));
-      console.log("🟢 [useCurrentUser] Usuário encontrado:", userStr);
+      try {
+        setUser(JSON.parse(userStr));
+        logger.log("🟢 [useCurrentUser] Usuário encontrado:", userStr);
+      } catch (error) {
+        logger.error("🔴 [useCurrentUser] Erro ao parsear dados do usuário:", error);
+        setUser(null);
+        localStorage.removeItem("user");
+      }
     } else {
       setUser(null);
-      console.warn("🟡 [useCurrentUser] Nenhum usuário encontrado no localStorage");
+      logger.warn("🟡 [useCurrentUser] Nenhum usuário encontrado no localStorage");
     }
   }, []);
 
@@ -29,11 +36,17 @@ export function useCurrentUser() {
     const handler = () => {
       const userStr = localStorage.getItem("user");
       if (userStr) {
-        setUser(JSON.parse(userStr));
-        console.log("🟢 [useCurrentUser] Usuário atualizado via storage event:", userStr);
+        try {
+          setUser(JSON.parse(userStr));
+          logger.log("🟢 [useCurrentUser] Usuário atualizado via storage event:", userStr);
+        } catch (error) {
+          logger.error("🔴 [useCurrentUser] Erro ao parsear dados do usuário (storage event):", error);
+          setUser(null);
+          localStorage.removeItem("user");
+        }
       } else {
         setUser(null);
-        console.warn("🟡 [useCurrentUser] Usuário removido via storage event");
+        logger.warn("🟡 [useCurrentUser] Usuário removido via storage event");
       }
     };
     window.addEventListener("storage", handler);

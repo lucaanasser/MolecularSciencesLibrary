@@ -159,7 +159,7 @@ export const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = (props) =
           </div>
 
           <DrawerClose asChild>
-            <Button variant="secondary" className="mt-6 w-full rounded-2xl">
+            <Button variant="primary" className="mt-6 w-full rounded-2xl">
               Fechar
             </Button>
           </DrawerClose>

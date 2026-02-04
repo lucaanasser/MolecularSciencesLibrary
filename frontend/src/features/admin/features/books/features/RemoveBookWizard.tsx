@@ -137,7 +137,7 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
 
           <div className="flex justify-end">
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={onCancel}
             >
               Cancelar
@@ -206,14 +206,14 @@ export default function RemoveBookForm({ onCancel, onSuccess, onError }: RemoveB
 
           <div className="flex gap-3 justify-end">
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={handleReset}
               disabled={isSubmitting}
             >
               Buscar Outro
             </Button>
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={onCancel}
               disabled={isSubmitting}
             >

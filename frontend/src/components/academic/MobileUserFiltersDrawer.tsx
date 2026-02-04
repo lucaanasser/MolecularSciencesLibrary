@@ -164,7 +164,7 @@ export const MobileUserFiltersDrawer: React.FC<MobileUserFiltersDrawerProps> = (
 
           {/* Botão fechar */}
           <DrawerClose asChild>
-            <Button variant="secondary" className="w-full mt-4 rounded-2xl">
+            <Button variant="primary" className="w-full mt-4 rounded-2xl">
               Aplicar filtros
             </Button>
           </DrawerClose>

@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { logger } from "@/utils/logger";
 
 /**
  * Modos do site:
- * - "biblioteca": Modo padrão da biblioteca (roxo/rosa)
- * - "academico": Modo acadêmico para ciclo avançado (azul/verde-água)
+ * - "biblioteca": Modo padrão da biblioteca (roxo)
+ * - "academico": Modo acadêmico para ciclo avançado (azul)
  */
 export type SiteMode = "biblioteca" | "academico";
 
@@ -42,7 +43,7 @@ export const SiteModeProvider: React.FC<{ children: ReactNode }> = ({ children }
       document.documentElement.classList.remove("mode-academico");
     }
     
-    console.log(`🔵 [SiteMode] Modo alterado para: ${mode}`);
+    logger.log(`🔵 [SiteMode] Modo alterado para: ${mode}`);
   }, [mode]);
 
   const setMode = (newMode: SiteMode) => {

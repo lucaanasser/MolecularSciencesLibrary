@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { useSiteMode } from "@/hooks/useSiteMode";
+import { useSiteMode } from "@/contexts/SiteModeContext";
 
 /**
  * Formulário de login.
@@ -113,7 +113,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <>
-    <div className="bg-white rounded-2xl shadow-md flex items-center justify-center p-4 md:p-8 w-[80%] mx-auto">
+    <div className="bg-white rounded-2xl shadow-md flex items-center justify-center p-4 md:py-6 w-[84%] mx-auto">
       <form onSubmit={handleSubmit} className="w-full">
         <h2 className="text-center"> Login </h2>
         { /* Campo de identificação */ }
@@ -160,9 +160,8 @@ const LoginForm: React.FC = () => {
           </Button>
           <div className="flex justify-end mb-4">
             <Button
-              variant="transparent"
               size="sm"
-              className={`text-${modeColor} transparent`}
+              className={`text-${modeColor}`}
               onClick={handleForgotPassword}
               disabled={forgotLoading}
               type="button"
@@ -179,7 +178,7 @@ const LoginForm: React.FC = () => {
     <p className="text-center mt-8 md:mt-4">
       Ainda não possui uma conta? {' '} 
       <br className="md:hidden" />
-      <a className="link" href="/404">Crie uma aqui</a>
+      <a className="link" href="/criar-conta">Crie uma aqui</a>
     </p>
 
     </>

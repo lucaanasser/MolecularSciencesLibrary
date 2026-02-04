@@ -1,6 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { useSiteMode } from "@/hooks/useSiteMode";
+import { useSiteMode } from "@/contexts/SiteModeContext";
 import { Button } from "@/components/ui/button";
 
 // Log de início de renderização da página 404

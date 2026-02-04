@@ -1,5 +1,5 @@
 import LoginForm from "@/components/LoginForm";
-import { useSiteMode } from "@/hooks/useSiteMode";
+import { useSiteMode } from "@/contexts/SiteModeContext";
 
 // Log de início de renderização da página de login
 console.log("🔵 [LoginPage] Renderizando página de login");
