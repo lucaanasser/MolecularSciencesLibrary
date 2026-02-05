@@ -1,7 +1,9 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
+import { MolecoooogleLogo } from "@/features/search/molecoogle/MolecoooogleLogo";
+import { Button } from "@/components/ui/button";
 
-interface GooglePaginationProps {
+interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -11,7 +13,7 @@ interface GooglePaginationProps {
  * Componente de paginação estilo Google
  * Logo com o's variáveis + números de página
  */
-export const GooglePagination: React.FC<GooglePaginationProps> = ({
+export const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
@@ -45,72 +47,64 @@ export const GooglePagination: React.FC<GooglePaginationProps> = ({
   const oCount = Math.min(Math.max(totalPages, 2), 10);
 
   return (
-    <div className="flex flex-col items-center gap-2 py-8">
-      {/* Logo Molecoooogle com seta */}
+    <div className="flex flex-col items-center gap-1 pt-4 md:pt-8">
+      
+      {/* Logo Molecoooogle com setas */}
       <div className="flex items-center gap-0">
-        {/* M */}
-        <span className="text-4xl font-bold text-[#4285F4]">M</span>
-        {/* o (primeiro, do Molec) */}
-        <span className="text-4xl font-bold text-[#EA4335]">o</span>
-        {/* l */}
-        <span className="text-4xl font-bold text-[#FBBC05]">l</span>
-        {/* e */}
-        <span className="text-4xl font-bold text-[#4285F4]">e</span>
-        {/* c */}
-        <span className="text-4xl font-bold text-[#34A853]">c</span>
-        {/* o's variáveis */}
-        {Array.from({ length: oCount }).map((_, i) => {
-          const colors = ['#EA4335', '#FBBC05', '#4285F4', '#34A853', '#EA4335'];
-          return (
-            <span key={i} className="text-4xl font-bold" style={{ color: colors[i % colors.length] }}>
-              o
-            </span>
-          );
-        })}
-        {/* gle */}
-        <span className="text-4xl font-bold text-[#4285F4]">g</span>
-        <span className="text-4xl font-bold text-[#34A853]">l</span>
-        <span className="text-4xl font-bold text-[#EA4335]">e</span>
-        
-        {/* Seta próximo ao lado do logo */}
-        {currentPage < totalPages && (
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            className="ml-1 text-gray-400 hover:text-gray-600"
+
+        {currentPage > 1 && (
+          <Button
+            size="icon"
+            onClick={() => onPageChange(currentPage - 1)}
+            className="mr-0.5 text-gray-400 hover:text-gray-600"
           >
-            <ChevronRight size={32} />
-          </button>
+            <ChevronRight size={24} className="rotate-180" />
+          </Button>
+        )}
+ 
+        <MolecoooogleLogo oCount={oCount} textSize="text-2xl md:text-4xl" />
+ 
+        {currentPage < totalPages && (
+          <Button
+            size="icon"
+            onClick={() => onPageChange(currentPage + 1)}
+            className="ml-0.5 text-gray-400 hover:text-gray-600"
+          >
+            <ChevronRight size={24} />
+          </Button>
         )}
       </div>
 
-      {/* Números de página */}
+      {/* Números das páginas */}
       <div className="flex items-center gap-0">
         {pageNumbers.map((pageNum, idx) => {
           const isActive = pageNum === currentPage;
 
           return (
-            <button
+            <Button
+              size="sm"
               key={idx}
               onClick={() => onPageChange(pageNum)}
-              className={`px-3 py-1 text-sm ${
+              className={`px-1.5 md:px-2 prose-sm font-medium hover:transform-none ${
                 isActive
-                  ? "text-[#EA4335] font-bold"
-                  : "text-[#4285F4] hover:underline"
+                  ? "text-cm-red font-bold"
+                  : "text-cm-blue hover:underline"
               }`}
             >
               {pageNum}
-            </button>
+            </Button>
           );
         })}
 
         {/* Mais */}
         {totalPages > 10 && currentPage <= totalPages - 6 && (
-          <button
+          <Button
+            size="sm"
             onClick={() => onPageChange(Math.min(currentPage + 10, totalPages))}
-            className="px-3 py-1 text-sm text-[#4285F4] hover:underline"
+            className="font-medium text-cm-blue hover:transform-none"
           >
             Mais
-          </button>
+          </Button>
         )}
       </div>
     </div>

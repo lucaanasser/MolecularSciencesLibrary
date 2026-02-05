@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { logger } from "@/utils/logger";
 import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
-import { UnifiedSearchResultsLayout } from "@/components/shared/UnifiedSearchResultsLayout";
-import { UserFiltersPanel } from "@/components/academic/UserFiltersPanel";
-import { MobileUserFiltersDrawer } from "@/components/academic/MobileUserFiltersDrawer";
+import { SearchResultsLayout } from "@/features/search/molecoogle/SearchResultsLayout";
+import { UserFiltersPanel } from "@/features/search/_users/UserFiltersPanel";
+import { UserFiltersDrawer } from "@/features/search/_users/UserFiltersDrawer";
 import { UserResultsList } from "@/components/academic/UserResultsList";
 import {
   searchUsers,
@@ -167,7 +167,7 @@ const AcademicUserSearchResultsPage: React.FC = () => {
   }, [turmas, tags, cursos, disciplinaFilter, query]);
 
   return (
-    <UnifiedSearchResultsLayout
+    <SearchResultsLayout
       query={query}
       searchInput={searchInput}
       setSearchInput={setSearchInput}
@@ -198,7 +198,7 @@ const AcademicUserSearchResultsPage: React.FC = () => {
         />
       }
       mobileFiltersDrawer={
-        <MobileUserFiltersDrawer
+        <UserFiltersDrawer
           turmas={turmas}
           setTurmas={setTurmas}
           tags={tags}
@@ -220,7 +220,7 @@ const AcademicUserSearchResultsPage: React.FC = () => {
       }
     >
       <UserResultsList results={paginatedUsers} searchQuery={query} />
-    </UnifiedSearchResultsLayout>
+    </SearchResultsLayout>
   );
 };
 

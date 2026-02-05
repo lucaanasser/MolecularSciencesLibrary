@@ -41,7 +41,10 @@ export default {
         "academic-blue": "#01aad0",
         "academic-blue-muted": "#34bbd9",
         border: "var(--border)",
-        input: "var(--input)",
+        input: {
+          foreground: "var(--input-foreground)",
+          background: "var(--input-background)",
+        },
         ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",

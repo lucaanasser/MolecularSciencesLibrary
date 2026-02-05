@@ -15,8 +15,8 @@
     --secondary-color: theme(colors.library-purple-muted);
 
     /* Outras cores */
-    --destructive: theme(colors.cm-red);
-    --destructive-foreground: theme(colors.white);
+    --destructive: hsl(0, 100%, 58%);
+    --destructive-foreground: theme(colors.black);
     --accent: hsl(0, 0%, 90%);
     --accent-foreground: hsl(0, 0%, 20%);
     --popover: white;

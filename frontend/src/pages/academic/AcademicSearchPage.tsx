@@ -1,4 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { usePopularDisciplines } from "@/features/search/usePopularDisciplines";
+import { useHighlightMatch } from "@/features/search/useHighlightMatch";
+import { useRecentSearches } from "@/features/search/useRecentSearches";
+import { useAcademicSearch } from "@/features/search/useAcademicSearch";
 import { logger } from "@/utils/logger";
 import { Search, Clock, TrendingUp, Star, Users, Loader2, Plus, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
@@ -75,153 +79,48 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
     return 'disciplinas';
   };
   
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchMode, setSearchMode] = useState<SearchMode>(getInitialMode);
   const [isFocused, setIsFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [disciplineSuggestions, setDisciplineSuggestions] = useState<DisciplineWithRating[]>([]);
-  const [userSuggestions, setUserSuggestions] = useState<UserSearchResult[]>([]);
-  const [bookSuggestions, setBookSuggestions] = useState<BookWithAvailability[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchMode,
+    setSearchMode,
+    isLoading,
+    disciplineSuggestions,
+    userSuggestions,
+    bookSuggestions,
+    searchDisciplinesDebounced,
+    searchUsersDebounced,
+    searchBooksDebounced,
+    searchTimeoutRef,
+  } = useAcademicSearch();
 
   // Buscas recentes (localStorage)
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("academicRecentSearches");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { recentSearches, saveRecentSearch } = useRecentSearches();
 
-  // Disciplinas populares (estático por enquanto)
-  const popularDisciplines = [
-    { codigo: "MAC0110", nome: "Introdução à Computação" },
-    { codigo: "MAT0111", nome: "Cálculo Diferencial e Integral I" },
-    { codigo: "4302111", nome: "Física I" },
-  ];
+  // Disciplinas populares
+  const { popularDisciplines } = usePopularDisciplines();
 
-  // Salvar busca recente
-  const saveRecentSearch = useCallback((term: string) => {
-    const updated = [term, ...recentSearches.filter(s => s !== term)].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem("academicRecentSearches", JSON.stringify(updated));
-  }, [recentSearches]);
 
   // Buscar disciplinas na API com debounce
-  const searchDisciplinesDebounced = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setDisciplineSuggestions([]);
-      return;
-    }
 
-    setIsLoading(true);
-    try {
-      const results = await searchDisciplines(query, 8);
-      
-      // Buscar ratings para cada disciplina (em paralelo)
-      const resultsWithRatings = await Promise.all(
-        results.map(async (disc) => {
-          try {
-            const stats = await getAggregatedRatings(disc.codigo);
-            return { ...disc, avaliacao: stats.media_geral };
-          } catch {
-            return { ...disc, avaliacao: null };
-          }
-        })
-      );
-      
-      setDisciplineSuggestions(resultsWithRatings);
-    } catch (error) {
-      logger.error("🔴 [AcademicSearchPage] Erro ao buscar disciplinas:", error);
-      setDisciplineSuggestions([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Buscar usuários na API com debounce
-  const searchUsersDebounced = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setUserSuggestions([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const results = await searchUsers(query, 8);
-      setUserSuggestions(results);
-    } catch (error) {
-      logger.error("🔴 [AcademicSearchPage] Erro ao buscar usuários:", error);
-      setUserSuggestions([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Buscar livros na API com debounce
-  const searchBooksDebounced = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setBookSuggestions([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const results = await searchBooks(query, 8);
-      setBookSuggestions(results);
-    } catch (error) {
-      logger.error("🔴 [AcademicSearchPage] Erro ao buscar livros:", error);
-      setBookSuggestions([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Efeito para buscar com debounce
+  // Efeito para sincronizar modo inicial com fixedMode/location
   useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    
-    if (searchQuery.length >= 2) {
-      searchTimeoutRef.current = setTimeout(() => {
-        if (searchMode === "disciplinas") {
-          searchDisciplinesDebounced(searchQuery);
-        } else if (searchMode === "usuarios") {
-          searchUsersDebounced(searchQuery);
-        } else {
-          searchBooksDebounced(searchQuery);
-        }
-      }, 300);
+    if (fixedMode) {
+      setSearchMode(fixedMode);
+    } else if (location.pathname.includes('/biblioteca/buscar')) {
+      setSearchMode('livros');
     } else {
-      setDisciplineSuggestions([]);
-      setUserSuggestions([]);
-      setBookSuggestions([]);
+      setSearchMode('disciplinas');
     }
-    
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchQuery, searchMode, searchDisciplinesDebounced, searchUsersDebounced, searchBooksDebounced]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fixedMode, location.pathname]);
 
-  // Função para destacar o texto que coincide
-  const highlightMatch = (text: string, query: string) => {
-    if (!query) return text;
-    // Escapa caracteres especiais de regex
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const parts = text.split(new RegExp(`(${escapedQuery})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === query.toLowerCase() 
-        ? <strong key={i} className="font-semibold">{part}</strong>
-        : part
-    );
-  };
+  // Destacar matches
+  const { highlightMatch } = useHighlightMatch();
 
   // Navegar para disciplina
   const handleSelectDiscipline = (codigo: string, nome?: string) => {
@@ -288,9 +187,7 @@ const AcademicSearchPage: React.FC<SearchPageProps> = ({
     setSearchMode(mode);
     setSearchQuery("");
     setSelectedIndex(-1);
-    setDisciplineSuggestions([]);
-    setUserSuggestions([]);
-    setBookSuggestions([]);
+    // Limpeza de sugestões agora é controlada pelo hook useAcademicSearch
     inputRef.current?.focus();
     
     // Navega para a rota correta ao mudar de modo

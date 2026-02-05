@@ -29,7 +29,8 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getBookById, type Book } from "@/services/SearchService";
+import { getBookById } from "@/services/SearchService";
+import { Book } from "@/types/book";
 import {
   getBookEvaluations,
   getBookAggregatedRatings,
@@ -41,7 +42,7 @@ import {
   type BookEvaluation,
   type BookAggregatedRatings,
 } from "@/services/BookEvaluationsService";
-import StarRating from "@/components/common/StarRating";
+import StarRating from "@/features/search/rating/StarRating";
 
 // Tipos
 interface FormRatings {

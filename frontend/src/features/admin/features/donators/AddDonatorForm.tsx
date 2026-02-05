@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useCreateDonator } from '@/features/donators/hooks/useCreatDonator';
 import { Donator } from '@/features/donators/types/Donator';
@@ -84,13 +85,12 @@ const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
             onChange={handleChange}
           />
           <div className="flex items-center gap-2">
-            <Input
-              type="checkbox"
+            <Checkbox
               id="isUser"
               checked={isUser}
-              onChange={(e) => {
-                setIsUser(e.target.checked);
-                if (!e.target.checked) setForm((f) => ({ ...f, user_id: undefined }));
+              onCheckedChange={(checked) => {
+                setIsUser(!!checked);
+                if (!checked) setForm((f) => ({ ...f, user_id: undefined }));
               }}
             />
             <Label htmlFor="isUser">Doador é usuário?</Label>

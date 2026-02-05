@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { logger } from "@/utils/logger";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, Plus } from "lucide-react";
-import { UnifiedSearchResultsLayout } from "@/components/shared/UnifiedSearchResultsLayout";
-import { DisciplineFiltersPanel } from "@/components/academic/DisciplineFiltersPanel";
-import { MobileFiltersDrawer } from "@/components/academic/MobileFiltersDrawer";
+import { SearchResultsLayout } from "@/features/search/molecoogle/SearchResultsLayout";
+import { DisciplineFiltersPanel } from "@/features/search/_disciplines/DisciplineFiltersPanel";
+import { DisciplineFiltersDrawer } from "@/features/search/_disciplines/DisciplineFiltersDrawer";
 import { DisciplineResultsList } from "@/components/academic/DisciplineResultsList";
 import {
   getDisciplinesWithPagination,
@@ -166,7 +166,7 @@ const AcademicSearchResultsPage: React.FC = () => {
   }, [campus, unidade, hasClasses, isPostgrad, query]);
 
   return (
-    <UnifiedSearchResultsLayout
+    <SearchResultsLayout
       query={query}
       searchInput={searchInput}
       setSearchInput={setSearchInput}
@@ -196,7 +196,7 @@ const AcademicSearchResultsPage: React.FC = () => {
         />
       }
       mobileFiltersDrawer={
-        <MobileFiltersDrawer
+        <DisciplineFiltersDrawer
           campus={campus}
           setCampus={setCampus}
           unidade={unidade}
@@ -229,7 +229,7 @@ const AcademicSearchResultsPage: React.FC = () => {
         results={filteredDisciplines}
         searchQuery={query}
       />
-    </UnifiedSearchResultsLayout>
+    </SearchResultsLayout>
   );
 };
 
