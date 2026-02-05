@@ -31,6 +31,7 @@ export default function FAQAcademic() {
       faqs={faqs}
       imageSrc="/images/faqAcademic.png"
       intro="Aqui você encontra respostas para as dúvidas mais comuns sobre o funcionamento da modalidade acadêmica desse site."
+      reverse={true}
     />
   );
 }

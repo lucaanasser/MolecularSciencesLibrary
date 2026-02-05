@@ -10,7 +10,9 @@
     --radius: 0.5rem;
     --x-padding: 1.5rem;
 
-    /* Cor primária padrão */
+    /* Cores padrão */
+    --background: white;
+    --foreground: black;
     --primary-color: theme(colors.library-purple);
     --secondary-color: theme(colors.library-purple-muted);
 
