@@ -1,7 +1,7 @@
 import React, { useEffect, useState, ReactNode } from "react";
 import { Loader2, LucideIcon } from "lucide-react";
-import SearchHeader from "@/features/search/molecoogle/SearchHeader";
-import { Pagination } from "@/features/search/molecoogle/Pagination";
+import SearchHeader from "@/features/search/components/SearchHeader";
+import { Pagination } from "@/features/search/components/Pagination";
 import { cn } from "@/lib/utils";
 import { logger } from "@/utils/logger";
 

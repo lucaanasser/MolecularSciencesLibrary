@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { logger } from "@/utils/logger";
-import LoanForm from "@/features/books/LoanForm";
+import LoanForm from "@/features/old_books/LoanForm";
 
 // Log de início de renderização da página Pró-Aluno
 logger.info("🔵 [ProAlunoPage] Renderizando página Pró-Aluno");

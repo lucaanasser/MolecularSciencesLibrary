@@ -29,40 +29,46 @@ export default {
     },
     extend: {
       colors: {
+        /* Cores do CM */
         "cm-red": "#eb0000",
         "cm-orange": "#ff6300",
         "cm-yellow": "#ffcf00",
         "cm-green": "#00c80e",
         "cm-blue": "#008cff",
+
+        /* Cores tema do site */
         "default-bg": "#fcfcf8",
         "default-text": "#616161",
         "library-purple": "#b657b3",
         "library-purple-muted": "#c579c2",
         "academic-blue": "#01aad0",
         "academic-blue-muted": "#34bbd9",
-        border: "var(--border)",
+
+        /* Cores dos componentes Google */
+        "google-blue": "#4285F4",
+        "google-red": "#EA4335",
+        "google-yellow": "#FBBC05",
+        "google-green": "#34A853",
+        "google-result-blue": "#1A0DAB",
+        "google-result-purple": "#681da8",
+        "google-result-green": "#006621",
+
+        /* Cores base usando CSS variables para componentes reutilizáveis */
         input: {
           foreground: "var(--input-foreground)",
           background: "var(--input-background)",
         },
-        ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {
           DEFAULT: "var(--primary)",
-          foreground: "var(--primary-foreground)",
         },
         secondary: {
           DEFAULT: "var(--secondary)",
-          foreground: "var(--secondary-foreground)",
         },
         destructive: {
           DEFAULT: "var(--destructive)",
           foreground: "var(--destructive-foreground)",
-        },
-        muted: {
-          DEFAULT: "var(--muted)",
-          foreground: "var(--muted-foreground)",
         },
         accent: {
           DEFAULT: "var(--accent)",
@@ -71,20 +77,6 @@ export default {
         popover: {
           DEFAULT: "var(--popover)",
           foreground: "var(--popover-foreground)",
-        },
-        card: {
-          DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
-        },
-        sidebar: {
-          DEFAULT: "var(--sidebar-background)",
-          foreground: "var(--sidebar-foreground)",
-          primary: "var(--sidebar-primary)",
-          "primary-foreground": "var(--sidebar-primary-foreground)",
-          accent: "var(--sidebar-accent)",
-          "accent-foreground": "var(--sidebar-accent-foreground)",
-          border: "var(--sidebar-border)",
-          ring: "var(--sidebar-ring)",
         },
       },
       fontFamily: {

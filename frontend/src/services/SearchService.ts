@@ -22,11 +22,9 @@
  * 🔴 Erro
  */
 
-import {
-  searchDisciplines,
-  type SearchResult as DisciplineSearchResult,
-} from "./DisciplinesService";
-import { searchUsers, type UserSearchResult } from "./UsersService";
+// ================ TIPOS E SERVIÇOS DE DISCIPLINAS E USUÁRIOS ================
+import { searchDisciplines } from "@/services/DisciplinesService";
+import { searchUsers } from "./UsersService";
 
 // Reexporta os tipos e serviços de disciplinas
 export {
@@ -34,44 +32,19 @@ export {
   checkExactMatch,
   getDisciplines,
   getDisciplineByCodigo,
-  type SearchResult as DisciplineSearchResult,
-  type Discipline,
-  type DisciplineFilters,
 } from "./DisciplinesService";
 
 // Reexporta os tipos e serviços de usuários
 export {
   searchUsers,
   getUserById,
-  type UserSearchResult,
   type User,
   type UserSearchFilters as UserFilters,
 } from "./UsersService";
 
 // ================ TIPOS PARA LIVROS ================
 
-import { Book } from "@/types/book";
-
-export interface BookSearchResult {
-  id: number;
-  code: string;
-  title: string;
-  authors: string;
-  area: string;
-  subarea: number;
-}
-
-export interface BookFilters {
-  category?: string;
-  subcategory?: string;
-  search?: string;
-  q?: string;
-  status?: string;
-  reserved?: string;
-  extended?: boolean;
-  limit?: number;
-  offset?: number;
-}
+import { Book, BookFilters } from "@/types/book";
 
 // ================ SERVIÇO DE LIVROS ================
 
@@ -209,13 +182,16 @@ export async function getBookOptions(): Promise<{
 
 // ================ TIPOS UNIFICADOS ================
 
-export type SearchMode = "disciplinas" | "usuarios" | "livros";
+import { SearchMode } from "@/types/search";
+import { BookSearchResult, DisciplineSearchResult, UserSearchResult } from "@/types/search";
+export { type BookSearchResult, 
+         type DisciplineSearchResult, 
+         type UserSearchResult } from "@/types/search";
 
 export type UnifiedSearchResult = 
   | (BookSearchResult & { _type: "livros" })
   | (DisciplineSearchResult & { _type: "disciplinas" })
   | (UserSearchResult & { _type: "usuarios" });
-
 /**
  * Busca unificada - retorna resultados do modo atual
  */

@@ -4,21 +4,21 @@ export const MolecoooogleLogo: React.FC<{ oCount?: number, textSize?: string }> 
   
   // Letras iniciais
   const logoLetters = [
-    { char: "M", color: "text-cm-blue" },
-    { char: "o", color: "text-cm-red" },
-    { char: "l", color: "text-cm-yellow" },
-    { char: "e", color: "text-cm-blue" },
-    { char: "c", color: "text-cm-green" },
+    { char: "M", color: "text-google-blue" },
+    { char: "o", color: "text-google-red" },
+    { char: "l", color: "text-google-yellow" },
+    { char: "e", color: "text-google-blue" },
+    { char: "c", color: "text-google-green" },
   ];
   
   // Cores para os "o" variáveis
-  const oColors = ["text-cm-red", "text-cm-yellow", "text-cm-blue", "text-cm-green", "text-cm-red"];
+  const oColors = ["text-google-red", "text-google-yellow", "text-google-blue", "text-google-green", "text-google-red"];
   
   // Letras finais
   const endLetters = [
-    { char: "g", color: "text-cm-blue" },
-    { char: "l", color: "text-cm-green" },
-    { char: "e", color: "text-cm-red" },
+    { char: "g", color: "text-google-blue" },
+    { char: "l", color: "text-google-green" },
+    { char: "e", color: "text-google-red" },
   ];
   return (
     <span className="flex items-center gap-0">
@@ -30,7 +30,7 @@ export const MolecoooogleLogo: React.FC<{ oCount?: number, textSize?: string }> 
         ? Array.from({ length: oCount }).map((_, i) => (
             <span key={"o"+i} className={`${textSize} font-bold ${oColors[i % oColors.length]}`}>o</span>
           ))
-        : <span className={`${textSize} font-bold text-cm-red`}>o</span>
+        : <span className={`${textSize} font-bold text-google-red`}>o</span>
       }
       {endLetters.map((l, i) => (
         <span key={"end"+i} className={`${textSize} font-bold ${l.color}`}>{l.char}</span>

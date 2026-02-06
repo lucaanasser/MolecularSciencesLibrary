@@ -1,6 +1,6 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
-import { MolecoooogleLogo } from "@/features/search/molecoogle/MolecoooogleLogo";
+import { MolecoooogleLogo } from "@/features/search/components/MolecoooogleLogo";
 import { Button } from "@/components/ui/button";
 
 interface PaginationProps {
@@ -87,8 +87,8 @@ export const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(pageNum)}
               className={`px-1.5 md:px-2 prose-sm font-medium hover:transform-none ${
                 isActive
-                  ? "text-cm-red font-bold"
-                  : "text-cm-blue hover:underline"
+                  ? "text-google-red font-bold"
+                  : "text-google-blue hover:underline"
               }`}
             >
               {pageNum}

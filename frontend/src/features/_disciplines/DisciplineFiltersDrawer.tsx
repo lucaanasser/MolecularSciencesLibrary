@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { FiltersDrawer } from "@/features/search/filters/FiltersDrawer";
+import { FiltersDrawer } from "@/components/filters/FiltersDrawer";
 
 interface DisciplineFiltersDrawerProps {
   campus: string[];
@@ -15,6 +15,9 @@ interface DisciplineFiltersDrawerProps {
   onClear: () => void;
 }
 
+/**
+ * Drawer mobile para filtros de disciplinas, usando estrutura genérica FiltersDrawer
+ */
 export const DisciplineFiltersDrawer: React.FC<DisciplineFiltersDrawerProps> = ({
   campus,
   setCampus,

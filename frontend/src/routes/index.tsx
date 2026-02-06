@@ -5,7 +5,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Importação das páginas
 import Index from "@/pages/library/Index";
-import SearchPage from "@/pages/library/SearchPage";
+import LibrarySearchPage from "@/pages/library/LibrarySearchPage";
 import VirtualShelfPage from "@/pages/library/VirtualBookShelfPage";
 import DonationPage from "@/pages/library/HelpTheLibrary";
 import FAQ from "@/pages/library/FAQ";
@@ -43,12 +43,12 @@ const routes: RouteObject[] = [
 
   // Rotas do modo biblioteca
   { path: "/", element: RenderPage(Index) },
-  { path: "/buscar", element: RenderPage(SearchPage) },
+  { path: "/buscar", element: RenderPage(LibrarySearchPage) },
   { path: "/estante-virtual", element: RenderPage(VirtualShelfPage) },
   { path: "/ajude", element: RenderPage(DonationPage) },
   { path: "/faq", element: RenderPage(FAQ) },
   { path: "/transparencia", element: RenderPage(TransparencyPortalPage) },
-  { path: "/biblioteca/buscar", element: RenderPage(SearchPage) },
+  { path: "/biblioteca/buscar", element: RenderPage(LibrarySearchPage) },
   { path: "/biblioteca/buscar/resultados", element: RenderPage(LibrarySearchResultsPage) },
   { path: "/biblioteca/livro/:id", element: RenderPage(BookPage) },
 

@@ -2,7 +2,7 @@ import React from "react";
 import { LucideIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { MolecoooogleLogo } from "@/features/search/molecoogle/MolecoooogleLogo";
+import { MolecoooogleLogo } from "@/features/search/components/MolecoooogleLogo";
 
 interface SearchHeaderProps {
   searchInput: string;

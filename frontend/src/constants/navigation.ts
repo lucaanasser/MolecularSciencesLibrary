@@ -3,8 +3,6 @@
  * Centraliza os links e labels para facilitar manutenção.
  */
 
-import { User } from "@/types/user";
-
 export interface NavLink {
   to: string;
   label: string;

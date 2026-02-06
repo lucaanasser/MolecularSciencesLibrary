@@ -1,5 +1,5 @@
 import React from "react";
-import FilterPanel, { FilterGroup } from "@/features/search/filters/Filter";
+import FilterPanel, { FilterGroup } from "@/components/filters/Filter";
 
 interface BookFiltersPanelProps {
   status: string[];
@@ -15,7 +15,7 @@ interface BookFiltersPanelProps {
 }
 
 /**
- * Painel de filtros laterais para busca de livros
+ * Painel de filtros para busca de livros, usando estrutura genérica FilterPanel
  */
 export const BookFiltersPanel: React.FC<BookFiltersPanelProps> = ({
   status,

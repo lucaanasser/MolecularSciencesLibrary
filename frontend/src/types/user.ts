@@ -8,8 +8,8 @@
  */
 export interface User {
   id?: number;
-  name: string;
-  role: string;
+  name?: string;
+  role?: string;
   NUSP?: number;
   email?: string;
   phone?: string; // Número de telefone do usuário

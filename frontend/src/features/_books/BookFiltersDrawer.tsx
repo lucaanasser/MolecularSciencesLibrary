@@ -1,6 +1,6 @@
 import React from "react";
-import { FiltersDrawer } from "@/features/search/filters/FiltersDrawer";
-import { FilterGroup } from "@/features/search/filters/Filter";
+import { FiltersDrawer } from "@/components/filters/FiltersDrawer";
+import { FilterGroup } from "@/components/filters/Filter";
 
 export interface BookFiltersDrawerProps {
   status: string[];

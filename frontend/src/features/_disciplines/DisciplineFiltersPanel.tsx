@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { FilterPanel } from "@/features/search/filters/FilterPanel";
+import { FilterPanel } from "@/components/filters/FilterPanel";
 
 interface DisciplineFiltersPanelProps {
   campus: string[];
@@ -16,7 +16,7 @@ interface DisciplineFiltersPanelProps {
 }
 
 /**
- * Painel de filtros para busca de disciplinas
+ * Painel de filtros para busca de disciplinas, usando estrutura genérica FilterPanel
  */
 export const DisciplineFiltersPanel: React.FC<DisciplineFiltersPanelProps> = ({
   campus,

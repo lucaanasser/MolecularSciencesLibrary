@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BookOpen } from "lucide-react";
-import { SearchResultsLayout } from "@/features/search/molecoogle/SearchResultsLayout";
+import { SearchResultsLayout } from "@/features/search/SearchResultsLayout";
 import { BookResultsList } from "@/components/library/BookResultsList";
-import { BookFiltersPanel } from "@/features/search/_books/BookFiltersPanel";
-import { BookFiltersDrawer } from "@/features/search/_books/BookFiltersDrawer";
-import { useLibrarySearch } from "@/features/search/useLibrarySearch";
+import { BookFiltersPanel } from "@/features/_books/BookFiltersPanel";
+import { BookFiltersDrawer } from "@/features/_books/BookFiltersDrawer";
+import { useLibrarySearch } from "@/features/_books/useLibrarySearch";
 import { logger } from "@/utils/logger";
 
 /**

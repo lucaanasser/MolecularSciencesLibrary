@@ -1,4 +1,5 @@
 export function usePopularDisciplines() {
+  
   // Pode futuramente buscar de uma API
   const popularDisciplines = [
     { codigo: "MAC0110", nome: "Introdução à Computação" },

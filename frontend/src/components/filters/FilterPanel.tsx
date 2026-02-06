@@ -2,7 +2,7 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { FilterGroup } from "@/features/search/filters/Filter";
+import { FilterGroup } from "@/components/filters/Filter";
 
 interface FilterRendererProps {
   groups: FilterGroup[];

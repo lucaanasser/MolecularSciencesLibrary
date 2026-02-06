@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from "@/components/ui/input";
-import { useBookReserve } from '@/features/books/hooks/useBookReserve';
+import { useBookReserve } from '@/features/old_books/hooks/useBookReserve';
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 const AddReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {

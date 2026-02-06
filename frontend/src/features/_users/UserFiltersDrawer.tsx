@@ -1,12 +1,8 @@
 import React, { useMemo } from "react";
-import { FilterPanel } from "@/features/search/filters/FilterPanel";
+import { FiltersDrawer } from "@/components/filters/FiltersDrawer";
 import { Input } from "@/components/ui/input";
 
-/**
- * Painel de filtros laterais para busca de usuários
- */
-
-interface UserFiltersPanelProps {
+interface UserFiltersDrawerProps {
   turmas: string[];
   setTurmas: (value: string[]) => void;
   tags: string[];
@@ -21,7 +17,10 @@ interface UserFiltersPanelProps {
   onClear: () => void;
 }
 
-export const UserFiltersPanel: React.FC<UserFiltersPanelProps> = ({
+/**
+ * Drawer mobile para filtros de usuários, usando estrutura genérica FiltersDrawer
+ */
+export const UserFiltersDrawer: React.FC<UserFiltersDrawerProps> = ({
   turmas,
   setTurmas,
   tags,
@@ -60,28 +59,23 @@ export const UserFiltersPanel: React.FC<UserFiltersPanelProps> = ({
   ], [turmas, setTurmas, cursos, setCursos, tags, setTags, availableTurmas, availableCursos, availableTags]);
 
   return (
-    <aside className="w-48 min-w-[150px] max-w-xs p-4 mr-6 h-fit sticky top-20 self-start hidden md:block">
-      <div className="space-y-4">
-        {/* Busca por disciplina */}
+    <FiltersDrawer
+      groups={groups}
+      showClearButton={true}
+      onClearAll={onClear}
+      disciplineInput={
         <div>
-          <div className="font-semibold mb-1 text-sm">Disciplina</div>
+          <div className="font-semibold mb-2">Disciplina</div>
           <Input
             type="text"
             placeholder="Ex: MAC0110"
             value={disciplinaFilter}
             onChange={(e) => setDisciplinaFilter(e.target.value)}
-            className="text-sm h-8"
+            className="text-sm"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Buscar quem cursou
-          </p>
+          <p className="text-xs text-gray-500 mt-1">Buscar quem cursou</p>
         </div>
-        <FilterPanel
-          groups={groups}
-          showClearButton={true}
-          onClearAll={onClear}
-        />
-      </div>
-    </aside>
+      }
+    />
   );
 };

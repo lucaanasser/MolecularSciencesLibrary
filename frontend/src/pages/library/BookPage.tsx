@@ -42,7 +42,7 @@ import {
   type BookEvaluation,
   type BookAggregatedRatings,
 } from "@/services/BookEvaluationsService";
-import StarRating from "@/features/search/rating/StarRating";
+import StarRating from "@/components/rating/StarRating";
 
 // Tipos
 interface FormRatings {

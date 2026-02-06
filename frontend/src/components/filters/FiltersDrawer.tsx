@@ -1,8 +1,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, Filter as FilterIcon } from "lucide-react";
-import { FilterPanel } from "@/features/search/filters/FilterPanel";
-import { FilterProps } from "@/features/search/filters/Filter";
+import { FilterPanel } from "@/components/filters/FilterPanel";
+import { FilterProps } from "@/components/filters/Filter";
 
 /**
  * Drawer genérico para filtros reutilizáveis

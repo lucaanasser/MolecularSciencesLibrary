@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { logger } from "@/utils/logger";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, Plus } from "lucide-react";
-import { SearchResultsLayout } from "@/features/search/molecoogle/SearchResultsLayout";
-import { DisciplineFiltersPanel } from "@/features/search/_disciplines/DisciplineFiltersPanel";
-import { DisciplineFiltersDrawer } from "@/features/search/_disciplines/DisciplineFiltersDrawer";
+import { SearchResultsLayout } from "@/features/search/SearchResultsLayout";
+import { DisciplineFiltersPanel } from "@/features/_disciplines/DisciplineFiltersPanel";
+import { DisciplineFiltersDrawer } from "@/features/_disciplines/DisciplineFiltersDrawer";
 import { DisciplineResultsList } from "@/components/academic/DisciplineResultsList";
 import {
   getDisciplinesWithPagination,

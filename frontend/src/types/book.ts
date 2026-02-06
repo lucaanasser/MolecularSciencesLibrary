@@ -6,6 +6,7 @@
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
+
 export interface Book {
   id: number;
   code: string;
@@ -27,6 +28,18 @@ export interface Book {
   due_in_window?: boolean;
   is_extended?: boolean;
   due_date?: string;
+}
+
+export interface BookFilters {
+  category?: string;
+  subcategory?: string;
+  search?: string;
+  q?: string;
+  status?: string;
+  reserved?: string;
+  extended?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface BookFormData {

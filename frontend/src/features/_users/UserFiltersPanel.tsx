@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
-import { FiltersDrawer } from "@/features/search/filters/FiltersDrawer";
+import { FilterPanel } from "@/components/filters/FilterPanel";
 import { Input } from "@/components/ui/input";
 
-interface UserFiltersDrawerProps {
+interface UserFiltersPanelProps {
   turmas: string[];
   setTurmas: (value: string[]) => void;
   tags: string[];
@@ -17,7 +17,10 @@ interface UserFiltersDrawerProps {
   onClear: () => void;
 }
 
-export const UserFiltersDrawer: React.FC<UserFiltersDrawerProps> = ({
+/**
+ * Painel de filtros para busca de usuários, usando estrutura genérica FilterPanel
+ */
+export const UserFiltersPanel: React.FC<UserFiltersPanelProps> = ({
   turmas,
   setTurmas,
   tags,
@@ -56,23 +59,28 @@ export const UserFiltersDrawer: React.FC<UserFiltersDrawerProps> = ({
   ], [turmas, setTurmas, cursos, setCursos, tags, setTags, availableTurmas, availableCursos, availableTags]);
 
   return (
-    <FiltersDrawer
-      groups={groups}
-      showClearButton={true}
-      onClearAll={onClear}
-      disciplineInput={
+    <aside className="w-48 min-w-[150px] max-w-xs p-4 mr-6 h-fit sticky top-20 self-start hidden md:block">
+      <div className="space-y-4">
+        {/* Busca por disciplina */}
         <div>
-          <div className="font-semibold mb-2">Disciplina</div>
+          <div className="font-semibold mb-1 text-sm">Disciplina</div>
           <Input
             type="text"
             placeholder="Ex: MAC0110"
             value={disciplinaFilter}
             onChange={(e) => setDisciplinaFilter(e.target.value)}
-            className="text-sm"
+            className="text-sm h-8"
           />
-          <p className="text-xs text-gray-500 mt-1">Buscar quem cursou</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Buscar quem cursou
+          </p>
         </div>
-      }
-    />
+        <FilterPanel
+          groups={groups}
+          showClearButton={true}
+          onClearAll={onClear}
+        />
+      </div>
+    </aside>
   );
 };

@@ -1,6 +1,6 @@
 import React from "react";
-import { FilterPanel } from "@/features/search/filters/FilterPanel";
-import FiltersDrawer from "@/features/search/filters/FiltersDrawer";
+import { FilterPanel } from "@/components/filters/FilterPanel";
+import FiltersDrawer from "@/components/filters/FiltersDrawer";
 
 export interface FilterProps {
   groups: FilterGroup[];
