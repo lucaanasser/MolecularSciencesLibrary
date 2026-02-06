@@ -1,7 +1,7 @@
 import React from "react";
 import { useSearchLogic } from "@/features/search/useSearchLogic";
 import { motion } from "framer-motion";
-import { MolecoooogleLogo } from "@/features/search/components/MolecoooogleLogo";
+import { MolecoogleLogo } from "@/features/search/components/MolecoogleLogo";
 import SearchBar from "@/features/search/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import AreasExplorerTags from "@/features/_books/AreasExplorerTags";
@@ -51,7 +51,7 @@ export const SearchPage: React.FC<SearchPageProps> = ({ modes, initialMode, hide
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <MolecoooogleLogo textSize="text-6xl"/>
+          <MolecoogleLogo fontSize="text-6xl"/>
         </motion.div>
         
         {/* SearchBar */}

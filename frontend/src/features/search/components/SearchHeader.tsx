@@ -1,8 +1,8 @@
 import React from "react";
 import { LucideIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
-import { MolecoooogleLogo } from "@/features/search/components/MolecoooogleLogo";
+import { useNavigate } from "react-router-dom";
+import { MolecoogleLogo } from "@/features/search/components/MolecoogleLogo";
 
 interface SearchHeaderProps {
   searchInput: string;
@@ -24,12 +24,11 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
   SearchIcon,
   logoLink,
 }) => {
+  const navigate = useNavigate();
   return (
     <div className="z-10 sticky top-24 md:top-32 pt-12 pb-2 md:pb-6 bg-white">
       <div className="md:px-4 flex flex-col md:flex-row items-center gap-4">
-        <Link to={logoLink} className="md:mb-4">
-          <MolecoooogleLogo/>
-        </Link>
+        <MolecoogleLogo onClickLogo={() => navigate(logoLink)} />
         {/* Barra de busca */}
         <form onSubmit={onSearch} className="flex-1 w-full max-w-2xl">
           <div className="relative">

@@ -64,7 +64,7 @@ export function useSearchLogic({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [setIsFocused]);
 
-  // Reset selection when query ou modo muda
+  // Reset selection quando query ou modo muda
   useEffect(() => {
     setSelectedIndex(-1);
   }, [searchQuery, searchMode]);
@@ -114,8 +114,8 @@ export function useSearchLogic({
   const handleSearch = async () => {
     try {
       const trimmedQuery = searchQuery.trim();
-      if (trimmedQuery.length < 2) {
-        logger.warn(`[useSearchLogic] Query muito curta para busca: '${trimmedQuery}'`);
+      if (trimmedQuery.length == 0) {
+        logger.warn(`[useSearchLogic] Sem query para busca: '${trimmedQuery}'`);
         return;
       }
       logger.info(`[useSearchLogic] Iniciando busca para '${trimmedQuery}' no modo '${searchMode}'`);
