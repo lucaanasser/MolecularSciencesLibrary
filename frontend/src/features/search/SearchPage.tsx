@@ -1,5 +1,5 @@
 import React from "react";
-import { useSearchLogic } from "@/features/search/useSearchLogic";
+import { useSearchLogic } from "@/features/search/hooks/useSearchLogic";
 import { motion } from "framer-motion";
 import { MolecoogleLogo } from "@/features/search/components/MolecoogleLogo";
 import SearchBar from "@/features/search/components/SearchBar";
@@ -16,30 +16,8 @@ interface SearchPageProps {
 }
 
 export const SearchPage: React.FC<SearchPageProps> = ({ modes, initialMode, hideModeSwitcher = false }) => {
-  const {
-    searchQuery,
-    setSearchQuery,
-    dropdownRef,
-    searchMode,
-    setSearchMode,
-    isLoading,
-    suggestions,
-    isFocused,
-    setIsFocused,
-    selectedIndex,
-    setSelectedIndex,
-    inputRef,
-    handleKeyDown,
-    handleModeChange,
-    handleSelect,
-    handleSearch,
-    recentSearches,
-    saveRecentSearch,
-    onSelect,
-  } = useSearchLogic({ modes, initialMode, hideModeSwitcher });
-
-  const currentMode = searchMode;
-  const showDropdown = isFocused && (suggestions.length > 0 || searchQuery.length >= 0 || isLoading);
+  const logic = useSearchLogic({ modes, initialMode, hideModeSwitcher });
+  const showDropdown = logic.isFocused && (logic.suggestions.length > 0 || logic.searchQuery.length >= 0 || logic.isLoading);
 
   return (
     <div className="bg-white min-h-screen flex items-center justify-center">
@@ -56,22 +34,22 @@ export const SearchPage: React.FC<SearchPageProps> = ({ modes, initialMode, hide
         
         {/* SearchBar */}
         <SearchBar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          inputRef={inputRef}
-          dropdownRef={dropdownRef}
-          setIsFocused={setIsFocused}
-          handleKeyDown={handleKeyDown}
-          handleSearch={handleSearch}
+          searchQuery={logic.searchQuery}
+          setSearchQuery={logic.setSearchQuery}
+          inputRef={logic.inputRef}
+          dropdownRef={logic.dropdownRef}
+          setIsFocused={logic.setIsFocused}
+          handleKeyDown={logic.handleKeyDown}
+          handleSearch={logic.handleSearch}
           showDropdown={showDropdown}
-          isLoading={isLoading}
-          suggestions={suggestions}
-          selectedIndex={selectedIndex}
+          isLoading={logic.isLoading}
+          suggestions={logic.suggestions}
+          selectedIndex={logic.selectedIndex}
           modes={modes}
-          currentMode={currentMode}
-          recents={recentSearches}
+          currentMode={logic.searchMode}
+          recents={logic.recentSearches}
           favorites={[]} // Adapte para favoritos reais se houver
-          onSelect={handleSelect}
+          onSelect={logic.handleSelect}
         />
         
         {/* Botões de seleção de modo - Ocultos se hideModeSwitcher */}
@@ -80,9 +58,9 @@ export const SearchPage: React.FC<SearchPageProps> = ({ modes, initialMode, hide
             {modes.map((mode) => (
               <Button
                 key={mode.key}
-                variant={currentMode === mode.key ? "primary" : "ghost"}
+                variant={logic.searchMode === mode.key ? "primary" : "ghost"}
                 size="sm"
-                onClick={() => handleModeChange(mode.key)}
+                onClick={() => logic.handleModeChange(mode.key)}
                 disabled={!!hideModeSwitcher}
               >
                 {mode.label}
@@ -94,7 +72,7 @@ export const SearchPage: React.FC<SearchPageProps> = ({ modes, initialMode, hide
         {/* Tags de exploração por área */}
         <div className="mt-32 text-center">
           <AreasExplorerTags
-            onTagClick={(label) => { setSearchQuery(label) }} // solução temporária:tag apenas define a query
+            onTagClick={(label) => { logic.setSearchQuery(label) }} // solução temporária:tag apenas define a query
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { logger } from "@/utils/logger";
 import { useState, useRef, useEffect } from "react";
-import { useRecentSearches } from "@/features/search/useRecentSearches";
+import { useRecentSearches } from "@/features/search/hooks/useRecentSearches";
 
 import { SearchMode, SearchModeConfig as GenericSearchModeConfig } from "@/types/search";
 

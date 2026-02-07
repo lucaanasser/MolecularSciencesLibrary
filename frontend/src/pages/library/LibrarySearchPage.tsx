@@ -3,7 +3,7 @@ import { logger } from "@/utils/logger";
 import { useNavigate } from "react-router-dom";
 import { BookOpen } from "lucide-react";
 import { searchBooks, BookSearchResult } from "@/services/SearchService";
-import { useHighlightMatch } from "@/features/search/useHighlightMatch";
+import { useHighlightMatch } from "@/features/search/hooks/useHighlightMatch";
 
 /**
  * Página de busca da biblioteca - Reutiliza o componente SearchPage

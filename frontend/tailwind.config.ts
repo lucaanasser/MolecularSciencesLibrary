@@ -44,15 +44,6 @@ export default {
         "academic-blue": "#01aad0",
         "academic-blue-muted": "#34bbd9",
 
-        /* Cores dos componentes Google */
-        "google-blue": "#4285F4",
-        "google-red": "#EA4335",
-        "google-yellow": "#FBBC05",
-        "google-green": "#34A853",
-        "google-result-blue": "#1A0DAB",
-        "google-result-purple": "#681da8",
-        "google-result-green": "#006621",
-
         /* Cores base usando CSS variables para componentes reutilizáveis */
         input: {
           foreground: "var(--input-foreground)",

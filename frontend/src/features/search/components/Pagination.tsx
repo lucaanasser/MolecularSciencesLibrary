@@ -52,7 +52,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       {currentPage > 1 && (
         <button
           onClick={() => onPageChange(currentPage - 1)}
-          className="mr-0.5 pt-16 text-google-blue font-medium cursor-pointer"
+          className="mr-0.5 pt-16 text-#4285F4 font-medium cursor-pointer"
           aria-label="Página anterior"
         >
           <div className="flex flex-col items-end">
@@ -75,7 +75,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       {currentPage < totalPages && (
         <button
           onClick={() => onPageChange(currentPage + 1)}
-          className="mr-0.5 pt-16 text-google-blue font-medium cursor-pointer"
+          className="mr-0.5 pt-16 text-#4285F4 font-medium cursor-pointer"
           aria-label="Página seguinte"
         >
           <div className="flex flex-col items-start">

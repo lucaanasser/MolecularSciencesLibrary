@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { SearchResult, FieldConfig } from "./SearchResultsList";
-import { useHighlightMatch } from "@/features/search/useHighlightMatch";
+import { useHighlightMatch } from "@/features/search/hooks/useHighlightMatch";
 
 // Função utilitária para destacar todos os campos
 function getHighlightedFields(result: SearchResult, fields: FieldConfig[], searchQuery?: string, highlightFn?: (value: string, query?: string) => React.ReactNode) {
@@ -32,15 +32,15 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, fields, sea
       {highlightedFields.map(f => {
         let className = f.className;
         if (!className) {
-          if (f.type === "main") className = "prose-md text-google-result-blue";
-          else if (f.type === "secondary" || !f.type) className = "text-google-result-green";
+          if (f.type === "main") className = "prose-md text-#1A0DAB";
+          else if (f.type === "secondary" || !f.type) className = "text-#006621";
         }
         if (f.type === "main" && f.linkTo) {
           return (
             <Link
               key={f.key}
               to={f.linkTo(result)}
-              className={`${className} hover:underline visited:text-google-result-purple`}
+              className={`${className} hover:underline visited:text-#681da8`}
             >
               {f.render ? f.render(f.highlightedValue, result) : f.highlightedValue}
             </Link>
