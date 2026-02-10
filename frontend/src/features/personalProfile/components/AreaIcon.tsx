@@ -1,5 +1,4 @@
 import { Book, Dna, Atom, Orbit, Pi, Braces } from "lucide-react";
-import { Loan } from "../../../types/loan";
 
 export function AreaIcon({ area }: { area?: string }) {
   switch (area) {
