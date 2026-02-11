@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loan } from "../../../types/loan";
+import { Loan } from "@/types/loan";
 
 /**
  * Hook para buscar histórico de empréstimos do usuário.
@@ -16,7 +16,6 @@ export function useGetUserLoans(userId: number | undefined) {
 
   const fetchLoans = () => {
     if (!userId) {
-      // Do not fetch if userId is not available
       setLoans([]);
       console.warn("🟡 [useUserLoans] userId não informado, não buscando empréstimos.");
       return;

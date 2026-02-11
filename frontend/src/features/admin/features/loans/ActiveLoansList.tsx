@@ -5,21 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
+import { Loan } from "@/types/loan";
 
-interface ActiveLoan {
-  loan_id: number;
-  book_id: number;
-  book_title: string;
-  book_authors: string;
-  student_id: number;
-  user_name: string;
-  user_nusp: string;
-  borrowed_at: string;
-  due_date: string;
-  renewals: number;
-  is_extended: number;
-  is_overdue: boolean;
-}
+type ActiveLoan = Loan & { is_overdue: boolean; }
 
 const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
   const [loans, setLoans] = useState<ActiveLoan[]>([]);
@@ -60,15 +48,15 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (loan) =>
-          (String(loan.user_name || "")).toLowerCase().includes(term) ||
-          (String(loan.user_nusp || "")).toLowerCase().includes(term) ||
-          (String(loan.book_title || "")).toLowerCase().includes(term)
+          (String(loan.user.name || "")).toLowerCase().includes(term) ||
+          (String(loan.user.NUSP || "")).toLowerCase().includes(term) ||
+          (String(loan.book.title || "")).toLowerCase().includes(term)
       );
     }
     if (filterStatus === "overdue") {
       filtered = filtered.filter((loan) => loan.is_overdue);
     } else if (filterStatus === "extended") {
-      filtered = filtered.filter((loan) => loan.is_extended === 1);
+      filtered = filtered.filter((loan) => loan.is_extended);
     } else if (filterStatus === "renewed") {
       filtered = filtered.filter((loan) => loan.renewals > 0);
     }
@@ -89,7 +77,7 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
     if (loan.is_overdue) {
       return <Badge className="bg-red-500">Atrasado</Badge>;
     }
-    if (loan.is_extended === 1) {
+    if (loan.is_extended) {
       return <Badge className="bg-purple-500">Estendido</Badge>;
     }
     if (loan.renewals > 0) {
@@ -99,12 +87,12 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
   };
 
   const columns: Column<ActiveLoan>[] = [
-    { label: "Usuário", accessor: "user_name", className: "font-medium" },
-    { label: "NUSP", accessor: "user_nusp" },
+    { label: "Usuário", accessor: (row) => row.user.name, className: "font-medium" },
+    { label: "NUSP", accessor: (row) => row.user.NUSP },
     { label: "Livro", accessor: (row) => (
         <div className="max-w-[150px]">
-          <div className="font-medium truncate text-sm">{row.book_title}</div>
-          <div className="text-xs text-gray-500 truncate">{row.book_authors}</div>
+          <div className="font-medium truncate text-sm">{row.book.title}</div>
+          <div className="text-xs text-gray-500 truncate">{row.book.authors}</div>
         </div>
       ) },
     { label: "Início", accessor: (row) => <span className="text-sm">{formatDate(row.borrowed_at)}</span> },

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RotateCcw } from "lucide-react";
-import { Loan } from "../../../types/loan";
+import { Loan } from "@/types/loan";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -34,13 +34,13 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
   };
 
   async function handlePreviewRenew() {
-    setRenewError(""); setRenewSuccess(""); setRenewLoading(loan.loan_id);
+    setRenewError(""); setRenewSuccess(""); setRenewLoading(loan.id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`/api/loans/${loan.loan_id}/preview-renew`, {
+      const res = await fetch(`/api/loans/${loan.id}/preview-renew`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ user_id: loan.student_id }),
+        body: JSON.stringify({ user_id: loan.user.id }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -67,13 +67,13 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
   }
 
   async function handleConfirmRenew() {
-    setRenewError(""); setRenewSuccess(""); setRenewLoading(loan.loan_id);
+    setRenewError(""); setRenewSuccess(""); setRenewLoading(loan.id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`/api/loans/${loan.loan_id}/renew`, {
+      const res = await fetch(`/api/loans/${loan.id}/renew`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ user_id: loan.student_id }),
+        body: JSON.stringify({ user_id: loan.user.id }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -113,10 +113,10 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
         size='sm'
         className={`bg-${color} text-white`}
         onClick={handlePreviewRenew}
-        disabled={renewLoading === loan.loan_id}
+        disabled={renewLoading === loan.id}
       >
         <RotateCcw className="w-4 h-4" />
-        {renewLoading === loan.loan_id ? "Renovando..." : "Renovar"}
+        {renewLoading === loan.id ? "Renovando..." : "Renovar"}
       </Button>
 
       <AlertDialog open={renewDialog.open} onOpenChange={open => setRenewDialog({ ...renewDialog, open })}>
@@ -134,14 +134,14 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="wide" size="sm" className="bg-gray-400 text-white" disabled={renewLoading === loan.loan_id} onClick={() => setRenewDialog({ open: false })}>
+              <Button variant="wide" size="sm" className="bg-gray-400 text-white" disabled={renewLoading === loan.id} onClick={() => setRenewDialog({ open: false })}>
                 Cancelar
               </Button>
             </AlertDialogCancel>
             {!renewError && (
               <AlertDialogAction asChild>
-                <Button variant="wide" size="sm" className="bg-cm-green text-white" disabled={renewLoading === loan.loan_id} onClick={handleConfirmRenew}>
-                  {renewLoading === loan.loan_id ? "Confirmando..." : "Confirmar"}
+                <Button variant="wide" size="sm" className="bg-cm-green text-white" disabled={renewLoading === loan.id} onClick={handleConfirmRenew}>
+                  {renewLoading === loan.id ? "Confirmando..." : "Confirmar"}
                 </Button>
               </AlertDialogAction>
             )}

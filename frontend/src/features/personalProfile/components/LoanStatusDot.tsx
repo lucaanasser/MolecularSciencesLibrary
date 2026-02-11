@@ -1,4 +1,4 @@
-import { Loan } from "../../../types/loan";
+import { Loan } from "@/types/loan";
 
 export function LoanStatusDot({ loan }: { loan: Loan }) {
   let color = "";
@@ -7,10 +7,10 @@ export function LoanStatusDot({ loan }: { loan: Loan }) {
   if (loan.due_date && new Date(loan.due_date) < new Date() && !loan.returned_at) {
     color = "bg-cm-red";
     status = "Atrasado";
-  } else if (loan.is_extended === 1 && !loan.returned_at) {
+  } else if (loan.is_extended && !loan.returned_at) {
     color = "bg-cm-orange";
     status = "Estendido";
-  } else if (loan.is_reserved === 1) {
+  } else if (loan.book.is_reserved) {
     color = "bg-purple-600";
     status = "Reservado";
   } else if (loan.returned_at) {

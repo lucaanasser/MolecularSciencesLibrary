@@ -19,7 +19,7 @@ const InternalUseRegister: React.FC<TabComponentProps> = ({ onBack, onSuccess, o
       const res = await fetch("/api/loans/internal-use", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ book_code: internalUseCode })
+        body: JSON.stringify({ book_id: internalUseCode })
       });
       if (!res.ok) {
         const data = await res.json();

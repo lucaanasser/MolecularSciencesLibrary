@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loan } from "../../types/loan";
+import { Loan } from "../../types/old_loan";
 
 /**
  * Hook para registrar novo empréstimo.
@@ -10,7 +10,7 @@ import { Loan } from "../../types/loan";
  * 🔴 Erro
  */
 interface CreateLoanParams {
-  NUSP: string;      // ou email, mas backend espera NUSP
+  NUSP: string;
   password: string;
   book_id: number;
 }
