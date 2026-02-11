@@ -3,6 +3,6 @@ import ProAlunoPageRefactored from "../../features/admin/features/proaluno/ProAl
 export default function TestPage() {
 
   return (
-    <></>
+    <ProAlunoPageRefactored />
   );
 }

@@ -1,9 +1,8 @@
 import { useState } from "react";
+import { useAdminToast } from "@/features/admin";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import { BookCheck, BookX } from "lucide-react";
-import { LoanForm } from "./LoanForm";
-import { ReturnForm } from "./ReturnForm";
-import { SuccessPopup } from "./SuccessPopup";
+import LoanForm from "@/features/admin/features/loans/LoanForm";
+import ReturnForm from "@/features/admin/features/loans/ReturnForm";
 
 /**
  * Página Pró-Aluno refatorada com componentes separados.
@@ -25,34 +24,16 @@ type OperationType = "emprestimo" | "devolucao" | "";
 const ProAlunoPageRefactored = () => {
   console.log("🔵 [ProAlunoPageRefactored] Renderizando página Pró-Aluno (refatorada)");
 
+
   // Estados
   const [operation, setOperation] = useState<OperationType>("");
-  const [showPopup, setShowPopup] = useState(false);
-  const [loanDetails, setLoanDetails] = useState<any>(null);
-  const [loanNusp, setLoanNusp] = useState<string>("");
-  const [bookCode, setBookCode] = useState<string>("");
+  const { showSuccess, showError } = useAdminToast();
+
 
   // Reset do formulário
   const resetForm = () => {
     console.log("🔵 [ProAlunoPageRefactored] Resetando formulário");
     setOperation("");
-    setLoanDetails(null);
-    setLoanNusp("");
-    setBookCode("");
-    setShowPopup(false);
-  };
-
-  // Handlers de sucesso
-  const handleLoanSuccess = (details: any, nusp: string, codigoLivro: string) => {
-    setLoanDetails(details);
-    setLoanNusp(nusp);
-    setBookCode(codigoLivro);
-    setShowPopup(true);
-  };
-
-  const handleReturnSuccess = (codigoLivro: string) => {
-    setBookCode(codigoLivro);
-    setShowPopup(true);
   };
 
   return (
@@ -105,34 +86,26 @@ const ProAlunoPageRefactored = () => {
       )}
 
       {/* Formulário de Empréstimo */}
+
       {operation === "emprestimo" && (
-        <LoanForm onCancel={resetForm} onSuccess={handleLoanSuccess} />
+        <LoanForm 
+          onBack={resetForm} 
+          onSuccess={(msg: string) => { showSuccess(msg); resetForm(); }}
+          onError={(msg: string) => { showError(msg); }}
+          adminMode={false}
+        />
       )}
 
       {/* Formulário de Devolução */}
+
       {operation === "devolucao" && (
-        <ReturnForm onCancel={resetForm} onSuccess={handleReturnSuccess} />
-      )}
-
-      {/* Popup de sucesso - Empréstimo */}
-      {showPopup && operation === "emprestimo" && (
-        <SuccessPopup
-          type="emprestimo"
-          nusp={loanNusp}
-          codigoLivro={bookCode}
-          loanDetails={loanDetails}
-          onClose={resetForm}
+        <ReturnForm 
+          onBack={resetForm} 
+          onSuccess={(msg: string) => { showSuccess(msg); resetForm(); }}
+          onError={(msg: string) => { showError(msg); }}
         />
       )}
 
-      {/* Popup de sucesso - Devolução */}
-      {showPopup && operation === "devolucao" && (
-        <SuccessPopup
-          type="devolucao"
-          codigoLivro={bookCode}
-          onClose={resetForm}
-        />
-      )}
     </div>
   );
 };

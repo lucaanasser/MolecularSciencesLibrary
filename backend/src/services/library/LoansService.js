@@ -26,7 +26,7 @@ class LoansService {
         }
 
         if (requirePassword) {
-            const passwordMatch = await bcrypt.compare(password, user.password);
+            const passwordMatch = await bcrypt.compare(password, user.password_hash);
             if (!passwordMatch) {
                 console.warn(`🟡 [LoansService] Senha incorreta para NUSP ${NUSP}`);
                 throw new Error('Senha incorreta');

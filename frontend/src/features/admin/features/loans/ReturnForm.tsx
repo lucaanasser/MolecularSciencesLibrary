@@ -1,94 +1,42 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import ActionBar from "@/features/admin/components/ActionBar";
-import { useReturnOperation } from "@/features/admin/hooks/useReturnOperation";
-import { useLoanValidation } from "@/features/admin/hooks/useLoanValidation";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import ActionBar from '@/features/admin/components/ActionBar';
+import { useReturnBook } from '@/features/admin/features/loans/hooks/useReturnBook';
+import type { TabComponentProps } from '@/features/admin/components/AdminTabRenderer';
 
-/**
- * Feature para processar devoluções usando os hooks reutilizáveis.
- * 
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
-
-const ReturnForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {
-  const [bookCode, setBookCode] = useState("");
-  const [error, setError] = useState("");
-
-  const { returnBook, loading: returnLoading } = useReturnOperation();
-  const { validateBook, loading: validationLoading } = useLoanValidation();
-
-  const loading = returnLoading || validationLoading;
-
-  const handleConfirm = async () => {
-    setError("");
-
-    if (!bookCode) {
-      setError("Informe o ID/código de barras do livro");
-      return;
-    }
-
-    console.log("🔵 [ReturnBook] Validando livro:", bookCode);
-    const book = await validateBook(bookCode);
-    
-    if (!book) {
-      console.log("🔴 [ReturnBook] Livro não encontrado:", bookCode);
-      setError("Livro não encontrado");
-      return;
-    }
-
-    console.log("🟢 [ReturnBook] Livro encontrado:", book.title || bookCode);
-
-    // Processar devolução
-    try {
-      console.log("🔵 [ReturnBook] Processando devolução do livro:", bookCode);
-      const returnResult = await returnBook({
-        book_id: Number(bookCode),
-      });
-
-      console.log("🟢 [ReturnBook] Devolução processada com sucesso:", returnResult);
-      
-      // Reset form
-      setBookCode("");
-      onSuccess("Devolução processada com sucesso.");
-    } catch (err: any) {
-      console.error("🔴 [ReturnBook] Erro ao processar devolução:", err);
-      setError(err.message || "Erro ao processar devolução");
-    }
-  };
+const ReturnForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+  // Campo do formulário
+  const [bookId, setBookId] = useState('');
+  
+  // Hook cuida da lógica de devolução
+  const { handleSubmit } = useReturnBook({
+    onSuccess,
+    onError,
+    getFormValues: () => ({ bookId: Number(bookId) })
+  });
 
   return (
     <>
       <p>
-        Preencha os dados abaixo para registrar a devolução:
+        Preencha os dados abaixo para registrar uma devolução.
       </p>
 
-      <div className="">
-        <Label>ID do Livro:</Label>
-        <Input
-          type="text"
-          value={bookCode}
-          onChange={e => setBookCode(e.target.value)}
+      <form onSubmit={handleSubmit}>
+        <Label htmlFor="bookId">Código do livro:</Label>
+        <Input 
+          id="bookId" 
+          value={bookId} 
+          onChange={e => setBookId(e.target.value)} 
           placeholder="Escaneie ou digite o código de barras"
-          disabled={loading}
-          autoFocus
+          required
         />
-      </div>
-
-      {error && <p className="text-red-600 prose-sm mt-2">{error}</p>}
-
-      <ActionBar
-        onConfirm={handleConfirm}
-        onCancel={onBack}
-        confirmLabel="Registrar"
-        loading={loading}
-      />
-
+        <ActionBar
+          onConfirm={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+          onCancel={onBack}
+          confirmLabel="Registrar"
+        />
+      </form>
     </>
   );
 };

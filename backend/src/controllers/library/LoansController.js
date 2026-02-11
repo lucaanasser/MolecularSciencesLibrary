@@ -15,7 +15,7 @@ const LoansController = {
         console.log(`🔵 [LoansController] Iniciando criação de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
         if (!book_id || !NUSP || !password) {
             console.warn(`🟡 [LoansController] Dados obrigatórios ausentes: book_id=${book_id}, NUSP=${NUSP}`);
-            return res.status(400).json({ error: 'book_id, NUSP e password são obrigatórios' });
+            return res.status(400).json({ error: 'ID do livro, NUSP e senha são obrigatórios' });
         }
         try {
             const loan = await LoansService.borrowBook(book_id, NUSP, password);
@@ -33,7 +33,7 @@ const LoansController = {
         console.log(`🔵 [LoansController] [ADMIN] Iniciando criação de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
         if (!book_id || !NUSP) {
             console.warn(`🟡 [LoansController] [ADMIN] Dados obrigatórios ausentes: book_id=${book_id}, NUSP=${NUSP}`);
-            return res.status(400).json({ error: 'book_id e NUSP são obrigatórios' });
+            return res.status(400).json({ error: 'ID do livro e NUSP são obrigatórios' });
         }
         try {
             const loan = await LoansService.borrowBookAsAdmin(book_id, NUSP);
@@ -50,8 +50,8 @@ const LoansController = {
         const { book_id } = req.body;
         console.log(`🔵 [LoansController] Iniciando devolução: book_id=${book_id}`);
         if (!book_id) {
-            console.warn("🟡 [LoansController] book_id não fornecido para devolução");
-            return res.status(400).json({ error: 'book_id é obrigatório' });
+            console.warn("🟡 [LoansController] ID do livro não fornecido para devolução");
+            return res.status(400).json({ error: 'ID do livro é obrigatório' });
         }
         try {
             // Busca o empréstimo ativo para o livro
@@ -71,7 +71,7 @@ const LoansController = {
 
         if (!book_id) {
             console.warn("🟡 [LoansController] book_id não fornecido para uso interno");
-            return res.status(400).json({ error: 'book_id é obrigatório' });
+            return res.status(400).json({ error: 'ID do livro é obrigatório' });
         }
 
         try {
@@ -90,7 +90,7 @@ const LoansController = {
         const { user_id } = req.body;
         console.log(`🔵 [LoansController] Preview renovação: loan_id=${loan_id}, user_id=${user_id}`);
         if (!loan_id || !user_id) {
-            return res.status(400).json({ error: 'loan_id e user_id são obrigatórios' });
+            return res.status(400).json({ error: 'ID do empréstimo e ID do usuário são obrigatórios' });
         }
         try {
             const preview = await LoansService.previewRenewLoan(loan_id, user_id);
@@ -104,7 +104,7 @@ const LoansController = {
     renewLoan: async (req, res) => {
         const { id } = req.params;
         const user_id = req.body.user_id; // ou obtenha do token, se necessário
-        if (!user_id) return res.status(400).json({ error: 'user_id é obrigatório' });
+        if (!user_id) return res.status(400).json({ error: 'ID do usuário é obrigatório' });
         try {
             const result = await LoansService.renewLoan(Number(id), user_id);
             res.json(result);
@@ -167,8 +167,8 @@ const LoansController = {
         const userId = req.params.userId;
         console.log(`🔵 [LoansController] Listando empréstimos do usuário: userId=${userId}`);
         if (!userId) {
-            console.warn("🟡 [LoansController] userId não fornecido");
-            return res.status(400).json({ error: 'userId é obrigatório' });
+            console.warn("🟡 [LoansController] ID do usuário não fornecido");
+            return res.status(400).json({ error: 'ID do usuário é obrigatório' });
         }
         try {
             const loans = await LoansService.listLoansByUser(userId);
@@ -185,8 +185,8 @@ const LoansController = {
         const userId = req.params.userId;
         console.log(`🔵 [LoansController] Listando empréstimos ativos do usuário: userId=${userId}`);
         if (!userId) {
-            console.warn("🟡 [LoansController] userId não fornecido");
-            return res.status(400).json({ error: 'userId é obrigatório' });
+            console.warn("🟡 [LoansController] ID do usuário não fornecido");
+            return res.status(400).json({ error: 'ID do usuário é obrigatório' });
         }
         try {
             const loans = await LoansService.listActiveLoansByUser(userId);
