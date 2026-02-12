@@ -10,8 +10,6 @@
 
 // ================ TIPOS ================
 
-import { User } from "@/types/user";
-
 export interface UserSearchResult {
   id: number;
   name: string;

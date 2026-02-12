@@ -17,9 +17,9 @@ import {
 
 interface ProfileHeaderProps {
   user: {
-    name: string;
-    profile_image?: string;
-    class?: string;
+    name: any;
+    profile_image?: any;
+    class?: any;
   };
   isOwnProfile: boolean;
   isEditing: boolean;

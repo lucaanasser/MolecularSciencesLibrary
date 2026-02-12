@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { logger } from "@/utils/logger";
-import { useUserProfile } from "@/features/publicProfile/hooks/useUserProfile";
+import { useEffect, useState } from "react";
+import { UsersService } from "@/services/UsersService";
 import { ProfileHeader, ProfileImageSelector } from "@/features/personalProfile/features/ProfileHeader";
 import { ProfileStatsSidebar } from "@/features/personalProfile/features/ProfileStatsSidebar";
 import { ProfileTabsCard } from "@/features/personalProfile/features/ProfileTabsCard";
@@ -25,9 +25,28 @@ const ProfilePage = () => {
   logger.info("🔵 [ProfilePage] Renderizando página de perfil");
   
   const [activeTab, setActiveTab] = useState("ativos");
-  const { user, loading: userLoading, error: userError } = useUserProfile();
+  const [user, setUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState(null);
   const [showImageSelector, setShowImageSelector] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    setUserLoading(true);
+    setUserError(null);
+    UsersService.getProfile()
+      .then((data) => {
+        if (isMounted) setUser(data);
+      })
+      .catch((err) => {
+        if (isMounted) setUserError(err.message || "Erro ao buscar perfil");
+      })
+      .finally(() => {
+        if (isMounted) setUserLoading(false);
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   const getTabColor = () => {
     if (!user?.profile_image) return "library-purple";

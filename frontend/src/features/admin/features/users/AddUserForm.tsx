@@ -1,38 +1,34 @@
 import { useState } from "react";
-import { useAddUser } from "@/features/admin/features/users/hooks/useAddUser";
-import type { User } from "@/types/new_user";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
-
-/**
- * Formulário para adicionar usuário.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
+import { UsersService } from "@/services/UsersService";
 
 const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }) => {
+  // Estados para os campos do formulário
   const [name, setName] = useState("");
   const [NUSP, setNUSP] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [userClass, setUserClass] = useState("");
   
-  const { handleSubmit } = useAddUser({
-    onSuccess,
-    onError,
-    getFormValues: () => ({
-      name,
-      email,
-      NUSP: Number(NUSP),
-      phone,
-      class: Number(userClass),
-    }),
-  });
+  // Função de submissão do formulário
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await UsersService.createUser({
+        name,
+        NUSP: Number(NUSP),
+        email,
+        phone,
+        class: Number(userClass),
+      });
+      onSuccess("Usuário adicionado com sucesso!");
+    } catch (err: any) {
+      onError(err.message || "Não foi possível adicionar o usuário.");
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="">

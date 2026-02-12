@@ -1,12 +1,16 @@
 // Serviço para operações de usuários
-import { User } from "@/types/new_user";
+import { User } from "@/types/user";
 
 const API_BASE = '/api/users';
 
 function fetchJson(url: string, options: RequestInit = {}) {
+  const userData = localStorage.getItem('user');
+  const token = userData ? JSON.parse(userData).token : null;
   return fetch(url, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
     },
     ...options,
   }).then(async (res) => {
@@ -22,98 +26,202 @@ export const UsersService = {
 
   /* ================ TESTADOS ================ */
 
-  // Criar usuário (apenas admin) -- useAddUser.tsx
-  createUser: (user: Pick<User, "name" | "email" | "NUSP" | "phone" | "class">) => fetchJson(`${API_BASE}`, {
-    method: 'POST',
-    body: JSON.stringify(user),
-  }),
-
-  // Deletar usuário por ID (apenas admin) -- deveria ser usado em RemoveUserForm.tsx
-  deleteUserById: (id: number) => fetchJson(`${API_BASE}/${id}`, {
-    method: 'DELETE',
-  }),
-  
-  // Busca usuários por termo (autocomplete).
-  searchUsers: (params: {
-    q: string;
-    limit?: number;
-    tags?: string[];
-    curso?: string;
-    disciplina?: string;
-    turma?: string;
-  }) => {
-    const queryParams = new URLSearchParams();
-    queryParams.append('q', params.q);
-    if (params.limit) queryParams.append('limit', String(params.limit));
-    if (params.tags && params.tags.length > 0) {
-      params.tags.forEach(tag => queryParams.append('tags', tag));
+  /* Criar usuário
+   * Usada em: AddUserForm (admin page)
+   */
+  createUser: async (user: Pick<User, "name" | "email" | "NUSP" | "phone" | "class">) => {
+    console.log("🔵 [UsersService] Adicionando usuário:", user);
+    try {
+      const data = await fetchJson(`${API_BASE}`, {
+        method: 'POST',
+        body: JSON.stringify(user),
+      });
+      console.log("🟢 [UsersService] Usuário adicionado com sucesso:", data);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível adicionar o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao adicionar usuário:", technicalMsg || err);
+      throw new Error(errorMsg);
     }
-    if (params.curso) queryParams.append('curso', params.curso);
-    if (params.disciplina) queryParams.append('disciplina', params.disciplina);
-    if (params.turma) queryParams.append('turma', params.turma);
-    return fetchJson(`${API_BASE}/search?${queryParams.toString()}`);
   },
+
+  /* Deletar usuário por ID 
+   * Usada em: RemoveUserForm (admin page)
+   */
+  deleteUserById: async (id: number) => {
+    console.log(`🔵 [UsersService] Iniciando remoção do usuário ID: ${id}`);
+    try {
+      const data = await fetchJson(`${API_BASE}/${id}`, {
+        method: 'DELETE',
+      });
+      console.log(`🟢 [UsersService] Usuário removido com sucesso! ID: ${id}`);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível remover o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error(`🔴 [UsersService] Erro ao remover usuário ID: ${id}`, technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+  
+  /* Busca usuários por nome, NUSP ou email (autocomplete) ou exibe todos se query vazia
+   * Usada em: RemoveUserForm (admin page), ListUsers (admin page)
+   */
+  searchUsers: async (data: { q?: string; limit?: number; }) => {
+    if (!data.q) {
+      // Busca todos os usuários
+      console.log("🔵 [UsersService] Buscando todos os usuários");
+      try {
+        const users = await fetchJson(`${API_BASE}/`);
+        console.log(`🟢 [UsersService] Busca concluída. Usuários encontrados: ${users.length}`);
+        return users;
+      } catch (err: any) {
+        let technicalMsg = "";
+        try { technicalMsg = JSON.parse(err.message).error; } catch {}
+        const errorMsg = `Não foi possível buscar os usuários.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+        console.error("🔴 [UsersService] Erro ao buscar todos os usuários", technicalMsg || err);
+        throw new Error(errorMsg);
+      }
+    } else {
+      // Busca filtrada
+      const params = new URLSearchParams();
+      params.append('q', data.q);
+      if (data.limit) params.append('limit', String(data.limit));
+      console.log(`🔵 [UsersService] Iniciando busca por usuários. Query: '${data.q}'`);
+      try {
+        const users = await fetchJson(`${API_BASE}/search?${params.toString()}`, {
+          method: 'GET',
+        });
+        console.log(`🟢 [UsersService] Busca concluída. Usuários encontrados: ${users.length}`);
+        return users;
+      } catch (err: any) {
+        let technicalMsg = "";
+        try { technicalMsg = JSON.parse(err.message).error; } catch {}
+        const errorMsg = `Não foi possível buscar o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+        console.error(`🔴 [UsersService] Erro ao buscar usuários. Query: '${data.q}'`, technicalMsg || err);
+        throw new Error(errorMsg);
+      }
+    }
+  },
+
+  /* Perfil do usuário autenticado
+   * Usada em: ProfilePage, PublicProfilePage
+   */
+  getProfile: async () => {
+    console.log("🔵 [UsersService] Buscando perfil do usuário autenticado");
+    try {
+      const data = await fetchJson(`${API_BASE}/me`);
+      console.log("🟢 [UsersService] Perfil carregado com sucesso:", data);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível carregar o perfil do usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao buscar perfil do usuário:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+
+  /* Autenticação (login) 
+   * Usada em: LoginForm
+   */
+  authenticateUser: async (data: { NUSP?: number; email?: string; password: string }) => {
+    console.log("🔵 [UsersService] Autenticando usuário:", data.NUSP || data.email);
+    try {
+      const result = await fetchJson(`${API_BASE}/login`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [UsersService] Usuário autenticado com sucesso:", result.name);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível autenticar o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao autenticar usuário:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+
+  /* Solicitar redefinição de senha
+   * Usada em: LoginForm (esqueci minha senha)
+   */
+  requestPasswordReset: async (data: { NUSP?: number; email?: string }) => {
+    console.log("🔵 [UsersService] Solicitando redefinição de senha para:", data.NUSP || data.email);
+    try {
+      const result = await fetchJson(`${API_BASE}/forgot-password`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [UsersService] Solicitação de redefinição de senha enviada com sucesso");
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível solicitar a redefinição de senha.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao solicitar redefinição de senha:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+
+  /* Redefinir senha 
+   * Usada em: ResetPasswordPage
+  */
+  resetPassword: async (data: { token: string; newPassword: string }) => {
+    console.log("🔵 [UsersService] Redefinindo senha com token:", data.token);
+    try {
+      const result = await fetchJson(`${API_BASE}/reset-password`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [UsersService] Senha redefinida com sucesso");
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível redefinir a senha.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao redefinir senha:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+  
   /* ================== NÃO TESTADOS ================== */
 
-  // Perfil do usuário autenticado
-  getProfile: () => fetchJson(`${API_BASE}/me`),
-
-  // Atualizar imagem de perfil do usuário autenticado
-  updateProfileImage: (data: FormData) => fetch(`${API_BASE}/me/profile-image`, {
-    method: 'PUT',
-    body: data,
-    headers: {}, // FormData já define Content-Type
-  }).then(async (res) => {
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error || 'Erro na requisição');
+  /* Atualizar imagem de perfil do usuário autenticado
+   * A ser usada em: ProfilePage, PublicProfilePage
+   */
+  updateProfileImage: async (data: { id: number; profile_image: string }) => {
+    console.log("🔵 [UsersService] Atualizando imagem de perfil do usuário:", data.id);
+    try {
+      const res = await fetch(`${API_BASE}/${data.id}/profile-image`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile_image: data.profile_image }),
+      });
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || 'Erro na requisição');
+      }
+      const result = await res.json();
+      console.log("🟢 [UsersService] Imagem de perfil atualizada com sucesso");
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível atualizar a imagem de perfil.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao atualizar imagem de perfil:", technicalMsg || err);
+      throw new Error(errorMsg);
     }
-    return res.json();
-  }),
+  },
 
-  // Buscar usuário por ID
+  // Buscar usuário por ID -- pagina de busca de usuários??
   getUserById: (id: number | string) => fetchJson(`${API_BASE}/${id}`),
 
-  // Autenticação (login)
-  authenticateUser: (data: { NUSP: number; password: string }) => fetchJson(`${API_BASE}/login`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-
-  // Solicitar redefinição de senha
-  requestPasswordReset: (data: { NUSP: number }) => fetchJson(`${API_BASE}/forgot-password`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-
-  // Redefinir senha
-  resetPassword: (data: { NUSP: number; password: string; token: string }) => fetchJson(`${API_BASE}/reset-password`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-
-  // Listar todos os usuários (apenas admin) -- deveria ser usado em RemoveUserForm.tsx, 
-  getAllUsers: () => fetchJson(`${API_BASE}/`),
-
-  // Exportar todos os usuários para CSV (apenas admin) -- deveria ser usado em UserList.tsx
-  exportUsersToCSV: () => fetch(`${API_BASE}/export/csv`).then(async (res) => {
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error || 'Erro na requisição');
-    }
-    return res.blob();
-  }),
-
-  // Importar usuários via CSV (apenas admin) -- deveria ser usado em ImportUsers.tsx
-  importUsersFromCSV: (data: FormData) => fetch(`${API_BASE}/import/csv`, {
-    method: 'POST',
-    body: data,
-    headers: {}, // FormData já define Content-Type
-  }).then(async (res) => {
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error || 'Erro na requisição');
-    }
-    return res.json();
-  }),
+  // import e export são usados via endpoint diretamente na admin page
 };

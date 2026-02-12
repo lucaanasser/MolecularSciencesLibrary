@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUserList } from "@/features/admin/features/users/hooks/useUserList";
+import { useListUsers } from "@/features/admin/hooks/useListUsers";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -8,7 +8,7 @@ function getToken() {
 }
 
 export default function SendNotification() {
-  const { users, loading } = useUserList();
+  const { users, loading } = useListUsers();
   const [query, setQuery] = useState("");
   const [foundUser, setFoundUser] = useState<any | null>(null);
   const [searching, setSearching] = useState(false);

@@ -1,8 +1,8 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
-import AddReserveForm from "./AddReserveForm";
-import RemoveReserveForm from "./RemoveReserveForm";
-import ListReserve from "./ListReserve";
-import ClearReserve from "./ClearReserve";
+import AddReserveForm from "@/features/admin/features/reserve/AddReserveForm";
+import RemoveReserveForm from "@/features/admin/features/reserve/RemoveReserveForm";
+import ListReserve from "@/features/admin/features/reserve/ListReserve";
+import ClearReserve from "@/features/admin/features/reserve/ClearReserve";
 
 const ManageReserve = () => {
   console.log("🔵 [AdminPage/ManageReserve] Renderizando gerenciamento de reserva");

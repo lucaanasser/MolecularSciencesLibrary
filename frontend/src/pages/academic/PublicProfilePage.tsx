@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { logger } from "@/utils/logger";
 import { useParams } from "react-router-dom";
-
-
 import { GraduationCap, Briefcase, BookMarked, Globe } from "lucide-react";
 import ProfileService from "@/services/ProfileService";
-import { useUserProfile } from "@/features/publicProfile/hooks/useUserProfile";
+import { UsersService } from "@/services/UsersService";
 import { usePublicProfile } from "@/features/publicProfile/hooks/usePublicProfile";
 import { useProfileEdit } from "@/features/publicProfile/hooks/useProfileEdit";
 import { ProfileHeader } from "@/features/publicProfile/components/ProfileHeader";
@@ -20,7 +18,26 @@ logger.info("🔵 [PublicProfilePage] Renderizando página pessoal pública");
 
 const PublicProfilePage = () => {
   const { userId: userIdParam } = useParams();
-  const { user, loading: userLoading, error: userError } = useUserProfile();
+  const [user, setUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    setUserLoading(true);
+    setUserError(null);
+    UsersService.getProfile()
+      .then((data) => {
+        if (isMounted) setUser(data);
+      })
+      .catch((err) => {
+        if (isMounted) setUserError(err.message || "Erro ao buscar perfil");
+      })
+      .finally(() => {
+        if (isMounted) setUserLoading(false);
+      });
+    return () => { isMounted = false; };
+  }, []);
   const { isEditing, isSaving, startEditing, saveChanges } = useProfileEdit();
   const [activeTab, setActiveTab] = useState<TabId>("avancados");
   const [avatarTimestamp, setAvatarTimestamp] = useState(Date.now());

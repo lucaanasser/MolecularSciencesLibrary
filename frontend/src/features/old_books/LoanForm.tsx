@@ -1,3 +1,5 @@
+/* DEPRECATED */ 
+
 import * as React from "react";
 import { useCreateLoan } from "./useCreateLoan";
 

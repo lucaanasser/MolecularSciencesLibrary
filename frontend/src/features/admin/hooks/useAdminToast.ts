@@ -74,8 +74,6 @@ export function useAdminToast() {
     const title = config.title || DEFAULT_TITLES[type];
     const variant = TOAST_VARIANTS[type];
 
-    console.log(`🔔 [useAdminToast] ${type.toUpperCase()}: ${config.description}`);
-
     toast({
       title,
       description: config.description,
@@ -87,7 +85,6 @@ export function useAdminToast() {
    * Exibe toast de sucesso
    */
   const showSuccess = useCallback((message: string, title?: string) => {
-    console.log(`🟢 [useAdminToast] Sucesso: ${message}`);
     toast({
       title: title || DEFAULT_TITLES.success,
       description: message,
@@ -99,7 +96,6 @@ export function useAdminToast() {
    * Exibe toast de erro
    */
   const showError = useCallback((message: string, title?: string) => {
-    console.log(`🔴 [useAdminToast] Erro: ${message}`);
     toast({
       title: title || DEFAULT_TITLES.error,
       description: message,
@@ -111,7 +107,6 @@ export function useAdminToast() {
    * Exibe toast de aviso
    */
   const showWarning = useCallback((message: string, title?: string) => {
-    console.log(`🟡 [useAdminToast] Aviso: ${message}`);
     toast({
       title: title || DEFAULT_TITLES.warning,
       description: message,
@@ -123,7 +118,6 @@ export function useAdminToast() {
    * Exibe toast informativo
    */
   const showInfo = useCallback((message: string, title?: string) => {
-    console.log(`🔵 [useAdminToast] Info: ${message}`);
     toast({
       title: title || DEFAULT_TITLES.info,
       description: message,
@@ -137,9 +131,7 @@ export function useAdminToast() {
   const showImportResult = useCallback((success: number, failed: number, entityName: string = "registro(s)") => {
     const hasErrors = failed > 0;
     const message = `${success} ${entityName} importado(s) com sucesso${hasErrors ? `, ${failed} falharam` : ""}`;
-    
-    console.log(`${hasErrors ? "🟡" : "🟢"} [useAdminToast] Importação: ${message}`);
-    
+        
     toast({
       title: hasErrors ? "Importação parcial" : "Importação concluída!",
       description: message,

@@ -1,7 +1,7 @@
 import { Notification } from "../types/notification";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useUserList } from "@/features/admin/features/users/hooks/useUserList";
+import { useListUsers } from "@/features/admin/hooks/useListUsers";
 
 type Props = {
   notifications: Notification[];
@@ -16,7 +16,7 @@ const formatDate = (dateString: string) => {
 };
 
 export default function NotificationList({ notifications, loading, onDelete, adminSearch }: Props) {
-  const { users, loading: usersLoading, error: usersError } = useUserList();
+  const { users, loading: usersLoading, error: usersError } = useListUsers();
   const [query, setQuery] = useState("");
   const [foundUser, setFoundUser] = useState<any | null>(null);
   const [searching, setSearching] = useState(false);

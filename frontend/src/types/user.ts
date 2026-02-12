@@ -1,19 +1,14 @@
-/**
- * Tipos relacionados a usuários.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
+import { Role, ImagePath } from "@/constants/users";
+
 export interface User {
-  id?: number;
-  name?: string;
-  role?: string;
+  id: number;
+  name: string;
+  role: Role;
+  
+  class?: number;
   NUSP?: number;
   email?: string;
-  phone?: string; // Número de telefone do usuário
-  token?: string;
-  profile_image?: string; // Caminho da imagem de perfil
-  class?: string; // Número da turma
+  phone?: string;
+
+  profile_image?: ImagePath;
 }

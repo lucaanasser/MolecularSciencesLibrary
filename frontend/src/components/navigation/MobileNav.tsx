@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, LogIn, UserCircle, Settings, LogOut, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/types/user";
@@ -12,7 +12,6 @@ interface MobileNavProps {
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
-  const navigate = useNavigate();
   const {
     navLinks,
     showProAlunoHeader,

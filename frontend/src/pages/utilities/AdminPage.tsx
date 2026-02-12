@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { logger } from "@/utils/logger";
 import { BookOpen, Users, Calendar, Heart, Bookmark, Bell, BarChart3, Settings as SettingsIcon } from "lucide-react";
 import { TabsCard } from "@/lib/TabsCard";
-import ManageBooks from "@/features/admin/features/books/ManageBooks";
-import ManageUsers from "@/features/admin/features/users/ManageUsers";
-import ManageLoans from "@/features/admin/features/loans/ManageLoans";
-import ManageDonators from "@/features/admin/features/donators/ManageDonators";
-import ManageReserve from "@/features/admin/features/reserve/ManageReserve";
-import Notifications from "@/features/admin/features/notifications/Notifications";
+import ManageBooks from "@/features/admin/_tabs/ManageBooks";
+import ManageUsers from "@/features/admin/_tabs/ManageUsers";
+import ManageLoans from "@/features/admin/_tabs/ManageLoans";
+import ManageDonators from "@/features/admin/_tabs/ManageDonators";
+import ManageReserve from "@/features/admin/_tabs/ManageReserve";
+import Notifications from "@/features/admin/_tabs/Notifications";
 import Reports from "@/features/admin/features/Reports";
-import Settings from "@/features/admin/features/settings/ManageSettings";
+import Settings from "@/features/admin/_tabs/ManageSettings";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const AdminPage = () => {

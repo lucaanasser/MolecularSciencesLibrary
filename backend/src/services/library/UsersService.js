@@ -179,11 +179,10 @@ class UsersService {
      * Retorna apenas dados públicos para autocomplete.
      * @param {string} searchTerm - Termo de busca
      * @param {number} limit - Limite de resultados
-     * @param {object} filters - Filtros opcionais
      */
-    async searchUsers(searchTerm, limit = 1000, filters = {}) {
-        console.log("🔵 [searchUsers] Buscando usuários:", searchTerm, "filters:", filters);
-        const users = await usersModel.searchUsers(searchTerm, limit, filters);
+    async searchUsers(searchTerm, limit = 100) {
+        console.log("🔵 [searchUsers] Buscando usuários:", searchTerm);
+        const users = await usersModel.searchUsers(searchTerm, limit);
         console.log("🟢 [searchUsers] Encontrados:", users.length, "usuários");
         return users;
     }

@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useCreateDonator } from '@/features/donators/hooks/useCreatDonator';
 import { Donator } from '@/features/donators/types/Donator';
-import { useFindUser } from '@/features/donators/hooks/useFindUser';
+import { UsersService } from '@/services/UsersService';
 import { useFindBookById } from '@/features/donators/hooks/useFindBookById';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
@@ -16,18 +16,42 @@ const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
   const { createDonator, loading, error } = useCreateDonator();
   const [userError, setUserError] = useState<string | null>(null);
   const [bookError, setBookError] = useState<string | null>(null);
-  const { findUser, loading: userLoading } = useFindUser();
+  const [foundUsers, setFoundUsers] = useState<any[]>([]);
+  const [userLoading, setUserLoading] = useState(false);
+  const [userSearchError, setUserSearchError] = useState<string | null>(null);
   const { findBookById, isLoading: bookLoading } = useFindBookById();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
+    const fetchUser = async () => {
+      if (isUser && form.user_id) {
+        setUserLoading(true);
+        setUserSearchError(null);
+        try {
+          const users = await UsersService.searchUsers({ q: form.user_id.toString() });
+          setFoundUsers(users);
+        } catch (err: any) {
+          setFoundUsers([]);
+          setUserSearchError(err.message);
+        } finally {
+          setUserLoading(false);
+        }
+      } else {
+        setFoundUsers([]);
+        setUserSearchError(null);
+      }
+    };
+    fetchUser();
+  }, [form.user_id, isUser]);
+
+  useEffect(() => {
     if (isUser && form.user_id) {
-      const foundUser = findUser(form.user_id.toString());
-      setUserError(foundUser ? null : 'Usuário não encontrado');
+      const found = foundUsers.find(u => String(u.NUSP) === String(form.user_id));
+      setUserError(found ? null : 'Usuário não encontrado');
     } else {
       setUserError(null);
     }
-  }, [form.user_id, isUser, findUser]);
+  }, [foundUsers, isUser, form.user_id]);
 
   useEffect(() => {
     if (form.donation_type === 'book' && form.book_id) {
@@ -108,6 +132,7 @@ const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
                 disabled={userLoading}
               />
               {userError && <p className="text-cm-red font-xs space-y-0">{userError}</p>}
+              {userSearchError && <p className="text-cm-red font-xs space-y-0">{userSearchError}</p>}
             </div>
           )}
           <Label htmlFor="donation_type">Tipo de doação:</Label>

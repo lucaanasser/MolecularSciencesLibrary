@@ -1,6 +1,6 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
 import AddUserForm from "@/features/admin/features/users/AddUserForm";
-import UserList from "@/features/admin/features/users/UserList";
+import ListUsers from "@/features/admin/features/users/ListUsers";
 import RemoveUserForm from "@/features/admin/features/users/RemoveUserForm";
 import ImportUsers from "@/features/admin/features/users/ImportUsers";
 
@@ -18,7 +18,7 @@ const ManageUsers = () => {
       tabComponents={[
         { id: "add", component: AddUserForm },
         { id: "remove", component: RemoveUserForm },
-        { id: "list", component: UserList },
+        { id: "list", component: ListUsers },
         { id: "import", component: ImportUsers },
       ]}
       columns={4}

@@ -1,27 +1,27 @@
 import { useState } from "react";
-import { logger } from "@/utils/logger";
+import { UsersService } from "@/services/UsersService";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
+
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const token = searchParams.get("token");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const token = searchParams.get("token");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     if (!token) {
       setError("Token de redefinição ausente ou inválido.");
       return;
@@ -36,21 +36,11 @@ export default function ResetPasswordPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/users/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, newPassword }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Erro ao redefinir senha.");
-        setLoading(false);
-        return;
-      }
+      await UsersService.resetPassword({ token, newPassword });
       setSuccess(true);
       setTimeout(() => navigate("/entrar"), 2000);
     } catch (err: any) {
-      setError("Erro ao redefinir senha.");
+      setError(err.message || "Erro ao redefinir senha.");
     } finally {
       setLoading(false);
     }

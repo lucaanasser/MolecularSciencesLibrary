@@ -32,7 +32,7 @@ export default function LoanList({ userId, color, showActive = true }: LoanListP
     <div className="grid grid-cols-1 gap-4">
       {filteredLoans.map((loan) => (
         <LoanCard
-          key={loan.loan_id}
+          key={loan.id}
           loan={loan}
           color={color}
           renewLoading={renewLoading}

@@ -128,7 +128,6 @@ class UsersController {
             let user = null;
             if (req.user.id) {
                 user = await usersService.getUserById(req.user.id);
-                // Nunca logar objeto completo do usuário
                 console.log("🟢 [getProfile] Busca por id:", req.user.id, "Resultado: id:", user.id, "NUSP:", user.NUSP, "email:", user.email);
             }
             if (!user && req.user.NUSP) {
@@ -205,28 +204,15 @@ class UsersController {
      * Query params: 
      *   - q: termo de busca
      *   - limit: limite de resultados (opcional)
-     *   - tags: filtro por tags (array)
-     *   - curso: filtro por curso de origem
-     *   - disciplina: filtro por disciplina cursada
-     *   - turma: filtro por turma
      */
     async searchUsers(req, res) {
+        console.log("🔵 [searchUsers] Rota chamada com query:", req.query);
         try {
-            const { q, limit, tags, curso, disciplina, turma } = req.query;
-            
-            // Monta objeto de filtros
-            const filters = {};
-            if (tags) {
-                filters.tags = Array.isArray(tags) ? tags : [tags];
-            }
-            if (curso) filters.curso = curso;
-            if (disciplina) filters.disciplina = disciplina;
-            if (turma) filters.turma = turma;
+            const { q, limit } = req.query;
             
             const results = await usersService.searchUsers(
                 q || '', 
-                limit ? parseInt(limit) : 1000,
-                filters
+                limit ? parseInt(limit) : 1000
             );
             console.log("🟢 [searchUsers] Retornando", results.length, "resultados");
             res.json(results);
