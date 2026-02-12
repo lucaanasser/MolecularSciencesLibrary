@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { useRemoveUser } from "@/features/admin/features/users/hooks/useRemoveUser";
-import { User } from "@/types/user";
+import { useSearchUser } from "@/features/admin/features/users/hooks/useSearchUser";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import type { User } from "@/types/user";
 
 /**
  * Formulário para remover usuário.
@@ -16,116 +17,112 @@ import type { TabComponentProps } from "@/features/admin/components/AdminTabRend
 
 export default function RemoveUserForm({ onSuccess, onError, onBack }: TabComponentProps) {
   const [query, setQuery] = useState("");
-  const [foundUser, setFoundUser] = useState<User | null>(null);
-  const [searching, setSearching] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const { removeUser, loading, error } = useRemoveUser();
+  const { search, searching, searched, foundUsers, error } = useSearchUser();
+  
+  // Estado para controlar se está na tela inicial
+  const [showInput, setShowInput] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { handleSubmit } = useRemoveUser({
+    onSuccess: (msg) => {
+      setSelectedUser(null);
+      setShowInput(true);
+      onSuccess(msg);
+    },
+    onError,
+    getUserId: () => selectedUser?.id ?? 0,
+  });
 
-  async function handleSearch(e: React.FormEvent) {
+  function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    await doSearch();
+    search(query);
+    setShowInput(false);
+    setSelectedUser(null);
   }
 
-  async function doSearch() {
-    setSearching(true);
-    setFoundUser(null);
-    setSearched(false);
-    try {
-      console.log("🔵 [RemoveUserForm] Buscando usuário:", query);
-      const res = await fetch(`/api/users`);
-      const users: User[] = await res.json();
-      const q = query.trim().toLowerCase();
-      const user = users.find(
-        (u) =>
-          (u.name && u.name.toLowerCase().includes(q)) ||
-          (u.email && u.email.toLowerCase() === q) ||
-          (u.NUSP && String(u.NUSP) === q)
-      );
-      setFoundUser(user || null);
-      setSearched(true);
-      if (user) {
-        console.log("🟢 [RemoveUserForm] Usuário encontrado:", user);
-      } else {
-        console.warn("🟡 [RemoveUserForm] Nenhum usuário encontrado para:", query);
-      }
-    } catch (err) {
-      setFoundUser(null);
-      setSearched(true);
-      console.error("🔴 [RemoveUserForm] Erro ao buscar usuário:", err);
-    } finally {
-      setSearching(false);
+  useEffect(() => {
+    if (!showInput && searched && foundUsers.length === 0 && query) {
+      setShowInput(true);
+      onError && onError("Nenhum usuário encontrado.");
     }
-  }
-
-  // Handler para ActionBar
-  function handleSearchClick() {
-    doSearch();
-  }
-
-  async function handleRemove() {
-    if (!foundUser?.id) return;
-    try {
-      console.log("🔵 [RemoveUserForm] Removendo usuário:", foundUser.id);
-      await removeUser(foundUser.id);
-      setFoundUser(null);
-      onSuccess("Usuário removido com sucesso!");
-      console.log("🟢 [RemoveUserForm] Usuário removido com sucesso");
-    } catch (err: any) {
-      onError(err);
-      console.error("🔴 [RemoveUserForm] Erro ao remover usuário:", err);
-    }
+  }, [searched, foundUsers, showInput, query, onError]);
+  function handleRemove(e: React.FormEvent) {
+    handleSubmit(e);
   }
 
   return (
     <div>
-      {!foundUser && (
+      {showInput && (
         <div>
           <p>Busque um usuário pelo nome, email ou NUSP:</p>
           <form onSubmit={handleSearch} className="">
             <Input
               value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setSearched(false);
-              }}
+              onChange={e => setQuery(e.target.value)}
               required
             />
             <ActionBar
-              onConfirm={handleSearchClick}
-              onCancel={onBack}
+              onConfirm={() => handleSearch({ preventDefault: () => {} } as React.FormEvent)}
+              onCancel={() => {onBack && onBack();}}
               confirmLabel={searching ? "Buscando..." : "Buscar"}
               loading={searching}
-              showCancel={!!onBack}
             />
           </form>
         </div>
       )}
 
-      {foundUser && (
-        <div className="border-2 rounded-xl p-6 my-4">
-          <p className="mb-2"><b>Nome:</b> {foundUser.name}</p>
-          <p className="mb-2"><b>Email:</b> {foundUser.email}</p>
-          <p className="mb-2"><b>NUSP:</b> {foundUser.NUSP}</p>
-          <p className="mb-2"><b>Tipo:</b> {foundUser.role}</p>
+      {!showInput && !selectedUser && foundUsers.length > 0 && (
+        <div>
+          <p>Selecione o usuário que deseja remover:</p>
+          <ul>
+            {foundUsers.map(user => (
+              <button
+                key={user.id}
+                className="w-full px-4 py-2 rounded-xl hover:bg-gray-100"
+                onClick={() => setSelectedUser(user)}
+              >
+              <li key={user.id} className="py-2 flex items-center justify-between">
+                <div className="flex flex-row gap-6 prose-sm">
+                  <span><b> {user.name}</b></span>
+                  <span>NUSP: {user.NUSP}</span>
+                  <span>Email: {user.email}</span>
+                </div>
+              </li>
+              </button>
+            ))}
+          </ul>
           <ActionBar
-            onConfirm={handleRemove}
             onCancel={() => {
-              setFoundUser(null);
-              setSearched(false);
+              search("");
               setQuery("");
+              setShowInput(true);
+              setSelectedUser(null);
             }}
-            confirmLabel={loading ? "Removendo..." : "Remover"}
-            confirmColor="bg-cm-red"
-            loading={loading}
+            confirmLabel="Voltar"
+            showConfirm={false}
           />
         </div>
       )}
 
-      {searched && query && !searching && !foundUser && (
-        <p className="text-cm-red mt-4">Nenhum usuário encontrado.</p>
+      {!showInput && selectedUser && (
+        <div>
+          <p>Confirme os dados do usuário a ser removido:</p>
+          <div className="flex flex-col gap-2 prose-md px-4">
+            <span><b>Nome:</b> {selectedUser.name}</span>
+            <span><b>NUSP:</b> {selectedUser.NUSP}</span>
+            <span><b>Email:</b> {selectedUser.email}</span>
+          </div>
+          <form onSubmit={handleRemove}>
+            <ActionBar
+              onConfirm={() => handleRemove({ preventDefault: () => {} } as React.FormEvent)}
+              onCancel={() => {
+                setSelectedUser(null);
+              }}
+              confirmLabel="Remover"
+              confirmColor="bg-cm-red"
+            />
+          </form>
+        </div>
       )}
-
-      {error && <p className="text-cm-red mt-4">{error}</p>}
     </div>
   );
 }

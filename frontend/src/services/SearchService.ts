@@ -24,7 +24,7 @@
 
 // ================ TIPOS E SERVIÇOS DE DISCIPLINAS E USUÁRIOS ================
 import { searchDisciplines } from "@/services/DisciplinesService";
-import { searchUsers } from "./UsersService";
+import { searchUsers } from "./OldUsersService";
 
 // Reexporta os tipos e serviços de disciplinas
 export {
@@ -35,12 +35,11 @@ export {
 } from "./DisciplinesService";
 
 // Reexporta os tipos e serviços de usuários
+export { type User } from "@/types/user";
 export {
   searchUsers,
-  getUserById,
-  type User,
   type UserSearchFilters as UserFilters,
-} from "./UsersService";
+} from "./OldUsersService";
 
 // ================ TIPOS PARA LIVROS ================
 

@@ -1,4 +1,4 @@
-import { Role } from "@/constants/users";
+import { Role, ImagePath } from "@/constants/users";
 
 export interface User {
   id: number;
@@ -10,7 +10,8 @@ export interface User {
   email?: string;
   phone?: string;
 
-  profile_image?: string; // qual o formato? url?
+  profile_image?: ImagePath;
   
+  created_at: string;
   token?: string; // é o token para definição de senha??
 }

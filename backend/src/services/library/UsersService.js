@@ -14,16 +14,16 @@ class UsersService {
      * Cria um novo usuário após verificar se já existe por email.
      * Retorna os dados do usuário criado (sem senha).
      */
-    async createUser({ name, email, phone, role, NUSP, profile_image, class: userClass }) {
+    async createUser({ name, email, NUSP, phone, class: userClass }) {
         console.log("🔵 [createUser] Verificando existência do usuário por email:", email);
         const existing = await usersModel.getUserByEmail(email);
         if (existing) {
             console.warn("🟡 [createUser] Usuário já existe com este email:", email);
             throw new Error('Usuário já existe com este email');
         }
+
         // Cria usuário SEM senha
-        const password_hash = null;
-        const userId = await usersModel.createUser({ name, email, phone, password_hash, role, NUSP, profile_image, class: userClass });
+        const userId = await usersModel.createUser({ name, email, NUSP, phone, class: userClass });
         console.log("🟢 [createUser] Usuário criado com id:", userId);
 
         // Auto-criar perfil público para o usuário

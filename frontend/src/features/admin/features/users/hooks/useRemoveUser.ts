@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { UsersService } from "@/services/UsersService";
 /**
  * Hook para remover usuário.
  * Padrão de logs:
@@ -8,33 +7,30 @@ import { useState } from "react";
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
-export function useRemoveUser() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function removeUser(userId: number) {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("🔵 [useRemoveUser] Removendo usuário:", userId);
-      const res = await fetch(`/api/users/${userId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        console.error("🔴 [useRemoveUser] Erro ao remover usuário:", data.error);
-        throw new Error(data.error || "Erro ao remover usuário");
-      }
-      console.log("🟢 [useRemoveUser] Usuário removido com sucesso:", userId);
-      return true;
-    } catch (err: any) {
-      setError(err.message || "Erro ao remover usuário");
-      console.error("🔴 [useRemoveUser] Erro ao remover usuário:", err);
-      throw err;
-    } finally {
-      setLoading(false);
+export function useRemoveUser({ onSuccess, onError, getUserId }: {
+  onSuccess: (msg: string) => void;
+  onError: (msg: string) => void;
+  getUserId: () => number;
+}) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const userId = getUserId();
+    if (!userId) {
+      onError("ID do usuário não informado.");
+      return;
     }
-  }
-
-  return { removeUser, loading, error };
+    try {
+      await UsersService.deleteUserById(userId);
+      onSuccess("Usuário removido com sucesso!");
+    } catch (err: any) {
+      let technicalMsg = "";
+      try {
+        technicalMsg = JSON.parse(err.message).error;
+      } catch {}
+      const errorMsg = `Não foi possível remover o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      onError(errorMsg);
+    }
+  };
+  return { handleSubmit };
 }

@@ -19,65 +19,65 @@ function fetchJson(url: string, options: RequestInit = {}) {
 
 export const LoansService = {
   /* ================== TESTADOS ================== */
-  // Criar empréstimo
+  // Criar empréstimo - useBorrowBook.ts
   borrowBook: (data: { book_id: number; NUSP: number; password: string }) => fetchJson(`${API_BASE}`, {
     method: 'POST',
     body: JSON.stringify(data),
   }),
 
-  // Criar empréstimo como admin
+  // Criar empréstimo como admin - useBorrowBook.ts
   borrowBookAsAdmin: (data: { book_id: number; NUSP: number }) => fetchJson(`${API_BASE}/admin`, {
     method: 'POST',
     body: JSON.stringify(data),
   }),
 
-  // Registrar devolução
+  // Registrar devolução - useReturnBook.ts
   returnBook: (data: { book_id: number }) => fetchJson(`${API_BASE}/return`, {
     method: 'POST',
     body: JSON.stringify(data),
   }),
 
-  // Registrar uso interno
+  // Registrar uso interno - useInternalUseRegister.ts
   registerInternalUse: (data: { book_id: number }) => fetchJson(`${API_BASE}/internal-use`, {
     method: 'POST',
     body: JSON.stringify(data),
   }),
 
-  /* ================== NÃO TESTADOS ================== */
-
-  // Preview renovação
-  previewRenewLoan: (id: string, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/preview-renew`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-
-  // Renovar empréstimo
-  renewLoan: (id: string, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/renew`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
-
-  // Preview extensão
-  previewExtendLoan: (id: string, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/preview-extend`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-
-  // Estender empréstimo
-  extendLoan: (id: string, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/extend`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
-
-  // Listar todos os empréstimos
-  listLoans: () => fetchJson(`${API_BASE}/`),
-
-  // Listar empréstimos ativos com status de atraso
+  // Listar empréstimos ativos com status de atraso - useActiveLoansList.ts
   listActiveLoansWithOverdue: () => fetchJson(`${API_BASE}/active`),
 
-  // Listar empréstimos de um usuário específico
+  /* ================== NÃO TESTADOS ================== */
+
+  // Preview renovação - deveria ser usado em RenewButton.tsx
+  previewRenewLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/preview-renew`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  // Renovar empréstimo - deveria ser usado em RenewButton.tsx
+  renewLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/renew`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+
+  // Preview extensão - atualmente não implementado no frontend
+  previewExtendLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/preview-extend`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  // Estender empréstimo - atualmente não implementado no frontend
+  extendLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/extend`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+
+  // Listar todos os empréstimos - atualmente não implementado no frontend
+  listLoans: () => fetchJson(`${API_BASE}/`),
+
+  // Listar empréstimos de um usuário específico - deveria ser usado em useGetUserLoans.ts
   listLoansByUser: (userId: number) => fetchJson(`${API_BASE}/user/${userId}`),
 
-  // Listar empréstimos ativos de um usuário específico
+  // Listar empréstimos ativos de um usuário específico - atualmente não implementado no frontend
   listActiveLoansByUser: (userId: number) => fetchJson(`${API_BASE}/user/${userId}/active`),
 };

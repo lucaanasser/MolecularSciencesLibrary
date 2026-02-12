@@ -12,16 +12,16 @@ class UsersController {
     async createUser(req, res) {
         try {
             console.log("🔵 [createUser] Dados recebidos:", req.body);
-            const { name, email, phone, role, NUSP, profile_image, class: userClass } = req.body;
-            if (!name || !email || !phone || !role || !NUSP) {
+            const { name, email, phone, NUSP, class: userClass } = req.body;
+            if (!name || !email || !phone || !NUSP || !userClass) {
                 console.warn("🟡 [createUser] Campos obrigatórios faltando.");
-                return res.status(400).json({ error: 'Todos os campos são obrigatórios, incluindo telefone.' });
+                return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
             }
             // Validação simples de telefone (pode ser aprimorada)
             if (!/^\+?\d{10,15}$/.test(phone)) {
                 return res.status(400).json({ error: 'Telefone inválido. Informe DDD e número.' });
             }
-            const user = await usersService.createUser({ name, email, phone, role, NUSP, profile_image, class: userClass });
+            const user = await usersService.createUser({ name, email, phone, NUSP, class: userClass });
             console.log("🟢 [createUser] Usuário criado com sucesso:", user);
             res.status(201).json(user);
         } catch (error) {
@@ -112,7 +112,7 @@ class UsersController {
             console.log("🔵 [deleteUserById] Deletando usuário id:", id);
             await usersService.deleteUserById(id);
             console.log("🟢 [deleteUserById] Usuário deletado com sucesso:", id);
-            res.status(204).send();
+            res.status(200).json({ success: true, id });
         } catch (error) {
             console.error("🔴 [deleteUserById] Erro ao deletar usuário:", error.message);
             res.status(400).json({ error: error.message });

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAddUser } from "@/features/admin/features/users/hooks/useCreateUser";
+import { useAddUser } from "@/features/admin/features/users/hooks/useAddUser";
+import type { User } from "@/types/new_user";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
@@ -20,29 +21,18 @@ const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [userClass, setUserClass] = useState("");
-  const { addUser, loading, error } = useAddUser();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !NUSP || !email || !phone || !userClass) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-      return;
-    }
-    try {
-      console.log("🔵 [AddUserForm] Adicionando usuário:", name, NUSP, email, userClass);
-      await addUser({ name, email, NUSP: Number(NUSP), phone, class: userClass });
-      setName("");
-      setNUSP("");
-      setEmail("");
-      setPhone("");
-      setUserClass("");
-      onSuccess("Usuário adicionado com sucesso!");
-      console.log("🟢 [AddUserForm] Usuário adicionado com sucesso");
-    } catch (err: any) {
-      onError(err);
-      console.error("🔴 [AddUserForm] Erro ao adicionar usuário:", err);
-    }
-  };
+  
+  const { handleSubmit } = useAddUser({
+    onSuccess,
+    onError,
+    getFormValues: () => ({
+      name,
+      email,
+      NUSP: Number(NUSP),
+      phone,
+      class: Number(userClass),
+    }),
+  });
 
   return (
     <form onSubmit={handleSubmit} className="">
@@ -68,12 +58,9 @@ const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
         <Input id="class" type="number" value={userClass} onChange={e => setUserClass(e.target.value)} required />
       </div>
 
-      {error && <div className="text-cm-red">{error}</div>}
-
       <ActionBar
         onCancel={onBack}
-        confirmLabel={loading ? "Adicionando..." : "Adicionar"}
-        loading={loading}
+        confirmLabel="Adicionar"
       />
     </form>
   );

@@ -10,7 +10,7 @@ import {
   searchUsers,
   type UserSearchResult,
   type UserSearchFilters,
-} from "@/services/UsersService";
+} from "@/services/OldUsersService";
 
 /**
  * Página de resultados de busca de USUÁRIOS estilo Google

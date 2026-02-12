@@ -1,0 +1,82 @@
+/**
+ * Serviço para buscar usuários da API
+ * 
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
+
+// ================ TIPOS ================
+
+import { User } from "@/types/user";
+
+export interface UserSearchResult {
+  id: number;
+  name: string;
+  class?: string;
+  profile_image?: string;
+  tags?: string[];
+  curso_origem?: string;
+  disciplines?: string[];
+}
+
+export interface UserSearchFilters {
+  tags?: string[];
+  curso?: string;
+  disciplina?: string;
+  turma?: string;
+}
+
+// ================ HELPERS ================
+
+function getAuthHeaders(): HeadersInit {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+  };
+}
+
+// ================ SERVIÇO ================
+
+/**
+ * Busca usuários com autocomplete e filtros
+ * GET /api/users/search?q=termo&limit=10&tags[]=tag1&curso=BCC&disciplina=MAC0110&turma=2024A
+ */
+export async function searchUsers(
+  query: string, 
+  limit: number = 1000,
+  filters?: UserSearchFilters
+): Promise<UserSearchResult[]> {
+  console.log(`🔵 [UsersService] Buscando usuários: "${query}"`, filters);
+  
+  // Monta query params
+  const params = new URLSearchParams();
+  if (query) params.append('q', query);
+  params.append('limit', limit.toString());
+  
+  if (filters) {
+    if (filters.tags && filters.tags.length > 0) {
+      filters.tags.forEach(tag => params.append('tags', tag));
+    }
+    if (filters.curso) params.append('curso', filters.curso);
+    if (filters.disciplina) params.append('disciplina', filters.disciplina);
+    if (filters.turma) params.append('turma', filters.turma);
+  }
+  
+  const response = await fetch(
+    `/api/users/search?${params.toString()}`,
+    { headers: getAuthHeaders() }
+  );
+  
+  if (!response.ok) {
+    console.error(`🔴 [UsersService] Erro ao buscar usuários`);
+    throw new Error("Erro ao buscar usuários");
+  }
+  
+  const data = await response.json();
+  console.log(`🟢 [UsersService] ${data.length} usuários encontrados`);
+  return data;
+}

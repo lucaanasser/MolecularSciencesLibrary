@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Users } from "lucide-react";
-import type { UserSearchResult } from "@/services/UsersService";
+import type { UserSearchResult } from "@/services/OldUsersService";
 
 interface UserResultsListProps {
   results: UserSearchResult[];

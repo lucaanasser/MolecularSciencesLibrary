@@ -7,11 +7,18 @@ class UsersModel {
     /**
      * Cria um novo usuário no banco de dados.
      */
-    async createUser({ name, email, phone, password_hash, role, NUSP, profile_image, class: userClass }) {
+    async createUser({ name, email, NUSP, phone, class: userClass}) {
+        
+        // Preenche valores padrão
+        const role = "aluno";
+        const profile_image = null;
+        const password_hash = null;
         console.log("🟢 [createUser] Criando usuário:", { name, email, phone, role, NUSP, profile_image, class: userClass });
+        
+        // Insere o usuário no banco e retorna o ID gerado
         const result = await executeQuery(
             `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image, class) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, NUSP, email, phone, password_hash, role, profile_image, userClass || null]
+            [name, NUSP, email, phone, password_hash, role, profile_image, userClass]
         );
         return result.lastID;
     }
@@ -123,7 +130,7 @@ class UsersModel {
         let params = [];
         
         // Condição de busca por termo
-        if (searchTerm && searchTerm.length >= 2) {
+        if (searchTerm && searchTerm.length > 0) {
             whereConditions.push(`(
                 u.name LIKE ? COLLATE NOCASE 
                 OR u.NUSP LIKE ? COLLATE NOCASE 
