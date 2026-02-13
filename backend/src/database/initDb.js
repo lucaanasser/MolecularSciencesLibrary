@@ -80,7 +80,7 @@ db.serialize(() => {
         CREATE TABLE IF NOT EXISTS loans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             book_id INTEGER NOT NULL,
-            student_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
             borrowed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             returned_at TIMESTAMP,
             renewals INTEGER NOT NULL DEFAULT 0, 

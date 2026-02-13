@@ -16,8 +16,8 @@ module.exports = {
     /* ======================= Funções usadas em LoansService ======================= */
 
     // Cria um novo empréstimo
-    createLoan: async (book_id, student_id, due_date) => {
-        console.log(`🔵 [LoansModel] Criando empréstimo (transação): book_id=${book_id}, student_id=${student_id}`);
+    createLoan: async (book_id, user_id, due_date) => {
+        console.log(`🔵 [LoansModel] Criando empréstimo (transação): book_id=${book_id}, user_id=${user_id}`);
         
         // 1. Converte due_date para formato SQL
         let dueDateSql = due_date;
@@ -27,8 +27,8 @@ module.exports = {
         // 2. Executa a transação para criar o empréstimo
         try {
             const result = await executeQuery(
-                `INSERT INTO loans (book_id, student_id, due_date, renewals) VALUES (?, ?, ?, 0)`,
-                [book_id, student_id, dueDateSql]
+                `INSERT INTO loans (book_id, user_id, due_date, renewals) VALUES (?, ?, ?, 0)`,
+                [book_id, user_id, dueDateSql]
             );
             console.log(`🟢 [LoansModel] Empréstimo criado e livro atualizado em transação.`);
             return { success: true, loan_id: result.lastID, updated: true };
@@ -74,11 +74,11 @@ module.exports = {
     },
 
     // Cria um empréstimo de uso interno (fantasma - já devolvido)
-    // Usa student_id = 2 (proaluno) para indicar uso interno
+    // Usa user_id = 2 (proaluno) para indicar uso interno
     createInternalUseLoan: async (book_id) => {
         console.log(`🔵 [LoansModel] Criando empréstimo de uso interno: book_id=${book_id}`);
         return executeQuery(
-            `INSERT INTO loans (book_id, student_id, due_date, renewals, returned_at) 
+            `INSERT INTO loans (book_id, user_id, due_date, renewals, returned_at) 
              VALUES (?, 2, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP)`,
             [book_id]
         ).then((result) => {
@@ -161,16 +161,16 @@ module.exports = {
         console.log("🔵 [LoansModel] Buscando todos os empréstimos com detalhes completos");
         try {
             const rows = await allQuery(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
+                `SELECT l.id as loan_id, l.book_id, l.user_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
                  FROM loans l
-                 LEFT JOIN users u ON l.student_id = u.id
+                 LEFT JOIN users u ON l.user_id = u.id
                  LEFT JOIN books b ON l.book_id = b.id
                  ORDER BY l.borrowed_at DESC`,
                 []
             );
             console.log(`🟢 [LoansModel] Empréstimos encontrados: ${rows.length}`);
             return await Promise.all(rows.map(async (row) => {
-                const user = await UsersModel.getUserById(row.student_id);
+                const user = await UsersModel.getUserById(row.user_id);
                 const book = await BooksModel.getBookById(row.book_id);
                 return {
                     id: row.loan_id,
@@ -195,15 +195,15 @@ module.exports = {
         console.log(`🔵 [LoansModel] Buscando empréstimos do usuário: ${user_id}`);
         try {
             const rows = await allQuery(
-                `SELECT l.id as loan_id, l.book_id, l.student_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
+                `SELECT l.id as loan_id, l.book_id, l.user_id, l.borrowed_at, l.returned_at, l.renewals, l.due_date, l.is_extended, l.last_nudged_at
                  FROM loans l
                  LEFT JOIN books b ON l.book_id = b.id
-                 WHERE l.student_id = ?
+                 WHERE l.user_id = ?
                  ORDER BY l.borrowed_at DESC`,
                 [user_id]
             );
             return await Promise.all(rows.map(async (row) => {
-                const user = await UsersModel.getUserById(row.student_id);
+                const user = await UsersModel.getUserById(row.user_id);
                 const book = await BooksModel.getBookById(row.book_id);
                 return {
                     id: row.loan_id,
@@ -247,7 +247,7 @@ module.exports = {
     // Busca empréstimo ativo de um usuário para um livro
     getActiveLoanByUserAndBook: (user_id, book_id) => {
         return getQuery(
-            `SELECT id as loan_id FROM loans WHERE student_id = ? AND book_id = ? AND returned_at IS NULL`,
+            `SELECT id as loan_id FROM loans WHERE user_id = ? AND book_id = ? AND returned_at IS NULL`,
             [user_id, book_id]
         ).then((row) => {
             return row;

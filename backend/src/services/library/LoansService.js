@@ -104,7 +104,7 @@ class LoansService {
         if (loan) {
             try {
                 await EmailService.sendReturnConfirmationEmail({
-                    user_id: loan.student_id,
+                    user_id: loan.user_id,
                     book_title: bookTitle,
                     returnedAt: new Date()
                 });
@@ -151,7 +151,7 @@ class LoansService {
             console.warn(`🟡 [LoansService] Empréstimo não encontrado: loan_id=${loan_id}`);
             throw new Error('Empréstimo não encontrado.');
         }
-        if (user_id && loan.student_id !== user_id) {
+        if (user_id && loan.user_id !== user_id) {
             console.warn(`🟡 [LoansService] Este empréstimo não pertence ao usuário: user_id=${user_id}, loan_id=${loan_id}`);
             throw new Error('Este empréstimo não pertence ao usuário informado.');
         }
@@ -203,7 +203,7 @@ class LoansService {
            
         try {
             await EmailService.sendRenewalConfirmationEmail({
-                user_id: updatedLoan.student_id,
+                user_id: updatedLoan.user_id,
                 book_title: book.title,
                 due_date: updatedLoan.due_date
             });
@@ -314,11 +314,11 @@ class LoansService {
         const updatedLoan = await LoansModel.getLoanById(loan_id);
         try {
             await EmailService.sendExtensionNudgeEmail({
-                user_id: updatedLoan.student_id,
+                user_id: updatedLoan.user_id,
                 book_title: updatedLoan.book_title,
                 new_due_date: updatedLoan.due_date
             });
-            console.log(`🟢 [LoansService] Email de nudge enviado para user_id=${updatedLoan.student_id}, loan_id=${loan_id}`);
+            console.log(`🟢 [LoansService] Email de nudge enviado para user_id=${updatedLoan.user_id}, loan_id=${loan_id}`);
         } catch (emailErr) {
             console.error(`🟡 [LoansService] Erro ao enviar email de nudge (operação realizada com sucesso):`, emailErr.message);
         }
