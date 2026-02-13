@@ -3,7 +3,8 @@
  * Centraliza os links e labels para facilitar manutenção.
  */
 
-export interface NavLink {
+// Links de navegação
+interface NavLink {
   to: string;
   label: string;
 }
@@ -24,6 +25,7 @@ export const ACADEMIC_NAV_LINKS: NavLink[] = [
   { to: "/academico/faq", label: "FAQ" },
 ];
 
+// Rotas principais
 export const ROUTES = {
   HOME: "/",
   ACADEMIC_HOME: "/academico",
@@ -32,9 +34,10 @@ export const ROUTES = {
   ADMIN: "/admin",
   PROALUNO: "/proaluno",
   MY_PAGE: "/minha-pagina",
-} as const;
+};
 
-export interface ContactInfo {
+// Informações de contato para rodapé
+interface ContactInfo {
   organization: string;
   department: string;
   location: string;

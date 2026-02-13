@@ -176,7 +176,7 @@ class VirtualBookShelfService {
     }
 
     /**
-     * Atualiza o código final de uma prateleira específica (apenas para última prateleira)
+     * Atualiza o código final de uma prateleira específica
      */
     async updateShelfEndCode(shelf_number, shelf_row, book_code_end) {
         console.log(`🔵 [VirtualBookShelfService] Atualizando código final da prateleira ${shelf_number}-${shelf_row}`);
@@ -408,24 +408,9 @@ class VirtualBookShelfService {
     }
 
     /**
-     * Marca uma prateleira como última da estante
-     */
-    async setLastShelf(shelf_number, shelf_row, is_last_shelf) {
-        console.log(`🔵 [VirtualBookShelfService] Configurando prateleira ${shelf_number}-${shelf_row} como última: ${is_last_shelf}`);
-        try {
-            await VirtualBookShelfModel.setLastShelf(shelf_number, shelf_row, is_last_shelf);
-            console.log("🟢 [VirtualBookShelfService] Configuração de última prateleira atualizada");
-            return { success: true };
-        } catch (error) {
-            console.error("🔴 [VirtualBookShelfService] Erro ao configurar última prateleira:", error.message);
-            throw error;
-        }
-    }
-
-    /**
      * Adiciona uma nova prateleira a uma estante existente ou nova estante
      */
-    async addShelf({ shelf_number, shelf_row, book_code_start = null, book_code_end = null, is_last_shelf = false }) {
+    async addShelf({ shelf_number, shelf_row, book_code_start = null, book_code_end = null }) {
         console.log(`🔵 [VirtualBookShelfService] Adicionando nova prateleira: estante ${shelf_number}, prateleira ${shelf_row}`);
         try {
             // Verifica se já existe
@@ -433,7 +418,7 @@ class VirtualBookShelfService {
             if (existing) {
                 throw new Error('Já existe uma prateleira com esse número de estante e prateleira.');
             }
-            await VirtualBookShelfModel.insertShelf(shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf);
+            await VirtualBookShelfModel.insertShelf(shelf_number, shelf_row, book_code_start, book_code_end);
             console.log("🟢 [VirtualBookShelfService] Nova prateleira inserida com sucesso");
             return { success: true };
         } catch (error) {

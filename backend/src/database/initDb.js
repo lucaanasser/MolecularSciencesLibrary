@@ -75,7 +75,7 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela books criada com sucesso');
     });
 
-    // BORROWED_BOOKS TABLE
+    // LOANS TABLE
     db.run(`
         CREATE TABLE IF NOT EXISTS loans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -210,7 +210,7 @@ db.serialize(() => {
         console.log('🟢 [initDb] Tabela donators criada com sucesso');
     });
 
-    // Tabela de organização da estante virtual (código inicial de cada prateleira)
+    // VIRTUAL SHELF TABLE - Configuração dos livros em cada estante
     db.run(`
         CREATE TABLE IF NOT EXISTS virtual_bookshelf (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -218,7 +218,6 @@ db.serialize(() => {
             shelf_row INTEGER NOT NULL,
             book_code_start TEXT,
             book_code_end TEXT,
-            is_last_shelf BOOLEAN DEFAULT FALSE,
             UNIQUE(shelf_number, shelf_row)
         )
     `, (err) => {
@@ -232,13 +231,13 @@ db.serialize(() => {
         const defaultShelves = [];
         for (let shelf_number = 1; shelf_number <= 4; shelf_number++) {
             for (let shelf_row = 1; shelf_row <= 6; shelf_row++) {
-                defaultShelves.push([shelf_number, shelf_row, null, null, false]);
+                defaultShelves.push([shelf_number, shelf_row, null, null]);
             }
         }
         
         const insertShelf = db.prepare(`
-            INSERT OR IGNORE INTO virtual_bookshelf (shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT OR IGNORE INTO virtual_bookshelf (shelf_number, shelf_row, book_code_start, book_code_end)
+            VALUES (?, ?, ?, ?)
         `);
         
         defaultShelves.forEach(shelf => {

@@ -57,17 +57,6 @@ router.put('/shelf-end', authenticateToken, (req, res) => {
     VirtualBookShelfController.updateShelfEndCode(req, res);
 });
 
-// PUT /api/virtual-bookshelf/last-shelf - Configura prateleira como última (admin only)
-router.put('/last-shelf', authenticateToken, (req, res) => {
-    console.log("🔵 [VirtualBookShelfRoutes] PUT /last-shelf - Configurando última prateleira");
-    // Verificar se é admin
-    if (req.user && req.user.role !== 'admin') {
-        console.warn("🟡 [VirtualBookShelfRoutes] Acesso negado - usuário não é admin");
-        return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem configurar prateleiras.' });
-    }
-    VirtualBookShelfController.setLastShelf(req, res);
-});
-
 // GET /api/virtual-bookshelf/validate - Valida um código de livro
 router.get('/validate', (req, res) => {
     console.log("🔵 [VirtualBookShelfRoutes] GET /validate - Validando código de livro");

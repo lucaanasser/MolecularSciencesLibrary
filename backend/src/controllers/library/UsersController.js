@@ -36,13 +36,12 @@ class UsersController {
      */
     async authenticateUser(req, res) {
         try {
-            console.log("🔵 [authenticateUser] Dados recebidos: email/NUSP recebido");
-            const { email, NUSP, password } = req.body;
-            if ((!email && !NUSP) || !password) {
-                console.warn("🟡 [authenticateUser] Email/NUSP ou senha não fornecidos.");
-                return res.status(400).json({ error: 'Email ou NUSP e senha são obrigatórios.' });
+            console.log("🔵 [authenticateUser] Dados recebidos: login e senha recebidos");
+            const { login, password } = req.body;
+            if (!login || !password) {
+                console.warn("🟡 [authenticateUser] Login ou senha não fornecidos.");
+                return res.status(400).json({ error: 'Login e senha são obrigatórios.' });
             }
-            const login = email || NUSP;
             // Autentica (gera token) usando service
             const authResult = await usersService.authenticateUser(login, password);
             // Verificação de IP se role for proaluno

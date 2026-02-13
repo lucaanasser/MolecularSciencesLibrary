@@ -6,88 +6,55 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/useToast";
-import { logger } from "@/utils/logger";
 import { UsersService } from "@/services/UsersService";
+import { ROUTES } from "@/constants/navigation";
 
 
 const LoginForm: React.FC = () => {
-  const [matricula, setMatricula] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     try {
-      logger.info("🔵 [LoginForm] Tentando autenticar usuário:", matricula);
-      let authPayload: any = { password };
-      if (/^\d+$/.test(matricula)) {
-        authPayload.NUSP = Number(matricula);
-      } else {
-        authPayload.email = matricula;
-      }
-      const data = await UsersService.authenticateUser(authPayload);
+      const data = await UsersService.authenticateUser({ login, password });
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
       toast({
         title: "Login bem-sucedido",
         description: `Bem-vindo, ${data.name}!`,
       });
-      logger.info("🟢 [LoginForm] Login realizado com sucesso para:", data.name);
-      if (data.role === "admin") {
-        navigate("/admin");
-      } else if (data.role === "proaluno") {
-        navigate("/proaluno");
-      } else {
-        navigate("/perfil");
-      }
+      if (data.role === "admin") 
+        navigate(ROUTES.ADMIN);
+      else if (data.role === "proaluno") 
+        navigate(ROUTES.PROALUNO);
+      else
+        navigate(ROUTES.MY_PAGE);
     } catch (err: any) {
-      logger.error("🔴 [LoginForm] Erro ao autenticar:", err.message);
       toast({
         title: "Erro de autenticação",
-        description: JSON.parse(err.message).error || "Matrícula ou senha incorreta.",
+        description: err.message || "Login ou senha incorreta.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleForgotPassword = async () => {
-    logger.info("🔵 [LoginForm] Iniciando recuperação de senha para:", matricula);
-    if (!matricula) {
-      logger.warn("🟡 [LoginForm] Matrícula não informada");
-      toast({
-        title: "Informe seu email ou matrícula",
-        description: "Digite seu email ou número de matrícula para redefinir a senha.",
-        variant: "destructive",
-      });
-      return;
-    }
     setForgotLoading(true);
     try {
-      logger.info("🔵 [LoginForm] Enviando requisição de recuperação de senha");
-      let resetPayload: any = {};
-      if (/^\d+$/.test(matricula)) {
-        resetPayload.NUSP = Number(matricula);
-      } else {
-        resetPayload.email = matricula;
-      }
-      await UsersService.requestPasswordReset(resetPayload);
-      logger.info("🟢 [LoginForm] Email de recuperação enviado com sucesso");
+      await UsersService.requestPasswordReset({ login });
       toast({
         title: "Email enviado!",
-        description: "Se o usuário existir, você receberá um email com instruções para redefinir sua senha.",
+        description: "Você receberá um email em breve com instruções para redefinir sua senha.",
       });
     } catch (err: any) {
-      logger.error("🔴 [LoginForm] Erro ao processar recuperação:", err.message);
       toast({
         title: "Erro ao enviar email",
-        description: JSON.parse(err.message).error || "Tente novamente mais tarde.",
+        description: err.message || "Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {
@@ -101,11 +68,11 @@ const LoginForm: React.FC = () => {
         <form onSubmit={handleSubmit} className="w-full">
           <h2 className="text-center"> Login </h2>
           {/* Campo de identificação */}
-          <Label htmlFor="matricula">Número USP ou Email:</Label>
+          <Label htmlFor="login">Número USP ou Email:</Label>
           <Input
-            id="matricula"
-            value={matricula}
-            onChange={(e) => setMatricula(e.target.value)}
+            id="login"
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
             autoComplete="username"
             required
           />
@@ -138,19 +105,15 @@ const LoginForm: React.FC = () => {
               type="submit"
               variant="wide"
               className="primary-bg"
-              disabled={isLoading}
               tabIndex={0}
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              Entrar
             </Button>
             <div className="flex justify-end mb-4">
               <Button
                 size="sm"
                 className="primary-text"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleForgotPassword();
-                }}
+                onClick={handleForgotPassword}
                 disabled={forgotLoading}
                 type="button"
               >

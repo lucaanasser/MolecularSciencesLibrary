@@ -22,14 +22,12 @@ const BookshelfRenderer: React.FC<BookshelfRendererProps> = ({
       width: '100%',
     }}>
       {booksByShelf.map((books, idx) => (
-        <>
         <ShelfRenderer
           key={idx}
           books={books}
           width={width}
           height={height}
         />
-        </>
       ))}
     </div>
   );

@@ -103,27 +103,6 @@ class VirtualBookShelfController {
     }
 
     /**
-     * Configura uma prateleira como última da estante
-     */
-    async setLastShelf(req, res) {
-        try {
-            console.log("🔵 [VirtualBookShelfController] PUT /api/virtual-bookshelf/last-shelf - Configurando última prateleira");
-            const { shelf_number, shelf_row, is_last_shelf } = req.body;
-
-            if (!shelf_number || !shelf_row) {
-                return res.status(400).json({ error: 'shelf_number e shelf_row são obrigatórios' });
-            }
-
-            const result = await VirtualBookShelfService.setLastShelf(shelf_number, shelf_row, is_last_shelf);
-            console.log("🟢 [VirtualBookShelfController] Configuração de última prateleira atualizada");
-            res.json(result);
-        } catch (error) {
-            console.error("🔴 [VirtualBookShelfController] Erro ao configurar última prateleira:", error.message);
-            res.status(500).json({ error: error.message });
-        }
-    }
-
-    /**
      * Valida um código de livro
      */
     async validateBookCode(req, res) {
@@ -181,7 +160,7 @@ class VirtualBookShelfController {
     async addShelf(req, res) {
         try {
             console.log("🔵 [VirtualBookShelfController] POST /api/virtual-bookshelf/shelf - Adicionando nova prateleira");
-            const { shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf } = req.body;
+            const { shelf_number, shelf_row, book_code_start, book_code_end } = req.body;
             if (!shelf_number || !shelf_row) {
                 return res.status(400).json({ error: 'shelf_number e shelf_row são obrigatórios' });
             }
@@ -190,7 +169,6 @@ class VirtualBookShelfController {
                 shelf_row,
                 book_code_start,
                 book_code_end,
-                is_last_shelf
             });
             console.log("🟢 [VirtualBookShelfController] Nova prateleira adicionada com sucesso");
             res.json(result);

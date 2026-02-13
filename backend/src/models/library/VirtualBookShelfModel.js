@@ -50,7 +50,7 @@ class VirtualBookShelfModel {
     }
 
     /**
-     * Atualiza o código final de uma prateleira específica (para última prateleira da estante)
+     * Atualiza o código final de uma prateleira específica
      */
     async updateShelfEndCode(shelf_number, shelf_row, book_code_end) {
         console.log(`🔵 [VirtualBookShelfModel] Atualizando prateleira ${shelf_number}-${shelf_row} com código final: ${book_code_end}`);
@@ -69,36 +69,16 @@ class VirtualBookShelfModel {
     }
 
     /**
-     * Marca/desmarca uma prateleira como última da estante
-     */
-    async setLastShelf(shelf_number, shelf_row, is_last_shelf) {
-        console.log(`🔵 [VirtualBookShelfModel] Configurando prateleira ${shelf_number}-${shelf_row} como última: ${is_last_shelf}`);
-        try {
-            const result = await executeQuery(`
-                UPDATE virtual_bookshelf 
-                SET is_last_shelf = ? 
-                WHERE shelf_number = ? AND shelf_row = ?
-            `, [is_last_shelf, shelf_number, shelf_row]);
-            console.log(`🟢 [VirtualBookShelfModel] Configuração de última prateleira atualizada`);
-            return result;
-        } catch (error) {
-            console.error("🔴 [VirtualBookShelfModel] Erro ao configurar última prateleira:", error.message);
-            throw error;
-        }
-    }
-
-    /**
      * Atualiza configuração completa das prateleiras
      */
     async updateShelvesConfig(shelvesConfig) {
         console.log("🔵 [VirtualBookShelfModel] Atualizando configuração completa das prateleiras (transação)");
         const { runInTransaction } = require('../../database/db');
         const queries = shelvesConfig.map(shelf => [
-            `UPDATE virtual_bookshelf SET book_code_start = ?, book_code_end = ?, is_last_shelf = ? WHERE shelf_number = ? AND shelf_row = ?`,
+            `UPDATE virtual_bookshelf SET book_code_start = ?, book_code_end = ? WHERE shelf_number = ? AND shelf_row = ?`,
             [
                 shelf.book_code_start || null,
                 shelf.book_code_end || null,
-                shelf.is_last_shelf || false,
                 shelf.shelf_number,
                 shelf.shelf_row
             ]
@@ -133,13 +113,13 @@ class VirtualBookShelfModel {
     /**
      * Insere uma nova prateleira (linha) na tabela virtual_bookshelf
      */
-    async insertShelf(shelf_number, shelf_row, book_code_start = null, book_code_end = null, is_last_shelf = false) {
+    async insertShelf(shelf_number, shelf_row, book_code_start = null, book_code_end = null) {
         console.log(`🔵 [VirtualBookShelfModel] Inserindo nova prateleira: estante ${shelf_number}, prateleira ${shelf_row}`);
         try {
             const result = await executeQuery(`
-                INSERT INTO virtual_bookshelf (shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf)
-                VALUES (?, ?, ?, ?, ?)
-            `, [shelf_number, shelf_row, book_code_start, book_code_end, is_last_shelf]);
+                INSERT INTO virtual_bookshelf (shelf_number, shelf_row, book_code_start, book_code_end)
+                VALUES (?, ?, ?, ?)
+            `, [shelf_number, shelf_row, book_code_start, book_code_end]);
             console.log(`🟢 [VirtualBookShelfModel] Nova prateleira inserida`);
             return result;
         } catch (error) {

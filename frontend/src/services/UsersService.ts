@@ -129,8 +129,8 @@ export const UsersService = {
   /* Autenticação (login) 
    * Usada em: LoginForm
    */
-  authenticateUser: async (data: { NUSP?: number; email?: string; password: string }) => {
-    console.log("🔵 [UsersService] Autenticando usuário:", data.NUSP || data.email);
+  authenticateUser: async (data: { login: string | number; password: string }) => {
+    console.log("🔵 [UsersService] Autenticando usuário:", data.login);
     try {
       const result = await fetchJson(`${API_BASE}/login`, {
         method: 'POST',
@@ -151,8 +151,8 @@ export const UsersService = {
   /* Solicitar redefinição de senha
    * Usada em: LoginForm (esqueci minha senha)
    */
-  requestPasswordReset: async (data: { NUSP?: number; email?: string }) => {
-    console.log("🔵 [UsersService] Solicitando redefinição de senha para:", data.NUSP || data.email);
+  requestPasswordReset: async (data: { login: string | number }) => {
+    console.log("🔵 [UsersService] Solicitando redefinição de senha para:", data.login);
     try {
       const result = await fetchJson(`${API_BASE}/forgot-password`, {
         method: 'POST',
