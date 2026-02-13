@@ -1,13 +1,16 @@
-/* Áreas e subáreas dos livros */
-export type Area =
-  | "Matemática"
-  | "Física"
-  | "Química"
-  | "Biologia"
-  | "Computação"
-  | "Variados";
-  
-export const SubareasByArea = {
+export { AREAS, SUBAREAS, STATUS, LANGUAGES };
+
+const AREAS = [
+  "Matemática",
+  "Física",
+  "Química",
+  "Biologia",
+  "Computação",
+  "Variados",
+]
+
+import { Area } from "@/types/new_book";
+const SUBAREAS: Record<Area, string[]> = {
   Matemática: 
   [
     "Cálculo",
@@ -64,22 +67,19 @@ export const SubareasByArea = {
     "Interdisciplinares",
     "Miscelânea", 
   ],
-} as const;
+};
 
-export type Subarea<A extends Area = Area> =
-  typeof SubareasByArea[A][number];
+const STATUS = [
+  "disponível",
+  "emprestado",
+  "reservado",
+  "atrasado",
+  "perdido"
+]
 
-/* Status dos livros */
-export type Status =
-  | "disponível"
-  | "emprestado"
-  | "reservado"
-  | "atrasado"
-  | "perdido";
-
-/* Idiomas dos livros */
-export type Language = 
-  | "Português" 
-  | "Inglês" 
-  | "Espanhol" 
-  | "Outro";
+const LANGUAGES = [
+  "Português",
+  "Inglês",
+  "Espanhol",
+  "Outro"
+]

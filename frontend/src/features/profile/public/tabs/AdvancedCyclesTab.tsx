@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { AdvancedCycleInfo } from "@/types/publicProfile";
 import { GraduationCap } from "lucide-react";
 import { useState } from "react";
-import { AdvancedCycleModal } from "../modals";
+import { AdvancedCycleModal } from "../../../publicProfile/components/modals";
 
 interface AdvancedCyclesTabProps {
   ciclosAvancados: (AdvancedCycleInfo & { cor?: string })[];
@@ -161,7 +161,7 @@ export const AdvancedCyclesTab = ({
                           <p className="text-xs font-medium text-gray-500 mb-1">Coorientadores</p>
                           <div className="flex flex-wrap gap-2">
                             {av.coorientadores.map((co, coIdx) => (
-                              <Badge key={coIdx} variant="primary" className="text-xs">
+                              <Badge key={coIdx} className="text-xs">
                                 {co}
                               </Badge>
                             ))}
@@ -192,7 +192,7 @@ export const AdvancedCyclesTab = ({
                           <p className="text-xs font-medium text-gray-500 mb-2">Tags</p>
                           <div className="flex flex-wrap gap-2">
                             {areaTags.map((tag) => (
-                              <Badge key={tag.id} variant="primary">
+                              <Badge key={tag.id} >
                                 {tag.label}
                               </Badge>
                             ))}

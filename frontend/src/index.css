@@ -184,7 +184,7 @@
   @media (min-width: 1024px) {
     .diagonal-section {
       @apply py-32;
-      clip-path: polygon(0 64px, 100% 0, 100% calc(100% - 64px), 0 100%);
+      clip-path: polygon(0 96px, 100% 0, 100% calc(100% - 96px), 0 100%);
     }
   }
 }

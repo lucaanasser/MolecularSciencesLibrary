@@ -49,19 +49,11 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: TabCompon
   }, []);
 
   // Cancelar seleção e voltar para busca
-  const handleCancelSelect = useCallback(async () => {
+  const handleCancelSelect = useCallback(() => {
     setFoundUsers([]);
     setQuery("");
     setSelectedUser(null);
-    try {
-      const users = await UsersService.searchUsers({ q: "" });
-      const filtered = users.filter(u => u.role === "aluno");
-      setFoundUsers(filtered);
-    } catch (err: any) {
-      setFoundUsers([]);
-      onError && onError(err.message || "Erro ao buscar usuários.");
-    }
-  }, [onError]);
+  }, []);
 
   // Controle da remoção
   const handleRemove = useCallback(async (e: React.FormEvent) => {

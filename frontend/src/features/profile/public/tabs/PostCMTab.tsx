@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PostCMInfo } from "@/types/publicProfile";
 import { useState } from "react";
-import { PostCMModal } from "../modals";
+import { PostCMModal } from "../../../publicProfile/components/modals";
 
 interface PostCMTabProps {
   posCM: PostCMInfo[];
@@ -69,7 +69,7 @@ export const PostCMTab = ({ posCM, isEditing, onAdd, onSave, onRemove, onUpdate 
         </div>
       )}
 
-      {posCM.length === 0 && isEditing && (
+      {isEditing && (
         <div className="py-20 text-center">
           <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
             <Briefcase className="w-12 h-12 text-gray-300" />
@@ -82,7 +82,7 @@ export const PostCMTab = ({ posCM, isEditing, onAdd, onSave, onRemove, onUpdate 
         </div>
       )}
 
-      {posCM.length > 0 && (
+      {true && (
         <div className="space-y-6 max-w-3xl">
           {posCM.map((item) => (
             <div key={item.id} className="p-8 rounded-2xl bg-cm-orange/5 border border-cm-orange/20 relative group">
@@ -134,7 +134,7 @@ export const PostCMTab = ({ posCM, isEditing, onAdd, onSave, onRemove, onUpdate 
                   {(item.areas && item.areas.length > 0) && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {item.areas.map((tag) => (
-                        <Badge key={tag.id} variant="primary">
+                        <Badge key={tag.id}>
                           {tag.label}
                         </Badge>
                       ))}

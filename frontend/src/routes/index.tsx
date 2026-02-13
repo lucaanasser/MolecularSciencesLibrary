@@ -24,7 +24,7 @@ import AcademicFAQPage from "@/pages/academic/AcademicFAQPage";
 import ForumPage from "@/pages/academic/ForumPage";
 import QuestionDetailPage from "@/pages/academic/QuestionDetailPage";
 import NewQuestionPage from "@/pages/academic/NewQuestionPage";
-import ProfilePage from "@/pages/library/ProfilePage";
+import PrivateProfilePage from "@/pages/library/PrivateProfilePage";
 import PublicProfilePage from "@/pages/academic/PublicProfilePage";
 
 import AccountCreationPage from "@/pages/utilities/AccountCreationPage";
@@ -76,7 +76,7 @@ const routes: RouteObject[] = [
   { path: "/redefinir-senha", element: <ResetPasswordPage /> },
   { path: "/perfil", element: RenderPage(() => (
       <ProtectedRoute allowedRoles={["aluno", "admin", "proaluno"]}>
-        <ProfilePage />
+        <PrivateProfilePage />
       </ProtectedRoute>
     )) },
   { path: "/minha-pagina", element: RenderPage(() => (

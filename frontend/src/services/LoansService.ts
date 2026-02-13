@@ -18,6 +18,7 @@ function fetchJson(url: string, options: RequestInit = {}) {
 }
 
 export const LoansService = {
+  // Posteriormente refatorar inserindo logs e eliminando hooks
   /* ================== TESTADOS ================== */
   // Criar empréstimo - useBorrowBook.ts
   borrowBook: (data: { book_id: number; NUSP: number; password: string }) => fetchJson(`${API_BASE}`, {

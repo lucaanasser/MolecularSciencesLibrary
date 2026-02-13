@@ -1,4 +1,4 @@
-import { Role, ImagePath } from "@/constants/users";
+import { ROLES, IMAGE_PATHS } from "@/constants/users";
 
 export interface User {
   id: number;
@@ -12,3 +12,6 @@ export interface User {
 
   profile_image?: ImagePath;
 }
+
+export type Role = typeof ROLES[number];
+export type ImagePath = typeof IMAGE_PATHS[number];

@@ -1,15 +1,16 @@
 import { useGetUserLoans } from "./useGetUserLoans";
 import { useState } from "react";
-import LoanCard from "@/features/personalProfile/components/LoanCard";
+import LoanCard from "@/features/profile/private/components/LoanCard";
+import { User } from "@/types/user";
+import { accentColor } from "@/constants/styles";
 
 interface LoanListProps {
-  userId: number | undefined;
-  color: string;
+  user: User;
   showActive?: boolean; // true = ativos, false = histórico
 }
 
-export default function LoanList({ userId, color, showActive = true }: LoanListProps) {
-  const { loans, loading, error, refetch } = useGetUserLoans(userId);
+export default function LoanList({ user, showActive = true }: LoanListProps) {
+  const { loans, loading, error, refetch } = useGetUserLoans(user.id);
   const [renewLoading, setRenewLoading] = useState<number | null>(null);
 
   const filteredLoans = showActive 
@@ -34,7 +35,7 @@ export default function LoanList({ userId, color, showActive = true }: LoanListP
         <LoanCard
           key={loan.id}
           loan={loan}
-          color={color}
+          color={accentColor(user.profile_image)}
           renewLoading={renewLoading}
           setRenewLoading={setRenewLoading}
           refetch={refetch}

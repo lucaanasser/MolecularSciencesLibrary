@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { InternationalExperience } from "@/types/publicProfile";
 import { useState } from "react";
-import { InternationalExperienceModal } from "../modals";
+import { InternationalExperienceModal } from "../../../publicProfile/components/modals";
 
 interface InternationalTabProps {
   experiencias: InternationalExperience[];

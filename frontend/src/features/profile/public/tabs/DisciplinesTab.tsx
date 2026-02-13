@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { DisciplinaAvancado, AdvancedCycleInfo } from "@/types/publicProfile";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { DisciplineModal } from "../modals";
+import { DisciplineModal } from "../../../publicProfile/components/modals";
 
 interface DisciplinesTabProps {
   disciplinas: DisciplinaAvancado[];

@@ -1,3 +1,3 @@
-export { AdvancedCyclesTab } from "./AdvancedCyclesTab";
-export { DisciplinesTab } from "./DisciplinesTab";
-export { PostCMTab } from "./PostCMTab";
+export { AdvancedCyclesTab } from "../../../profile/public/tabs/AdvancedCyclesTab";
+export { DisciplinesTab } from "../../../profile/public/tabs/DisciplinesTab";
+export { PostCMTab } from "../../../profile/public/tabs/PostCMTab";

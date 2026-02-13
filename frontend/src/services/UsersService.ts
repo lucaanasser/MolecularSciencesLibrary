@@ -190,8 +190,6 @@ export const UsersService = {
       throw new Error(errorMsg);
     }
   },
-  
-  /* ================== NÃO TESTADOS ================== */
 
   /* Atualizar imagem de perfil do usuário autenticado
    * A ser usada em: ProfilePage, PublicProfilePage
@@ -199,16 +197,10 @@ export const UsersService = {
   updateProfileImage: async (data: { id: number; profile_image: string }) => {
     console.log("🔵 [UsersService] Atualizando imagem de perfil do usuário:", data.id);
     try {
-      const res = await fetch(`${API_BASE}/${data.id}/profile-image`, {
+      const result = await fetchJson(`${API_BASE}/me/profile-image`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile_image: data.profile_image }),
       });
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || 'Erro na requisição');
-      }
-      const result = await res.json();
       console.log("🟢 [UsersService] Imagem de perfil atualizada com sucesso");
       return result;
     } catch (err: any) {
@@ -219,6 +211,8 @@ export const UsersService = {
       throw new Error(errorMsg);
     }
   },
+  
+  /* ================== NÃO TESTADOS ================== */
 
   // Buscar usuário por ID -- pagina de busca de usuários??
   getUserById: (id: number | string) => fetchJson(`${API_BASE}/${id}`),

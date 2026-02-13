@@ -1,8 +1,9 @@
 import { Loan } from "@/types/loan";
 import { Clock } from "lucide-react";
-import { AreaIcon } from "./AreaIcon";
+import { AreaIcon } from "@/constants/styles";
 import { LoanStatusDot } from "./LoanStatusDot";
 import { RenewButton } from "./RenewButton";
+import { mutedColor } from "@/constants/styles";
 
 interface LoanCardProps {
   loan: Loan;
@@ -20,6 +21,7 @@ export default function LoanCard({
   color='library-purple'
 }: LoanCardProps) {
 
+  const bgColor = mutedColor(color);
   const status = <LoanStatusDot loan={loan} />;
   
   const dateFormatting = (dateString: string | null | undefined) => {
@@ -29,7 +31,7 @@ export default function LoanCard({
   };
 
   return (
-    <div className={`w-full p-2 md:p-4 bg-${color}/10 rounded-2xl`}>
+    <div className={`w-full p-2 md:p-4 ${bgColor} rounded-2xl`}>
       
       {/* Identificação do livro com ícone da área */}
       <div className="flex flex-row items-center gap-4 min-w-0">
