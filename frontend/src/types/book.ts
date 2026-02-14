@@ -1,10 +1,5 @@
 /**
  * Tipos relacionados a livros.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
  */
 
 export interface Book {

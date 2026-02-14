@@ -1,3 +1,13 @@
+/*
+ * Este arquivo contém as constantes relacionadas aos livros, como áreas, subáreas, status e idiomas.
+ * Essas constantes são usadas para garantir consistência em todo o aplicativo e facilitar a manutenção.
+ * 
+ * ATENÇÃO:
+ * Para adicionar ou modificar áreas/subáreas, é preciso atualizar tanto este arquivo 
+ * quanto o arquivo de validação e mapeamento correspondente no backend. 
+ * (backend/src/utils/bookValidAreas.js)
+ */
+
 export { AREAS, SUBAREAS, STATUS, LANGUAGES };
 
 const AREAS = [
@@ -70,11 +80,10 @@ const SUBAREAS: Record<Area, string[]> = {
 };
 
 const STATUS = [
-  "disponível",
-  "emprestado",
-  "reservado",
-  "atrasado",
-  "perdido"
+  "disponível",    // Disponível para empréstimo
+  "emprestado",    // Empréstimo ativo cadastrado
+  "reservado",     // Reserva didática
+  "indisponível"   // Livro danificado ou perdido
 ]
 
 const LANGUAGES = [

@@ -204,7 +204,7 @@ class VirtualBookShelfService {
     async getAllBooksOrdered() {
         console.log("🔵 [VirtualBookShelfService] Ordenando todos os livros para estante virtual");
         try {
-            const books = await BooksModel.getAll();
+            const books = await BooksModel.getAllBooks();
             const borrowed = await BooksModel.getBorrowedBooks();
             // Garante que book_id e id são do mesmo tipo (number)
             const borrowedSet = new Set(
@@ -394,7 +394,7 @@ class VirtualBookShelfService {
     async validateBookCode(bookCode) {
         console.log(`🔵 [VirtualBookShelfService] Validando código de livro: ${bookCode}`);
         try {
-            const books = await BooksModel.getAll();
+            const books = await BooksModel.getAllBooks();
             const target = this.formatComparableCode(bookCode);
             const book = books.find(b => this.formatComparableCode(b.code) === target);
             

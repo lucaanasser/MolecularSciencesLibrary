@@ -1,6 +1,3 @@
-// Importa funções utilitárias para executar queries no banco de dados
-const { executeQuery, getQuery, allQuery } = require('../../database/db'); // Caminho já está correto
-
 /**
  * Modelo para operações no banco de dados relacionadas a livros.
  * Responsável apenas pela persistência e recuperação de dados.
@@ -10,21 +7,95 @@ const { executeQuery, getQuery, allQuery } = require('../../database/db'); // Ca
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
+
+const { executeQuery, getQuery, allQuery } = require('../../database/db');
+
 class BooksModel {
-    /**
-     * Busca livros para autocomplete (busca simplificada por título/autor/código)
-     * @param {string} query - Termo de busca
-     * @param {number} limit - Limite de resultados
-     * @returns {Promise<Array>} Lista de livros
-     */
-    async searchBooks(query, limit = 10) {
-        console.log(`🔵 [BooksModel] Autocomplete: query="${query}", limit=${limit}`);
+
+    constructor() {
+        this.allFields = ['id', 'code', 'area', 'subarea', 'title', 'subtitle', 'authors', 'edition', 'volume', 'language', 'status'];
+        this.filters = ['area', 'subarea', 'q', 'status'];
+        this.orderBy = `ORDER BY CASE area 
+            WHEN 'Biologia' THEN 1
+            WHEN 'Química' THEN 2
+            WHEN 'Física' THEN 3
+            WHEN 'Matemática' THEN 4
+            WHEN 'Computação' THEN 5
+            WHEN 'Variados' THEN 6
+            ELSE 999 END, subarea ASC, code ASC`;
+    }
+    
+    async insertBook(bookData) {
+        console.log("🔵 [BooksModel] Inserindo livro:", bookData.id);
+        const fields = this.allFields.join(', ');
+        const placeholders = this.allFields.map(() => '?').join(', ');
+        const query = `INSERT INTO books (${fields}) VALUES (${placeholders})`;
+        const params = this.allFields.map(field => bookData[field]);
+        try {
+            const result = await executeQuery(query, params);
+            console.log("🟢 [BooksModel] Livro inserido com sucesso:", bookData.id);
+            return result;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao inserir livro:", error.message);
+            throw error;
+        }
+    }
+
+    async borrowBook(bookId, userId) {
+        console.log(`🔵 [BooksModel] Emprestando livro bookId=${bookId} para userId=${userId}`);
+        const loanQuery = `
+            INSERT INTO loans (book_id, user_id)
+            VALUES (?, ?)
+        `;
+        const updateBookQuery = `
+            UPDATE books SET status = 'emprestado' WHERE id = ?
+        `;
+        try {
+            const loanResult = await executeQuery(loanQuery, [bookId, userId]);
+            const updateBookResult = await executeQuery(updateBookQuery, [bookId]);
+            console.log(`🟢 [BooksModel] Livro emprestado: bookId=${bookId}, userId=${userId}`);
+            return {
+              loan: loanResult,
+              update: updateBookResult
+            };
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao emprestar livro:", error.message);
+            throw error;
+        }
+    }
+
+    async returnBook(bookId) {
+        console.log(`🔵 [BooksModel] Devolvendo livro bookId=${bookId}`);
+        const loanQuery = `
+            UPDATE loans
+            SET returned_at = CURRENT_TIMESTAMP
+            WHERE book_id = ? AND returned_at IS NULL
+        `;
+        const updateBookQuery = `
+            UPDATE books SET status = 'disponível' WHERE id = ?
+        `;
+        try {
+            const loanResult = await executeQuery(loanQuery, [bookId]);
+            const updateBookResult = await executeQuery(updateBookQuery, [bookId]);
+            console.log(`🟢 [BooksModel] Livro devolvido: bookId=${bookId}`);
+            return {
+                loan: loanResult,
+                update: updateBookResult
+            };
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao devolver livro:", error.message);
+            throw error;
+        }
+    }
+
+    async searchBooks(q, limit, fields) {
+        console.log(`🔵 [BooksModel] Buscando com autocomplete: query="${q}", limit=${limit}`);
         const sql = `
-            SELECT id, code, title, authors, area, subarea
+            SELECT ${fields.join(', ')}
             FROM books
             WHERE title LIKE ? COLLATE NOCASE 
-               OR authors LIKE ? COLLATE NOCASE 
-               OR code LIKE ? COLLATE NOCASE
+              OR authors LIKE ? COLLATE NOCASE 
+              OR code LIKE ? COLLATE NOCASE
             ORDER BY CASE 
                 WHEN title LIKE ? THEN 1
                 WHEN code LIKE ? THEN 2
@@ -32,54 +103,56 @@ class BooksModel {
             END, title ASC
             LIMIT ?
         `;
-        const searchTerm = `%${query}%`;
-        const startsWith = `${query}%`;
+        const searchTerm = `%${q}%`;
+        const startsWith = `${q}%`;
         const params = [searchTerm, searchTerm, searchTerm, startsWith, startsWith, limit];
-        
         try {
             const books = await allQuery(sql, params);
             console.log(`🟢 [BooksModel] ${books.length} livros encontrados no autocomplete`);
             return books;
         } catch (error) {
-            console.error("🔴 [BooksModel] Erro no autocomplete:", error.message);
+            console.error("🔴 [BooksModel] Erro na busca com autocomplete:", error.message);
             throw error;
         }
     }
 
-    /**
-     * Conta total de livros com filtros
-     * @param {string} category - Categoria do livro
-     * @param {number} subcategory - Subcategoria do livro
-     * @param {string} searchTerm - Termo de busca
-     * @param {boolean|null} onlyReserved - Se deve buscar apenas reservados
-     * @returns {Promise<number>} Total de livros
-     */
-    async countBooks(category, subcategory, searchTerm, onlyReserved = null) {
-        console.log(`🔵 [BooksModel] Contando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}, onlyReserved=${onlyReserved}`);
-        let query = `SELECT COUNT(*) as count FROM books`;
-        const params = [];
-        const conditions = [];
+    async getBooks(filters, limit, offset) {
+        console.log(`🔵 [BooksModel] Buscando livros com filtros: ${JSON.stringify(filters)}`);
+        
+        // Usa o método auxiliar para montar filtros e parâmetros
+        const { where, params } = this._buildFilterQuery(filters);
+        let query = `SELECT * FROM books${where} ${this.orderBy}`;
+        
+        // Adiciona paginação se fornecida
+        if (limit !== null) {
+            query += ` LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        }
+        
+        // Executa a query e retorna os resultados
+        try {
+            const books = await allQuery(query, params);
+            console.log(`🟢 [BooksModel] Livros encontrados: ${books.length}`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao buscar livros:", error.message);
+            throw error;
+        }
+    }    
 
-        if (category) {
-            conditions.push(`area = ?`);
-            params.push(category);
-        }
-        if (subcategory !== null && subcategory !== undefined) {
-            conditions.push(`subarea = ?`);
-            params.push(typeof subcategory === 'number' ? subcategory : parseInt(subcategory, 10));
-        }
-        if (searchTerm) {
-            conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE)`);
-            params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
-        }
-        if (onlyReserved !== null) {
-            conditions.push(`is_reserved = ?`);
-            params.push(onlyReserved ? 1 : 0);
-        }
-        if (conditions.length > 0) {
-            query += ` WHERE ` + conditions.join(' AND ');
-        }
+    async getAllBooks() {
+        console.log("🔵 [BooksModel] Buscando todos os livros");
+        return this.getBooks(null, null, null);
+    }
 
+    async countBooks(filters) {
+        console.log(`🔵 [BooksModel] Contando livros: filters=${JSON.stringify(filters)}`);
+        
+        // Usa o método auxiliar para montar filtros e parâmetros
+        const { where, params } = this._buildFilterQuery(filters);
+        const query = `SELECT COUNT(*) as count FROM books${where}`;
+        
+        // Executa a query e retorna o total
         try {
             const result = await getQuery(query, params);
             const count = result?.count || 0;
@@ -91,63 +164,12 @@ class BooksModel {
         }
     }
 
-    async getBooks(category, subcategory, searchTerm, onlyReserved = null, limit = null, offset = 0) {
-        console.log(`🔵 [BooksModel] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}, onlyReserved=${onlyReserved}, limit=${limit}, offset=${offset}`);
-        let query = `SELECT * FROM books`;
-        const params = [];
-        const conditions = [];
-
-        if (category) {
-            conditions.push(`area = ?`);
-            params.push(category);
-        }
-        if (subcategory !== null && subcategory !== undefined) {
-            conditions.push(`subarea = ?`);
-            params.push(typeof subcategory === 'number' ? subcategory : parseInt(subcategory, 10));
-        }
-        if (searchTerm) {
-            conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE)`);
-            params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
-        }
-        if (onlyReserved !== null) {
-            conditions.push(`is_reserved = ?`);
-            params.push(onlyReserved ? 1 : 0);
-        }
-        if (conditions.length > 0) {
-            query += ` WHERE ` + conditions.join(' AND ');
-        }
-        // Ordenação customizada das áreas antes de qualquer outro critério:
-        // Biologia -> Química -> Física -> Matemática -> Computação -> Variados -> demais
-        query += ` ORDER BY CASE area 
-            WHEN 'Biologia' THEN 1
-            WHEN 'Química' THEN 2
-            WHEN 'Física' THEN 3
-            WHEN 'Matemática' THEN 4
-            WHEN 'Computação' THEN 5
-            WHEN 'Variados' THEN 6
-            ELSE 999 END, subarea ASC, code ASC`;
-        
-        // Adiciona paginação se limit for fornecido
-        if (limit !== null) {
-            query += ` LIMIT ? OFFSET ?`;
-            params.push(limit, offset);
-        }
-        
-        try {
-            const books = await allQuery(query, params);
-            console.log(`🟢 [BooksModel] Livros encontrados: ${books.length}`);
-            return books;
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao buscar livros:", error.message);
-            throw error;
-        }
-    }
-
     async setReservedStatus(bookId, isReserved) {
         console.log(`🔵 [BooksModel] Alterando status de reserva didática: bookId=${bookId}, isReserved=${isReserved}`);
-        const query = `UPDATE books SET is_reserved = ? WHERE id = ?`;
+        const status = isReserved ? 'reservado' : 'disponível';
+        const query = `UPDATE books SET status = ? WHERE id = ?`;
         try {
-            const result = await executeQuery(query, [isReserved ? 1 : 0, bookId]);
+            const result = await executeQuery(query, [status, bookId]);
             console.log(`🟢 [BooksModel] Status de reserva didática alterado: bookId=${bookId}, isReserved=${isReserved}`);
             return result;
         } catch (error) {
@@ -158,48 +180,13 @@ class BooksModel {
 
     async clearAllReservedBooks() {
         console.log(`🔵 [BooksModel] Removendo todos os livros da reserva didática`);
-        const query = `UPDATE books SET is_reserved = 0 WHERE is_reserved = 1`;
+        const query = `UPDATE books SET status = 'disponível' WHERE status = 'reservado'`;
         try {
             const result = await executeQuery(query, []);
             console.log(`🟢 [BooksModel] Todos os livros removidos da reserva didática: ${result.affectedRows} livros afetados`);
             return result;
         } catch (error) {
             console.error("🔴 [BooksModel] Erro ao limpar reserva didática:", error.message);
-            throw error;
-        }
-    }
-
-    // Método para buscar todos os livros sem filtros
-    async getAll() {
-        console.log("🔵 [BooksModel] Buscando todos os livros");
-        return this.getBooks();
-    }
-
-    async insertBook(bookData) {
-        console.log("🔵 [BooksModel] Inserindo livro:", bookData.title || bookData.code);
-        const query = `
-            INSERT INTO books (id, area, subarea, authors, edition, language, code, title, subtitle, volume, is_reserved)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        const params = [
-            bookData.id,
-            bookData.area,
-            bookData.subarea,
-            bookData.authors,
-            bookData.edition,
-            bookData.language,
-            bookData.code,
-            bookData.title,
-            bookData.subtitle,
-            bookData.volume,
-            bookData.is_reserved || 0
-        ];
-        try {
-            const result = await executeQuery(query, params);
-            console.log("🟢 [BooksModel] Livro inserido com sucesso:", { id: bookData.id, code: bookData.code });
-            return result;
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao inserir livro:", error.message);
             throw error;
         }
     }
@@ -216,27 +203,6 @@ class BooksModel {
             return book;
         } catch (error) {
             console.error("🔴 [BooksModel] Erro ao buscar livro:", error.message);
-            throw error;
-        }
-    }
-
-    async getLastBookByAreaAndSubarea(area, subarea) {
-        console.log(`🔵 [BooksModel] Buscando último livro por area=${area}, subarea=${subarea}`);
-        const query = `
-            SELECT code FROM books
-            WHERE area = ? AND subarea = ?
-            ORDER BY code DESC LIMIT 1
-        `;
-        try {
-            const lastBook = await getQuery(query, [area, subarea]);
-            if (lastBook) {
-                console.log("🟢 [BooksModel] Último livro encontrado:", lastBook.code);
-            } else {
-                console.warn("🟡 [BooksModel] Nenhum livro encontrado para area/subarea:", area, subarea);
-            }
-            return lastBook;
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao buscar último livro:", error.message);
             throw error;
         }
     }
@@ -258,52 +224,66 @@ class BooksModel {
         }
     }
 
-    async borrowBook(bookId, studentId) {
-        console.log(`🔵 [BooksModel] Emprestando livro bookId=${bookId} para studentId=${studentId}`);
+    async getLastBookInSubarea(area, subarea) {
+        console.log(`🔵 [BooksModel] Buscando último livro sequencial com area=${area}, subarea=${subarea}`);
         const query = `
-            INSERT INTO loans (book_id, student_id)
-            VALUES (?, ?)
+            SELECT code FROM books
+            WHERE area = ? AND subarea = ?
+            ORDER BY code DESC LIMIT 1
         `;
         try {
-            const result = await executeQuery(query, [bookId, studentId]);
-            console.log(`🟢 [BooksModel] Livro emprestado: bookId=${bookId}, studentId=${studentId}`);
-            return result;
+            const lastBook = await getQuery(query, [area, subarea]);
+            if (lastBook) {
+                console.log("🟢 [BooksModel] Último livro encontrado: ", lastBook.code);
+            } else {
+                console.warn("🟡 [BooksModel] Nenhum livro encontrado para area/subarea: ", area, subarea);
+            }
+            return lastBook;
         } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao emprestar livro:", error.message);
+            console.error("🔴 [BooksModel] Erro ao buscar último livro:", error.message);
             throw error;
         }
     }
 
-    async returnBook(bookId) {
-        console.log(`🔵 [BooksModel] Devolvendo livro bookId=${bookId}`);
-        const query = `
-            UPDATE loans
-            SET returned_at = CURRENT_TIMESTAMP
-            WHERE book_id = ? AND returned_at IS NULL
-        `;
-        try {
-            const result = await executeQuery(query, [bookId]);
-            console.log(`🟢 [BooksModel] Livro devolvido: bookId=${bookId}`);
-            return result;
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao devolver livro:", error.message);
-            throw error;
-        }
+    /* ========================= MÉTODOS AUXILIARES ========================= */
+    
+    _normalizeFilters(filters){
+        for (const key of this.filters) {
+              if (filters[key]) {
+                  filters[key] = Array.isArray(filters[key])
+                      ? filters[key].flatMap(v => v.split(','))
+                      : filters[key].split(',');
+              }
+          }
+        return filters;
     }
 
-    async getBorrowedBooks() {
-        console.log("🔵 [BooksModel] Buscando livros emprestados (ativos)");
-        const query = `
-            SELECT * FROM loans WHERE returned_at IS NULL
-        `;
-        try {
-            const borrowed = await allQuery(query);
-            console.log(`🟢 [BooksModel] Livros emprestados encontrados: ${borrowed.length}`);
-            return borrowed;
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao buscar livros emprestados:", error.message);
-            throw error;
+    _buildFilterQuery(filters ) {
+        const f = this._normalizeFilters(filters);
+        const params = [];
+        const conditions = [];
+        for (const filter of this.filters) {
+            if (f[filter]) {
+                if (filter === 'q') {
+                    conditions.push(`(title LIKE ? COLLATE NOCASE OR authors LIKE ? COLLATE NOCASE OR subtitle LIKE ? COLLATE NOCASE OR code LIKE ? COLLATE NOCASE)`);
+                    params.push(`%${f.q}%`, `%${f.q}%`, `%${f.q}%`, `%${f.q}%`);
+                } else if (Array.isArray(f[filter])) {
+                    // Suporte a múltiplos valores: area IN (?, ?, ...)
+                    const arr = f[filter].filter(Boolean);
+                    if (arr.length > 0) {
+                        conditions.push(`${filter} IN (${arr.map(() => '?').join(',')})`);
+                        params.push(...arr);
+                    }
+                } else {
+                    conditions.push(`${filter} = ?`);
+                    params.push(f[filter]);
+                }
+            }
         }
+        return {
+            where: conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '',
+            params
+        };
     }
 }
 

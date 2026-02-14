@@ -4,16 +4,16 @@ export interface Book {
   id: number;
   code: string;
 
+  area: Area;
+  subarea: Subarea;
+
   title: string;
   subtitle?: string;
   authors: string;
 
-  volume?: number;  
-  edition?: number;
+  edition: number;
+  volume: number;  
   language: Language;
-
-  area: Area;
-  subarea: Subarea;
 
   status: Status;
 }

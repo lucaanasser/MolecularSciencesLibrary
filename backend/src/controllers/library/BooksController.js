@@ -1,167 +1,54 @@
-// BooksController gerencia as operações de controle para livros, 
-// conectando as rotas aos serviços.
-// Padrão de logs:
-// 🔵 Início de operação
-// 🟢 Sucesso
-// 🟡 Aviso/Fluxo alternativo
-// 🔴 Erro
+/* Gerencia as operações de controle para livros, conectando as rotas aos serviços.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 
-const booksService = require('../../services/library/BooksService');
+const BooksService = require('../../services/library/BooksService');
 const BooksModel = require('../../models/library/BooksModel');
 
 
-const { escapeCSV, importFromCSV } = require('../../utils/csvUtils');
-
 class BooksController {
-    constructor() {
-        // Inicializações ou configurações do controller, se necessário
-    }
 
-    /**
-     * Busca um livro pelo ID, delegando ao serviço
-     * @param {number} id - ID do livro
-     * @returns {Promise<Object>} Livro encontrado ou null
-     */
-    async getBookById(id) {
+    async addBook(req, res) {
+        console.log("🔵 [BooksController] req.body:", req.body);
+        const { bookData, addType, selectedBook } = req.body;
         try {
-            console.log(`🔵 [BooksController] Buscando livro por id: ${id}`);
-            const book = await booksService.getBookById(id);
-            if (book) {
-                console.log("🟢 [BooksController] Livro encontrado:", book);
-            } else {
-                console.warn("🟡 [BooksController] Livro não encontrado para id:", id);
-            }
-            return book;
-        } catch (error) {
-            console.error("🔴 [BooksController] Erro ao buscar livro:", error.message);
-            throw error;
-        }
-    }
-    /**
-     * Adiciona um novo livro ou exemplar, delegando ao serviço
-     * @param {Object} bookData - Dados do livro a ser adicionado
-     * @returns {Promise<Object>} Resultado da operação
-     */
-    async addBook(bookData) {
-        try {
-            return await booksService.addBook(bookData);
+            const result = await BooksService.addBook(bookData, addType, selectedBook);
+            console.log("🟢 [BooksController] Livro adicionado com sucesso:", result);
+            res.status(201).json(result);
         } catch (error) {
             console.error("🔴 [BooksController] Erro ao adicionar livro:", error.message);
-            throw error;
+            res.status(500).json({ error: error.message });
         }
     }
 
-    /**
-     * Busca livros por filtros dinâmicos, incluindo status
-     * @param {Object} filters - Filtros recebidos da query
-     * @returns {Promise<Array>} Lista de livros encontrados
-     */
-    async getBooksByFilters(filters) {
+    async importBooksFromCSV(req, res) {  
+        console.log('🔵 [BooksController] Iniciando importação de livros via CSV');
+        const file = req.file;
+        if (!file) {
+            console.warn('🟡 [BooksController] Nenhum arquivo CSV fornecido para importação');
+            res.status(400).json({ success: false, message: 'Nenhum arquivo CSV fornecido' });
+            return;
+        }
         try {
-            console.log(`[BooksController] Buscando livros por filtros:`, filters);
-            const books = await booksService.getBooks(filters);
-            console.log(`[BooksController] Livros encontrados: ${books.length}`);
-            return books;
+            const result = await BooksService.importBooksFromCSV(file);
+            console.log('🟢 [BooksController] Importação de livros via CSV concluída');
+            res.status(200).json(result);
         } catch (error) {
-            console.error(`[BooksController] Erro ao buscar livros:`, error.message);
-            throw error;
+            console.error('🔴 [BooksController] Erro ao importar livros via CSV:', error.message);
+            res.status(500).json({ success: false, message: error.message });
         }
     }
 
-    /**
-     * Busca livros para autocomplete
-     * @param {string} query - Termo de busca
-     * @param {number} limit - Limite de resultados
-     * @returns {Promise<Array>} Lista simplificada de livros
-     */
-    async searchBooks(query, limit = 10) {
-        try {
-            console.log(`🔵 [BooksController] Autocomplete: query="${query}", limit=${limit}`);
-            const results = await booksService.searchBooks(query, limit);
-            console.log(`🟢 [BooksController] ${results.length} resultados de autocomplete`);
-            return results;
-        } catch (error) {
-            console.error("🔴 [BooksController] Erro no autocomplete:", error.message);
-            throw error;
-        }
-    }
-
-    /**
-     * Conta total de livros com filtros
-     * @param {Object} filters - Filtros de busca
-     * @returns {Promise<number>} Total de livros
-     */
-    async countBooks(filters) {
-        try {
-            console.log(`🔵 [BooksController] Contando livros com filtros:`, filters);
-            const count = await booksService.countBooks(filters);
-            console.log(`🟢 [BooksController] Total: ${count} livros`);
-            return count;
-        } catch (error) {
-            console.error("🔴 [BooksController] Erro ao contar livros:", error.message);
-            throw error;
-        }
-    }
-
-    /**
-     * Busca livros por categoria e subcategoria, delegando ao serviço
-     * @param {string} category - Nome da categoria
-     * @param {string|number} subcategory - Código da subcategoria
-     * @returns {Promise<Array>} Lista de livros encontrados
-     */
-    async getBooks(category, subcategory, searchTerm) {
-        try {
-            console.log(`🔵 [BooksController] Buscando livros: category=${category}, subcategory=${subcategory}, searchTerm=${searchTerm}`);
-            const books = await booksService.getBooks(category, subcategory, searchTerm);
-            console.log(`🟢 [BooksController] Livros encontrados: ${books.length}`);
-            return books;
-        } catch (error) {
-            console.error("🔴 [BooksController] Erro ao buscar livros:", error.message);
-            throw error;
-        }
-    }
-
-    /**
-     * Retorna os mapeamentos de códigos de área e subárea
-     * @returns {Object} Objeto com areaCodes e subareaCodes
-     */
-    getCategoryMappings() {
-        console.log("🔵 [BooksController] Obtendo mapeamentos de categorias e subcategorias");
-        const mappings = booksService.getCategoryMappings();
-        console.log("🟢 [BooksController] Mapeamentos obtidos");
-        return mappings;
-    }
-
-    /**
-     * Remove um livro pelo ID, delegando ao serviço
-     * @param {number} id - ID do livro
-     * @returns {Promise<Object>} Resultado da operação
-     */
-    async deleteBook(id) {
-        try {
-            console.log(`🔵 [BooksController] Removendo livro id=${id}`);
-            await booksService.removeBookById(id);
-            console.log(`🟢 [BooksController] Livro removido com sucesso: id=${id}`);
-            return { success: true, message: 'Livro removido com sucesso' };
-        } catch (error) {
-            console.error(`🔴 [BooksController] Erro ao remover livro: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * Empresta um livro a um estudante, delegando ao serviço
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
     async borrowBook(req, res) {
-        const { bookId, studentId } = req.body;
-        const sid = studentId || Math.floor(Math.random() * 10000);
-        console.log(`🔵 [BooksController] Emprestando livro bookId=${bookId} para studentId=${sid}`);
+        const { bookId, userId } = req.body;
+        console.log(`🔵 [BooksController] Emprestando livro bookId=${bookId} para userId=${userId}`);
         try {
-            await booksService.borrowBook(bookId, sid);
-            console.log(`🟢 [BooksController] Livro emprestado com sucesso: bookId=${bookId}, studentId=${sid}`);
+            await BooksService.borrowBook(bookId, userId);
+            console.log(`🟢 [BooksController] Livro emprestado com sucesso: bookId=${bookId}, userId=${userId}`);
             res.status(200).json({ success: true, message: 'Livro emprestado com sucesso' });
         } catch (error) {
             console.error(`🔴 [BooksController] Erro ao emprestar livro: ${error.message}`);
@@ -169,17 +56,11 @@ class BooksController {
         }
     }
 
-    /**
-     * Devolve um livro emprestado, delegando ao serviço
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
     async returnBook(req, res) {
         const { bookId } = req.body;
         console.log(`🔵 [BooksController] Devolvendo livro bookId=${bookId}`);
         try {
-            await booksService.returnBook(bookId);
+            await BooksService.returnBook(bookId);
             console.log(`🟢 [BooksController] Livro devolvido com sucesso: bookId=${bookId}`);
             res.status(200).json({ success: true, message: 'Livro devolvido com sucesso' });
         } catch (error) {
@@ -188,75 +69,77 @@ class BooksController {
         }
     }
 
-    /**
-     * Lista todos os livros ordenados, delegando ao modelo e à função de ordenação
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
-    async listOrdered(req, res) {
+    async searchBooks(req, res) {
+        const { q, limit } = req.query;
+        console.log(`🔵 [BooksController] Autocomplete: query="${q}", limit=${limit}`);
         try {
-            const books = await BooksModel.getAll();
-            // Apenas retorna os livros sem ordenar aqui, pois a ordenação é feita na VirtualBookShelfService
-            res.json(books);
-        } catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    }
-
-    /**
-     * Lista todos os livros ordenados conforme a estante virtual
-     */
-    async listVirtualOrdered(req, res) {
-        try {
-            const books = await require('../../services/library/VirtualBookShelfService').getAllBooksOrdered();
-            res.json(books);
-        } catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    }
-
-    /**
-     * Define o status de reserva didática de um livro
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
-    async setReservedStatus(req, res) {
-        const { bookId, isReserved } = req.body;
-        try {
-            const result = await booksService.setReservedStatus(bookId, isReserved);
-            res.status(200).json(result);
+            const results = await BooksService.searchBooks(q, limit);
+            console.log(`🟢 [BooksController] ${results.length} resultados de autocomplete`);
+            res.json(results);
         } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
+            console.error("🔴 [BooksController] Erro no autocomplete:", error.message);
+            res.status(500).json({ error: error.message });
         }
     }
 
-    /**
-     * Lista todos os livros reservados
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
-    async getReservedBooks(req, res) {
+    async getBooks(req, res) {
+        const { limit, offset, filters } = req.query;
+        console.log(`🔵 [BooksController] Buscando livros com filtros:`, filters);    
         try {
-            const books = await booksService.getReservedBooks();
-            res.status(200).json(books);
+            const books = await BooksService.getBooks(filters, limit, offset);
+            console.log(`🟢 [BooksController] Livros encontrados: ${books.length}`);
+            res.json(books);
         } catch (error) {
+            console.error("🔴 [BooksController] Erro ao buscar livros:", error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async countBooks(req, res) {
+        const filters = { ...req.query };
+        console.log(`🔵 [BooksController] Contando livros com filtros:`, filters);
+        try {
+            const count = await BooksService.countBooks(filters);
+            console.log(`🟢 [BooksController] Total: ${count} livros`);
+            res.json({ count });
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao contar livros:", error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async exportBooksToCSV(req, res) {
+        console.log('🔵 [BooksController] Iniciando exportação de livros para CSV');
+        try {
+            const csvContent = await BooksService.exportBooksToCSV();
+            console.log('🟢 [BooksController] Exportação de livros para CSV concluída');
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="catalogo_livros_${new Date().toISOString().split('T')[0]}.csv"`);
+            res.send('\ufeff' + csvContent);
+        } catch (error) {
+            console.error('🔴 [BooksController] Erro ao exportar livros para CSV:', error.message);
             res.status(500).json({ success: false, message: error.message });
         }
     }
 
-    /**
-     * Remove todos os livros da reserva didática
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
-    async clearAllReservedBooks(req, res) {
+    async setReservedStatus(req, res) {
+        const { bookId, isReserved } = req.body;
+        console.log(`🔵 [BooksController] Definindo status de reserva didática para livro bookId=${bookId}`);
         try {
-            console.log('🔵 [BooksController] Removendo todos os livros da reserva didática');
-            const result = await booksService.clearAllReservedBooks();
+            const result = await BooksService.setReservedStatus(bookId, isReserved);
+            console.log(`🟢 [BooksController] Status de reserva didática atualizado para livro bookId=${bookId}`);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error(`🔴 [BooksController] Erro ao definir status de reserva didática para livro bookId=${bookId}: ${error.message}`);
+            res.status(400).json({ success: false, message: error.message });
+        }
+    }
+
+    async clearAllReservedBooks(req, res) {
+        console.log('🔵 [BooksController] Removendo todos os livros da reserva didática');
+        try {
+            const result = await BooksService.clearAllReservedBooks();
+            console.log('🟢 [BooksController] Todos os livros removidos da reserva didática');
             res.status(200).json(result);
         } catch (error) {
             console.error('🔴 [BooksController] Erro ao limpar reserva didática:', error.message);
@@ -264,113 +147,43 @@ class BooksController {
         }
     }
 
-    /**
-     * Exporta todos os livros em formato CSV
-     * @param {Object} req - Objeto da requisição
-     * @param {Object} res - Objeto da resposta
-     * @returns {Promise<void>}
-     */
-    async exportBooksToCSV(req, res) {
+    async getReservedBooks(req, res) {
+        console.log('🔵 [BooksController] Buscando livros reservados');
         try {
-            console.log('🔵 [BooksController] Exportando catálogo de livros em CSV');
-            const books = await BooksModel.getAll();
-            
-            // Cabeçalho solicitado
-            const headers = [
-                'code',
-                'title',
-                'authors',
-                'area',
-                'subarea',
-                'edition',
-                'language',
-                'volume',
-                'subtitle',
-                'isbn',
-                'year',
-                'publisher',
-                'barcode'
-            ];
-
-            // Converter livros para linhas CSV
-            const csvRows = [headers.join(',')];
-
-            for (const book of books) {
-                const row = [
-                    escapeCSV(book.code || ''),
-                    escapeCSV(book.title || ''),
-                    escapeCSV(book.authors || ''),
-                    escapeCSV(book.area || ''),
-                    book.subarea || '',
-                    book.edition || '',
-                    book.language || '',
-                    book.volume || '',
-                    escapeCSV(book.subtitle || ''),
-                    '',  // isbn - não disponível no banco
-                    '',  // year - não disponível no banco
-                    '',  // publisher - não disponível no banco
-                    book.id || ''  // barcode = id
-                ];
-                csvRows.push(row.join(','));
-            }
-            
-            const csvContent = csvRows.join('\n');
-            
-            // Configurar headers da resposta
-            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-            res.setHeader('Content-Disposition', `attachment; filename="catalogo_livros_${new Date().toISOString().split('T')[0]}.csv"`);
-            
-            console.log(`🟢 [BooksController] CSV exportado com sucesso: ${books.length} livros`);
-            res.send('\ufeff' + csvContent);
+            const books = await BooksService.getReservedBooks();
+            console.log(`🟢 [BooksController] Livros reservados encontrados: ${books.length}`);
+            res.status(200).json(books);
         } catch (error) {
-            console.error('🔴 [BooksController] Erro ao exportar CSV:', error.message);
+            console.error('🔴 [BooksController] Erro ao buscar livros reservados:', error.message);
             res.status(500).json({ success: false, message: error.message });
         }
     }
 
-   
-    /**
-     * Importa livros a partir de um arquivo CSV
-     */
-    async importBooksFromCSV(req, res) {
+    async getBookById(req, res) {
+        const { id } = req.params;
+        console.log(`🔵 [BooksController] Buscando livro por id: ${id}`);
         try {
-            console.log('🔵 [BooksController] Iniciando importação de livros via CSV');
-            if (!req.file) {
-                return res.status(400).json({ success: false, message: 'Nenhum arquivo CSV fornecido' });
-            }
-            const requiredFields = ['code', 'title', 'authors', 'area', 'subarea', 'edition', 'language', 'volume'];
-            const logger = {
-                success: (entity, row) => console.log(`🟢 [BooksController] Livro importado: ${entity.title} (linha ${row})`),
-                error: (error, row, line) => console.error(`🔴 [BooksController] Erro na linha ${row}:`, error.message),
-                finish: (results) => console.log(`🟢 [BooksController] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)
-            };
-            const results = await importFromCSV({
-                fileBuffer: req.file.buffer,
-                requiredFields,
-                mapRow: (bookData) => ({
-                    code: bookData.code.trim(),
-                    title: bookData.title.trim(),
-                    subtitle: bookData.subtitle?.trim() || '',
-                    authors: bookData.authors.trim(),
-                    area: bookData.area.trim(),
-                    subarea: bookData.subarea.trim(),
-                    edition: bookData.edition.trim(),
-                    language: parseInt(bookData.language),
-                    volume: bookData.volume.trim(),
-                    // isbn, year, publisher não existem no banco e são ignorados
-                    barcode: bookData.barcode?.trim() || '',
-                    addType: 'csv_import'
-                }),
-                addFn: booksService.addBook,
-                logger
-            });
-            res.status(200).json(results);
+            const book = await BooksService.getBookById(id);
+            console.log("🟢 [BooksController] Livro encontrado:", book);
+            res.status(200).json(book);
         } catch (error) {
-            console.error('🔴 [BooksController] Erro ao importar CSV:', error.message);
-            res.status(500).json({ success: false, message: error.message });
+            console.error("🔴 [BooksController] Erro ao buscar livro:", error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async deleteBook(req, res) {
+        const { id } = req.params;
+        console.log(`🔵 [BooksController] Removendo livro id=${id}`);
+        try {
+            await BooksService.removeBookById(id);
+            console.log(`🟢 [BooksController] Livro removido com sucesso: id=${id}`);
+            res.status(200).json({ success: true, message: 'Livro removido com sucesso' });
+        } catch (error) {
+            console.error(`🔴 [BooksController] Erro ao remover livro: ${error.message}`);
+            res.status(500).json({ error: error.message });
         }
     }
 }
 
-// Exporta uma instância única do controlador
 module.exports = new BooksController();

@@ -1,12 +1,3 @@
-const express = require('express');
-const router = express.Router();
-const booksController = require('../../controllers/library/BooksController');
-const multer = require('multer');
-
-// Configurar multer para upload de arquivos em memória
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
 /**
  * Rotas relacionadas a livros.
  * Padrão de logs:
@@ -16,161 +7,213 @@ const upload = multer({ storage: storage });
  * 🔴 Erro
  */
 
-// Busca livros para autocomplete (usado no campo de busca)
-router.get('/search', async (req, res) => {
-    try {
-        console.log("🔵 [BooksRoutes] GET /search - Autocomplete de livros");
-        const { q, limit = 10 } = req.query;
-        
-        if (!q || q.length < 2) {
-            return res.json([]);
-        }
-        
-        const results = await booksController.searchBooks(q, parseInt(limit));
-        console.log(`🟢 [BooksRoutes] ${results.length} resultados de autocomplete retornados`);
-        res.json(results);
-    } catch (error) {
-        console.error("🔴 [BooksRoutes] Erro ao buscar autocomplete:", error.message);
-        res.status(500).json({ message: 'Error searching books: ' + error.message });
-    }
-});
+const express = require('express');
+const router = express.Router();
+const BooksController = require('../../controllers/library/BooksController');
+const multer = require('multer');
 
-// Conta total de livros com filtros
-router.get('/count', async (req, res) => {
-    try {
-        console.log("🔵 [BooksRoutes] GET /count - Contar livros");
-        const filters = { ...req.query };
-        const count = await booksController.countBooks(filters);
-        console.log(`🟢 [BooksRoutes] Total de livros: ${count}`);
-        res.json({ count });
-    } catch (error) {
-        console.error("🔴 [BooksRoutes] Erro ao contar livros:", error.message);
-        res.status(500).json({ message: 'Error counting books: ' + error.message });
-    }
-});
+// Configurar multer para upload de arquivos em memória
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// Adiciona um novo livro
+/* ===================== ADIÇÃO AO ACERVO ====================== */
+
+/**
+ * @route POST /
+ * @desc Adiciona um novo livro ao acervo
+ * @body {
+ *   id?: number,       // código de barras EAN-13 (opcional, pode ser gerado automaticamente)
+ *   code?: string,     // código de posição (opcional, pode ser gerado automaticamente)
+ *   area: string,
+ *   subarea: string,
+ *   title: string,
+ *   subtitle?: string,
+ *   authors: string,
+ *   edition: number,
+ *   volume: number,
+ *   language: string,  // "Português", "Inglês", "Espanhol", "Outro"
+ *   status?: string,   // "disponível" (padrão), "emprestado", "reservado", "indisponível" (livros perdidos ou danificados)
+ * }
+ * @returns {Object} Livro criado
+ */
 router.post('/', async (req, res) => {
-    try {
-        console.log("🔵 [BooksRoutes] POST / - Adicionar novo livro");
-        const bookData = req.body;
-        const result = await booksController.addBook(bookData);
-        console.log("🟢 [BooksRoutes] Livro adicionado com sucesso:", result);
-        res.status(201).json(result);
-    } catch (error) {
-        console.error("🔴 [BooksRoutes] Erro ao adicionar livro:", error.message);
-        res.status(500).json({
-            message: 'Erro ao adicionar livro: ' + (error.message || 'Erro desconhecido'),
-            details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
-        });
-    }
+    console.log("🔵 [BooksRoutes] POST / - Adicionar novo livro");
+    BooksController.addBook(req, res);
 });
 
-// Busca livros, com filtros opcionais de categoria e subcategoria
-// Suporta paginação com offset e limit
-router.get('/', async (req, res) => {
-    try {
-        console.log("[BooksRoutes] GET / - Buscar livros");
-        // Recebe todos os filtros da query, incluindo offset e limit para paginação
-        const filters = { ...req.query };
-        const books = await booksController.getBooks(filters);
-        console.log(`[BooksRoutes] Livros encontrados: ${books.length}`);
-        res.status(200).json(books);
-    } catch (error) {
-        console.error("[BooksRoutes] Erro ao buscar livros:", error.message);
-        res.status(500).json({ message: 'Error retrieving books: ' + error.message });
-    }
-});
-
-// Obtém os códigos de áreas e subáreas disponíveis
-router.get('/options', (req, res) => {
-    console.log("🔵 [BooksRoutes] GET /options - Buscar mapeamentos de categorias");
-    const mappings = booksController.getCategoryMappings();
-    console.log("🟢 [BooksRoutes] Mapeamentos de categorias retornados");
-    res.json(mappings);
-});
-
-// Lista livros reservados didaticamente
-// IMPORTANTE: Esta rota deve vir ANTES de /:id para evitar que "reserved" seja interpretado como um ID
-router.get('/reserved', (req, res) => {
-    console.log("🔵 [BooksRoutes] GET /reserved - Listar livros reservados didaticamente");
-    booksController.getReservedBooks(req, res);
-});
-
-// Remove todos os livros da reserva didática
-router.delete('/reserved/clear', (req, res) => {
-    console.log("🔵 [BooksRoutes] DELETE /reserved/clear - Remover todos os livros da reserva");
-    booksController.clearAllReservedBooks(req, res);
-});
-
-// Busca um livro específico pelo ID
-router.get('/:id', async (req, res) => {
-    try {
-        console.log(`🔵 [BooksRoutes] GET /:id - Buscar livro por id: ${req.params.id}`);
-        const book = await booksController.getBookById(Number(req.params.id));
-        if (book) {
-            console.log("🟢 [BooksRoutes] Livro encontrado:", book);
-            res.status(200).json(book);
-        } else {
-            console.warn("🟡 [BooksRoutes] Livro não encontrado para id:", req.params.id);
-            res.status(404).json({ message: 'Book not found' });
-        }
-    } catch (error) {
-        console.error("🔴 [BooksRoutes] Erro ao buscar livro:", error.message);
-        res.status(500).json({ message: 'Error retrieving book: ' + error.message });
-    }
-});
-
-// Remove um livro pelo ID
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        console.log(`🔵 [BooksRoutes] DELETE /:id - Remover livro id=${id}`);
-        const result = await booksController.deleteBook(Number(id));
-        console.log("🟢 [BooksRoutes] Livro removido com sucesso:", result);
-        res.status(200).json(result);
-    } catch (error) {
-        if (error.message === 'Livro não encontrado') {
-            console.warn("🟡 [BooksRoutes] Livro não encontrado para remoção:", id);
-            res.status(404).json({ message: error.message });
-        } else {
-            console.error("🔴 [BooksRoutes] Erro ao remover livro:", error.message);
-            res.status(500).json({ 
-                message: 'Erro ao remover livro: ' + (error.message || 'Erro desconhecido'),
-                details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
-            });
-        }
-    }
-});
-
-// Emprestar um livro
-router.post('/borrow', (req, res) => {
-    console.log("🔵 [BooksRoutes] POST /borrow - Emprestar livro");
-    booksController.borrowBook(req, res);
-});
-
-// Devolver um livro
-router.post('/return', (req, res) => {
-    console.log("🔵 [BooksRoutes] POST /return - Devolver livro");
-    booksController.returnBook(req, res);
-});
-
-// Define ou remove reserva didática
-router.post('/reserve', (req, res) => {
-    console.log("🔵 [BooksRoutes] POST /reserve - Definir/remover reserva didática");
-    booksController.setReservedStatus(req, res);
-});
-
-// Importa livros a partir de arquivo CSV
+/**
+ * @route POST /import/csv
+ * @desc Importa livros via arquivo CSV
+ * @formData { csvFile: File (CSV) }
+ * @returns {Object} Resultado da importação
+ */
 router.post('/import/csv', upload.single('csvFile'), (req, res) => {
     console.log("🔵 [BooksRoutes] POST /import/csv - Importar livros via CSV");
-    booksController.importBooksFromCSV(req, res);
+    BooksController.importBooksFromCSV(req, res);
 });
 
-// Exporta catálogo de livros em CSV
+/* ===================== EMPRÉSTIMO E DEVOLUÇÃO ====================== */
+
+
+/**
+ * @route POST /borrow
+ * @desc Empresta um livro para um usuário
+ * @body {
+ *   bookId: number, // id do livro (EAN-13)
+ *   userId: number  // id do usuário
+ * }
+ * @returns {Object} Resultado do empréstimo
+ */
+router.post('/borrow', (req, res) => {
+    console.log("🔵 [BooksRoutes] POST /borrow - Emprestar livro");
+    BooksController.borrowBook(req, res);
+});
+
+
+/**
+ * @route POST /return
+ * @desc Devolve um livro emprestado
+ * @body {
+ *   bookId: number // id do livro (EAN-13)
+ * }
+ * @returns {Object} Resultado da devolução
+ */
+router.post('/return', (req, res) => {
+    console.log("🔵 [BooksRoutes] POST /return - Devolver livro");
+    BooksController.returnBook(req, res);
+});
+
+/* ========================= BUSCA ========================= */
+
+
+/**
+ * @route GET /search
+ * @desc Busca livros para autocomplete
+ * @query {
+ *   q: string,     // termo de busca - procurado em título, autores e código
+ *   limit?: number // limite de resultados (opcional, padrão: 10)
+ * }
+ * @returns {Array<Object>} Livros encontrados (apenas os campos básicos)
+ */
+router.get('/search', async (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /search - Autocomplete de livros");
+    BooksController.searchBooks(req, res);
+});
+
+
+/**
+ * @route GET /
+ * @desc Busca livros com filtros (opcionais), retorna dados completos
+ * @query {
+ *   q?: string,                 // termo de busca - procurado em título, subtítulo, autores e código
+ *   area?: string | string[],
+ *   subarea?: string | string[],
+ *   status?: string | string[],
+ *   limit?: number,            // para paginação
+ *   offset?: number            // para paginação (começa a exibir a partir deste índice)
+ * }
+ * @returns {Array<Object>} Livros encontrados (formato completo)
+ */
+router.get('/', async (req, res) => {
+    console.log("🔵 [BooksRoutes] GET / - Buscar livros");
+    BooksController.getBooks(req, res);
+});
+
+
+/* ========================= DADOS DO ACERVO ========================= */
+
+
+/**
+ * @route GET /count
+ * @desc Conta total de livros encontrados com filtros (opcionais)
+ * @query {
+ *   q?: string,                 // termo de busca - procurado em título, subtítulo, autores e código
+ *   area?: string | string[],
+ *   subarea?: string | string[],
+ *   status?: string | string[]
+ * }
+ * @returns {Object} { count: number }
+ */
+router.get('/count', async (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /count - Contar livros"); 
+    BooksController.countBooks(req, res);
+});
+
+
+/**
+ * @route GET /export/csv
+ * @desc Exporta catálogo de livros em CSV
+ * @returns {text/csv} Arquivo CSV com todos os livros
+ */
 router.get('/export/csv', (req, res) => {
     console.log("🔵 [BooksRoutes] GET /export/csv - Exportar catálogo em CSV");
-    booksController.exportBooksToCSV(req, res);
+    BooksController.exportBooksToCSV(req, res);
+});
+
+
+/* ========================= RESERVA DIDÁTICA ========================= */
+
+
+/**
+ * @route POST /reserve
+ * @desc Define ou remove reserva didática para um livro
+ * @body {
+ *   bookId: number,          // id do livro (EAN-13)
+ *   isReserved: boolean      // true para reservar, false para remover
+ * }
+ * @returns {Object} Resultado da operação
+ */
+router.post('/reserve', (req, res) => {
+    console.log("🔵 [BooksRoutes] POST /reserve - Definir/remover reserva didática");
+    BooksController.setReservedStatus(req, res);
+});
+
+
+/**
+ * @route DELETE /reserved/clear
+ * @desc Remove todos os livros da reserva didática
+ * @returns {Object} Resultado da operação
+ */
+router.delete('/reserved/clear', (req, res) => {
+    console.log("🔵 [BooksRoutes] DELETE /reserved/clear - Remover todos os livros da reserva");
+    BooksController.clearAllReservedBooks(req, res);
+});
+
+
+/**
+ * @route GET /reserved
+ * @desc Lista todos os livros reservados didaticamente
+ * @returns {Array<Object>} Livros reservados
+ */
+router.get('/reserved', (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /reserved - Listar livros reservados didaticamente");
+    BooksController.getReservedBooks(req, res);
+});
+
+/* ========================= ROTAS COM ID ========================= */
+/*          IMPORTANTE: Essas rotas devem vir por útlimo            */
+
+/**
+ * @route GET /:id
+ * @desc Busca um livro específico pelo ID
+ * @param {id} number // id do livro (EAN-13)
+ * @returns {Object} Livro encontrado (formato completo) ou erro se não encontrado
+ */
+router.get('/:id', async (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /:id - Buscar livro por id");
+    BooksController.getBookById(req, res);
+});
+
+
+/**
+ * @route DELETE /:id
+ * @desc Remove um livro pelo ID
+ * @param {id} number // id do livro (EAN-13)
+ * @returns {Object} Resultado da remoção
+ */
+router.delete('/:id', async (req, res) => {
+    console.log("🔵 [BooksRoutes] DELETE /:id - Remover livro por id");  
+    BooksController.deleteBook(req, res);
 });
 
 module.exports = router;

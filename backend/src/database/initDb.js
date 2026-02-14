@@ -58,14 +58,14 @@ db.serialize(() => {
             id INTEGER UNIQUE PRIMARY KEY,
             code TEXT NOT NULL, 
             area TEXT NOT NULL,
-            subarea INTEGER NOT NULL,
+            subarea TEXT NOT NULL,
             title TEXT NOT NULL,
             subtitle TEXT,
             authors TEXT NOT NULL,
             edition INTEGER NOT NULL,
             volume INTEGER,
-            language INTEGER NOT NULL,
-            is_reserved INTEGER DEFAULT 0
+            language TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'disponível' -- "disponível", "emprestado", "reservado", "indisponível"
         )
     `, (err) => {
         if (err) {
@@ -88,6 +88,7 @@ db.serialize(() => {
             is_extended INTEGER NOT NULL DEFAULT 0, -- 0 normal, 1 estendido
             last_nudged_at TIMESTAMP, -- último nudge que impactou
             FOREIGN KEY(book_id) REFERENCES books(id)
+            FOREIGN KEY(user_id) REFERENCES users(id)
         )
     `, (err) => {
         if (err) {
