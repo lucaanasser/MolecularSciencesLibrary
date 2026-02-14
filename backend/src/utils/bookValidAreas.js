@@ -48,11 +48,13 @@ const subareaMapping = {
         "Análise": 4,
         "Álgebra Abstrata": 5,
         "Topologia e Geometria": 6,
-        "Lógica e Fundamentos": 7
+        "Lógica e Fundamentos": 7,
+        "Equações Diferenciais": 8,
+        "Funções Complexas": 9
     },
     "CMP": { 
         "Fundamentos de Computação": 1,
-        "Algorítmos e Estruturas de Dados": 2,
+        "Algoritmos e Estruturas de Dados": 2,
         "Análise Numérica": 3,
         "Probabilidade e Estatística": 4, 
         "Teoria da Computação": 5,
@@ -61,10 +63,9 @@ const subareaMapping = {
     },
     "VAR": { 
         "Divulgação Científica": 1,
-        "Filosofia e História da Ciência": 2,
-        "Handbooks e Manuais": 3,
-        "Interdisciplinares": 4,
-        "Miscelânea": 5, 
+        "História e Filosofia da Ciência": 2,
+        "Interdisciplinares": 3,
+        "Literatura": 4, 
     }
 };
 

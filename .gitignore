@@ -66,6 +66,9 @@ frontend/node_modules/
 # Linux trash
 .Trash-*
 
+# Python venv
+.venv/
+
 ###########################
 # Banco de dados (SQLite)
 ###########################

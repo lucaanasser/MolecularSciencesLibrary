@@ -1,0 +1,530 @@
+id,code,area,subarea,title,subtitle,authors,edition,volume,language,is_reserved
+1012743578462,MAT-06.06,Matemática,6,Teoremas Famosos da Geometria,,"Gerdes, Cherinda",1,0,1,0
+1110741114658,FIS-03.04,Física,3,Heat Transfer,,Alan J. Chapman,2,0,2,0
+1111509278100,BIO-01.01,Biologia,1,Fundamentos de Bioquímica,,Albert L. Lehninger,1,0,1,0
+1119651570103,FIS-03.06,Física,3,Princípios da Transmissão de Calor,,Frank Kreith,3,0,1,0
+1128721005575,MAT-07.03,Matemática,7,Elementos de Teoria dos Conjuntos ,,Benedito Castrucci,1,0,1,0
+1138771019231,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+1155192615767,MAT-01.10 v.1,Matemática,1,O Cálculo com Geometria Analítica,,Louis Leithold,3,1,1,0
+1173162052404,FIS-01.05  v.4,Física,1,Física,,"Halliday, Resnick",4,4,1,0
+1196425217150,BIO-05.01,Biologia,5,Developmental Biology,,Scott F. Gilbert,5,0,2,0
+1202054802824,FIS-01.07  v.1,Física,1,Física,Mecânica,"Sears, Zemansky, Young, Freedman",10,1,1,0
+1217434752606,MAT-01.10 v.1,Matemática,1,O Cálculo com Geometria Analítica,,Louis Leithold,2,1,1,0
+1233033909272,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+1236333357422,MAT-02.07,Matemática,2,Geometria Analítica,,Charles H. Lehmann,3,0,1,0
+1259021275105,FIS-01.02 v.1,Física,1,Curso de Física Básica,Mecânica,H. Moysés Nussenzveig,5,1,1,0
+1279374872424,MAT-05.01,Matemática,5,Álgebra,Um Curso de Introdução,"Garcia, Lequain",1,0,1,0
+1292849817362,MAT-05.11,Matemática,5,Tópicos em Teoria dos Grupos Finitos,,"Maier, Ho, Gonçalves, Pomareda",1,0,1,0
+1303387661703,CMP-03.03,Computação,3,Numerical Recipes in C,,"Press, Flannery, Teukolsky, Vetterling",2,0,2,0
+1327065577773,FIS-06.01  v.1,Física,6,Métodos Matemáticos,,"Vaz Jr., Oliveira",1,1,1,0
+1329210634003,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+1337020744096,VAR-01.01,Variados,1,O Que é a Vida?,O Aspecto Físico da Célula Viva,Erwin Schrödinger,1,0,1,0
+1338489952152,CMP-03.02,Computação,3,Analysis of Numerical Methods,,"Isaacson, Keller",1,0,2,0
+1339594626242,BIO-01.12,Biologia,1,Biochemists' Handbook,,Cyril Long,1,0,2,0
+1347827664817,CMP-03.03,Computação,3,Numerical Recipes in C,,"Press, Flannery, Teukolsky, Vetterling",2,0,2,0
+1376690819321,FIS-01.04  v.1,Física,1,Physique Théorique,Mécanique,"Lifshitz, Pitaevskii",2,1,4,0
+1388350908016,FIS-02.01,Física,2,Introduction to Classical Mechanics,Solutions Manual,David Morin,1,0,2,0
+1423469019427,CMP-03.06,Computação,3,Numerical Analysis,,"Kincaid, Cheney",3,0,2,0
+1425609188383,FIS-03.01,Física,3,Understanding Thermodynamics,,Hendrick C. Van Ness,1,0,2,0
+1443362211599,BIO-03.02,Biologia,3,The Making of a Fly,The Genetics of Animal Design,P. A. Lawrence,1,0,2,0
+1445024834214,MAT-03.14,Matemática,3,Álgebra Linear: Exercícios,,"Barreira, Valls",1,0,1,0
+1457513004954,BIO-03.05,Biologia,3,What Evolution Is,,Ernst Mayr,1,0,2,0
+1482297689295,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+1490966893829,MAT-01.28 v.1,Matemática,1,Fórmula Matemática,Cálculo Diferencial e Curvas Planas,Ueda Keikyu,1,1,4,0
+1535306462522,CMP-01.03,Computação,1,Python Programming,,John M. Zelle,1,0,2,0
+1587087844103,MAT-04.08,Matemática,4,Problemas e Exercícios de Análise Matemática,,B. Demidovitch,6,0,1,0
+1631039378380,QUI-04.03  v.2,Química,4,Química Orgânica,,John McMurry,7,2,1,0
+1636866072685,FIS-07.02,Física,7,Astronomia e astrofisica,,"Oliveira Filho, Saraiva",1,0,1,0
+1638971844027,FIS-02.02  v.2,Física,2,Mecânica Clássica,,Kazunori Watari,1,2,1,0
+1641011361408,QUI-04.02  v.1,Química,4,Química Orgânica,Curso Básico Universitário,Maurício Gomes Constantino,1,1,1,0
+1651034645003,MAT-01.04 v.2,Matemática,1,Introdução ao Cálculo,,Paulo Boulos,1,2,1,0
+1654291301392,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,3,2,0
+1679850256159,VAR-01.03,Variados,1,Convite à Física,,Yaav Ben-Dov,1,0,1,0
+1710267460705,FIS-04.04,Física,4,Plasma Dynamics,,R. O. Dendy,1,0,2,0
+1710692063502,FIS-06.01  v.3,Física,6,Métodos Matemáticos,,"Vaz Jr., Oliveira",1,3,1,0
+1719266720926,MAT-04.13,Matemática,4,Espaços Métricos,,Elon Lages Lima,1,0,1,0
+1746378915711,MAT-01.27,Matemática,1,Theory and Problems of Advanced Calculus,,Murray R. Spiegel,1,0,2,0
+1748335635441,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,2,2,0
+1760861743698,VAR-03.01,Variados,3,Artificial Life,A Proceedings Volume in the Santa Fe Institute Studies in the Sciences of Complexity,Christopher G. Langton,1,2,2,0
+1768107062916,BIO-05.01,Biologia,5,Developmental Biology,,Scott F. Gilbert,5,0,2,0
+1772432916141,MAT-03.05,Matemática,3,Álgebra Linear e Geometria Eucliana,,Alexandre A. M. Rodrigues,5,0,1,0
+1775779598964,VAR-03.02,Variados,3,Obra CIentífica de Mario Schiönberg,1949 a 1987,Amélia Império Hamburger,1,2,4,0
+1815867741725,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+1830171157086,QUI-01.13,Química,1,Handbook of Chemistry and Physics,,David R. Lide,71,0,2,0
+1831729069813,FIS-03.05,Física,3,Fundamentos de Transferência de Calor e de Massa,,Frank P. Incropera,6,0,1,0
+1837099869824,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,3,2,0
+1872703038661,FIS-05.01,Física,5,Mecânica Quântica,,Antonio F. R. De Toledo Piza,1,0,1,0
+1875029794020,MAT-01.03 v.4,Matemática,1,Um Curso de Cálculo,,Hamilton Luiz Guidorizzi,5,4,1,0
+1879624240029,FIS-07.03,Física,7,An Introduction to the Study of Stellar Structure,,Subrahmanyan Chandrasekhar,1,0,2,0
+1927632515049,CMP-05.06,Computação,5,Introdução aos Espaços de Escalas,,"Velho, Texeira, Gomes",1,0,1,0
+1932552998919,BIO-01.04,Biologia,1,Biochemistry,,Stryer,4,0,2,0
+1953983383426,BIO-04.03,Biologia,4,Fundamentos da Neurociência e do Comportamento,,"Kandel, Schwartz, Jessell",1,0,1,0
+1966299964456,QUI-04.01,Química,4,Química Orgânica,,"Allinger, Cava, de Jongh, Johnson, Lebel, Stevens",2,0,1,0
+1979445713549,CMP-04.04,Computação,4,Probabilidad e Inferencia Estadistica,,"Moya, Saravia",2,0,3,0
+1997580228360,QUI-01.07,Química,1,Quimica General,,Gaston P. Muzzo,1,0,3,0
+2063385797512,MAT-02.07,Matemática,2,Geometria Analítica,,Charles H. Lehmann,1,0,1,0
+2064786336355,VAR-03.01,Variados,3,Complex Systems Dynamics,A Lecture Notes Volume in the Santa Fe Institute Studies in the Sciences of Complexity,G. Weisbuch,1,2,2,0
+2065966288570,FIS-01.04  v.5,Física,1,Course of Theoretical Physics,Statistical Physics Part 1,"Landau, Lifshitz",3,5,2,0
+2071043662966,CMP-06.04,Computação,6,Data Analysis with Excel®,An Introduction for Physical Scientists,Les Kirkup,1,0,2,0
+2095504269365,QUI-01.06,Química,1,General Chemistry with Qualitative Analysis,,"Whitten, Gailey, Davis",4,0,2,0
+2097916741484,MAT-01.12 v.1,Matemática,1,Cálculo com Geometria Analítica,,George F. Simmons,1,1,1,0
+2106746718075,BIO-04.01,Biologia,4,Essentials of Neural Science and Behavior,International Edition,"Kandel, Schwartz, Jessell",1,0,2,0
+2112436778670,MAT-01.02,Matemática,1,Calculus,,Michael Spivak,2,0,2,0
+2123036443295,MAT-03.12,Matemática,3,Álgebra Linear,,Mário B. Junior,3,0,1,0
+2190302206397,FIS-05.05,Física,5,Introdução à Física Nuclear,,K. C. Chung,1,0,1,0
+2212011226180,MAT-04.10,Matemática,4,Análise Vetorial,,Murray R. Spiegel,1,0,1,0
+2214266933981,QUI-01.03  v.4,Química,1,Coleção de Química Conceitual,"Química de Coordenação, Organometálica e Catálise",Henrique E. Toma,1,4,1,0
+2238837696938,MAT-06.04,Matemática,6,Geometria Riemanniana,,Manfredo P. do Carmo,1,0,1,0
+2241842072086,MAT-09.05,Matemática,9,Variáveis Complexas e suas Aplicações,,Ruev V. Churchill,1,0,1,0
+2245522009126,FIS-01.15,Física,1,200 Puzzling Physics Problems,,"Gnadig, Honyek, Riley",1,0,2,0
+2245805529396,CMP-04.10,Computação,4,Dinâmica Estocástica e Irreversibilidade,,"Tomé, Oliveira",1,0,1,0
+2271112335573,MAT-03.15,Matemática,3,Algèbre et Analyse Linèaires,,A. Lichnerowicz,1,0,4,0
+2272797961262,VAR-03.01,Variados,3,1990 Lectures In Complex Systems,A Lectures Volume in the Santa Fe Institute Studies in the Sciences of Complexity,"Nadel, Stein",1,3,2,0
+2276228784925,FIS-04.03,Física,4,Quantum Electrodynamics,A Lecture Note and Reprint Volume,Richard P. Feynman,1,0,2,0
+2298036393717,MAT-04.08,Matemática,4,Problemas y Ejercicios de Analisis Matematico,,B. Demidovitch,5,0,3,0
+2307540026551,FIS-03.03,Física,3,Fundamentos de Termodinâmica Clássica,,"Van Wylen, Sonntag",2,0,1,0
+2330172058690,MAT-01.14,Matemática,1,Calculo diferencial e integral,,"Thomas, Finney",1,0,1,0
+2360838037028,VAR-03.12,Variados,3,Multivariable Feedback Control,Analysis and Design,"Skogestad, Postlehwaite",2,0,2,0
+2362075676794,FIS-01.05  v.3,Física,1,Física,,"Halliday, Resnick",4,3,1,0
+2365972393399,BIO-03.01,Biologia,3,Evolutionary Genetics,,John Maynard Smith,1,0,2,0
+2373192710124,MAT-01.13 v.1,Matemática,1,Cálculo,,George B. Thomas Jr,1,1,1,0
+2386888917868,BIO-01.06,Biologia,1,Biochemistry,,"Garrett, Grisham",1,0,2,0
+2407104271158,MAT-01.04 v.1,Matemática,1,Introdução ao Cálculo,,Paulo Boulos,1,1,1,0
+2412588686565,BIO-03.01,Biologia,3,Evolutionary Genetics,,John Maynard Smith,1,0,2,0
+2422839558947,VAR-03.01 - começar aqui,Variados,3,The Evolution Of Human Languages,A Proceedings Volume in the Santa Fe Institute Studies in the Sciences of Complexity,"Hawkins, Gell-Mann",1,11,2,0
+2493762133570,MAT-01.11 v.3,Matemática,1,Cálculo com Geometria Analítica,,"Edwards, Penney",4,3,1,0
+2497619722849,BIO-02.01,Biologia,2,Molecular Biology of the Cell,,"Alberts, Bray, Lewis, Raff, Roberts, Watson",2,0,2,0
+2504856623256,QUI-01.03  v.3,Química,1,Coleção de Química Conceitual,Elementos Qímicos e seus Compostos,Henrique E. Toma,1,3,1,0
+2529204739410,MAT-02.13,Matemática,2,"Somatórios, Produtórios, Matrizes, Determinantes e Sistemas Lineares",,"Castrucci, Donatto, Perrella",2,0,1,0
+2529479857291,VAR-03.07,Variados,3,Física para Ciências Biológicas e Biomédicas,,"Okuno, Caldas, Chow",1,0,1,0
+2536538521673,CMP-06.03,Computação,6,Linguagem C,Programação e Aplicações,"Nery, Bastos",1,0,1,0
+2575868548844,MAT-03.04,Matemática,3,Linear Algebra,,Serge Lang,3,0,2,0
+2593299959862,VAR-03.02,Variados,3,Obra CIentífica de Mario Schiönberg,1936 a 1948,Amélia Império Hamburger,1,1,4,0
+2602106111406,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+2620126560653,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+2621355537072,MAT-05.04,Matemática,5,Fundamental Concepts of Algebra,,Claude Chevalley,1,0,2,0
+2647451882373,MAT-01.05 v.2,Matemática,1,Cálculo,,Serge Lang,1,2,1,0
+2657811597168,FIS-06.04,Física,6,Monte Carlo Simulation in Statistical Physics,,"Binder, Heermann",4,0,2,0
+2720622364646,CMP-04.06,Computação,4,Mathematical Statistics,,John E. Freund,2,0,2,0
+2724723604151,BIO-04.05,Biologia,4,Anatomia Humana,Atlas Fotográfico de Anatomia Sistêmica e Regional,"Yokochi, Rohen, Jen-Drecoll",6,0,1,0
+2730202780988,FIS-05.02,Física,5,Introduction to Quantum Mechanics,With Applications to Chemistry,"Pauling, Wilson",1,0,2,0
+2751791045692,CMP-04.13 v.2,Computação,4,Estatística,,Victor Mirshawka,3,2,1,0
+2760050744337,FIS-02.08,Física,2,Mecânica Analítica,,J. W. Leech,1,0,1,0
+2762459268230,MAT-04.07,Matemática,4,Análise no Espaço Rn,,Elon Lages Lima,2,0,1,0
+2773648789443,FIS-01.04  v.1,Física,1,Physique Théorique,Mécanique,"Lifshitz, Pitaevskii",2,1,4,0
+2795727315879,VAR-04.02,Variados,4,Sem Rei Nem Bar Somente Osmar,,Osmar Afrísio dos Santos,1,0,1,0
+2819509453105,MAT-04.14 v.2,Matemática,4,Nociones de espacios normados,,"Cotlar, Cignoli",1,2,3,0
+2827145780691,BIO-01.04,Biologia,1,Biochemistry,,Stryer,4,0,2,0
+2863194518908,BIO-03.01,Biologia,3,Evolutionary Genetics,,John Maynard Smith,1,0,2,0
+2863425256289,MAT-04.07,Matemática,4,Análise no Espaço Rn,,Elon Lages Lima,2,0,1,0
+2872765698109,FIS-01.12,Física,1,Principles of Physics,,Raymond A. Serway,2,0,2,0
+2903250838110,FIS-01.14  v.3,Física,1,Física para a Universidade,,"Martins, Pauli, Mauad",1,3,1,0
+2909152677390,BIO-02.01,Biologia,2,Molecular Biology of the Cell,,"Alberts, Bray, Lewis, Raff, Roberts, Watson",2,0,2,0
+2993629148124,CMP-07.04,Computação,7,Organização e Projeto de Computadores,A Interface Hardware/Software,"Patterson, Hennessy",3,0,1,0
+2998328527980,BIO-01.02,Biologia,1,Biochemistry,,"Voet, Voet",2,0,2,1
+3016246941813,BIO-01.04,Biologia,1,Biochemistry,,Stryer,4,0,2,0
+3018616213155,BIO-03.01,Biologia,3,Evolutionary Genetics,,John Maynard Smith,1,0,2,0
+3049745619082,MAT-02.04,Matemática,2,Geometria Analítica,"Um Tratamento Vetorial, Edição Preliminar","Oliveira, Boulos",4,0,1,0
+3060573140289,MAT-04.12,Matemática,4,Lezioni sulla Teoria Moderna dell'Integrazione,,"Picone, Viola",1,0,4,0
+3069110660242,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+3076676921649,FIS-01.04  v.7,Física,1,Physique Théorique,Théorie de l'élasticité,"Landau, Lifshitz",2,7,4,0
+3080252243445,QUI-05.01  v.1,Química,5,Química Analítica Quantitativa,,Otto A. Ohlweiler,3,1,1,0
+3080499732771,CMP-03.04,Computação,3,Introduction to Numerical Analysis,,"Stoer, Bulirsch",3,0,2,0
+3080550739701,CMP-02.01,Computação,2,Introduction to Algorithms,,"Cormen, Leiserson, Rivest, Stein",3,0,2,0
+3100841140723,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+3101130473133,VAR-03.08,Variados,3,Microbial Inhibitors in Food,,Fourth International Symposium on Food Microbiology,1,0,2,0
+3140434731976,CMP-05.01,Computação,5,Computability and Logic,,"Boolos, Jeffrey",3,0,2,0
+3169415374322,MAT-01.07,Matemática,1,Calculus of Several Variables,,Serge Lang,3,0,2,0
+3194301327830,BIO-01.03,Biologia,1,Bioquímica,Combo (Volumes 1-3),"Campbell, Farrell",5,0,1,0
+3195793194887,BIO-05.01,Biologia,5,Developmental Biology,,Scott F. Gilbert,5,0,2,0
+3223556103163,MAT-08.01,Matemática,8,Equaçoes Diferenciais Aplicadas,,"Figueiredo, Neves",2,0,1,0
+3227096837090,MAT-03.04,Matemática,3,Linear Algebra,,Serge Lang,3,0,2,0
+3244346131166,MAT-06.03,Matemática,6,Cálculo en Variedades,,Michael Spivak,1,0,1,0
+3247513060047,QUI-04.08,Química,4,Substâncias Carboniladas e Derivados,,"Pilli, Pinheiro, Costa, Vasconcellos",1,0,1,0
+3249857657518,FIS-01.04  v.3,Física,1,Course of Theoretical Physics,Quantum Mechanics (Non-relativistic Theory),"Landau, Lifshitz",3,3,2,0
+3275563136344,VAR-03.03,Variados,3,Consciência e Linguagem,,John R. Searle,1,0,1,0
+3278486724018,FIS-05.06,Física,5,Atomic Physics,,Max Born,8,0,2,0
+3279807759993,MAT-05.02,Matemática,5,Elementos de Álgebra,,L. H. Jacy Monteiro,1,0,1,0
+3297743049756,MAT-01.07,Matemática,1,Calculus of Several Variables,,Serge Lang,3,0,2,0
+3371901761985,VAR-02.04,Variados,2,O Mundo ou Tratado da Luz,,René Descartes,1,0,1,0
+3374299444973,QUI-01.05,Química,1,"Introduction to General, Organic & Biochemistry",,"Bettelheim, March",4,0,2,0
+3386849606410,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,3,2,0
+3387262267653,BIO-03.01,Biologia,3,Evolutionary Genetics,,John Maynard Smith,1,0,2,0
+3396283362469,FIS-01.05  v.2,Física,1,Física,,"Halliday, Resnick",2,2,1,0
+3403984845242,MAT-03.07,Matemática,3,Álgebra Linear e suas Aplicações,,David C. Lay,2,0,1,0
+3416753293540,CMP-04.13 v.3,Computação,4,Estatística,,Victor Mirshawka,1,3,1,0
+3446605606570,MAT-04.10,Matemática,4,Análise Vetorial,,Murray R. Spiegel,1,0,1,0
+3455963124091,MAT-01.01 v.2,Matemática,1,Calculus,"Multi-Variable Calculus and Linear Algebra, with Applications to Differential Equations and Probability",Tom M. Apostol,2,2,2,1
+3476068578916,MAT-07.02,Matemática,7,Teoria dos Conjuntos,Um mínimo,Francisco Miraglia,1,0,1,0
+3531727018179,MAT-03.18,Matemática,3,Linear Algebra,,G. Hadley,1,0,2,0
+3574436388300,QUI-04.01,Química,4,Química Orgânica,,"Allinger, Cava, de Jongh, Johnson, Lebel, Stevens",2,0,1,0
+3584071753210,MAT-01.01 v.2,Matemática,1,Calculus,Cálculo en Varias Variables con Aplicaciones a las Probabilidades y al Análisis Vectorial,Tom M. Apostol,1,2,3,0
+3593704939662,FIS-01.04  v.8,Física,1,Physique Théorique,Electrodynamique des milieux continus,"Lifshitz, Pitaevskii",2,8,4,0
+3607958879688,MAT-07.01,Matemática,7,Axiomatic Set Theory ,,Patrick Suppes,1,0,2,0
+3627335616620,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,2,2,0
+3627534574264,MAT-01.23 v.2,Matemática,1,Cálculo e Geometria Analítica,,Al Shenk,2,2,1,0
+3630736710361,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,3,2,0
+3644106098461,CMP-07.03,Computação,7,Introductory Network Theory,,"Bose, Stevens",1,0,2,0
+3647501197289,MAT-01.16,Matemática,1,Cálculo Integral Avançado,,"Bouchara, Carrara, Hellmeister, Salvitti",2,0,1,0
+3650761110950,BIO-01.05,Biologia,1,Bioquimíca,,"Peña, Arroyo, Gómez, Tapia, Gómez",2,0,3,0
+3652775944552,MAT-07.06,Matemática,7,Números Primos,Mistérios e Recordes,Paulo Ribenboim,1,0,1,0
+3688807122315,MAT-01.03 v.1,Matemática,1,Um Curso de Cálculo,,Hamilton Luiz Guidorizzi,4,1,1,0
+3704174860367,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+3706083836594,FIS-04.01,Física,4,Eletromagnetismo,,William H. Hayt Junior,4,0,1,0
+3717628393380,QUI-02.04,Química,2,Introdução à Química dos Coloides e das Superfícies,,Duncan J. Shar,2,0,1,0
+3723457522464,MAT-01.09 v.2,Matemática,1,Cálculo,Um Curso Universitário,Edwin E. Moise,1,2,1,0
+3750361855487,MAT-05.14,Matemática,5,Algebraic Number Theory,,Edwin Weiss,1,0,2,0
+3755077252407,QUI-04.02  v.1,Química,4,Química Orgânica,Curso Básico Universitário,Maurício Gomes Constantino,1,1,1,0
+3835914325157,QUI-01.09,Química,1,Química,Um Curso Universitário,"Mahan, Myers",4,0,1,0
+3843524876174,MAT-01.20 v.2,Matemática,1,Cálculo Diferencial e Integral,,N. Piskounov,1,2,1,0
+3843617048990,MAT-01.08 v.1,Matemática,1,Cálculo,,James Stewart,5,1,1,0
+3869032919790,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+3881369190604,CMP-04.05,Computação,4,Introduction to Probability and Statistics,Collier-MacMillan Student's Edition,"Linngren, McElrath",1,0,2,0
+3882409724087,MAT-03.05,Matemática,3,Álgebra Linear e Geometria Eucliana,,Alexandre A. M. Rodrigues,5,0,1,0
+3885380536069,BIO-01.09,Biologia,1,The Mitochondrion,,Albert L. Lehninger,1,0,2,0
+3906699446631,VAR-03.01,Variados,3,Computers and DNA,A Proceedings Volume in the Santa Fe Institute Studies in the Sciences of Complexity,"Bell, Marr",1,7,2,0
+3912360401274,VAR-02.06,Variados,2,História da Matemática,,Carl B. Boyer,2,0,1,0
+3914546363680,FIS-01.02  v.1,Física,1,Curso de Física Básica,Mecânica,H. Moysés Nussenzveig,3,1,1,0
+3925187813915,CMP-03.04,Computação,3,Introduction to Numerical Analysis,,"Stoer, Bulirsch",2,0,2,0
+3940470113367,QUI-01.03  v.2,Química,1,Coleção de Química Conceitual,"Energia, Estados e Transformações Químicas",Henrique E. Toma,1,2,1,0
+3950576327186,FIS-02.04,Física,2,Introdução à Mecânica Clássica,,Artur O. Lopes,1,0,1,0
+3952153883948,MAT-07.04,Matemática,7,Teoria Elementar dos Conjuntos,,Edgard de Alencar Filho,11,0,1,0
+3964505489951,MAT-04.08,Matemática,4,Problemas y Ejercicios de Analisis Matematico,,B. Demidovitch,1,0,3,0
+3972317787875,MAT-02.04,Matemática,2,Geometria Analítica,Um Tratamento Vetorial,"Oliveira, Boulos",2,0,1,0
+3975036274558,MAT-03.06,Matemática,3,Álgebra Linear,,Seymour Lipschutz,3,0,1,0
+3982685568631,CMP-04.11,Computação,4,Stochastic Processes,,Sheldon M. Ross,2,0,2,0
+4068152322902,FIS-01.03  v.3,Física,1,Berkeley Physics Course,Ondas,Frank S. Crawford Jr.,1,3,3,0
+4078218408525,QUI-04.01,Química,4,Química Orgânica,,"Allinger, Cava, de Jongh, Johnson, Lebel, Stevens",2,0,1,0
+4085966916028,BIO-01.13,Biologia,1,Manual de Quimica Fisiologica,,Harold A. Harper,1,0,3,0
+4118301120627,BIO-01.08,Biologia,1,Harper's Illustrated Biochemistry,,"Murray, Granner, Mayes, Rodwell",26,0,2,0
+4129719789207,FIS-01.03  v.1,Física,1,Berkeley Physics Course,Mecánica,"Kittel, Knight, Ruderman",2,1,3,0
+4156768260265,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+4194611144027,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,2,2,0
+4195229767981,MAT-03.05,Matemática,3,Álgebra Linear e Geometria Eucliana,,Alexandre A. M. Rodrigues,5,0,1,0
+4200647389681,FIS-02.02  v.1,Física,2,Mecânica Clássica,,Kazunori Watari,2,1,1,0
+4214166333162,QUI-01.02  v.1,Química,1,Química,A Matéria e sua Transformações,"Brady, Sense",5,1,1,0
+4241021181231,FIS-05.01,Física,5,Mecânica Quântica,,Antonio F. R. De Toledo Piza,1,0,1,0
+4273792091174,BIO-04.04,Biologia,4,Neuroanatomia Funcional,,Angelo Barbosa Monteiro Machado,2,0,1,0
+4276569997013,CMP-02.03,Computação,2,Algoritmos em Linguagem C,,Paulo Feofiloff,1,0,1,0
+4276741894253,MAT-01.12 v.1,Matemática,1,Cálculo com Geometria Analítica,,George F. Simmons,1,1,1,0
+4328265965886,MAT-01.22,Matemática,1,Cálculo,"Funções de Várias Variáveis, Campos Vetoriais, Séries e Equações Diferenciais",João A. B. Filho,1,0,1,0
+4334486334608,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+4337293365414,VAR-02.05,Variados,2,Madame Curie,A Biography,Eve Curie,1,0,2,0
+4346223505271,BIO-01.06,Biologia,1,Biochemistry,,"Garrett, Grisham",1,0,2,0
+4354423190081,MAT-04.07,Matemática,4,Análise no Espaço Rn,,Elon Lages Lima,2,0,1,1
+4389348674705,BIO-06.03,Biologia,6,Niche Construction,The Neglected Process in Evolution,"Odling-Smee, Lala, Feldman",1,0,2,0
+4411666427258,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+4441502277228,MAT-03.09,Matemática,3,Álgebra Linear e Aplicações,,"Callioli, Domingues, Costa",4,0,1,0
+4450587166327,CMP-03.05,Computação,3,Análise Numérica,,"Burden, Faires",8,0,1,1
+4461991626680,MAT-02.11,Matemática,2,Geometria Analítica,,David C. Murdoch,2,0,1,0
+4478252960780,MAT-01.02,Matemática,1,Calculus,,Michael Spivak,2,0,2,0
+4479802939928,BIO-07.01,Biologia,7,Biochemistry & Molecular Biology of Plants,,"Buchanan, Gruissem, Jones",1,0,2,0
+4497774975140,MAT-03.16,Matemática,3,Álgebra Linear,,"Hoffman, Kunze",1,0,1,0
+4516465424627,BIO-04.01,Biologia,4,Essentials of Neural Science and Behavior,International Edition,"Kandel, Schwartz, Jessell",1,0,2,0
+4538115934331,QUI-01.12,Química,1,Teaching General Chemistry,A Materials Science Companion,"Ellis, Geselbracht, Johnson, Lisensky, Robinson",1,0,2,0
+4544391314606,QUI-03.01,Química,3,Inorganic Chemistry,,"Miessler, Tarr",4,0,2,1
+4550001751662,FIS-01.04  v.3,Física,1,Course of Theoretical Physics,Quantum Mechanics (Non-relativistic Theory),"Landau, Lifshitz",3,3,2,0
+4565171287224,FIS-01.03  v.4,Física,1,Berkeley Physics Course,Física Cuántica,Eyvind H. Wichmann,1,4,3,0
+4579361211968,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+4585740737172,QUI-04.06,Química,4,Organic Chemistry,,Stanley H. Pine,5,0,2,0
+4602626167196,BIO-01.03,Biologia,1,Bioquimíca,Combo (Volumes 1-3),"Campbell, Farrell",5,0,1,0
+4626307858944,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,2,2,0
+4634038779247,MAT-04.04,Matemática,4,Real Analysis,,"Haaser, Sullivan",1,0,2,0
+4686753005149,VAR-02.02,Variados,2,Física e Filosofia,,Werner Heisenberg,4,0,1,0
+4706433838468,CMP-04.03,Computação,4,Estatística Aplicada,,"Larson, Farber",2,0,1,0
+4737873556216,CMP-04.01,Computação,4,Noções de Probabilidade e Estatística,,"Magalhães, Lima",7,0,1,0
+4738349915179,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,3,2,0
+4753995696814,VAR-03.01,Variados,3,Lectures In The Sciences Of Complexity,A Lectures Volume in the Santa Fe Institute Studies in the Sciences of Complexity,Daniel L. Stein,1,1,2,0
+4759346147554,MAT-02.12,Matemática,2,Introdução à Álgebra das Matrizes,,School Mathematics Study Gorup,1,0,1,0
+4764993491912,FIS-01.11,Física,1,University Physics,,George Brown Arfken,2,0,2,0
+4777150245204,CMP-01.03,Computação,1,Python Programming,,John M. Zelle,1,0,2,0
+4811821571077,BIO-06.01,Biologia,6,The Superorganism,"The Beauty, Elegance, and Strangeness of Insect Societies","Holldobler, Wilson",1,0,2,0
+4820343319678,CMP-06.01,Computação,6,Mathematica,A System for Doing Mathematics by Computer,Stephen Wolfram,2,0,2,0
+4837540229099,MAT-08.05,Matemática,8,Fourier Series and Boundary Value Problems,,Ruel V. Churchill,2,0,2,0
+4839164316360,MAT-04.16,Matemática,4,Introducción al Análisis Matricial,Un estudio de la Moderna Teoria de Matrices,Richard Bellman,1,0,3,0
+4871261788572,MAT-03.11,Matemática,3,Álgebra Linear,,"Steinbruch, Winterle",2,0,1,0
+4887724644897,BIO-02.02,Biologia,2,Molecular Biology of the Cell: The Problems Book,,"Wilson, Hunt",5,0,2,0
+4892721523564,MAT-05.08 v. 1,Matemática,5,Módulos de Tipo Finito Sobre um Anel Principal,,Antônio Kumpera,1,1,1,0
+4894578306079,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+4899525894913,BIO-02.04,Biologia,2,Biologia Celular y Molecular,,"De Robertis, De Robertis",10,0,3,0
+4901640415734,QUI-01.11,Química,1,Química ao Cubo,,"Burrows, Holman, Parsons, Pilling, Price",1,0,1,1
+4905928890688,MAT-03.02,Matemática,3,Álgebra Linear,,"Boldrini, Costa, Figueiredo, Wetzler",3,0,1,1
+4908017846238,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,2,2,0
+4912212304356,MAT-01.12 v.2,Matemática,1,Cálculo com Geometria Analítica,,George F. Simmons,1,2,1,0
+4938963273680,MAT-04.07,Matemática,4,Análise no Espaço Rn,,Elon Lages Lima,1,0,1,0
+4940772484676,CMP-05.04,Computação,5,Map Color Theorem,,Gerhard Ringel,1,0,2,0
+4951640118142,MAT-01.19,Matemática,1,Cálculo em Uma Variável Real,,Plácido Z. Táboas,1,0,1,0
+4953611435357,FIS-01.16 v.4,Física,1,Pauli Lectures on Physics,,Wolfgang Pauli,1,4,2,0
+4983555527351,QUI-04.02  v.2,Química,4,Química Orgânica,Curso Básico Universitário,Maurício Gomes Constantino,1,2,1,0
+5084635916726,MAT-03.05,Matemática,3,Álgebra Linear e Geometria Eucliana,,Alexandre A. M. Rodrigues,5,0,1,0
+5094956988494,MAT-05.12,Matemática,5,Théorie des Équations Algébriques,,Julius Petersen,1,0,4,0
+5121385445059,VAR-02.03,Variados,2,Principia,The System of the World,Sir Isaac Newton,1,2,2,0
+5122532691459,MAT-03.08,Matemática,3,Álgebra Linear com Aplicações,,Steven J. Leon,4,0,1,0
+5136389647873,MAT-01.12 v.1,Matemática,1,Cálculo com Geometria Analítica,,George F. Simmons,1,1,1,0
+5143239814125,BIO-07.02,Biologia,7,Biologia Vegetal,,"Raven, Evert, Eichhorn",6,0,1,0
+5147534992502,MAT-07.05,Matemática,7,Fundamentos de la Teoria de los Numeros,,I. Vinográdov,1,0,3,0
+5158419733585,FIS-02.01,Física,2,Introduction to Classical Mechanics,,David Morin,1,0,2,0
+5180966338494,MAT-01.12 v.2,Matemática,1,Cálculo com Geometria Analítica,,George F. Simmons,1,2,1,0
+5188094271133,MAT-01.07,Matemática,1,Calculus of Several Variables,,Serge Lang,3,0,2,0
+5192235011465,BIO-01.11,Biologia,1,Biochemical and Clinical Aspects of Hemoglobin Abnormalities,,Helen Caughey,1,0,2,0
+5202211770061,MAT-03.05,Matemática,3,Álgebra Linear e Geometria Eucliana,,Alexandre A. M. Rodrigues,5,0,1,0
+5207683211388,MAT-01.28 v.3,Matemática,1,Fórmula Matemática,Funções Especiais,Ueda Keikyu,1,3,4,0
+5214937367395,FIS-01.04  v.5,Física,1,Course of Theoretical Physics,Statistical Physics Part 1,"Landau, Lifshitz",3,5,2,0
+5259355429003,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+5270630810750,BIO-01.02,Biologia,1,Biochemistry,,"Voet, Voet",2,0,2,0
+5291525963634,QUI-01.08,Química,1,Principios Básicos de Química,,"Gray, Haight Jr.",1,0,3,0
+5309813038527,MAT-04.15,Matemática,4,Espaços Métricos,,Ernesto Rosa Neto,1,0,1,0
+5333065699687,MAT-03.17,Matemática,3,Elementos de Álgebra Vetorial,Uma Iniciação à Álgebra Linear,Roberto de Barros Lima,1,0,1,0
+5336604698530,FIS-01.02  v.3,Física,1,Curso de Física Básica,Eletromagnetismo,H. Moysés Nussenzveig,1,3,1,1
+5364455713461,FIS-03.02,Física,3,Thermodynamics and an Introduction to Thermostatistics,,Herbert B. Callen,2,0,2,0
+5404501940806,CMP-04.12,Computação,4,Data Analysis Using Regression and Multilevel / Hierarchical Models,Analytical Methods for Social Research,"Gelman, Hill",1,0,2,0
+5417171798905,FIS-01.05  v.1,Física,1,Física,,"Halliday, Resnick",1,1,1,0
+5430273243937,CMP-03.02,Computação,3,Analysis of Numerical Methods,,"Isaacson, Keller",1,0,2,0
+5443455735069,MAT-05.05,Matemática,5,Algebraic Functions,,Gilbert A. Bliss,1,0,2,0
+5464331791887,VAR-03.09,Variados,3,"Energia, Meio Ambiente e Desenvolvimento",,"Goldemberg, Lucon",3,0,1,0
+5469919925708,MAT-07.08,Matemática,7,Theory and Problems of Finite Mathematics,,Seymour Lipschutz,1,0,2,0
+5520205891081,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,3,2,0
+5543412205489,MAT-03.10,Matemática,3,Algebra Vetorial e Geometria,,"Medeiros, Andrade, Wanderley",1,0,1,0
+5567311197737,CMP-03.11,Computação,3,Cálculo Numérico,,"Barroso, Barroso, Campos, Carvalho, Maia",1,0,1,0
+5588472432833,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+5599583154958,FIS-06.03,Física,6,Introdução à Física Estatística,,Silvio R. A. Salinas,1,0,1,0
+5615970435407,MAT-01.09 v.1,Matemática,1,Cálculo,Um Curso Universitário,Edwin E. Moise,1,1,1,0
+5631037433179,MAT-06.05,Matemática,6,Introdução às Curvas Algébricas Planas,,Israel Vainsencher,1,0,1,0
+5645449800382,CMP-07.05,Computação,7,Introdução à Supercomputação,"Coleção ""A Era da Informática: Estudos Avançados""","Almeida, Árabe",1,0,1,0
+5681214267103,BIO-02.01,Biologia,2,Molecular Biology of the Cell,,"Alberts, Bray, Lewis, Raff, Roberts, Watson",2,0,2,0
+5721722254353,CMP-02.04,Computação,2,Desenvolvimento de Algoritmos e Complexidade de Computação,,Routo Terada,1,0,1,0
+5739177673339,VAR-03.11,Variados,3,"Matemática para os Cursos de Economia, Administração e Ciências Contábeis",,Medeiros da Silva,3,1,1,0
+5769614822044,MAT-04.06 v.1,Matemática,4,Curso de Análise,,Elon Lages Lima,9,1,1,0
+5778168934677,VAR-01.02,Variados,1,Sobre as Leis da Física,,Richard Feynman,1,0,1,0
+5789908511096,CMP-01.02,Computação,1,Structure and Interpretation of Computer Programs,,"Harold Abelson, Gerald Jay Sussman, Julie Sussman",1,0,2,0
+5813409154596,CMP-04.07,Computação,4,Manual de la Teoria de Probabilidades y Estadistica Matemática,,Academia de Ciencias de la RSS de Ucrania,1,0,3,0
+5832408329613,MAT-06.07,Matemática,6,Poliedros,,Alcyr Pinheiro Rangel,1,0,1,0
+5841907561639,VAR-04.01,Variados,4,Dicionário de Provérbios,"Francês, Português, Inglês","Lacerda, Lacerda, Abreu",1,0,4,0
+5855498961013,MAT-05.10 v.3,Matemática,5,Teoria dos Corpos Comutativos,Corpos Ordenados e Teoria das Avaliações,Jean A. Dieudonné,1,3,1,0
+5857261061852,QUI-02.03,Química,2,Fundamentos de Termodinâmica e Cinética Química,,Edward de Souza,1,0,1,0
+5885755987548,MAT-05.13,Matemática,5,Elliptic Integrals,,Harris Hancock,1,0,2,0
+5896596428091,MAT-01.29,Matemática,1,Tensor Calculus,,Barry Spain,3,0,2,0
+5899561036192,CMP-04.13 v.1,Computação,4,Exercícios de Estatística,,Victor Mirshawka,1,1,1,0
+5914691090040,VAR-03.01,Variados,3,Lattice Gas Methods For Partial Differential Equations,A Proceedings Volume in the Santa Fe Institute Studies in the Sciences of Complexity,Gary Doolen,1,4,2,0
+5970053764257,MAT-04.09,Matemática,4,Análise I,,Djairo G. de Figueiredo,1,0,1,0
+5974016107594,CMP-03.10,Computação,3,Noções Básicas de Cálculo Numérico,,"Humes, Melo, Yoshida, Martins",1,0,1,0
+5986236197569,BIO-04.02,Biologia,4,Cem Bilhões de Neurônios,Conceitos Fundamentais de Neurociência,Roberto Lent,1,0,1,0
+5989277792649,FIS-05.04,Física,5,Exploring Black Holes,Introduction to General Relativity,"Taylor, Wheeler",1,0,2,0
+5993828668000,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+6040245525221,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+6044911967742,MAT-02.09,Matemática,2,"Matrizes, Vetores, Geometria Analítica",,"Caroli, Callioli, Feitosa",8,0,1,0
+6076027487302,VAR-03.01,Variados,3,1989 Lectures In The Sciences Of Complex Systems,A Lectures Volume in the Santa Fe Institute Studies in the Sciences of Complexity,Erica Jen,1,2,2,0
+6093988864614,FIS-05.06,Física,5,Física Atómica,,Max Born,4,0,1,0
+6123243860508,MAT-05.09,Matemática,5,Álgebras de Lie e Álgebra Associativas,,Roberto C. F. Costa,1,0,1,0
+6129612556591,FIS-01.04  v.2,Física,1,Physique Théorique,Théorie du Champ,"Landau, Lifshitz",1,2,4,0
+6132782344523,MAT-03.06,Matemática,3,Álgebra Linear,,Seymour Lipschutz,3,0,1,0
+6162610895668,QUI-04.03  v.1,Química,4,Química Orgânica,,John McMurry,7,1,1,0
+6178936680147,QUI-02.02,Química,2,Physical Chemistry,A Molecular Approach,"McQuarrie, Simon",1,0,2,0
+6221494006352,FIS-01.02  v.1,Física,1,Curso de Física Básica,Mecânica,H. Moysés Nussenzveig,1,1,1,0
+6256507775581,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+6258947698512,QUI-02.01 v.1,Química,2,Físico-Química,,"Atkins, de Paula",10,1,1,0
+6261449917180,QUI-05.01  v.2,Química,5,Química Analítica Quantitativa,,Otto A. Ohlweiler,3,2,1,0
+6269099794021,BIO-01.03,Biologia,1,Bioquimíca,,Mary K. Campbell,3,0,1,0
+6278749367287,CMP-07.01,Computação,7,Sistemas Digitais,Fundamentos e Aplicações,Thomas L. Floyd,9,0,1,0
+6279100786105,QUI-04.07,Química,4,Organic Chemistry,,Francis A. Carey,3,0,2,0
+6302168879158,FIS-02.02  v.2,Física,2,Mecânica Clássica,,Kazunori Watari,1,2,1,0
+6303236881523,QUI-04.02  v.3,Química,4,Química Orgânica,Curso Básico Universitário,Maurício Gomes Constantino,1,3,1,0
+6310437998387,MAT-03.04,Matemática,3,Álgebra Linear,,Serge Lang,1,0,1,0
+6322210255792,FIS-01.03  v.1,Física,1,Berkeley Physics Course,Mecánica,"Kittel, Knight, Ruderman",2,1,3,0
+6336707191548,BIO-05.02,Biologia,5,Analysis of Biological Development,,Klaus Kalthoff,2,0,2,0
+6337911671680,MAT-01.30 v.1,Matemática,1,Cours de Mathématiques Supérieures,,V. Smirnov,1,1,4,0
+6439698309111,FIS-04.02  v.1,Física,4,Eletricidade,Eletrodinâmica,Gerhard Sengberg,13,1,1,0
+6457774287849,MAT-09.04,Matemática,9,Introductory Complex Analysis,,Richard A. Silverman,1,0,2,0
+6458371105109,MAT-04.18,Matemática,4,Non-Deterministic Analysis and Applications,,Rubens G. Lintz,1,0,2,0
+6461871801716,MAT-01.17,Matemática,1,Cálculo,Funções de Uma e Várias Variáveis,"Morettin, Hazzan, Bussab",1,0,1,0
+6482330729785,QUI-01.04,Química,1,Study Guide to Accompany Chemistry and Chemical Reactivity Kotz & Purcell,,Harry E. Pence,2,0,2,0
+6491738261056,QUI-01.10,Química,1,Neoquímica,A Química Moderna e Suas Aplicações,Nina Hall,1,0,1,0
+6522186501576,MAT-04.07,Matemática,4,Análise no Espaço Rn,,Elon Lages Lima,2,0,1,0
+6524339564766,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+6530775485190,FIS-01.02  v.1,Física,1,Curso de Física Básica,Mecânica,H. Moysés Nussenzveig,5,1,1,0
+6548567728615,MAT-01.10 v.2,Matemática,1,O Cálculo com Geometria Analítica,,Louis Leithold,2,2,1,0
+6592531867091,FIS-02.03,Física,2,Theoretical Mechanics,,"Movnin, Izrayelit",1,0,2,0
+6611908711628,FIS-01.04  v.5,Física,1,Course of Theoretical Physics,Statistical Physics Part 1,"Landau, Lifshitz",3,5,2,0
+6616605455097,FIS-05.03,Física,5,Teoria Quântica de Moléculas e Sólidos,,"Vianna, Fazzio, Canuto",1,0,1,0
+6616767891290,MAT-01.25 v.1,Matemática,1,Cálculo Avançado,,Wilfred Kaplan,1,1,1,0
+6619329654814,BIO-01.03,Biologia,1,Bioquimíca,,Mary K. Campbell,3,0,1,0
+6625360727141,CMP-04.13 v.1,Computação,4,Estatística,,Victor Mirshawka,4,1,1,0
+6646702618965,FIS-01.09  v.1,Física,1,Física,Mecânica,GREF,1,1,1,0
+6652347720734,MAT-01.03 v.2,Matemática,1,Um Curso de Cálculo,,Hamilton Luiz Guidorizzi,3,2,1,0
+6659709643441,BIO-07.01,Biologia,7,Biochemistry & Molecular Biology of Plants,,"Buchanan, Gruissem, Jones",1,0,2,0
+6705102812691,CMP-03.09,Computação,3,Introdução ao Cálculo Numérico,,Ivan Q. Barroz,1,0,1,0
+6710807893814,FIS-01.04  v.9,Física,1,Course of Theoretical Physics,Statistical Physics Part 2,"Lifshitz, Pitaevskii",1,9,2,0
+6716852195859,BIO-03.02,Biologia,3,The Making of a Fly,The Genetics of Animal Design,P. A. Lawrence,1,0,2,0
+6732202279932,FIS-01.17,Física,1,Manual de Laboratório de Física,,"Albuquerque, Yoe, Tobelem, Pinto",1,0,1,0
+6747825671704,MAT-02.06,Matemática,2,Geometria Analítica Plana,,"Steinbruch, Basso",1,0,1,0
+6762853375332,CMP-03.02,Computação,3,Analysis of Numerical Methods,,"Isaacson, Keller",1,0,2,0
+6805316427510,VAR-03.06,Variados,3,Microeletrônica,,"Sedra, Smith",4,0,1,0
+6854989846814,FIS-07.04,Física,7,Introdução à Estrutura e Evolução Estelar,,Walter Junqueira Maciel,1,0,1,0
+6873756471110,MAT-08.04,Matemática,8,Moderna Introdução às Equações Diferenciais,,Richard Bronson,1,0,1,0
+6893375841606,FIS-02.02 v.1,Física,2,Mecânica Clássica,,Kazunori Watari,2,1,1,0
+6923408317423,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+6935723739514,MAT-01.08 v.1,Matemática,1,Cálculo,,James Stewart,5,1,1,0
+6962660921207,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,5,0,2,1
+6966565953301,FIS-01.03  v.5,Física,1,Berkeley Physics Course,Física Estadística,F. Reif,1,5,3,0
+6967482062602,MAT-07.07,Matemática,7,Funções Aritméticas Números Notáveis,,Edgard De Alencar Filho,1,0,1,0
+6998745522748,FIS-05.08,Física,5,Teoria Quântica,,Eduardo M.A. Peixoto,1,0,1,0
+7020484952940,FIS-01.05  v.3,Física,1,Física,,"Halliday, Resnick",4,3,1,0
+7022298133355,VAR-02.01,Variados,2,A Mathematical History of The Golden Number,,Roger Herz-FIschler,1,0,2,0
+7048645680716,FIS-01.04  v.5,Física,1,Physique Théorique,"Physique Statistique, Primiére Partie","Landau, Lifshitz",3,5,4,0
+7062202074084,QUI-05.02,Química,5,Fundamentos de Química Experimental,,"Constantino, Silva, Donate",1,0,1,0
+7071950737837,BIO-02.01,Biologia,2,Molecular Biology of the Cell,,"Alberts, Bray, Lewis, Raff, Roberts, Watson",2,0,2,0
+7081862074098,BIO-01.04,Biologia,1,Bioquimíca,,"Stryer, Tymoczko, Berg",6,0,3,0
+7084521919587,FIS-05.07,Física,5,Introdução à Física de Partículas,,Anna Maria Freire Endler,1,0,1,0
+7117519831254,MAT-04.14 v.1,Matemática,4,Nociones de espacios normados,,"Cotlar, Cignoli",1,1,3,0
+7155453568362,FIS-01.06  v.2,Física,1,Física,"Magnetismo, Eletricidade",Francis W. Sears,1,2,1,0
+7171023945104,CMP-03.05,Computação,3,Numerical Analysis,,"Burden, Faires",6,0,2,0
+7179022321912,FIS-01.08  v.2,Física,1,Física,"Eletricidade e Magnetismo, Ótica",Paul A. Tipler,4,2,1,0
+7223665595169,MAT-05.07,Matemática,5,Introdução à Teoria dos Grupos e à Teoria de Galois,,Paulo A. Martin,1,0,1,0
+7256273166650,BIO-03.06,Biologia,3,The Rough Guide to Genes & Cloning,,"Buxton, Turney",1,0,2,0
+7256955107575,CMP-03.07,Computação,3,Cálculo Numérico,,"Gomes, Rocha",2,0,1,0
+7273558183294,FIS-06.05,Física,6,Catastrophe Theory,,"Castrigiano, Hayes",1,0,2,0
+7303013682441,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+7349950603309,QUI-02.05,Química,2,Eletroquímica,Princípios e Aplicações,Edson Antonio Ticianelli,1,0,1,0
+7357285486375,FIS-02.02  v.1,Física,2,Mecânica Clássica,,Kazunori Watari,2,1,1,0
+7360333225178,MAT-05.06,Matemática,5,Álgebra Moderna Básica,,"Birkohff, Mac-Lane",4,0,1,0
+7383295902932,MAT-04.03,Matemática,4,Elementary Analysis,The Theory of Calculus,Kenneth A. Ross,1,0,2,0
+7389768842699,CMP-01.04,Computação,1,Introdução à Programação Orientada a Objetos Usando Java,,Rafael Santos,1,0,1,0
+7407274066368,FIS-01.06  v.1,Física,1,Física,"Mecânica, Calor, Acústica",Francis W. Sears,1,1,1,0
+7449380007569,MAT-04.01,Matemática,4,Análisis Matemático,,Tom M. Apostol,1,0,3,0
+7454390391805,BIO-01.06,Biologia,1,Biochemistry,,"Garrett, Grisham",1,0,2,0
+7454515243996,VAR-03.01,Variados,3,Molecular Evolution On Rugged Landscapes,A Proceedings Volume in the Santa Fe Institute Studies in the Sciences of Complexity,"Perelson, Kauffman",1,9,2,0
+7487168001712,MAT-02.08,Matemática,2,Elementos de Geometria Analítica,,Roberto B. Lima,4,0,1,0
+7508314133405,QUI-02.01  v.2,Química,2,Fisicoquímica,,Peter William Atkins,6,2,1,0
+7516747321610,MAT-03.01,Matemática,3,Álgebra Linear,,Elon Lages Lima,2,0,1,1
+7529329212558,CMP-03.10,Computação,3,Noções de Cálculo Numérico,,"Humes, Melo, Yoshida, Martins",1,0,1,0
+7563228128824,FIS-03.09,Física,3,Introduction to Modern Thermodynamics,,Dilip Kondepudi,1,0,2,0
+7571866972013,MAT-09.03,Matemática,9,Cálculo em Uma Variável Complexa,,Marcio G. Soares,3,0,1,0
+7586782589788,MAT-03.13,Matemática,3,Fundamentos de Algebra Lineal,,A. I. Máltsev,1,0,3,0
+7608954672347,VAR-03.13,Variados,3,Engenharia de Controle Moderno,,Katsuhiko Ogata,4,0,1,0
+7613112922035,MAT-05.03,Matemática,5,Fundamental Structures of Algebra,,"Mostow, Sampson, Meyer",1,0,2,0
+7629032979752,MAT-03.03,Matemática,3,Um Curso de Álgebra Linear,,"Coelho, Lourenço",2,0,1,0
+7639281654898,MAT-04.17,Matemática,4,Introductory Functional Analysis with Applications,,Erwin Kreyszig,1,0,2,0
+7640951907503,FIS-01.03  v.2,Física,1,Berkeley Physics Course,Electricidad y Magnetismo,Edward M. Purcell,2,2,3,0
+7641926689639,MAT-04.03,Matemática,4,Elementary Analysis,The Theory of Calculus,Kenneth A. Ross,1,0,2,0
+7656594998174,MAT-02.10,Matemática,2,Matrizes e Sistemas Lineares,,"Caroli, Callioli, Feitosa",1,0,1,0
+7665689615551,MAT-04.11,Matemática,4,A Integral de Lebesgue,,"Medeiros, Mello",1,0,1,0
+7685049134461,MAT-05.06,Matemática,5,Álgebra Moderna,,"Birkohff, Mac-Lane",4,0,3,0
+7691207204303,CMP-04.09,Computação,4,Fundamentos da Teoria dos Erros,,Jose Henrique Vuolo,2,0,1,0
+7716532864425,QUI-01.03  v.1,Química,1,Coleção de Química Conceitual,"Estrutura Atômica, Ligações e Estereoquimica",Henrique E. Toma,1,1,1,0
+7759158987697,BIO-01.01,Biologia,1,Principles of Biochemistry,,"Lehninger, Nelson, Cox",4,0,2,1
+7774668082380,FIS-03.08,Física,3,Termodinâmica,,Mário José de Oliveira,1,0,1,0
+7794724995256,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,3,2,0
+7804414532101,BIO-03.03,Biologia,3,Introdução à Genética,,Anthony J. F. Griffiths,6,0,1,0
+7805924231010,QUI-03.02,Química,3,Inorganic Chemistry,,"Shriver, Atkins, Langford",2,0,2,0
+7830794727585,MAT-01.10 v.1,Matemática,1,O Cálculo com Geometria Analítica,,Louis Leithold,3,1,1,0
+7888155088066,MAT-08.05,Matemática,8,Fourier Series and Boundary Value Problems,,Ruel V. Churchill,2,0,2,0
+7935786959750,MAT-04.19,Matemática,4,Théorie Élémentaire des Séries,,Alain Bouvier,1,0,4,0
+7938258223182,FIS-01.03  v.3,Física,1,Berkeley Physics Course,Ondas,Frank S. Crawford Jr.,1,3,3,0
+7953109061874,BIO-02.01,Biologia,2,Molecular Biology of the Cell,,"Alberts, Bray, Lewis, Raff, Roberts, Watson",2,0,2,0
+8018042004551,CMP-03.03,Computação,3,Numerical Recipes in C,,"Press, Flannery, Teukolsky, Vetterling",2,0,2,0
+8021178602461,MAT-01.15,Matemática,1,Calculus,,"Smith, Salkover, Justice",1,0,2,0
+8035457219226,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+8047115364025,MAT-01.26 v.1,Matemática,1,Cálculo e Álgebra Linear,,"Kaplan, Lewis",1,1,1,0
+8066968905339,CMP-06.02,Computação,6,C,A Linguagem de Programação,"Kernighan, Ritchie",1,0,1,0
+8072346984049,FIS-04.05,Física,4,Princípios de Eletrodinâmica Clássica,,Josif Frenkel,1,0,1,0
+8091236429385,FIS-04.06,Física,4,Corrente Elétrica,Problemas Resolvidos,Eduardo Wilner,1,0,1,0
+8127981482495,VAR-03.14,Variados,3,A Economia em Linguagem Matemática,,Robert C. Bingham,1,0,1,0
+8133938144033,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+8177490057486,BIO-02.03,Biologia,2,Biologia Celular e Molecular,,"Junqueira, Carneiro",10,0,1,1
+8182904575357,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+8183511348242,MAT-04.05,Matemática,4,Theory of Functions,Parts I and II,Konrad Knopp,1,0,1,0
+8194005180811,FIS-02.09,Física,2,Métodos Matemáticos da Mecânica Clássica,,V. Arnold,1,0,1,0
+8195901345069,CMP-04.02,Computação,4,Probabilidade,Um Curso Introdutório,Carlos A. B. Dantas,3,0,1,0
+8200063156436,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,2,2,0
+8211301338552,CMP-07.02,Computação,7,TCP/IP Internet,Protocolos e Tecnologia,Fernando Albuquerque,2,0,1,0
+8233413319793,MAT-02.01,Matemática,2,Geometria Analitica,,"Reis, Silva",1,0,1,0
+8245865945062,MAT-08.02,Matemática,8,Uma introdução às Equações Diferenciais Parciais,Para Estudantes de Ciências,G. Stephenson,1,0,1,0
+8299977563539,MAT-04.13,Matemática,4,Espaços Métricos,,Elon Lages Lima,1,0,1,0
+8309214914434,MAT-04.02,Matemática,4,Análisis Matemático,Modern Mathematical Analysis,"Protter, Morrey Jr.",1,0,2,0
+8320891067022,FIS-07.01,Física,7,Astronomia,Uma Visão Geral do Universo,"Friança, Dal Pino, Sodré Jr., Jatenco-Pereira",1,0,1,0
+8328298196390,FIS-01.04  v.2,Física,1,Course of Theoretical Physics,The Classical Theory of Fields,"Landau, Lifshitz",4,2,2,0
+8386721274107,BIO-04.01,Biologia,4,Essentials of Neural Science and Behavior,International Edition,"Kandel, Schwartz, Jessell",1,0,2,0
+8402782809031,QUI-01.01,Química,1,Chemical Principles,,"Atkins, Jones",2,0,2,1
+8406325803623,FIS-02.10,Física,2,Problemas de Mecânica Teórica,,I.V. Mechtcherski,1,0,1,0
+8439133055250,BIO-07.03,Biologia,7,Plant Biology,,"Smith, Coupland, Dolan, Harberd, Jones",1,0,2,0
+8442513051742,MAT-06.01,Matemática,6,Topology,An introduction to the set-theoretic and homotopy methods in general topology,James Dugundji,1,0,2,0
+8449815241086,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+8458689069337,CMP-05.05,Computação,5,Computac̦ão Gráfica: Imagem,,"Gomes, Velho",2,0,1,0
+8473845291445,FIS-01.02  v.2,Física,1,Curso de Física Básica,"Fluidos, Oscilações e Ondas, Calor",H. Moysés Nussenzveig,3,2,1,0
+8532185355412,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,3,2,0
+8611519778797,FIS-01.13,Física,1,Physics Principles and Applications,,"Margenau, Watson, Montgomery",1,0,2,0
+8647510481756,BIO-01.10,Biologia,1,Bioenergetics,,Albert L. Lehninger,1,0,2,0
+8668774144973,FIS-02.06,Física,2,Mecânica Física,Curso Fundamental em Nível Superior,Tore Johnson,1,0,1,0
+8680143287425,MAT-01.24,Matemática,1,Cálculo Técnico,,"Ewen, Topper",1,0,2,0
+8711759416821,QUI-02.01  v.1,Química,2,Fisicoquímica,,Peter William Atkins,6,1,1,0
+8713111446682,QUI-02.01  v.3,Química,2,Fisicoquímica,,Peter William Atkins,6,3,1,0
+8724577115487,FIS-01.01  v.2,Física,1,The Feynman Lectures on Physics,,"Feynman, Leighton, Sands",1,2,2,0
+8728011147454,MAT-03.01,Matemática,3,Álgebra Linear,,Elon Lages Lima,8,0,1,0
+8732080430935,MAT-03.04,Matemática,3,Linear Algebra,,Serge Lang,3,0,2,0
+8769692594472,FIS-01.06  v.2,Física,1,Física,"Magnetismo, Eletricidade",Francis W. Sears,1,2,1,0
+8794631798451,MAT-02.03,Matemática,2,Exercícios de Geometria Analítica,,Miguel O. Feitosa,3,0,1,0
+8796703552633,CMP-03.01,Computação,3,A First Course in Numerical Analysis,,"Ralston, Rabinowitz",2,0,2,0
+8799634084945,VAR-03.01,Variados,3,Artificial Life,A Proceedings Volume in the Santa Fe Institute Studies in the Sciences of Complexity,Christopher G. Langton,1,1,2,0
+8861183966611,FIS-03.07,Física,3,Elementos de Termologia,,Tore N. O. Folmer-Johnson,1,0,1,0
+8876092543211,CMP-05.02,Computação,5,Computability and Unsolvability,,Martin Davis,1,0,2,0
+8927485372922,MAT-01.18,Matemática,1,Elementos de Cálculo Diferencial e Integral,,"Granville, Smith, Longley",1,0,1,0
+8930129639466,CMP-03.08,Computação,3,Introdução ao Cálculo Numérico,,Giulio Massarani,2,0,1,0
+8931103554058,FIS-02.11 v.1,Física,2,Mecânica dos Fluidos,,Tufi Mamed Assy,1,1,1,0
+8969425828168,FIS-01.08  v.2,Física,1,Física: Manual de Soluções,"Eletricidade e Magnetismo, Ótica",Paul A. Tipler,4,2,1,0
+8970601258044,CMP-02.02 v.2,Computação,2,Algorithms in C,,Robert Sedgewick,3,2,2,0
+8995699669336,MAT-01.11 v.2,Matemática,1,Cálculo com Geometria Analítica,,"Edwards, Penney",4,2,1,0
+8999166123574,CMP-03.09,Computação,3,Introdução ao Cálculo Numérico,,Ivan Q. Barroz,1,0,1,0
+9016203387962,QUI-04.02  v.3,Química,4,Química Orgânica,Curso Básico Universitário,Maurício Gomes Constantino,1,3,1,0
+9020196922307,MAT-03.05,Matemática,3,Álgebra Linear e Geometria Eucliana,,Alexandre A. M. Rodrigues,5,0,1,0
+9038816215029,BIO-02.01,Biologia,2,Molecular Biology of the Cell,,"Alberts, Bray, Lewis, Raff, Roberts, Watson",2,0,2,0
+9047490491773,BIO-04.01,Biologia,4,Essentials of Neural Science and Behavior,International Edition,"Kandel, Schwartz, Jessell",1,0,2,0
+9086613159022,FIS-01.04  v.3,Física,1,Physique Théorique,Mécanique Quantique,"Landau, Lifshitz",3,3,4,0
+9140342853238,FIS-02.05,Física,2,Leciones sobre Teoría de la Mecánica y sus Aplicaciones,,M. Lucini,1,0,3,0
+9140397901090,BIO-01.04,Biologia,1,Biochemistry,,Stryer,4,0,2,0
+9146762463781,VAR-01.04,Variados,1,The Modern Aspect of Mathematics,,Lucienne Félix,1,0,2,0
+9153428752936,MAT-03.01,Matemática,3,Álgebra Linear,,Elon Lages Lima,8,0,1,0
+9173044686828,FIS-06.02,Física,6,Matemática para Físicos com Aplicações,,João Barcelos Neto,1,1,1,0
+9201855684778,MAT-04.03,Matemática,4,Elementary Analysis,The Theory of Calculus,Kenneth A. Ross,1,0,2,0
+9202297243035,MAT-09.02,Matemática,9,Funções de uma Variável Complexa,,Geraldo S. S. Ávila,1,0,1,0
+9214285944794,MAT-09.05,Matemática,9,Variáveis Complexas e suas Aplicações,,Ruev V. Churchill,1,0,1,0
+9217267768432,CMP-04.01,Computação,4,Noções de Probabilidade e Estatística,,"Magalhães, Lima",6,0,1,0
+9221050283743,FIS-01.01  v.3,Física,1,The Feynman Lectures on Physics,Commemorative Issue,"Feynman, Leighton, Sands",1,3,2,0
+9224757262035,BIO-01.06,Biologia,1,Biochemistry,,"Garrett, Grisham",1,0,2,0
+9249714297417,BIO-01.07,Biologia,1,Biochemistry,,"McGilvery, Goldstein",2,0,2,0
+9261859394578,QUI-04.05,Química,4,Organic Chemistry,,T. W. Graham Solomons,5,0,2,0
+9294249317482,QUI-02.01,Química,2,Physical Chemistry,,Peter William Atkins,4,0,2,0
+9297227330138,BIO-01.06,Biologia,1,Biochemistry,,"Garrett, Grisham",1,0,2,0
+9327571632074,MAT-01.04 v.3,Matemática,1,Introdução ao Cálculo,,Paulo Boulos,1,3,1,0
+9346605232691,CMP-03.01,Computação,3,A First Course in Numerical Analysis,,"Ralston, Rabinowitz",2,0,2,0
+9366337194364,BIO-03.04,Biologia,3,Evolutionary Analysis,,"Freeman, Herron",4,0,2,0
+9397314114983,MAT-08.03,Matemática,8,Equações Diferenciais Ordinárias,,V. Arnold,1,0,1,0
+9472425068742,CMP-02.02 v.1,Computação,2,Algorithms in C,,Robert Sedgewick,3,1,2,0
+9482263033635,FIS-01.10  v.1,Física,1,"Física, um Curso Universitário",Mecânica,"Alonso, Finn",1,1,1,0
+9498276049532,FIS-01.10  v.2,Física,1,"Física, um Curso Universitário",Campos e Ondas,"Alonso, Finn",1,2,1,0
+9502792276911,MAT-01.13 v.2,Matemática,1,Cálculo,,George B. Thomas,10,2,1,0
+9508152648503,MAT-01.28 v.2,Matemática,1,Fórmula Matemática,Análise de Séries e Fourier,Ueda Keikyu,1,2,4,0
+9545191957777,FIS-02.07,Física,2,Mecânica Analítica Clássica,,"Barros, Garcia",1,0,1,0
+9588275000709,BIO-04.06,Biologia,4,Janeway's Immunobiology,,"Murphy, Travers, Walport, Janeway",7,0,2,0
+9613692609393,MAT-01.02,Matemática,1,Calculus,Cálculo Infinitesimal,Michael Spivak,2,0,3,0
+9618476862940,MAT-01.07,Matemática,1,Calculus of Several Variables,,Serge Lang,3,0,2,0
+9632223810916,CMP-04.08,Computação,4,Probabilidad y Aplicaciones Estadisticas,,Paul L. Meyer,2,0,3,0
+9638845343436,FIS-01.09  v.3,Física,1,Física,Eletromagnetismo,GREF,1,3,1,0
+9643985645524,FIS-01.02  v.2,Física,1,Curso de Física Básica,"Fluidos, Oscilações e Ondas, Calor",H. Moysés Nussenzveig,2,2,1,0
+9649612428522,BIO-03.01,Biologia,3,Evolutionary Genetics,,John Maynard Smith,1,0,2,0
+9651629749729,BIO-01.03,Biologia,1,Bioquimíca,,Mary K. Campbell,3,0,1,0
+9653589686083,VAR-03.04,Variados,3,Linguística Cognitiva,Uma Visão Geral e Aplicada,Antônio Suárez Abreu,1,0,1,0
+9710181693441,MAT-01.13 v.2,Matemática,1,Cálculo,,George B. Thomas Jr,1,2,1,0
+9718934186578,MAT-06.02,Matemática,6,Theory and Problems of General Topology,,Seymour Lipschutz,1,0,2,0
+9731178800192,MAT-02.02,Matemática,2,Geometria Analítica,,"Steinbruch, Winterle",2,0,1,0
+9743123053348,CMP-01.01,Computação,1,Introduction to Computer Science,,Francis Scheid,1,0,2,0
+9777458878031,VAR-03.10,Variados,3,Modelagem e Simulação,de Processos Industriais e de Sistemas Eletromecânicos,Claudio Garcia,1,0,1,0
+9779627021019,MAT-02.05,Matemática,2,Exercícios Resolvidos de Geometria Analítica,,"Boulos, Boulos",1,0,1,0
+9788967343590,MAT-09.01,Matemática,9,Introdução às Funções Complexas,,Luiz A. J. Medeiros,1,0,1,0
+9801614561410,MAT-01.06,Matemática,1,A First Course in Calculus,,Serge Lang,5,0,2,0
+9829419285201,MAT-01.21 v.2,Matemática,1,Cálculo,Funções de Uma Variável,Geraldo S. S. Ávila,4,2,1,0
+9854768069363,MAT-02.02,Matemática,2,Geometria Analítica,,"Steinbruch, Winterle",2,0,1,0
+9874677747589,QUI-04.04,Química,4,Organic Chemistry,,"Clayden, Greeves, Warren, Wothers",1,0,2,0
+9898708087567,VAR-03.05,Variados,3,Physics of Finance,Gauge Modelling in Non-equilibrium Pricing,Kirill Ilinski,1,0,2,0
+9909525265639,QUI-04.02  v.2,Química,4,Química Orgânica,Curso Básico Universitário,Maurício Gomes Constantino,1,2,1,0
+9949696620400,CMP-05.03,Computação,5,The Theory of Games and Linear Programming,,B. L. Worsnop,1,0,2,0
+9988899567440,BIO-06.02,Biologia,6,Island Biology,,Sherwin John Carlquist,1,0,2,0

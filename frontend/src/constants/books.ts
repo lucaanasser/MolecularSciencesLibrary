@@ -29,7 +29,9 @@ const SUBAREAS: Record<Area, string[]> = {
     "Análise",
     "Álgebra Abstrata",
     "Topologia e Geometria",
-    "Lógica e Fundamentos"
+    "Lógica e Fundamentos",
+    "Equações Diferenciais",
+    "Funções Complexas"
   ],
   Física: 
   [
@@ -62,7 +64,7 @@ const SUBAREAS: Record<Area, string[]> = {
   Computação: 
   [
     "Fundamentos de Computação",
-    "Algorítmos e Estruturas de Dados",
+    "Algoritmos e Estruturas de Dados",
     "Análise Numérica",
     "Probabilidade e Estatística", 
     "Teoria da Computação",
@@ -72,10 +74,9 @@ const SUBAREAS: Record<Area, string[]> = {
   Variados: 
   [
     "Divulgação Científica",
-    "Filosofia e História da Ciência",
-    "Handbooks e Manuais",
+    "História e Filosofia da Ciência",
     "Interdisciplinares",
-    "Miscelânea", 
+    "Literatura", 
   ],
 };
 
