@@ -118,6 +118,9 @@ for col in cols_to_check:
   books[col] = books[col].str.replace(r'\s+', ' ', regex=True) # substitui múltiplos espaços por um único espaço
   books[col] = books[col].str.strip() # remove espaços no início e no fim
 
+duplicates = books[books['id'].duplicated( keep=False)]
+print(duplicates)
+
 ########### Verificação final ###########
 if allGood:
   print('🔵 Colunas na DB ao final da operação:\n', list(books.columns))

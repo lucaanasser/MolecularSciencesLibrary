@@ -1,4 +1,4 @@
-import { Book } from "@/types/book";
+import { Book } from "@/types/new_book";
 import { User } from "@/types/user";
 
 export interface Loan {
@@ -9,6 +9,7 @@ export interface Loan {
   borrowed_at: string;
   returned_at: string | null;
   due_date?: string | null;
+  is_overdue: boolean;
   
   renewals?: number;
   is_extended?: boolean;

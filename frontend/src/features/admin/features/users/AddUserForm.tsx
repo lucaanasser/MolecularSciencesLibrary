@@ -12,10 +12,13 @@ const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [userClass, setUserClass] = useState("");
+  const [loading, setIsLoading] = useState(false);
   
   // Função de submissão do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // Previne múltiplos envios
+    setIsLoading(true);
     try {
       await UsersService.createUser({
         name,
@@ -27,6 +30,8 @@ const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
       onSuccess("Usuário adicionado com sucesso!");
     } catch (err: any) {
       onError(err.message || "Não foi possível adicionar o usuário.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +62,7 @@ const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
       <ActionBar
         onCancel={onBack}
         confirmLabel="Adicionar"
+        loading={loading}
       />
     </form>
   );

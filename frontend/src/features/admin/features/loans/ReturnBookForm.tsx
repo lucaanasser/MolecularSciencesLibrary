@@ -2,19 +2,28 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ActionBar from '@/features/admin/components/ActionBar';
-import { useReturnBook } from '@/features/admin/features/loans/hooks/useReturnBook';
+import { LoansService } from '@/services/LoansService';
 import type { TabComponentProps } from '@/features/admin/components/AdminTabRenderer';
 
-const ReturnForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+const ReturnBookForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   // Campo do formulário
   const [bookId, setBookId] = useState('');
-  
-  // Hook cuida da lógica de devolução
-  const { handleSubmit } = useReturnBook({
-    onSuccess,
-    onError,
-    getFormValues: () => ({ bookId: Number(bookId) })
-  });
+  const [loading, setLoading] = useState(false);
+
+  // Submissão do formulário usando LoansService
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return; // Previne múltiplos envios
+    setLoading(true);
+    try {
+      await LoansService.returnBook({ book_id: Number(bookId) });
+      setLoading(false);
+      onSuccess("Devolução registrada com sucesso!");
+    } catch (err: any) {
+      setLoading(false);
+      onError(err || 'Erro ao registrar devolução');
+    }
+  };
 
   return (
     <>
@@ -30,15 +39,16 @@ const ReturnForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError })
           onChange={e => setBookId(e.target.value)} 
           placeholder="Escaneie ou digite o código de barras"
           required
+          disabled={loading}
         />
         <ActionBar
-          onConfirm={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+          onConfirm={() => handleSubmit()}
           onCancel={onBack}
-          confirmLabel="Registrar"
+          confirmLabel={loading ? "Registrando..." : "Registrar"}
         />
       </form>
     </>
   );
 };
 
-export default ReturnForm;
+export default ReturnBookForm;

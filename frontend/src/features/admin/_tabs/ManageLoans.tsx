@@ -1,8 +1,8 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
 import ActiveLoansList from "@/features/admin/features/loans/ActiveLoansList";
 import InternalUseRegister from "@/features/admin/features/loans/InternalUseRegister";
-import LoanForm from "@/features/admin/features/loans/LoanForm";
-import ReturnForm from "@/features/admin/features/loans/ReturnForm";
+import BorrowBookForm from "@/features/admin/features/loans/BorrowBookForm";
+import ReturnBookForm from "@/features/admin/features/loans/ReturnBookForm";
 
 const ManageLoans = () => {
   console.log("🔵 [AdminPage/ManageLoans] Renderizando gerenciamento de empréstimos");
@@ -18,8 +18,8 @@ const ManageLoans = () => {
         { id: "list", label: "Ver Empréstimos Ativos", color: "bg-cm-blue" },
       ]}
       tabComponents={[
-        { id: "loan", component: LoanForm },
-        { id: "return", component: ReturnForm },
+        { id: "loan", component: BorrowBookForm },
+        { id: "return", component: ReturnBookForm },
         { id: "internal", component: InternalUseRegister },
         { id: "list", component: ActiveLoansList },
       ]}

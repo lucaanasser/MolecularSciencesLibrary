@@ -1,3 +1,12 @@
+/**
+ * Service responsável pela lógica de negócio dos usuários.
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
+
 const usersModel = require('../../models/library/UsersModel');
 const publicProfilesModel = require('../../models/academic/publicProfiles/PublicProfilesModel');
 const bcrypt = require('bcrypt');
@@ -5,14 +14,23 @@ const jwt = require('jsonwebtoken');
 const SALT_ROUNDS = 10;
 const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
 const EmailService = require('../utilities/EmailService'); 
-/**
- * Service responsável pela lógica de negócio dos usuários.
- * Inclui criação, autenticação, busca, listagem e deleção.
- */
+
 class UsersService {
+    
     /**
-     * Cria um novo usuário após verificar se já existe por email.
-     * Retorna os dados do usuário criado (sem senha).
+     * Cria um novo usuário.
+     * Verifica se já existe por email, insere no banco, cria perfil público e envia email de boas-vindas.
+     * 
+     * @param {Object} userData - Dados do usuário. Esperado:
+     *   {
+     *     name: string,
+     *     email: string,
+     *     NUSP: number,
+     *     phone: string,
+     *     class: string
+     *   }
+     * @returns {Promise<Object>} Dados do usuário criado (sem senha)
+     * @throws {Error} Caso já exista usuário com o email ou ocorra erro no processo
      */
     async createUser({ name, email, NUSP, phone, class: userClass }) {
         console.log("🔵 [createUser] Verificando existência do usuário por email:", email);
@@ -50,6 +68,11 @@ class UsersService {
     /**
      * Autentica usuário por email ou NUSP e senha.
      * Retorna dados do usuário e token JWT.
+     * 
+     * @param {string | number} login - Email ou NUSP
+     * @param {string} password - Senha
+     * @returns {Promise<Object>} Dados do usuário autenticado + token JWT
+     * @throws {Error} Caso usuário não exista ou senha esteja incorreta
      */
     async authenticateUser(login, password) {
         let user;
@@ -85,7 +108,11 @@ class UsersService {
     }
 
     /**
-     * Gera e envia token de redefinição de senha para o email do usuário
+     * Gera e envia token de redefinição de senha para o email do usuário.
+     * 
+     * @param {string} login - Email ou NUSP
+     * @returns {Promise<boolean>} true se enviado com sucesso
+     * @throws {Error} Caso usuário não exista ou ocorra erro no envio
      */
     async requestPasswordReset(login) {
         let user;
@@ -103,7 +130,15 @@ class UsersService {
     }
 
     /**
-     * Redefine a senha do usuário usando o token
+     * Redefine a senha do usuário usando o token.
+     * 
+     * @param {Object} params - Dados para redefinição
+     *   {
+     *     token: string,
+     *     newPassword: string
+     *   }
+     * @returns {Promise<boolean>} true se redefinido com sucesso
+     * @throws {Error} Caso token seja inválido ou usuário não exista
      */
     async resetPassword({ token, newPassword }) {
         const jwt = require('jsonwebtoken');
@@ -127,6 +162,10 @@ class UsersService {
     /**
      * Busca usuário por ID.
      * Retorna dados do usuário sem o hash da senha.
+     * 
+     * @param {number} id - ID do usuário
+     * @returns {Promise<Object>} Dados do usuário
+     * @throws {Error} Caso usuário não exista
      */
     async getUserById(id) {
         console.log("🔵 [getUserById] Buscando usuário por id:", id);
@@ -140,6 +179,10 @@ class UsersService {
     /**
      * Busca usuário por NUSP.
      * Retorna dados do usuário sem o hash da senha.
+     * 
+     * @param {number} NUSP - Identificador NUSP
+     * @returns {Promise<Object>} Dados do usuário
+     * @throws {Error} Caso usuário não exista
      */
     async getUserByNUSP(NUSP) {
         console.log("🔵 [getUserByNUSP] Buscando usuário por NUSP:", NUSP);
@@ -152,6 +195,8 @@ class UsersService {
 
     /**
      * Lista todos os usuários cadastrados.
+     * 
+     * @returns {Promise<Array>} Lista de usuários
      */
     async getAllUsers() {
         console.log("🔵 [getAllUsers] Listando todos os usuários.");
@@ -160,6 +205,9 @@ class UsersService {
 
     /**
      * Deleta usuário pelo ID.
+     * 
+     * @param {number} id - ID do usuário
+     * @returns {Promise<Object>} Resultado da deleção
      */
     async deleteUserById(id) {
         console.log("🔵 [deleteUserById] Deletando usuário id:", id);
@@ -168,6 +216,10 @@ class UsersService {
 
     /**
      * Atualiza a imagem de perfil do usuário.
+     * 
+     * @param {number} id - ID do usuário
+     * @param {string} profile_image - path da imagem de perfil -- deve ser um path relativo válido para o frontend acessar
+     * @returns {Promise<Object>} Resultado da atualização
      */
     async updateUserProfileImage(id, profile_image) {
         console.log("🔵 [UsersService] updateUserProfileImage chamada com:", { id, profile_image });

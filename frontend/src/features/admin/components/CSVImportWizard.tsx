@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -17,8 +16,7 @@ import { FileText } from "lucide-react";
 import ActionBar from "@/features/admin/components/ActionBar";
 
 interface AdminCSVImportWizardProps {
-  endpoint: string;
-  requiredFields: string[];
+  importFunction: (csvFile: File) => Promise<any>; // função de importação
   instructions: React.ReactNode;
   onCancel: () => void;
   onSuccess: (results: any) => void;
@@ -28,8 +26,7 @@ interface AdminCSVImportWizardProps {
 }
 
 const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
-  endpoint,
-  requiredFields,
+  importFunction,
   instructions,
   onCancel,
   onSuccess,
@@ -42,16 +39,17 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
   const [errorDialog, setErrorDialog] = useState<{ open: boolean; error: any }>({ open: false, error: null });
-  const { toast } = useToast();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   }, []);
+
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
   }, []);
+  
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -63,6 +61,7 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
       alert('Por favor, selecione um arquivo CSV válido');
     }
   }, []);
+  
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
@@ -70,52 +69,23 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
       setResult(null);
     }
   };
+  
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('csvFile', file);
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-      if (!response.ok || data.failed > 0) {
-        // Erro ou falhas no processamento
-        setErrorDialog({ open: true, error: data });
-        setFile(null); // resetar para permitir novo upload
-        setResult(null);
-        setTimeout(() => {
-          if (onError) onError(new Error(data.message || 'Erro ao importar CSV'));
-        }, 0);
-      } else {
-        // Sucesso
-        setFile(null); // resetar para permitir novo upload
-        setResult(null);
-        setTimeout(() => {
-          toast({
-            title: "Importação realizada com sucesso!",
-            description: `${data.success} doadores importados.`,
-          });
-          onSuccess(data);
-        }, 0);
-      }
-    } catch (error: any) {
-      setErrorDialog({ open: true, error });
-      setFile(null); // resetar para permitir novo upload
-      setResult(null);
-      setTimeout(() => {
-        if (onError) onError(error);
-      }, 0);
-    } finally {
-      setIsUploading(false);
+      const result = await importFunction(file);
+      onSuccess("Importação concluída com sucesso!");
+    } catch(err){
+      onError(err)
     }
   };
+
   const handleReset = () => {
     setFile(null);
     setResult(null);
   };
+  
   const handleDownloadTemplate = () => {
     if (!templateCsv) return;
     const blob = new Blob(['\ufeff' + templateCsv], { type: 'text/csv;charset=utf-8;' });

@@ -1,4 +1,13 @@
-// Serviço para operações de empréstimos de livros
+/*
+ * Serviço para operações de empréstimos de livros
+ * Centraliza as chamadas à API relacionadas a empréstimos: criação, renovação, devolução, consulta, etc.
+ * 
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
 
 const API_BASE = '/api/loans';
 
@@ -18,67 +27,161 @@ function fetchJson(url: string, options: RequestInit = {}) {
 }
 
 export const LoansService = {
-  // Posteriormente refatorar inserindo logs e eliminando hooks
-  /* ================== TESTADOS ================== */
-  // Criar empréstimo - useBorrowBook.ts
-  borrowBook: (data: { book_id: number; NUSP: number; password: string }) => fetchJson(`${API_BASE}`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
+  
+  /* ================ EMPRÉSTIMO ================ */
 
-  // Criar empréstimo como admin - useBorrowBook.ts
-  borrowBookAsAdmin: (data: { book_id: number; NUSP: number }) => fetchJson(`${API_BASE}/admin`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
+  // Criar novo empréstimo (usuário)
+  borrowBook: async (data: { book_id: number; NUSP: number; password: string }) => {
+    console.log("🔵 [LoansService] Criando empréstimo:", data);
+    try {
+      const result = await fetchJson(`${API_BASE}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [LoansService] Empréstimo criado:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível criar o empréstimo.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao criar empréstimo", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Registrar devolução - useReturnBook.ts
-  returnBook: (data: { book_id: number }) => fetchJson(`${API_BASE}/return`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
+  // Criar novo empréstimo como admin (sem senha)
+  borrowBookAsAdmin: async (data: { book_id: number; NUSP: number }) => {
+    console.log("🔵 [LoansService] Criando empréstimo (admin):", data);
+    try {
+      const result = await fetchJson(`${API_BASE}/admin`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [LoansService] Empréstimo (admin) criado:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível criar o empréstimo como admin.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao criar empréstimo (admin)", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Registrar uso interno - useInternalUseRegister.ts
-  registerInternalUse: (data: { book_id: number }) => fetchJson(`${API_BASE}/internal-use`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
+  // Registrar devolução de livro
+  returnBook: async (data: { book_id: number }) => {
+    console.log("🔵 [LoansService] Devolvendo livro:", data.book_id);
+    try {
+      const result = await fetchJson(`${API_BASE}/return`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [LoansService] Livro devolvido:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível devolver o livro.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao devolver livro", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Listar empréstimos ativos com status de atraso - useActiveLoansList.ts
-  listActiveLoansWithOverdue: () => fetchJson(`${API_BASE}/active`),
+  // Registrar uso interno (empréstimo fantasma)
+  registerInternalUse: async (data: { book_id: number }) => {
+    console.log("🔵 [LoansService] Registrando uso interno:", data.book_id);
+    try {
+      const result = await fetchJson(`${API_BASE}/internal-use`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      console.log("🟢 [LoansService] Uso interno registrado:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível registrar uso interno.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao registrar uso interno", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  /* ================== NÃO TESTADOS ================== */
+  /* ================ CONSULTA ================ */
 
-  // Preview renovação - deveria ser usado em RenewButton.tsx
-  previewRenewLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/preview-renew`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
+  // Buscar todos os empréstimos (com filtro opcional de status)
+  getLoans: async (status?: 'all' | 'active' | 'returned') => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    console.log("🔵 [LoansService] Buscando empréstimos (status):", status);
+    try {
+      const loans = await fetchJson(`${API_BASE}?${params.toString()}`);
+      console.log("🟢 [LoansService] Empréstimos encontrados:", loans.length);
+      return loans;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível buscar os empréstimos.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao buscar empréstimos", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Renovar empréstimo - deveria ser usado em RenewButton.tsx
-  renewLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/renew`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
+  // Buscar empréstimos de um usuário (com filtro opcional de status)
+  getLoansByUser: async (userId: number, status?: 'all' | 'active' | 'returned') => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    console.log(`🔵 [LoansService] Buscando empréstimos do usuário ${userId} (status: ${status})`);
+    try {
+      const loans = await fetchJson(`${API_BASE}/user/${userId}?${params.toString()}`);
+      console.log("🟢 [LoansService] Empréstimos do usuário encontrados:", loans.length);
+      return loans;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível buscar os empréstimos do usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao buscar empréstimos do usuário", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Preview extensão - atualmente não implementado no frontend
-  previewExtendLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/preview-extend`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
+  /* ================ RENOVAÇÃO ================ */
 
-  // Estender empréstimo - atualmente não implementado no frontend
-  extendLoan: (id: number, data: { loan_id: number; user_id: number }) => fetchJson(`${API_BASE}/${id}/extend`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
+  // Preview da renovação
+  previewRenewLoan: async (loanId: number, userId: number) => {
+    console.log(`🔵 [LoansService] Preview de renovação: loanId=${loanId}, userId=${userId}`);
+    try {
+      const result = await fetchJson(`${API_BASE}/${loanId}/preview-renew`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId }),
+      });
+      console.log("🟢 [LoansService] Preview de renovação obtido:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível obter a prévia da renovação.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao obter preview de renovação", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Listar todos os empréstimos - atualmente não implementado no frontend
-  listLoans: () => fetchJson(`${API_BASE}/`),
+  // Renovar empréstimo
+  renewLoan: async (loanId: number, userId: number) => {
+    console.log(`🔵 [LoansService] Renovando empréstimo: loanId=${loanId}, userId=${userId}`);
+    try {
+      const result = await fetchJson(`${API_BASE}/${loanId}/renew`, {
+        method: 'PUT',
+        body: JSON.stringify({ user_id: userId }),
+      });
+      console.log("🟢 [LoansService] Empréstimo renovado:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível renovar o empréstimo.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [LoansService] Erro ao renovar empréstimo", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
-  // Listar empréstimos de um usuário específico - deveria ser usado em useGetUserLoans.ts
-  listLoansByUser: (userId: number) => fetchJson(`${API_BASE}/user/${userId}`),
-
-  // Listar empréstimos ativos de um usuário específico - atualmente não implementado no frontend
-  listActiveLoansByUser: (userId: number) => fetchJson(`${API_BASE}/user/${userId}/active`),
 };

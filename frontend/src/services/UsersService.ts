@@ -217,5 +217,72 @@ export const UsersService = {
   // Buscar usuário por ID -- pagina de busca de usuários??
   getUserById: (id: number | string) => fetchJson(`${API_BASE}/${id}`),
 
-  // import e export são usados via endpoint diretamente na admin page
+  /** Importar usuários via arquivo CSV
+   *  @param file: File - arquivo CSV a ser enviado
+   *  @returns Promise<Object> - resultado da importação
+   */
+  importUsersFromCSV: async (file: File) => {
+    console.log("🔵 [UsersService] Importando usuários via CSV");
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const userData = localStorage.getItem('user');
+    const token = userData ? JSON.parse(userData).token : null;
+
+    try {
+      const res = await fetch('/api/users/import-csv', {
+        method: 'POST',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || 'Erro na importação do CSV');
+      }
+      const data = await res.json();
+      console.log("🟢 [UsersService] Importação de usuários concluída:", data);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível importar os usuários.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao importar usuários:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /** Exportar usuários para CSV
+   *  @returns Promise<Blob> - arquivo CSV para download
+   */
+  exportUsersToCSV: async () => {
+    console.log("🔵 [UsersService] Exportando usuários para CSV");
+    const userData = localStorage.getItem('user');
+    const token = userData ? JSON.parse(userData).token : null;
+
+    try {
+      const res = await fetch('/api/users/export-csv', {
+        method: 'GET',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || 'Erro na exportação do CSV');
+      }
+      const blob = await res.blob();
+      console.log("🟢 [UsersService] Exportação de usuários concluída");
+      return blob;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível exportar os usuários.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [UsersService] Erro ao exportar usuários:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+
 };

@@ -1,20 +1,51 @@
-import { useActiveLoansList } from "./hooks/useActiveLoansList";
+import { useEffect, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
-
-import type { ActiveLoan } from "./hooks/useActiveLoansList";
+import { LoansService } from "@/services/LoansService";
+import { Loan } from "@/types/loan";
 
 const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
-  const {
-    filteredLoans,
-    loading,
-    searchTerm,
-    setSearchTerm,
-    filterStatus,
-    setFilterStatus,
-  } = useActiveLoansList();
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "overdue">("all");
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    LoansService.getLoans("active")
+      .then((data) => {
+        if (mounted) setLoans(data);
+      })
+      .catch(() => {
+        if (mounted) setLoans([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  const filteredLoans = useMemo(() => {
+    let filtered = loans;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (loan) =>
+          loan.user.name.toLowerCase().includes(term) ||
+          loan.user.NUSP.toString().includes(term) ||
+          loan.book.title.toLowerCase().includes(term) ||
+          loan.book.authors?.toLowerCase().includes(term) ||
+          String(loan.book.id).includes(term)
+      );
+    }
+    if (filterStatus === "overdue") {
+      filtered = filtered.filter((loan) => loan.is_overdue);
+    }
+    return filtered;
+  }, [loans, searchTerm, filterStatus]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
@@ -26,21 +57,7 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
     });
   };
 
-  // solução temporária: posteriormente usar status do backend para evitar lógica duplicada
-  const getStatusBadge = (loan: ActiveLoan) => {
-    if (loan.is_overdue) {
-      return <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">Atrasado</span>;
-    }
-    if (loan.is_extended) {
-      return <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-medium">Estendido</span>;
-    }
-    if (loan.renewals > 0) {
-      return <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">Renovado ({loan.renewals}x)</span>;
-    }
-    return <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">Em dia</span>;
-  };
-
-  const columns: Column<ActiveLoan>[] = [
+  const columns: Column<Loan>[] = [
     { label: "Usuário", accessor: (row) => row.user.name, className: "font-medium" },
     { label: "NUSP", accessor: (row) => row.user.NUSP },
     { label: "ID Livro", accessor: (row) => row.book.id },
@@ -52,7 +69,12 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
       ) },
     { label: "Início", accessor: (row) => <span className="text-sm">{formatDate(row.borrowed_at)}</span> },
     { label: "Final", accessor: (row) => <span className="text-sm">{formatDate(row.due_date)}</span> },
-    { label: "Status", accessor: (row) => getStatusBadge(row) },
+    { label: "Status", accessor: (loan) => {
+        if (loan.is_overdue) {
+          return <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">Atrasado</span>;
+        }
+        return <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">Em dia</span>;
+    } },
   ];
 
   return (
@@ -72,8 +94,6 @@ const ActiveLoansList: React.FC<TabComponentProps> = ({ onBack }) => {
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="overdue">Atrasados</SelectItem>
-            <SelectItem value="extended">Estendidos</SelectItem>
-            <SelectItem value="renewed">Renovados</SelectItem>
           </SelectContent>
         </Select>
       </div>

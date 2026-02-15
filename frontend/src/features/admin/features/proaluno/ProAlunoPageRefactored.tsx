@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useAdminToast } from "@/features/admin";
 import ActionGrid from "@/features/admin/components/ActionGrid";
-import LoanForm from "@/features/admin/features/loans/LoanForm";
-import ReturnForm from "@/features/admin/features/loans/ReturnForm";
+import BorrowBookForm from "@/features/admin/features/loans/BorrowBookForm";
+import ReturnBookForm from "@/features/admin/features/loans/ReturnBookForm";
 
 /**
  * Página Pró-Aluno refatorada com componentes separados.
@@ -88,7 +88,7 @@ const ProAlunoPageRefactored = () => {
       {/* Formulário de Empréstimo */}
 
       {operation === "emprestimo" && (
-        <LoanForm 
+        <BorrowBookForm 
           onBack={resetForm} 
           onSuccess={(msg: string) => { showSuccess(msg); resetForm(); }}
           onError={(msg: string) => { showError(msg); }}
@@ -99,7 +99,7 @@ const ProAlunoPageRefactored = () => {
       {/* Formulário de Devolução */}
 
       {operation === "devolucao" && (
-        <ReturnForm 
+        <ReturnBookForm 
           onBack={resetForm} 
           onSuccess={(msg: string) => { showSuccess(msg); resetForm(); }}
           onError={(msg: string) => { showError(msg); }}

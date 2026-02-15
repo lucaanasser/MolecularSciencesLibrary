@@ -42,7 +42,7 @@ const ListUsers: React.FC<TabComponentProps> = ({ onBack, onError }) => {
     (async () => {
       try {
         const users = await UsersService.searchUsers({ q: "" });
-        setFoundUsers(users.filter(u => u.role === "aluno"));
+        setFoundUsers(users);
       } catch (err: any) {
         onError && onError(err.message);
         setFoundUsers([]);

@@ -1,23 +1,27 @@
 import { useState } from "react";
-import { useInternalUseRegister } from "./hooks/useInternalUseRegister";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import { LoansService } from "@/services/LoansService";
 
 const InternalUseRegister: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   const [internalUseCode, setInternalUseCode] = useState("");
-  const { handleSubmit } = useInternalUseRegister({
-    onSuccess: (msg) => {
+  const [loading, setLoading] = useState(false);
+
+  // Submissão do formulário usando LoansService
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setLoading(true);
+    try {
+      await LoansService.registerInternalUse({ book_id: Number(internalUseCode) });
       setInternalUseCode("");
-      onSuccess(msg);
-    },
-    onError: (msg) => { onError(msg); },
-    getFormValues: () => ({
-      bookId: Number(internalUseCode)
-    })
-  });
-
-
+      setLoading(false);
+      onSuccess("Uso interno registrado com sucesso!");
+    } catch (err: any) {
+      setLoading(false);
+      if (onError) onError(err || "Erro ao registrar uso interno");
+    }
+  };
 
   return (
     <>
@@ -34,13 +38,14 @@ const InternalUseRegister: React.FC<TabComponentProps> = ({ onBack, onSuccess, o
           onKeyPress={e => {
             if (e.key === "Enter") handleSubmit(e);
           }}
+          disabled={loading}
         />
       </div>
 
       <ActionBar
-        onConfirm={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+        onConfirm={() => handleSubmit()}
         onCancel={onBack}
-        confirmLabel="Registrar"
+        confirmLabel={loading ? "Registrando..." : "Registrar"}
       />
     </>
   );

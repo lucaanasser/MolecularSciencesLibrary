@@ -22,18 +22,22 @@ const upload = multer({ storage: storage });
  * @route POST /
  * @desc Adiciona um novo livro ao acervo
  * @body {
- *   id?: number,       // código de barras EAN-13 (opcional, pode ser gerado automaticamente)
- *   code?: string,     // código de posição (opcional, pode ser gerado automaticamente)
- *   area: string,
- *   subarea: string,
- *   title: string,
- *   subtitle?: string,
- *   authors: string,
- *   edition: number,
- *   volume: number,
- *   language: string,  // "Português", "Inglês", "Espanhol", "Outro"
- *   status?: string,   // "disponível" (padrão), "emprestado", "reservado", "indisponível" (livros perdidos ou danificados)
+ *   bookData:{                // dados do livro a ser adicionado
+ *     id?: number,            // código de barras EAN-13 (opcional, pode ser gerado automaticamente)
+ *     code?: string,          // código de posição (opcional, pode ser gerado automaticamente)
+ *     area: string,
+ *     subarea: string,
+ *     title: string,
+ *     subtitle?: string,
+ *     authors: string,
+ *     edition: number,
+ *     volume: number,
+ *     language: string,       // "Português", "Inglês", "Espanhol", "Outro"
+ *     status?: string,        // "disponível" (padrão), "emprestado", "reservado", "indisponível" (livros perdidos ou danificados)
+ *   },
+ *   selectedBookcode?: string // código do livro selecionado para copiar as informações
  * }
+ * 
  * @returns {Object} Livro criado
  */
 router.post('/', async (req, res) => {
@@ -53,7 +57,6 @@ router.post('/import/csv', upload.single('csvFile'), (req, res) => {
 });
 
 /* ===================== EMPRÉSTIMO E DEVOLUÇÃO ====================== */
-
 
 /**
  * @route POST /borrow

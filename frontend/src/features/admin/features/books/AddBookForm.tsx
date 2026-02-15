@@ -1,99 +1,178 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { BooksService } from "@/services/BooksService";
+import { Book } from "@/types/new_book";
+import BookFormFields from "@/features/admin/features/books/BookFormFields";
 
 const AddBookForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }) => {
-  // Estados para os campos do formulário
-  const [area, setArea] = useState("");
-  const [subarea, setSubarea] = useState("");
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [authors, setAuthors] = useState("");
-  const [edition, setEdition] = useState("");
-  const [volume, setVolume] = useState("");
-  const [language, setLanguage] = useState("");
-  const [code, setCode] = useState("");
-  const [id, setId] = useState("");
-  const [status, setStatus] = useState("");
+  // Estados dos campos do formulário
+  const [showManualForm, setShowManualForm] = useState(false);
+  const [editableBook, setEditableBookData] = useState<Book>({
+    id: undefined,
+    code:undefined,
+    area: undefined,
+    subarea: undefined,
+    title: "",
+    subtitle: "",
+    authors: "",
+    edition: undefined,
+    volume: undefined,
+    language: undefined,
+    status: "disponível",
+  });
+  const [loading, setIsLoading] = useState(false);
 
-  // Função de submissão do formulário
+  // Estados de busca de livros
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Book[]>([]);
+  const [selectedBookcode, setSelectedBookcode] = useState<string | null>(null);
+
+  // Função para buscar livros
+  const handleSearch = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setSearchResults([]);
+    setSelectedBookcode(null);
+    try {
+      const results = await BooksService.searchBooks({ q: query });
+      setSearchResults(results);
+      if (results.length === 0) {
+        onError("Nenhum livro encontrado. Você pode adicioná-lo manualmente.");
+        setShowManualForm(true);
+      }
+    } catch (err: any) {
+      setSearchResults([]);
+      onError(err.message || "Erro ao buscar livros.");
+    }
+  }, [query, onError]);
+
+  // Função para enviar o formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // Previne múltiplos envios
+    setIsLoading(true);
     try {
-      await BooksService.createBook({
-        area,
-        subarea,
-        title,
-        subtitle: subtitle || undefined,
-        authors,
-        edition: Number(edition),
-        volume: Number(volume),
-        language,
-        code: code || undefined,
-        id: id ? Number(id) : undefined,
-        status: status || undefined,
-      });
+      await BooksService.addBook(editableBook, selectedBookcode);
       onSuccess("Livro adicionado com sucesso!");
     } catch (err: any) {
       onError(err.message || "Não foi possível adicionar o livro.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Renderização condicional
+  const showInput = !selectedBookcode && searchResults.length === 0 && !showManualForm;
+  const showList = !selectedBookcode && searchResults.length > 0 && !showManualForm;
+
   return (
-    <form onSubmit={handleSubmit}>
-      <p>Preencha os campos abaixo para adicionar um novo livro ao acervo.</p>
-      <div>
-        <Label htmlFor="area">Área:</Label>
-        <Input id="area" value={area} onChange={e => setArea(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="subarea">Subárea:</Label>
-        <Input id="subarea" value={subarea} onChange={e => setSubarea(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="title">Título:</Label>
-        <Input id="title" value={title} onChange={e => setTitle(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="subtitle">Subtítulo:</Label>
-        <Input id="subtitle" value={subtitle} onChange={e => setSubtitle(e.target.value)} />
-      </div>
-      <div>
-        <Label htmlFor="authors">Autores:</Label>
-        <Input id="authors" value={authors} onChange={e => setAuthors(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="edition">Edição:</Label>
-        <Input id="edition" type="number" value={edition} onChange={e => setEdition(e.target.value)} required min={1} />
-      </div>
-      <div>
-        <Label htmlFor="volume">Volume:</Label>
-        <Input id="volume" type="number" value={volume} onChange={e => setVolume(e.target.value)} required min={0} />
-      </div>
-      <div>
-        <Label htmlFor="language">Idioma:</Label>
-        <Input id="language" value={language} onChange={e => setLanguage(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="code">Código de posição:</Label>
-        <Input id="code" value={code} onChange={e => setCode(e.target.value)} placeholder="(opcional)" />
-      </div>
-      <div>
-        <Label htmlFor="id">Código de barras (EAN-13):</Label>
-        <Input id="id" type="number" value={id} onChange={e => setId(e.target.value)} placeholder="(opcional)" />
-      </div>
-      <div>
-        <Label htmlFor="status">Status:</Label>
-        <Input id="status" value={status} onChange={e => setStatus(e.target.value)} placeholder="disponível, emprestado, reservado... (opcional)" />
-      </div>
-      <ActionBar
-        onCancel={onBack}
-        confirmLabel="Adicionar"
-      />
-    </form>
+    <div>
+      {/* Busca */}
+      {showInput && (
+        <div>
+          <p>Antes de adicionar, confira se o livro já existe na biblioteca:</p>
+          <form onSubmit={handleSearch}>
+            <Input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              required
+              placeholder="Digite título, autor ou o código do livro"
+            />
+            <ActionBar
+              onConfirm={() => handleSearch({ preventDefault: () => {} } as React.FormEvent)}
+              onCancel={onBack}
+              confirmLabel="Buscar"
+            />
+          </form>
+        </div>
+      )}
+
+      {/* Lista de resultados */}
+      {showList && (
+        <div>
+          <p className="mb-2">
+            Verifique se o livro a ser adicionado já existe no catálogo.
+          </p>
+          <p className="text-cm-red prose-xs leading-tight mb-0">
+            **Se um livro com mesmo autor e título estiver listado, mesmo que seja de outro volume, selecione-o. 
+            Você poderá alterar campos no próximo passo, mas isso garante que o novo exemplar seja vinculado ao mesmo registro do catálogo, evitando duplicatas e mantendo o acervo organizado.
+          </p>
+          <ul>
+            {searchResults.map(book => (
+              <li key={book.id} className="py-2 flex items-center justify-between">
+                <button
+                  className="w-full px-4 py-2 rounded-xl hover:bg-gray-100 text-left"
+                  onClick={() => {
+                    setSelectedBookcode(book.code);
+                    const { code, id, status, ...rest } = book 
+                    setEditableBookData({ // cria uma cópia editável do livro selecionado
+                      ...rest,
+                      code: undefined,
+                      id: undefined,
+                      status:"disponível"
+                    });
+                  }}
+                >
+                  <div className="flex flex-row gap-2 prose-sm">
+                    <span>{book.code}:</span>
+                    <span><b>{book.title}</b>,</span>
+                    <span className="text-gray-700">{book.authors}</span>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <ActionBar
+            onConfirm={() => setShowManualForm(true)}
+            confirmColor="bg-cm-red"
+            confirmLabel="Adicionar manualmente"
+            onCancel={() => { setSearchResults([]); setQuery(""); }}
+          />
+        </div>
+      )}
+
+      {/* Preenchimento a partir de livro existente */}
+      {selectedBookcode && (
+        <form onSubmit={handleSubmit}>
+          <p>Aqui estão os dados do livro selecionado. Você pode editar as informações desejadas:</p>
+          <BookFormFields
+            book={editableBook}
+            setBook={b => setEditableBookData(prev => ({ ...prev, ...b }))}
+            disabledFields={{
+              area: true,
+              subarea: true,
+            }}
+          />
+          <ActionBar
+            onConfirm={() => handleSubmit}
+            onCancel={() => setSelectedBookcode(null)}
+            confirmLabel="Adicionar exemplar"
+            loading={loading}
+          />
+        </form>
+      )}
+
+      {/* Formulário manual */}
+      {showManualForm && (
+        <form onSubmit={handleSubmit}>
+          <p>
+            Parece que o livro não foi encontrado no catálogo.
+            Preencha os dados manualmente para inseri-lo no acervo:
+          </p>
+          <BookFormFields
+            book={editableBook}
+            setBook={b => setEditableBookData(prev => ({ ...prev, ...b }))}
+          />
+          <ActionBar
+            onConfirm={() => handleSubmit}
+            onCancel={() => setShowManualForm(false)}
+            confirmLabel="Adicionar livro"
+            loading={loading}
+          />
+        </form>
+      )}
+    </div>
   );
 };
 

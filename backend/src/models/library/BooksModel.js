@@ -14,7 +14,7 @@ class BooksModel {
 
     constructor() {
         this.allFields = ['id', 'code', 'area', 'subarea', 'title', 'subtitle', 'authors', 'edition', 'volume', 'language', 'status'];
-        this.filters = ['area', 'subarea', 'q', 'status'];
+        this.filters = ['q', 'area', 'subarea', 'status'];
         this.orderBy = `ORDER BY CASE area 
             WHEN 'Biologia' THEN 1
             WHEN 'Química' THEN 2
@@ -25,7 +25,7 @@ class BooksModel {
             ELSE 999 END, subarea ASC, code ASC`;
     }
     
-    async insertBook(bookData) {
+    async addBook(bookData) {
         console.log("🔵 [BooksModel] Inserindo livro:", bookData.id);
         const fields = this.allFields.join(', ');
         const placeholders = this.allFields.map(() => '?').join(', ');
@@ -89,7 +89,7 @@ class BooksModel {
     }
 
     async searchBooks(q, limit, fields) {
-        console.log(`🔵 [BooksModel] Buscando com autocomplete: query="${q}", limit=${limit}`);
+        console.log(`🔵 [BooksModel] Buscando com autocomplete: query="${q}", limit=${limit}, fields=${fields.join(', ')}`);
         const sql = `
             SELECT ${fields.join(', ')}
             FROM books
@@ -103,8 +103,8 @@ class BooksModel {
             END, title ASC
             LIMIT ?
         `;
-        const searchTerm = `%${q}%`;
-        const startsWith = `${q}%`;
+        const searchTerm = `%${q.trim()}%`;
+        const startsWith = `${q.trim()}%`;
         const params = [searchTerm, searchTerm, searchTerm, startsWith, startsWith, limit];
         try {
             const books = await allQuery(sql, params);

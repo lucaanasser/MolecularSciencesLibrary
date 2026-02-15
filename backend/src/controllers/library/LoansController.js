@@ -9,6 +9,7 @@ const LoansService = require('../../services/library/LoansService');
  * 🔴 Erro
  */
 const LoansController = {
+    
     // Cria um novo empréstimo
     borrowBook: async (req, res) => {
         const { book_id, NUSP, password } = req.body;
@@ -20,7 +21,7 @@ const LoansController = {
         try {
             const loan = await LoansService.borrowBook(book_id, NUSP, password);
             console.log(`🟢 [LoansController] Empréstimo criado com sucesso:`, loan);
-            res.status(201).json(loan);
+            res.status(201).json({...loan, is_overdue: false});
         } catch (err) {
             console.error(`🔴 [LoansController] Erro ao criar empréstimo: ${err.message}`);
             res.status(400).json({ error: err.message });
@@ -38,7 +39,7 @@ const LoansController = {
         try {
             const loan = await LoansService.borrowBookAsAdmin(book_id, NUSP);
             console.log(`🟢 [LoansController] [ADMIN] Empréstimo criado com sucesso:`, loan);
-            res.status(201).json(loan);
+            res.status(201).json({...loan, is_overdue: false});
         } catch (err) {
             console.error(`🔴 [LoansController] [ADMIN] Erro ao criar empréstimo: ${err.message}`);
             res.status(400).json({ error: err.message });
@@ -55,9 +56,9 @@ const LoansController = {
         }
         try {
             // Busca o empréstimo ativo para o livro
-            const result = await LoansService.returnBookByBookId(book_id);
-            console.log(`🟢 [LoansController] Devolução registrada com sucesso:`, result);
-            res.json(result);
+            const loan = await LoansService.returnBook(book_id);
+            console.log(`🟢 [LoansController] Devolução registrada com sucesso:`, loan);
+            res.json({...loan, is_overdue: false});
         } catch (err) {
             console.error(`🔴 [LoansController] Erro ao registrar devolução: ${err.message}`);
             res.status(400).json({ error: err.message });
@@ -77,10 +78,46 @@ const LoansController = {
         try {
             const result = await LoansService.registerInternalUse(book_id);
             console.log("🟢 [LoansController] Uso interno registrado com sucesso");
-            res.status(201).json(result);
+            res.status(201).json({...result, is_overdue: false});
         } catch (err) {
             console.error(`🔴 [LoansController] Erro ao registrar uso interno: ${err.message}`);
             res.status(400).json({ error: err.message });
+        }
+    },
+
+    // Busca todos os empréstimos com filtro de status
+    getLoans: async (req, res) => {
+        const status = req.query.status || 'all'; // 'all', 'active', 'returned'
+        console.log(`🔵 [LoansController] Buscando empréstimos com status=${status}`);
+        try {
+            const result = await LoansService.getLoans(status);
+            const loans = result.map(loan => ({
+                ...loan,
+                is_overdue: LoansService.isLoanOverdue(loan)
+            }));
+            console.log(`🟢 [LoansController] Empréstimos encontrados: ${loans.length}`);
+            res.json(loans);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    // Busca empréstimos de um usuário com filtro de status
+    getLoansByUser: async (req, res) => {
+        const user_id = req.params.userId;
+        const status = req.query.status || 'all';
+        if (!user_id) {
+            return res.status(400).json({ error: 'ID do usuário é obrigatório' });
+        }
+        try {
+            const result = await LoansService.getUserLoans(user_id, status);
+            const loans = result.map(loan => ({
+                ...loan,
+                is_overdue: LoansService.isLoanOverdue(loan)
+            }));
+            res.json(loans);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
         }
     },
 
@@ -103,7 +140,7 @@ const LoansController = {
     // Renova um empréstimo
     renewLoan: async (req, res) => {
         const { id } = req.params;
-        const user_id = req.body.user_id; // ou obtenha do token, se necessário
+        const user_id = req.body.user_id;
         if (!user_id) return res.status(400).json({ error: 'ID do usuário é obrigatório' });
         try {
             const result = await LoansService.renewLoan(Number(id), user_id);
@@ -112,6 +149,8 @@ const LoansController = {
             res.status(400).json({ error: err.message });
         }
     },
+
+    /* ============================= NÃO UTILIZADOS ============================= */
 
     // Preview da extensão
     previewExtendLoan: async (req, res) => {
@@ -137,66 +176,6 @@ const LoansController = {
         }
     },
 
-    // Lista todos os empréstimos
-    listLoans: async (req, res) => {
-        console.log("🔵 [LoansController] Listando todos os empréstimos");
-        try {
-            const loans = await LoansService.listLoans();
-            console.log(`🟢 [LoansController] Empréstimos encontrados: ${loans.length}`);
-            res.json(loans);
-        } catch (err) {
-            console.error(`🔴 [LoansController] Erro ao listar empréstimos: ${err.message}`);
-            res.status(500).json({ error: err.message });
-        }
-    },
-
-    // Lista todos os empréstimos ativos com status de atraso
-    listActiveLoansWithOverdue: async (req, res) => {
-        console.log("🔵 [LoansController] Listando empréstimos ativos com status de atraso");
-        try {
-            const loans = await LoansService.listActiveLoansWithOverdue();
-            res.json(loans);
-        } catch (err) {
-            console.error(`🔴 [LoansController] Erro ao listar empréstimos ativos: ${err.message}`);
-            res.status(500).json({ error: err.message });
-        }
-    },
-
-    // Lista empréstimos de um usuário específico
-    listLoansByUser: async (req, res) => {
-        const userId = req.params.userId;
-        console.log(`🔵 [LoansController] Listando empréstimos do usuário: userId=${userId}`);
-        if (!userId) {
-            console.warn("🟡 [LoansController] ID do usuário não fornecido");
-            return res.status(400).json({ error: 'ID do usuário é obrigatório' });
-        }
-        try {
-            const loans = await LoansService.listLoansByUser(userId);
-            console.log(`🟢 [LoansController] Empréstimos do usuário ${userId} encontrados: ${loans.length}`);
-            res.json(loans);
-        } catch (err) {
-            console.error(`🔴 [LoansController] Erro ao listar empréstimos do usuário: ${err.message}`);
-            res.status(500).json({ error: err.message });
-        }
-    },
-
-    // Lista empréstimos ativos de um usuário específico
-    listActiveLoansByUser: async (req, res) => {
-        const userId = req.params.userId;
-        console.log(`🔵 [LoansController] Listando empréstimos ativos do usuário: userId=${userId}`);
-        if (!userId) {
-            console.warn("🟡 [LoansController] ID do usuário não fornecido");
-            return res.status(400).json({ error: 'ID do usuário é obrigatório' });
-        }
-        try {
-            const loans = await LoansService.listActiveLoansByUser(userId);
-            console.log(`🟢 [LoansController] Empréstimos ativos do usuário ${userId} encontrados: ${loans.length}`);
-            res.json(loans);
-        } catch (err) {
-            console.error(`🔴 [LoansController] Erro ao listar empréstimos ativos do usuário: ${err.message}`);
-            res.status(500).json({ error: err.message });
-        }
-    },
     
 };
 

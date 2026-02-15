@@ -25,16 +25,6 @@ const ImportDonators: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
 
   return (
     <>
-      <CSVImportWizard
-        endpoint="/api/donators/import/csv"
-        requiredFields={["name", "donation_type"]}
-        instructions={instructions}
-        onCancel={onBack}
-        onSuccess={(results: any) => onSuccess(`Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)}
-        onError={onError}
-        templateCsv={templateCsv}
-        templateName="template_doadores.csv"
-      />
     </>
   );
 };

@@ -1,5 +1,6 @@
 import React from "react";
 import CSVImportWizard from "@/features/admin/components/CSVImportWizard";
+import { BooksService } from "@/services/BooksService";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 const ImportBooks: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
@@ -42,11 +43,10 @@ MAT-03.02,Cálculo III,"Costa, Pedro",MAT,1,3,1,1,,`;
 
   return (
     <CSVImportWizard
-      endpoint="/api/books/import/csv"
-      requiredFields={["code", "title", "authors", "area", "subarea", "edition", "language", "volume"]}
+      importFunction={BooksService.importBooksFromCSV}
       instructions={instructions}
       onCancel={onBack}
-      onSuccess={(results: any) => onSuccess(`Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)}
+      onSuccess={onSuccess}
       onError={onError}
       templateCsv={templateCsv}
       templateName="template_livros.csv"

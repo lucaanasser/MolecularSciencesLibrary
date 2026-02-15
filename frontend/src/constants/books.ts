@@ -1,28 +1,49 @@
 /*
- * Este arquivo contém as constantes relacionadas aos livros, como áreas, subáreas, status e idiomas.
- * Essas constantes são usadas para garantir consistência em todo o aplicativo e facilitar a manutenção.
+ * Este arquivo foi gerado automaticamente a partir do backend.
+ * NÃO EDITE MANUALMENTE!
  * 
- * ATENÇÃO:
- * Para adicionar ou modificar áreas/subáreas, é preciso atualizar tanto este arquivo 
- * quanto o arquivo de validação e mapeamento correspondente no backend. 
- * (backend/src/utils/bookValidAreas.js)
+ * Para atualizar as áreas e subáreas, edite o arquivo bookValidAreas.js no backend 
+ * e execute o script de geração novamente.
  */
 
-export { AREAS, SUBAREAS, STATUS, LANGUAGES };
-
-const AREAS = [
-  "Matemática",
+export const AREAS = [
   "Física",
   "Química",
   "Biologia",
+  "Matemática",
   "Computação",
-  "Variados",
-]
+  "Variados"
+] as const;
 
-import { Area } from "@/types/new_book";
-const SUBAREAS: Record<Area, string[]> = {
-  Matemática: 
-  [
+export type Area = typeof AREAS[number];
+
+export const SUBAREAS: Record<Area, string[]> = {
+  "Física": [
+    "Física Geral",
+    "Mecânica",
+    "Termodinâmica",
+    "Eletromagnetismo",
+    "Física Moderna",
+    "Física Matemática",
+    "Astronomia e Astrofísica"
+  ],
+  "Química": [
+    "Química Geral",
+    "Fisico-Química",
+    "Química Inorgânica",
+    "Química Orgânica",
+    "Química Experimental"
+  ],
+  "Biologia": [
+    "Bioquímica",
+    "Biologia Molecular e Celular",
+    "Genética e Evolução",
+    "Biologia de Sistemas",
+    "Desenvolvimento",
+    "Ecologia",
+    "Botânica"
+  ],
+  "Matemática": [
     "Cálculo",
     "Geometria Analítica",
     "Álgebra Linear",
@@ -33,63 +54,37 @@ const SUBAREAS: Record<Area, string[]> = {
     "Equações Diferenciais",
     "Funções Complexas"
   ],
-  Física: 
-  [
-    "Física Geral", 
-    "Mecânica", 
-    "Termodinâmica",
-    "Eletromagnetismo",
-    "Física Moderna",
-    "Física Matemática", 
-    "Astronomia e Astrofísica"
-  ],
-  Química: 
-  [
-    "Química Geral", 
-    "Fisico-Química", 
-    "Química Inorgânica",
-    "Química Orgânica",
-    "Química Experimental" 
-  ],
-  Biologia: 
-  [
-    "Bioquímica", 
-    "Biologia Molecular e Celular", 
-    "Genética e Evolução",
-    "Biologia de Sistemas",
-    "Desenvolvimento",
-    "Ecologia",
-    "Botânica"
-  ],
-  Computação: 
-  [
+  "Computação": [
     "Fundamentos de Computação",
     "Algoritmos e Estruturas de Dados",
     "Análise Numérica",
-    "Probabilidade e Estatística", 
+    "Probabilidade e Estatística",
     "Teoria da Computação",
     "Programação",
     "Sistemas e Redes"
   ],
-  Variados: 
-  [
+  "Variados": [
     "Divulgação Científica",
     "História e Filosofia da Ciência",
     "Interdisciplinares",
-    "Literatura", 
-  ],
-};
+    "Literatura"
+  ]
+} as const;
 
-const STATUS = [
-  "disponível",    // Disponível para empréstimo
-  "emprestado",    // Empréstimo ativo cadastrado
-  "reservado",     // Reserva didática
-  "indisponível"   // Livro danificado ou perdido
-]
+export const STATUS = [
+  "disponível",
+  "emprestado",
+  "reservado",
+  "indisponível"
+] as const;
 
-const LANGUAGES = [
+export type Status = typeof STATUS[number];
+
+export const LANGUAGES = [
   "Português",
   "Inglês",
   "Espanhol",
   "Outro"
-]
+] as const;
+
+export type Language = typeof LANGUAGES[number];

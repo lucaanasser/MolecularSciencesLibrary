@@ -1,5 +1,6 @@
 import React from "react";
 import CSVImportWizard from "@/features/admin/components/CSVImportWizard";
+import { UsersService } from "@/services/UsersService";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
 const ImportUsers: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
@@ -42,14 +43,12 @@ Admin User,99887766,admin@email.com,+5511966665555,admin,,,$2b$10$abcdefghijklmn
 
   return (
     <CSVImportWizard
-      endpoint="/api/users/import/csv"
-      requiredFields={["name", "NUSP", "email", "phone", "role", "class"]}
+      importFunction={UsersService.importUsersFromCSV}
+      templateCsv={templateCsv}
       instructions={instructions}
       onCancel={onBack}
-      onSuccess={(results: any) => onSuccess(`Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)}
+      onSuccess={onSuccess}
       onError={onError}
-      templateCsv={templateCsv}
-      templateName="template_usuarios.csv"
     />
   );
 };

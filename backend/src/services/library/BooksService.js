@@ -18,8 +18,30 @@ class BooksService {
         this.basicFields = ['id', 'code', 'title', 'authors', 'area']; // campos básicos para autocomplete - possivelmente mudar, não sei se são os melhores
     }
     
-    async addBook(bookData, addType = null, selectedBook = null) {
-        console.log("🔵 [BooksService] Iniciando adição de livro:", bookData.id || bookData.title);
+    /**
+     * Adiciona um novo livro ao sistema.
+     * Valida área/subárea, gera códigos, limpa campos e insere no banco.
+     * 
+     * @param {Object} bookData - Dados do livro. Esperado:
+     *   {
+     *     id?: number,           // EAN-13 (opcional)
+     *     code?: string,         // Código de posição (opcional)
+     *     area: string,          // Área (obrigatório) -- o valor deve ser um dos keys de areaMapping
+     *     subarea: string,       // Subárea (obrigatório) -- o valor deve ser um dos keys de subareaMapping[areaMapping[area]]
+     *     title: string,         // Título (obrigatório)
+     *     subtitle?: string,     // Subtítulo (opcional)
+     *     authors: string,       // Autores (obrigatório)
+     *     edition: number,       // Edição (obrigatório)
+     *     volume: number,        // Volume (obrigatório)
+     *     language: string,      // Idioma (obrigatório)
+     *     status?: string        // Status (opcional, padrão "disponível")
+     *   }
+     * @param {string|null} selectedBookcode - Código de referência para exemplares/volumes já catalogados (opcional)
+     * @returns {Promise<Object>} Resultado da inserção
+     * @throws {Error} Caso alguma validação falhe ou ocorra erro no processo
+     */
+    async addBook(bookData, selectedBookcode = null) {
+        console.log("🔵 [BooksService] Iniciando adição de livro:", bookData.title);
         
         // Verifica se a área e a subárea fornecidas são válidas
         try {
@@ -38,7 +60,7 @@ class BooksService {
             console.log("🟡 [BooksService] Usando código de posição fornecido:", code);
         } else {
             try {
-                code = await this._generateBookCode(bookData, addType, selectedBook);
+                code = await this._generateBookCode(bookData, selectedBookcode);
                 console.log("🟢 [BooksService] Código de posição gerado automaticamente:", code);
             }
             catch (error) {
@@ -57,6 +79,19 @@ class BooksService {
             console.log("🟢 [BooksService] Código de barras gerado automaticamente:", id);
         }
 
+        // Usa edição fornecida ou define como 1
+        if (!bookData.edition) {
+            bookData.edition = 1;
+            console.log("🟡 [BooksService] Edição não fornecida, definida como 1ª");
+        }
+
+        // Limpa espaços extras de todos os campos string
+        for (const field of this.allFields) {
+            if (typeof bookData[field] === "string") {
+                bookData[field] = bookData[field].replace(/\s+/g, ' ').trim();
+            }
+        }
+
         // Monta objeto do livro com todos os campos para inserção
         const bookToInsert = {};
         for (const field of this.allFields) {
@@ -65,7 +100,7 @@ class BooksService {
             else bookToInsert[field] = bookData[field] || (field === 'status' ? "disponível" : null);
         }
         try {
-            const result = await BooksModel.insertBook(bookToInsert);
+            const result = await BooksModel.addBook(bookToInsert);
             console.log("🟢 [BooksService] Livro inserido com sucesso: ", id);
             return result;
         }
@@ -75,20 +110,29 @@ class BooksService {
         }
     }
 
+    /**
+     * Importa livros a partir de um arquivo CSV.
+     * @param {Object} file - Arquivo CSV (buffer)
+     * @returns {Promise<Object>} Resultado da importação
+     * @throws {Error} Caso ocorra erro na importação
+     */
     async importBooksFromCSV(file) {
         console.log("🔵 [BooksService] Iniciando importação de livros via CSV");
         const logger = {
             success: (entity, row) => console.log(`🟢 [BooksService] Livro importado: ${entity.title} (linha ${row})`),
-            error: (error, row) => console.error(`🔴 [BooksService] Erro na linha ${row}:`, error.message),
+            error: (error, row) => {
+              console.error(`🔴 [BooksService] Erro na linha ${row}:`, error.message)
+              throw new Error(`Erro na linha ${row}: ${error.message}`);
+            },
             finish: (results) => console.log(`🟢 [BooksService] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)
         };
         return await importFromCSV({
             fileBuffer: file.buffer,
             requiredFields: this.requiredFields,
-            mapRow: (bookData) => {
+            mapRow: (rowData) => {
                 const row = {};
-                for (const field of this.allFields) {
-                    let value = bookData[field];
+                for (const field in rowData) {
+                    let value = rowData[field];
                     if (typeof value === 'string') value = value.trim();
                     if ((field === 'id' || field === 'edition' || field === 'volume') && value) {
                         value = parseInt(value);
@@ -100,46 +144,20 @@ class BooksService {
                 }
                 return row;
             },
-            addFn: this.addBook,
+            addFn: this.addBook.bind(this),
             logger
         });
     }
 
-    async borrowBook(bookId, userId) {
-        console.log(`🔵 [BooksService] Emprestando livro bookId=${bookId} para userId=${userId}`);
-        try {
-            // Busca o livro para verificar se é reserva didática
-            const book = await BooksModel.getBookById(bookId);
-            if (book && book.status == "reservado") {
-                const msg = `Livro ${bookId} está marcado como reserva didática e não pode ser emprestado.`;
-                console.warn(`🟡 [BooksService] ${msg}`);
-                throw new Error(msg);
-            }
-            // Realiza o empréstimo
-            const result = await BooksModel.borrowBook(bookId, userId);
-            console.log(`🟢 [BooksService] Livro emprestado com sucesso: bookId=${bookId}, userId=${userId}`);
-            return result;
-        } catch (error) {
-            console.error(`🔴 [BooksService] Erro ao emprestar livro: ${error.message}`);
-            throw error;
-        }
-    }
-
-    async returnBook(bookId) {
-        console.log(`🔵 [BooksService] Devolvendo livro bookId=${bookId}`);
-        try {
-            const result = await BooksModel.returnBook(bookId);
-            console.log(`🟢 [BooksService] Livro devolvido com sucesso: bookId=${bookId}`);
-            return result;
-        } catch (error) {
-            console.error(`🔴 [BooksService] Erro ao devolver livro: ${error.message}`);
-            throw error;
-        }
-    }
-
+    /**
+     * Busca livros para autocomplete.
+     * @param {string} q - Query de busca
+     * @param {number} limit - Limite de resultados
+     * @returns {Promise<Array>} Lista de livros encontrados
+     */
     async searchBooks(q = null, limit = 10) {
-        if (!q || q.trim() === "") {
-            console.warn("🟡 [BooksService] Consulta de autocomplete vazia, retornando array vazio");
+        if (!q || q.trim().length == 0) {
+            console.warn("🟡 [BooksService] Consulta de autocomplete com query vazia, retornando array vazio");
             return [];
         }
         console.log(`🔵 [BooksService] Buscando livros para autocomplete: query="${q}", limit=${limit}`);
@@ -153,6 +171,20 @@ class BooksService {
         }
     }
 
+    /**
+     * Busca livros com filtros.
+     * 
+     * @param {Object} filters - Filtros de busca. Campos aceitos:
+     *   {
+     *     q?: string,  -- query
+     *     area?: string | string[],
+     *     subarea?: string | string[],
+     *     status?: string | string[],
+     *   }
+     * @param {number|null} limit - Limite de resultados
+     * @param {number} offset - Offset de resultados
+     * @returns {Promise<Array>} Lista de livros encontrados
+     */
     async getBooks(filters = {}, limit = null, offset = 0) {
         console.log(`🔵[BooksService] Buscando livros com filtros:`, filters);
         try {
@@ -165,6 +197,11 @@ class BooksService {
         }
     }
 
+    /**
+     * Conta livros com filtros.
+     * @param {Object} filters - Filtros de busca. Campos aceitos: os mesmos de getBooks()
+     * @returns {Promise<number>} Total de livros encontrados
+     */
     async countBooks(filters) {
         console.log(`🔵 [BooksService] Contando livros com filtros:`, filters);
         try {
@@ -177,6 +214,11 @@ class BooksService {
         }
     }
 
+    /**
+     * Exporta catálogo de livros para CSV.
+     * @returns {Promise<string>} CSV dos livros
+     * @throws {Error} Caso ocorra erro
+     */
     async exportBooksToCSV() {
         console.log(`🔵 [BooksService] Exportando catálogo de livros para CSV`);
         try{
@@ -194,18 +236,30 @@ class BooksService {
         }
     }
 
-    async setReservedStatus(bookId, isReserved) {
-        console.log(`🔵 [BooksService] Alterando status de reserva didática: bookId=${bookId}, isReserved=${isReserved}`);
+    /**
+     * Altera status de reserva didática de um livro.
+     * @param {number} id - ID do livro
+     * @param {boolean} is_reserved - Status de reserva
+     * @returns {Promise<Object>} Resultado da operação
+     * @throws {Error} Caso ocorra erro
+     */
+    async setReservedStatus(id, is_reserved) {
+        console.log(`🔵 [BooksService] Alterando status de reserva didática: bookId=${id}, isReserved=${is_reserved}`);
         try {
-            await BooksModel.setReservedStatus(bookId, isReserved);
-            console.log(`🟢 [BooksService] Status de reserva didática alterado: bookId=${bookId}, isReserved=${isReserved}`);
-            return { success: true, is_reserved: isReserved };
+            await BooksModel.setReservedStatus(id, is_reserved);
+            console.log(`🟢 [BooksService] Status de reserva didática alterado: bookId=${id}, isReserved=${is_reserved}`);
+            return { success: true, is_reserved: is_reserved };
         } catch (error) {
             console.error(`🔴 [BooksService] Erro ao alterar status de reserva didática: ${error.message}`);
             throw error;
         }
     }
 
+    /**
+     * Remove todos os livros da reserva didática.
+     * @returns {Promise<Object>} Resultado da operação
+     * @throws {Error} Caso ocorra erro
+     */
     async clearAllReservedBooks() {
         console.log(`🔵 [BooksService] Removendo todos os livros da reserva didática`);
         try {
@@ -218,6 +272,11 @@ class BooksService {
         }
     }
 
+    /**
+     * Busca livros reservados didaticamente.
+     * @returns {Promise<Array>} Lista de livros reservados
+     * @throws {Error} Caso ocorra erro
+     */
     async getReservedBooks() {
         console.log(`🔵 [BooksService] Buscando livros reservados didaticamente`);
         try {
@@ -230,6 +289,12 @@ class BooksService {
         }
     }
 
+    /**
+     * Busca livro por ID.
+     * @param {number} id - ID do livro
+     * @returns {Promise<Object>} Livro encontrado
+     * @throws {Error} Caso ocorra erro
+     */
     async getBookById(id) {
         console.log(`🔵 [BooksService] Buscando livro por id: ${id}`);
         try {
@@ -242,6 +307,12 @@ class BooksService {
         }
     }
 
+    /**
+     * Remove livro por ID.
+     * @param {number} id - ID do livro
+     * @returns {Promise<Object>} Resultado da remoção
+     * @throws {Error} Caso ocorra erro
+     */
     async deleteBook(id) {
         console.log(`🔵 [BooksService] Removendo livro id=${id}`);
         try {
@@ -256,6 +327,10 @@ class BooksService {
 
     /* =============================== FUNÇÕES AUXILIARES =============================== */
 
+    /**
+     * Gera um código EAN-13 único para livro.
+     * @returns {Promise<number>} Código EAN-13
+     */
     async _generateUniqueEAN13() {
       // Função auxiliar para calcular o dígito verificador EAN-13
         function completeEAN13(twelveDigitBarcode) {
@@ -280,25 +355,36 @@ class BooksService {
         return ean;
     }
 
-    async _generateBookCode(bookData, addType, selectedBook) {
-        console.log(`🔵 [BooksService] Gerando código para livro: area=${bookData.area}, subarea=${bookData.subarea}, volume=${bookData.volume}`);
+    /**
+     * Gera código de posição para livro.
+     * @param {Object} bookData - Dados do livro. Campos aceitos: os mesmos de addBook()
+     * @param {string|null} selectedBookcode - Código de referência
+     * @returns {Promise<string>} Código gerado
+     */
+    async _generateBookCode(bookData, selectedBookcode) {
+        console.log(`🔵 [BooksService] Gerando código para o livro`);
         
-        // NOVO EXEMPLAR: reutiliza código do livro selecionado
-        if (addType && addType == "exemplar" && selectedBook) {
-            console.log("🟡 [BooksService] Novo exemplar, reutilizando código:", selectedBook.code);
-            return selectedBook.code;
+        // LIVRO EXISTENTE: reutiliza o código do livro selecionado, ajustando volume se necessário
+        if (selectedBookcode) {
+            // Extrai o volume do livro selecionado
+            const match = selectedBookcode.match(/ v\.(\d+)$/i);
+            const referenceVolume = match ? parseInt(match[1], 10) : 0;
+            
+            // NOVO EXEMPLAR: volume é igual ao do livro selecionado
+            if (bookData.volume === referenceVolume) {
+                console.log("🟡 [BooksService] Novo exemplar, reutilizando código:", selectedBookcode);
+                return selectedBookcode;
+            }
+            
+            // NOVO VOLUME: volume diferente do livro selecionado
+            else {
+                let baseCode = selectedBookcode.replace(/ v\.\d+$/i, ""); // remove sufixo de volume
+                if (bookData.volume === 0) return baseCode;
+                const newCode = `${baseCode} v.${parseInt(bookData.volume, 10)}`;
+                console.log("🟡 [BooksService] Novo volume, código gerado:", newCode);
+                return newCode;
+            }
         }
-
-        // NOVO VOLUME: baseia código no livro selecionado, ajustando o sufixo de volume
-        if (addType && addType == "volume" && selectedBook) {
-            let baseCode = selectedBook.code;
-            baseCode = baseCode.replace(/ v\.\d+$/i, ""); // remove sufixo de volume no formato " v.#"
-            if (bookData.volume == 0)
-                return baseCode;
-            const newCode = `${baseCode} v.${parseInt(bookData.volume, 10)}`;
-            console.log("🟡 [BooksService] Novo volume, código gerado:", newCode);
-            return newCode;
-        } 
 
         // NOVO LIVRO: gera código sequencial
         const lastBook = await BooksModel.getLastBookInSubarea(bookData.area, bookData.subarea);

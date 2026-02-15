@@ -1,10 +1,19 @@
-// Serviço para operações de livros
+/*
+ * Serviço para operações de livros
+ * Centraliza as chamadas à API relacionadas a livros, como busca, criação, empréstimo, etc.
+ * 
+ * Padrão de logs:
+ * 🔵 Início de operação
+ * 🟢 Sucesso
+ * 🟡 Aviso/Fluxo alternativo
+ * 🔴 Erro
+ */
+
 import { Book } from "@/types/new_book";
 
 const API_BASE = '/api/books';
 
 function fetchJson(url: string, options: RequestInit = {}) {
-  const userData = localStorage.getItem('user');
   return fetch(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -15,10 +24,6 @@ function fetchJson(url: string, options: RequestInit = {}) {
       const error = await res.text();
       throw new Error(error || 'Erro na requisição');
     }
-    // CSV export
-    if (res.headers.get('Content-Type')?.includes('text/csv')) {
-      return res.text();
-    }
     return res.json();
   });
 }
@@ -28,14 +33,14 @@ export const BooksService = {
   /* ================ CRUD ================ */
 
   /* Adicionar livro
-   * Usada em: AddBookForm
+   * Usada em: AddBookForm (adminpage)
    */
-  createBook: async (book: Omit<Book, 'id'> & { id?: number; code?: string }) => {
-    console.log("🔵 [BooksService] Adicionando livro:", book);
+  addBook: async (bookData: Book, selectedBookcode?: string) => {
+    console.log("🔵 [BooksService] Adicionando livro:", bookData.id || bookData.title);
     try {
       const data = await fetchJson(`${API_BASE}`, {
         method: 'POST',
-        body: JSON.stringify({bookData: book}),
+        body: JSON.stringify({bookData, selectedBookcode}),
       });
       console.log("🟢 [BooksService] Livro adicionado com sucesso:", data);
       return data;
@@ -48,8 +53,10 @@ export const BooksService = {
     }
   },
 
-  /* Deletar livro por ID */
-  deleteBookById: async (id: number) => {
+  /* Deletar livro por ID 
+   * Usada em: RemoveBookForm (adminpage)
+   */
+  deleteBook: async (id: number) => {
     console.log(`🔵 [BooksService] Iniciando remoção do livro ID: ${id}`);
     try {
       const data = await fetchJson(`${API_BASE}/${id}`, {
@@ -66,36 +73,16 @@ export const BooksService = {
     }
   },
 
-  /* Buscar livros (com filtros, paginação e múltiplos valores)
-   * Usada em: ListBooks, BookSearch, etc
+  /* Buscar informações básicas de livro com autocomplete
+   * Usada em: ....
    */
-  searchBooks: async (filters: {
-    q?: string;
-    area?: string | string[];
-    subarea?: string | string[];
-    status?: string | string[];
-    limit?: number;
-    offset?: number;
-  }) => {
+  autocompleteSearchBooks: async (q?: string, limit?: number) => {
     const params = new URLSearchParams();
-    if (filters.q) params.append('q', filters.q);
-    if (filters.limit) params.append('limit', String(filters.limit));
-    if (filters.offset) params.append('offset', String(filters.offset));
-    // Múltiplos valores
-    ['area', 'subarea', 'status'].forEach((key) => {
-      const value = filters[key as keyof typeof filters];
-      if (value) {
-        if (Array.isArray(value)) {
-          value.forEach(v => params.append(key, v));
-        } else {
-          // Suporta vírgula
-          value.toString().split(',').forEach(v => params.append(key, v));
-        }
-      }
-    });
-    console.log("🔵 [BooksService] Buscando livros:", filters);
+    if (q) params.append('q', q);
+    if (limit) params.append('limit', limit.toString());
+    console.log("🔵 [BooksService] Buscando livros:", { q, limit });
     try {
-      const books = await fetchJson(`${API_BASE}/?${params.toString()}`);
+      const books = await fetchJson(`${API_BASE}/search?${params.toString()}`);
       console.log(`🟢 [BooksService] Livros encontrados: ${books.length}`);
       return books;
     } catch (err: any) {
@@ -103,6 +90,54 @@ export const BooksService = {
       try { technicalMsg = JSON.parse(err.message).error; } catch {}
       const errorMsg = `Não foi possível buscar os livros.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
       console.error("🔴 [BooksService] Erro ao buscar livros", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /* Buscar dados completos de livros com query e filtros opcionais (área, subárea, status)
+   * Suporta paginação (definindo limit e offset)
+   * Usada em: RemoveBookForm (adminpage), BooksList (adminpage), ...
+   */
+  searchBooks: async (filters?: {
+    q?: string;
+    area?: string | string[];
+    subarea?: string | string[];
+    status?: string | string[];
+  }, limit?: number, offset?: number) => {
+    const params = new URLSearchParams();
+    if (filters?.q) params.append('q', filters.q);
+    ['area', 'subarea', 'status'].forEach((key) => {
+      const value = filters?.[key as keyof typeof filters];
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach(v => params.append(key, v));
+        } else {
+          params.append(key, value);
+        }
+      }
+    });
+    if (limit) params.append('limit', String(limit));
+    if (offset) params.append('offset', String(offset));
+    ['area', 'subarea', 'status'].forEach((key) => {
+      const value = filters[key as keyof typeof filters];
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach(v => params.append(key, v));
+        } else {
+          value.toString().split(',').forEach(v => params.append(key, v));
+        }
+      }
+    });
+    console.log("🔵 [BooksService] Buscando livros (completo):", filters);
+    try {
+      const books = await fetchJson(`${API_BASE}?${params.toString()}`);
+      console.log(`🟢 [BooksService] Livros encontrados (completo): ${books.length}`);
+      return books;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível buscar os livros.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      console.error("🔴 [BooksService] Erro ao buscar livros (completo)", technicalMsg || err);
       throw new Error(errorMsg);
     }
   },
@@ -255,7 +290,8 @@ export const BooksService = {
 
   /* ================ IMPORTAÇÃO E EXPORTAÇÃO ================ */
 
-  /* Importar livros via CSV */
+  // realizadas diretamente via endpoint no painel do admin
+    /* Importar livros via CSV */
   importBooksFromCSV: async (csvFile: File) => {
     console.log("🔵 [BooksService] Importando livros via CSV");
     const formData = new FormData();
@@ -268,19 +304,18 @@ export const BooksService = {
           ...(localStorage.getItem('user') ? { 'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user')!).token}` } : {})
         },
       });
-      if (!result.ok) {
-        const error = await result.text();
-        throw new Error(error || 'Erro na importação');
-      }
       const data = await result.json();
-      console.log("🟢 [BooksService] Importação de livros via CSV concluída:", data);
-      return data;
-    } catch (err: any) {
+      if (data.success)
+        console.log("🟢 [BooksService] Importação de livros via CSV concluída sem falhas");
+      else {
+        console.warn("🟡 [BooksService] Importação de livros via CSV concluída com falhas", data.message);
+        throw new Error(data.message);
+      }
+    } catch (err) {
       let technicalMsg = "";
-      try { technicalMsg = JSON.parse(err.message).error; } catch {}
-      const errorMsg = `Não foi possível importar os livros.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      try { technicalMsg = JSON.parse(err.message); } catch {}
       console.error("🔴 [BooksService] Erro ao importar livros via CSV", technicalMsg || err);
-      throw new Error(errorMsg);
+      throw new Error(technicalMsg || err);
     }
   },
 

@@ -11,12 +11,12 @@ const BooksModel = require('../../models/library/BooksModel');
 
 
 class BooksController {
-
+  
     async addBook(req, res) {
         console.log("🔵 [BooksController] req.body:", req.body);
-        const { bookData, addType, selectedBook } = req.body;
+        const { bookData, selectedBookcode } = req.body;
         try {
-            const result = await BooksService.addBook(bookData, addType, selectedBook);
+            const result = await BooksService.addBook(bookData, selectedBookcode);
             console.log("🟢 [BooksController] Livro adicionado com sucesso:", result);
             res.status(201).json(result);
         } catch (error) {
@@ -83,7 +83,7 @@ class BooksController {
     }
 
     async getBooks(req, res) {
-        const { limit, offset, filters } = req.query;
+        const { limit, offset, ...filters } = req.query;
         console.log(`🔵 [BooksController] Buscando livros com filtros:`, filters);    
         try {
             const books = await BooksService.getBooks(filters, limit, offset);
@@ -176,7 +176,7 @@ class BooksController {
         const { id } = req.params;
         console.log(`🔵 [BooksController] Removendo livro id=${id}`);
         try {
-            await BooksService.removeBookById(id);
+            await BooksService.deleteBook(id);
             console.log(`🟢 [BooksController] Livro removido com sucesso: id=${id}`);
             res.status(200).json({ success: true, message: 'Livro removido com sucesso' });
         } catch (error) {

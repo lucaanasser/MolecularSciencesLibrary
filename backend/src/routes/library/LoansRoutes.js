@@ -1,7 +1,3 @@
-const express = require('express');
-const router = express.Router();
-const LoansController = require('../../controllers/library/LoansController');
-
 /**
  * Rotas relacionadas a empréstimos de livros.
  * Padrão de logs:
@@ -10,6 +6,11 @@ const LoansController = require('../../controllers/library/LoansController');
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
+
+const express = require('express');
+const router = express.Router();
+const LoansController = require('../../controllers/library/LoansController');
+
 
 // Criar empréstimo
 router.post('/', (req, res) => {
@@ -29,11 +30,26 @@ router.post('/return', (req, res) => {
     LoansController.returnBook(req, res);
 });
 
-// Registrar uso interno (empréstimo fantasma) - DEVE vir antes das rotas com :id
+// Registrar uso interno (empréstimo fantasma)
 router.post('/internal-use', (req, res) => {
     console.log("🔵 [LoansRoutes] POST /internal-use - Registrar uso interno");
     LoansController.registerInternalUse(req, res);
 });
+
+// Buscar empréstimos (filtro opcional por status)
+router.get('/', (req, res) => {
+    console.log("🔵 [LoansRoutes] GET - Buscar empréstimos com filtro de status");
+    LoansController.getLoans(req, res);
+});
+
+// Buscar empréstimos de um usuário específico (filtro opcional por status)
+router.get('/user/:userId', (req, res) => {
+    console.log(`🔵 [LoansRoutes] GET /user/${req.params.userId} - Buscar empréstimos do usuário com filtro de status`);
+    LoansController.getLoansByUser(req, res);
+});
+
+/* ======================== ROTAS COM ID ======================== */
+/*                   Atenção: devem vir por último                */
 
 // Preview da renovação
 router.post('/:id/preview-renew', (req, res) => {
@@ -45,45 +61,6 @@ router.post('/:id/preview-renew', (req, res) => {
 router.put('/:id/renew', (req, res) => {
     console.log('🔵 [LoansRoutes] PUT /:id/renew - Renovar empréstimo');
     LoansController.renewLoan(req, res);
-});
-
-// Preview da extensão
-router.post('/:id/preview-extend', (req, res) => {
-    console.log('🔵 [LoansRoutes] POST /:id/preview-extend - Preview extensão');
-    LoansController.previewExtendLoan(req, res);
-});
-
-// Estender empréstimo
-router.put('/:id/extend', (req, res) => {
-    console.log('🔵 [LoansRoutes] PUT /:id/extend - Estender empréstimo');
-    LoansController.extendLoan(req, res);
-});
-
-// Aplicar nudge de extensão
-// Não utilizado no frontend atualmente
-
-// Listar todos os empréstimos
-router.get('/', (req, res) => {
-    console.log("🔵 [LoansRoutes] GET / - Listar todos os empréstimos");
-    LoansController.listLoans(req, res);
-});
-
-// Listar empréstimos ativos com status de atraso
-router.get('/active', (req, res) => {
-    console.log("🔵 [LoansRoutes] GET /active - Listar empréstimos ativos com status de atraso");
-    LoansController.listActiveLoansWithOverdue(req, res);
-});
-
-// Listar empréstimos de um usuário específico
-router.get('/user/:userId', (req, res) => {
-    console.log(`🔵 [LoansRoutes] GET /user/${req.params.userId} - Listar empréstimos do usuário`);
-    LoansController.listLoansByUser(req, res);
-});
-
-// Listar empréstimos ativos de um usuário específico
-router.get('/user/:userId/active', (req, res) => {
-    console.log(`🔵 [LoansRoutes] GET /user/${req.params.userId}/active - Listar empréstimos ativos do usuário`);
-    LoansController.listActiveLoansByUser(req, res);
 });
 
 module.exports = router;

@@ -38,23 +38,6 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: TabCompon
     }
   }, [query, onError]);
 
-  // Cancelar busca e voltar para tela inicial
-  const handleBack = useCallback(() => {
-    onBack && onBack();
-  }, [onBack]);
-
-  // Controle da seleção
-  const handleSelectUser = useCallback((user: User) => {
-    setSelectedUser(user);
-  }, []);
-
-  // Cancelar seleção e voltar para busca
-  const handleCancelSelect = useCallback(() => {
-    setFoundUsers([]);
-    setQuery("");
-    setSelectedUser(null);
-  }, []);
-
   // Controle da remoção
   const handleRemove = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,16 +65,17 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: TabCompon
     <div>
       {showInput && (
         <div>
-          <p>Busque um usuário pelo nome, email ou NUSP:</p>
+          <p>Busque o usuário a ser removido</p>
           <form onSubmit={handleSearch} className="">
             <Input
               value={query}
               onChange={e => setQuery(e.target.value)}
+              placeholder="Digite nome, email ou NUSP"
               required
             />
             <ActionBar
               onConfirm={() => handleSearch({ preventDefault: () => {} } as React.FormEvent)}
-              onCancel={handleBack}
+              onCancel={onBack}
               confirmLabel="Buscar"
             />
           </form>
@@ -106,7 +90,7 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: TabCompon
               <li key={user.id} className="py-2 flex items-center justify-between">
                 <button
                   className="w-full px-4 py-2 rounded-xl hover:bg-gray-100 text-left"
-                  onClick={() => handleSelectUser(user)}
+                  onClick={() => setSelectedUser(user)}
                 >
                   <div className="flex flex-row gap-6 prose-sm">
                     <span><b>{user.name}</b></span>
@@ -118,8 +102,11 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: TabCompon
             ))}
           </ul>
           <ActionBar
-            onCancel={handleCancelSelect}
-            confirmLabel="Voltar"
+            onCancel={() => {
+              setFoundUsers([]);
+              setQuery("");
+              setSelectedUser(null);
+            }}
             showConfirm={false}
           />
         </div>
@@ -136,7 +123,7 @@ export default function RemoveUserForm({ onSuccess, onError, onBack }: TabCompon
           <form onSubmit={handleRemove}>
             <ActionBar
               onConfirm={() => handleRemove({ preventDefault: () => {} } as React.FormEvent)}
-              onCancel={handleCancelSelect}
+              onCancel={() => setSelectedUser(null)}
               confirmLabel="Remover"
               confirmColor="bg-cm-red"
             />
