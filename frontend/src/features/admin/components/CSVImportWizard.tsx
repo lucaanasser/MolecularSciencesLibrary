@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FileText } from "lucide-react";
 import ActionBar from "@/features/admin/components/ActionBar";
+import { s } from "node_modules/framer-motion/dist/types.d-DDSxwf0n";
+import { set } from "date-fns";
 
 interface AdminCSVImportWizardProps {
   importFunction: (csvFile: File) => Promise<any>; // função de importação
@@ -38,7 +40,7 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const [errorDialog, setErrorDialog] = useState<{ open: boolean; error: any }>({ open: false, error: null });
+  const [errorText, setErrorText] = useState<string>('');
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -77,13 +79,31 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
       const result = await importFunction(file);
       onSuccess("Importação concluída com sucesso!");
     } catch(err){
-      onError(err)
+      if (err.message.length > 200){
+        setErrorText(err.message);
+        onError(new Error("A importação foi concluída com erros. Faça o download do log para mais informações."));
+      } else 
+        onError(err)
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const handleReset = () => {
     setFile(null);
     setResult(null);
+  };
+
+  function downloadErrors() {
+    const blob = new Blob([errorText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'erros_importacao.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
   
   const handleDownloadTemplate = () => {
@@ -155,7 +175,7 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
       {file && !result && (
         <Alert>
           <AlertDescription>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-gray-600" />
                 <span className="prose-sm">{file.name}</span>
@@ -174,53 +194,16 @@ const CSVImportWizard: React.FC<AdminCSVImportWizardProps> = ({
         </Alert>
       )}
 
-
-      {/* Dialog de erro detalhado */}
-      <AlertDialog open={errorDialog.open} onOpenChange={open => {
-        setErrorDialog(v => ({ ...v, open }));
-        if (!open) {
-          setFile(null); // garantir reset ao fechar
-        }
-      }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Erro ao importar CSV</AlertDialogTitle>
-            <AlertDialogDescription>
-              {errorDialog.error && (
-                <div>
-                  {errorDialog.error.message && <p>{errorDialog.error.message}</p>}
-                  {errorDialog.error.errors && Array.isArray(errorDialog.error.errors) && (
-                    <div className="max-h-40 overflow-y-auto space-y-2">
-                      {errorDialog.error.errors.map((err: any, idx: number) => (
-                        <div key={idx} className="prose-sm text-cm-red">
-                          <span className="font-semibold">Linha {err.row}:</span> {err.error}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorDialog({ open: false, error: null })}>
-              Voltar para upload
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <div className="mt-4">
-        <ActionBar
-          showCancel={true}
-          showConfirm={!result}
-          confirmLabel={isUploading ? "Importando..." : "Importar"}
-          onCancel={result ? onCancel : onCancel}
-          onConfirm={handleUpload}
-          loading={isUploading}
-          confirmColor={!file ? "bg-gray-400" : "bg-cm-blue"}
-        />
-      </div>
+      <ActionBar
+        showCancel={true}
+        showConfirm={!result}
+        confirmLabel={isUploading ? "Importando..." : errorText ? "Baixar relatório de erros" : "Importar"}
+        onCancel={onCancel}
+        onConfirm={errorText ? downloadErrors : handleUpload}
+        loading={isUploading}
+        confirmColor={!file ? "bg-gray-400" : errorText ? "bg-cm-red" : "bg-cm-blue"}
+      />
+      
     </>
   );
 };

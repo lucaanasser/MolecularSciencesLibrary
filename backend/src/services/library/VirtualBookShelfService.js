@@ -205,7 +205,7 @@ class VirtualBookShelfService {
         console.log("🔵 [VirtualBookShelfService] Ordenando todos os livros para estante virtual");
         try {
             const books = await BooksModel.getAllBooks();
-            const borrowed = await BooksModel.getBorrowedBooks();
+            const borrowed = books.filter(b => b.status === "emprestado");
             // Garante que book_id e id são do mesmo tipo (number)
             const borrowedSet = new Set(
                 borrowed.map(b => Number(b.book_id))
@@ -338,16 +338,17 @@ class VirtualBookShelfService {
         console.log(`🔵 [VirtualBookShelfService] Obtendo livros para prateleira ${shelf.shelf_number}-${shelf.shelf_row}`);
         
         try {
+            if (!shelf.book_code_start) {
+                console.log("🟡 [VirtualBookShelfService] Prateleira sem código inicial definido");
+                return [];
+            }
+            
             // Se não forneceu os livros, busca todos
             if (!allBooks) {
                 allBooks = await this.getAllBooksOrdered();
             }
 
-            if (!shelf.book_code_start) {
-                console.log("🟡 [VirtualBookShelfService] Prateleira sem código inicial definido");
-                return [];
-            }
-
+            
             // Calcula códigos finais se necessário
             const shelvesWithEndCodes = await this.calculateEndCodes(allShelves);
             const currentShelfWithEndCode = shelvesWithEndCodes.find(s => 

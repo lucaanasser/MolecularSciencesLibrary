@@ -8,7 +8,7 @@
 
 const BooksModel = require('../../models/library/BooksModel');
 const { escapeCSV, importFromCSV } = require('../../utils/csvUtils');
-const { areaMapping, subareaMapping, validateArea, validateSubarea } = require('../../utils/bookValidAreas.js');
+const { areaMapping, subareaMapping, validateArea, validateSubarea } = require('../../utils/validBookAreas.js');
 
 class BooksService {
 
@@ -113,17 +113,19 @@ class BooksService {
     /**
      * Importa livros a partir de um arquivo CSV.
      * @param {Object} file - Arquivo CSV (buffer)
-     * @returns {Promise<Object>} Resultado da importação
+     * @returns {Promise<Object>} Resultado da importação:
+     *   {
+     *     success: number  -- número de importações bem sucedidas
+     *     failed: number   -- número de importações falhas
+     *     errors: string[] -- log dos erros ocorridos durante a importação
+     *   }
      * @throws {Error} Caso ocorra erro na importação
      */
     async importBooksFromCSV(file) {
         console.log("🔵 [BooksService] Iniciando importação de livros via CSV");
         const logger = {
             success: (entity, row) => console.log(`🟢 [BooksService] Livro importado: ${entity.title} (linha ${row})`),
-            error: (error, row) => {
-              console.error(`🔴 [BooksService] Erro na linha ${row}:`, error.message)
-              throw new Error(`Erro na linha ${row}: ${error.message}`);
-            },
+            error: (error, row) => console.error(`🔴 [BooksService] Erro na linha ${row}:`, error.message),
             finish: (results) => console.log(`🟢 [BooksService] Importação concluída: ${results.success} sucesso, ${results.failed} falhas`)
         };
         return await importFromCSV({
@@ -239,18 +241,24 @@ class BooksService {
     /**
      * Altera status de reserva didática de um livro.
      * @param {number} id - ID do livro
-     * @param {boolean} is_reserved - Status de reserva
+     * @param {boolean} status - Status de reserva
      * @returns {Promise<Object>} Resultado da operação
      * @throws {Error} Caso ocorra erro
      */
-    async setReservedStatus(id, is_reserved) {
-        console.log(`🔵 [BooksService] Alterando status de reserva didática: bookId=${id}, isReserved=${is_reserved}`);
+    async setReservedStatus(id, status) {
+        console.log(`🔵 [BooksService] Alterando status de reserva didática: bookId=${id}, status=${status}`);
+        const book = await this.getBookById(id);
         try {
-            await BooksModel.setReservedStatus(id, is_reserved);
-            console.log(`🟢 [BooksService] Status de reserva didática alterado: bookId=${id}, isReserved=${is_reserved}`);
-            return { success: true, is_reserved: is_reserved };
+            const indifferent = (status && book.status === "reservado") || (!status && book.status !== "reservado");
+            if (indifferent) {
+                console.warn(`🟡 [BooksService] Status de reserva didática já é ${book.status} para o livro id=${id}`);
+                throw new Error(`Livro "${book.title}" ${status ? "já" : "não"} estava reservado`);
+            }
+            await BooksModel.setReservedStatus(id, status);
+            console.log(`🟢 [BooksService] Status de reserva didática alterado: bookId=${id}, status=${status}`);
+            return { success: true, book: book.title, is_reserved: status };
         } catch (error) {
-            console.error(`🔴 [BooksService] Erro ao alterar status de reserva didática: ${error.message}`);
+            console.error(`🔴 [BooksService] Erro ao alterar status de reserva didática para ${book.title}: ${error.message}`);
             throw error;
         }
     }

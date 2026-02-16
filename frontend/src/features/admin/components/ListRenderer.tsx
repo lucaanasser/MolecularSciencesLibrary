@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
-import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 
 type Column<T> = {
   label: string;
@@ -18,7 +17,7 @@ interface AdminListContainerProps<T = any> {
   footer?: ReactNode;
   onBack?: () => void;
   exportCSV?: () => void;
-  maxHeight?: string | number; // nova prop para altura máxima
+  maxHeight?: string;
 }
 
 /*
@@ -43,7 +42,7 @@ function AdminListContainer<T = any>({
       ) : error ? (
         <p className="text-cm-red">{error}</p>
       ) : !data || data.length === 0 ? (
-        <p>{emptyMessage}</p>
+        <p className="text-cm-red">{emptyMessage}</p>
       ) : (
         <>
         <div

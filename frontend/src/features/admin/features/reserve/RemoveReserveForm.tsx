@@ -1,38 +1,30 @@
 import React, { useState } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from "@/components/ui/input";
-import { useBookReserve } from '@/features/old_books/hooks/useBookReserve';
+import { BooksService } from "@/services/BooksService";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-const RemoveReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) => {
-  const { setBookReserved, loading, error, books, fetchBooks } = useBookReserve();
+const RemoveReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
   const [bookCode, setBookCode] = useState('');
-  const [inputError, setInputError] = useState<string | null>(null);
-  const [confirmClearAll, setConfirmClearAll] = useState(false);
-
-  React.useEffect(() => {
-    if (books.length === 0) fetchBooks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const handleRemoveFromReserve = async (e: React.FormEvent) => {
     e.preventDefault();
-    setInputError(null);
+
     if (!bookCode.trim()) {
-      setInputError('Informe o código do livro.');
+      onError('Informe o código do livro.');
       return;
     }
-    const found = books.find(b => b.code === bookCode.trim());
-    if (!found) {
-      setInputError('Livro não encontrado para o código informado.');
-      return;
-    }
+
+    setLoading(true);
     try {
-      await setBookReserved(found.id, false);
+      const book = await BooksService.unreserveBook(Number(bookCode.trim()));
       setBookCode('');
-      onSuccess(`Livro "${found.title}" removido da reserva didática.`);
+      onSuccess(`Livro "${book}" removido da reserva.`);
     } catch (err: any) {
-      setInputError(err?.message || 'Erro ao remover da reserva.');
+      onError(err || 'Erro ao remover da reserva.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,7 +39,6 @@ const RemoveReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) =
           placeholder="Escaneie ou digite o código de barras"
           disabled={loading}
         />
-        {inputError && <p className="text-cm-red prose-sm">{inputError}</p>}
         <ActionBar
           onCancel={onBack}
           onConfirm={undefined}
@@ -56,7 +47,6 @@ const RemoveReserveForm: React.FC<TabComponentProps> = ({ onBack, onSuccess }) =
           loading={loading}
         />
       </form>
-      {error && <div className="text-cm-red prose-sm">{error}</div>}
     </>
   );
 };

@@ -164,13 +164,13 @@ class BooksModel {
         }
     }
 
-    async setReservedStatus(bookId, isReserved) {
-        console.log(`🔵 [BooksModel] Alterando status de reserva didática: bookId=${bookId}, isReserved=${isReserved}`);
-        const status = isReserved ? 'reservado' : 'disponível';
+    async setReservedStatus(bookId, status) {
+        console.log(`🔵 [BooksModel] Alterando status de reserva didática: bookId=${bookId}, status=${status}`);
+        const statusValue = status ? 'reservado' : 'disponível';
         const query = `UPDATE books SET status = ? WHERE id = ?`;
         try {
-            const result = await executeQuery(query, [status, bookId]);
-            console.log(`🟢 [BooksModel] Status de reserva didática alterado: bookId=${bookId}, isReserved=${isReserved}`);
+            const result = await executeQuery(query, [statusValue, bookId]);
+            console.log(`🟢 [BooksModel] Status de reserva didática alterado: bookId=${bookId}, status=${statusValue}`);
             return result;
         } catch (error) {
             console.error("🔴 [BooksModel] Erro ao alterar status de reserva didática:", error.message);
@@ -199,6 +199,7 @@ class BooksModel {
                 console.log("🟢 [BooksModel] Livro encontrado:", book);
             } else {
                 console.warn("🟡 [BooksModel] Livro não encontrado para id:", id);
+                throw new Error("Livro não encontrado. Verifique o código de barras fornecido e tente novamente.");
             }
             return book;
         } catch (error) {

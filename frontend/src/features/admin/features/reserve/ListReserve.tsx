@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
-import { Input } from "@/components/ui/input";
-
-interface Book {
-  id: number;
-  code: string;
-  title: string;
-  authors: string;
-  area: string;
-  subarea: string;
-  edition?: string;
-  is_reserved: number;
-}
-
+import { BooksService } from "@/services/BooksService";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
+import { Book } from "@/types/new_book";
 
 const columns: Column<Book>[] = [
   { label: "Código", accessor: "code", className: "font-mono" },
@@ -22,42 +11,22 @@ const columns: Column<Book>[] = [
   { label: "Área", accessor: "area" },
 ];
 
-const ListReserve: React.FC<TabComponentProps> = ({ onBack }) => {
+const ListReserve: React.FC<TabComponentProps> = ({ onBack, onError }) => {
   const [books, setBooks] = useState<Book[]>([]);
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchReservedBooks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = books.filter(book =>
-        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.authors.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.area.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredBooks(filtered);
-    } else {
-      setFilteredBooks(books);
-    }
-  }, [searchTerm, books]);
 
   const fetchReservedBooks = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const response = await fetch('/api/books/reserved');
-      if (!response.ok) throw new Error('Erro ao buscar livros reservados');
-      const data = await response.json();
+      const data = await BooksService.getReservedBooks();
       setBooks(data);
-      setFilteredBooks(data);
     } catch (error: any) {
-      setError(error.message || 'Erro ao buscar livros reservados');
+      onError(error || 'Erro ao buscar livros reservados');
     } finally {
       setLoading(false);
     }
@@ -65,22 +34,14 @@ const ListReserve: React.FC<TabComponentProps> = ({ onBack }) => {
 
   return (
     <>
-      <p>Esses são todos os livros atualmente na reserva didática.</p>
-      <div className="my-4">
-        <Input
-          placeholder="Buscar por título, autor, código ou área..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <p>Esses são todos os livros atualmente na reserva didática:</p>
       <ListRenderer
-        data={filteredBooks}
+        data={books}
         columns={columns}
         loading={loading}
-        error={error}
         emptyMessage="Nenhum livro reservado encontrado."
         onBack={onBack}
-        footer={`${filteredBooks.length} livros reservados no total`}
+        footer={`${books.length} livro(s) reservado(s) no total`}
       />
     </>
   );

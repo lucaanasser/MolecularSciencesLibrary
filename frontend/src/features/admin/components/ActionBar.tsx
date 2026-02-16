@@ -36,7 +36,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
     )}
     {showConfirm && (
       <Button
-        type="submit"
+        type="button"
         variant="wide"
         className={confirmColor}
         disabled={loading}

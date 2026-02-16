@@ -9,7 +9,7 @@ import ManageDonators from "@/features/admin/_tabs/ManageDonators";
 import ManageReserve from "@/features/admin/_tabs/ManageReserve";
 import Notifications from "@/features/admin/_tabs/Notifications";
 import Reports from "@/features/admin/features/Reports";
-import Settings from "@/features/admin/_tabs/ManageSettings";
+import Rules from "@/features/admin/_tabs/ManageRules";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 const AdminPage = () => {
@@ -39,7 +39,7 @@ const AdminPage = () => {
     { id: "reserve", label: "Reserva", icon: Bookmark },
     { id: "notifications", label: "Notificações", icon: Bell },
     { id: "reports", label: "Relatórios", icon: BarChart3 },
-    { id: "settings", label: "Configurações", icon: SettingsIcon },
+    { id: "rules", label: "Regras", icon: SettingsIcon },
   ];
 
   const getTabColor = (tabId: string) => {
@@ -51,7 +51,7 @@ const AdminPage = () => {
       case "reserve": return "cm-blue";
       case "notifications": return "library-purple";
       case "reports": return "cm-red";
-      case "settings": return "cm-orange";
+      case "rules": return "cm-orange";
       default: return "library-purple";
     }
   };
@@ -68,7 +68,7 @@ const AdminPage = () => {
           <ErrorBoundary><ManageReserve /></ErrorBoundary>
           <ErrorBoundary><Notifications /></ErrorBoundary>
           <ErrorBoundary><Reports /></ErrorBoundary>
-          <ErrorBoundary><Settings /></ErrorBoundary>
+          <ErrorBoundary><Rules /></ErrorBoundary>
         </TabsCard>
       </ErrorBoundary>
     </div>

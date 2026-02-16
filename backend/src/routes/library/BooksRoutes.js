@@ -159,26 +159,31 @@ router.get('/export/csv', (req, res) => {
 
 /**
  * @route POST /reserve
- * @desc Define ou remove reserva didática para um livro
- * @body {
- *   bookId: number,          // id do livro (EAN-13)
- *   isReserved: boolean      // true para reservar, false para remover
- * }
- * @returns {Object} Resultado da operação
+ * @desc Define reserva didática para um livro
+ * @body { bookId: number }
  */
 router.post('/reserve', (req, res) => {
-    console.log("🔵 [BooksRoutes] POST /reserve - Definir/remover reserva didática");
-    BooksController.setReservedStatus(req, res);
+    console.log("🔵 [BooksRoutes] POST /reserve - Reservar livro didaticamente");
+    BooksController.setReservedStatus(req, res, true);
 });
 
+/**
+ * @route POST /unreserve
+ * @desc Remove reserva didática de um livro
+ * @body { bookId: number }
+ */
+router.post('/unreserve', (req, res) => {
+    console.log("🔵 [BooksRoutes] POST /unreserve - Remover reserva didática");
+    BooksController.setReservedStatus(req, res, false);
+});
 
 /**
- * @route DELETE /reserved/clear
+ * @route DELETE /reserve/clear
  * @desc Remove todos os livros da reserva didática
  * @returns {Object} Resultado da operação
  */
-router.delete('/reserved/clear', (req, res) => {
-    console.log("🔵 [BooksRoutes] DELETE /reserved/clear - Remover todos os livros da reserva");
+router.delete('/reserve/clear', (req, res) => {
+    console.log("🔵 [BooksRoutes] DELETE /reserve/clear - Remover todos os livros da reserva");
     BooksController.clearAllReservedBooks(req, res);
 });
 

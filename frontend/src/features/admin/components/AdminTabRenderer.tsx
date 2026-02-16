@@ -40,12 +40,14 @@ export interface TabComponentProps {
   onSuccess: (message?: string) => void;
   /** Callback de erro - exibe toast de erro */
   onError: (error: Error | string) => void;
+  /** Callback opcional para mudança de tab (recebe id da nova tab ou null) */
+  onTabChange?: (tabId: string | null) => void;
 }
 
 /**
  * Props do AdminTabRenderer
  */
-interface AdminTabRendererProps {
+export interface AdminTabRendererProps {
   /** Título da seção (h3) */
   title: string;
   /** Descrição da seção (p) */
@@ -173,6 +175,10 @@ const AdminTabRenderer: React.FC<AdminTabRendererProps> = ({
           onBack={handleBack}
           onSuccess={handleSuccess}
           onError={handleError}
+          onTabChange={setActiveTab => {
+            setSelectedTab(setActiveTab);
+            onTabChange?.(setActiveTab);
+          }}
           {...additionalProps}
         />
       </>

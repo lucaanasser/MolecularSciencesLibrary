@@ -1,6 +1,3 @@
-import { VirtualShelf } from '@/features/bookshelf/types/virtualbookshelf';
-import { Book } from '@/types/book';
-
 /**
  * Serviço para gerenciar operações da estante virtual
  * Padrão de logs:
@@ -9,6 +6,10 @@ import { Book } from '@/types/book';
  * 🟡 Aviso/Fluxo alternativo
  * 🔴 Erro
  */
+
+import { VirtualShelf } from '@/features/bookshelf/types/virtualbookshelf';
+import { Book } from '@/types/book';
+import { logger } from '@/utils/logger';
 
 class VirtualBookshelfService {
   private getAuthHeaders() {
@@ -42,13 +43,13 @@ class VirtualBookshelfService {
    * @returns Array de livros com todos os campos do backend
    */
   async getBooksByShelf(shelf_number: number, shelf_row: number): Promise<Book[]> {
-    console.log(`🔵 [VirtualBookshelfService] Buscando livros: shelf_number=${shelf_number}, shelf_row=${shelf_row}`);
+    logger.log(`🔵 [VirtualBookshelfService] Buscando livros: shelf_number=${shelf_number}, shelf_row=${shelf_row}`);
     const response = await fetch(`/api/virtual-bookshelf/shelf-books?shelf_number=${shelf_number}&shelf_row=${shelf_row}`);
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
     const books: Book[] = await response.json();
-    console.log(`🟢 [VirtualBookshelfService] Livros recebidos do backend:`, books.length);
+    logger.log(`🟢 [VirtualBookshelfService] Livros recebidos do backend:`, books.length);
     return books;
   }
 

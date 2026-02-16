@@ -1,4 +1,5 @@
 const RulesService = require('../../services/utilities/RulesService');
+const LOAN_RULES = require('../../utils/validLoanRules').LOAN_RULES;
 
 const RulesController = {
     getRules: async (req, res) => {
@@ -13,48 +14,23 @@ const RulesController = {
         }
     },
 
+
     updateRules: async (req, res) => {
         console.log('🔵 [RulesController] Recebida requisição para atualizar regras:', req.body);
-        try {
-            const { 
-                max_days, 
-                max_books_per_user, 
-                overdue_reminder_days, 
-                max_renewals, 
-                renewal_days,
-                extension_window_days,
-                extension_block_multiplier,
-                shortened_due_days_after_nudge,
-                nudge_cooldown_hours,
-                pending_nudge_extension_days
-            } = req.body;
-            if ([
-                max_days,
-                max_books_per_user,
-                overdue_reminder_days,
-                max_renewals,
-                renewal_days,
-                extension_window_days,
-                extension_block_multiplier,
-                shortened_due_days_after_nudge,
-                nudge_cooldown_hours,
-                pending_nudge_extension_days
-            ].some(v => typeof v !== 'number')) {
-                console.warn('🟡 [RulesController] Dados inválidos recebidos:', req.body);
-                return res.status(400).json({ error: 'Dados inválidos' });
+
+        // Monta e valida os campos dinamicamente
+        const updateData = {};
+        for (const field of LOAN_RULES) {
+            const value = req.body[field];
+            if (typeof value !== 'number') {
+                console.warn(`🟡 [RulesController] Campo inválido: ${field} =`, value);
+                return res.status(400).json({ error: `Campo inválido: ${field}` });
             }
-            const updated = await RulesService.updateRules({ 
-                max_days, 
-                max_books_per_user, 
-                overdue_reminder_days, 
-                max_renewals, 
-                renewal_days,
-                extension_window_days,
-                extension_block_multiplier,
-                shortened_due_days_after_nudge,
-                nudge_cooldown_hours,
-                pending_nudge_extension_days
-            });
+            updateData[field] = value;
+        }
+
+        try {
+            const updated = await RulesService.updateRules(updateData);
             console.log('🟢 [RulesController] Regras atualizadas com sucesso');
             res.json(updated);
         } catch (err) {

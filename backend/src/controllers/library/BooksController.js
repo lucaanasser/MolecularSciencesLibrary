@@ -35,8 +35,18 @@ class BooksController {
         }
         try {
             const result = await BooksService.importBooksFromCSV(file);
+            if (result.failed > 0) {
+                let errorMsg = `Importação de livros concluída com ${result.success} livros importados com sucesso e ${result.failed} erros.`
+                for (const err of result.errors) {
+                    errorMsg += `\nLinha ${err.row}: ${err.error}`;
+                }
+                console.warn(`🟡 [BooksController] ${errorMsg}`);
+                res.status(200).json({ success: false, message: errorMsg });
+                return;
+            }
             console.log('🟢 [BooksController] Importação de livros via CSV concluída');
-            res.status(200).json(result);
+            const successMsg = `Importação de livros concluída com ${result.success} livros importados com sucesso e ${result.failed} falhas.`;
+            res.status(200).json({ success: true, message: successMsg });
         } catch (error) {
             console.error('🔴 [BooksController] Erro ao importar livros via CSV:', error.message);
             res.status(500).json({ success: false, message: error.message });
@@ -122,11 +132,16 @@ class BooksController {
         }
     }
 
-    async setReservedStatus(req, res) {
-        const { bookId, isReserved } = req.body;
+    async setReservedStatus(req, res, status) {
+        const { bookId } = req.body;
+        if (!bookId) {
+            console.warn('🟡 [BooksController] bookId não fornecido para setReservedStatus:', { bookId, status });
+            res.status(400).json({ success: false, message: 'Parâmetros inválidos: bookId é obrigatório' });
+            return;
+        }
         console.log(`🔵 [BooksController] Definindo status de reserva didática para livro bookId=${bookId}`);
         try {
-            const result = await BooksService.setReservedStatus(bookId, isReserved);
+            const result = await BooksService.setReservedStatus(bookId, status);
             console.log(`🟢 [BooksController] Status de reserva didática atualizado para livro bookId=${bookId}`);
             res.status(200).json(result);
         } catch (error) {

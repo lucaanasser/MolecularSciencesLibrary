@@ -3,9 +3,10 @@ import ActiveLoansList from "@/features/admin/features/loans/ActiveLoansList";
 import InternalUseRegister from "@/features/admin/features/loans/InternalUseRegister";
 import BorrowBookForm from "@/features/admin/features/loans/BorrowBookForm";
 import ReturnBookForm from "@/features/admin/features/loans/ReturnBookForm";
+import { logger } from "@/utils/logger";
 
 const ManageLoans = () => {
-  console.log("🔵 [AdminPage/ManageLoans] Renderizando gerenciamento de empréstimos");
+  logger.log("🔵 [AdminPage/ManageLoans] Renderizando gerenciamento de empréstimos");
 
   return (
     <AdminTabRenderer

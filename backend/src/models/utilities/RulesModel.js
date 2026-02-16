@@ -1,4 +1,5 @@
-const { getQuery, runQuery } = require('../../database/db');
+const { getQuery, executeQuery } = require('../../database/db');
+const LOAN_RULES = require('../../utils/validLoanRules').LOAN_RULES;
 
 const RulesModel = {
     getRules: () => {
@@ -16,20 +17,14 @@ const RulesModel = {
 
     updateRules: (data) => {
         console.log('🔵 [RulesModel] Atualizando regras:', data);
-        return runQuery(
-            `UPDATE rules SET max_days = ?, overdue_reminder_days = ?, max_books_per_user = ?, max_renewals = ?, renewal_days = ?, extension_window_days = ?, extension_block_multiplier = ?, shortened_due_days_after_nudge = ?, nudge_cooldown_hours = ?, pending_nudge_extension_days = ? WHERE id = 1`,
-            [
-                data.max_days,
-                data.overdue_reminder_days,
-                data.max_books_per_user,
-                data.max_renewals,
-                data.renewal_days,
-                data.extension_window_days,
-                data.extension_block_multiplier,
-                data.shortened_due_days_after_nudge,
-                data.nudge_cooldown_hours,
-                data.pending_nudge_extension_days
-            ]
+
+        // Monta SET dinâmico e parâmetros na ordem de LOAN_RULES
+        const setClause = LOAN_RULES.map(field => `${field} = ?`).join(', ');
+        const params = LOAN_RULES.map(field => data[field]);
+
+        return executeQuery(
+            `UPDATE rules SET ${setClause} WHERE id = 1`,
+            params
         )
             .then(() => {
                 console.log('🟢 [RulesModel] Regras atualizadas com sucesso');

@@ -25,7 +25,6 @@ interface PublicHeaderProps {
   linkedIn: string;
   lattes: string;
   github: string;
-  site?: string;
   bannerChoice?: string;
   avatarTimestamp?: number;
   bannerTimestamp?: number;
@@ -62,7 +61,6 @@ export const PublicHeader = ({
   linkedIn,
   lattes,
   github,
-  site,
   bannerChoice = "purple",
   avatarTimestamp,
   bannerTimestamp,
