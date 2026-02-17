@@ -1,6 +1,6 @@
 
 import { Heart, Sparkles, Calendar } from "lucide-react";
-import { StatsSidebar } from "@/features/profile/StatsSidebar";
+import { StatsSidebar } from "@/components/StatsSidebar";
 
 export const PublicStats = ({ userStats }) => {
   const stats = [

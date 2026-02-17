@@ -13,10 +13,10 @@ const ManageBooks = () => {
   ];
 
   const tabComponents: TabComponent[] = [
-    { id: "add", component: (props) => <AddBookForm {...props} /> },
-    { id: "remove", component: (props) => <RemoveBookForm {...props} /> },
+    { id: "add", component: (props) => <AddBookForm onBack={props.onBack} onSuccess={props.onSuccess} onError={props.onError} /> },
+    { id: "remove", component: (props) => <RemoveBookForm onBack={props.onBack} onSuccess={props.onSuccess} onError={props.onError} /> },
     { id: "import", component: (props) => <ImportBooks {...props} /> },
-    { id: "list", component: (props) => <ListBooks onBack={props.onBack} /> },
+    { id: "list", component: (props) => <ListBooks {...props} /> },
   ];
 
   return (

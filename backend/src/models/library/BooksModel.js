@@ -15,14 +15,17 @@ class BooksModel {
     constructor() {
         this.allFields = ['id', 'code', 'area', 'subarea', 'title', 'subtitle', 'authors', 'edition', 'volume', 'language', 'status'];
         this.filters = ['q', 'area', 'subarea', 'status'];
-        this.orderBy = `ORDER BY CASE area 
-            WHEN 'Biologia' THEN 1
-            WHEN 'Química' THEN 2
-            WHEN 'Física' THEN 3
-            WHEN 'Matemática' THEN 4
-            WHEN 'Computação' THEN 5
-            WHEN 'Variados' THEN 6
-            ELSE 999 END, subarea ASC, code ASC`;
+        this.orderByArea = `ORDER BY 
+            CASE area 
+                WHEN 'Matemática' THEN 1
+                WHEN 'Física' THEN 2
+                WHEN 'Química' THEN 3
+                WHEN 'Biologia' THEN 4
+                WHEN 'Computação' THEN 5
+                WHEN 'Variados' THEN 6
+                ELSE 999 
+            END`;
+        this.orderBy = (field) => field === 'area' ? this.orderByArea : `ORDER BY count DESC`;
     }
     
     async addBook(bookData) {
@@ -121,7 +124,7 @@ class BooksModel {
         
         // Usa o método auxiliar para montar filtros e parâmetros
         const { where, params } = this._buildFilterQuery(filters);
-        let query = `SELECT * FROM books${where} ${this.orderBy}`;
+        let query = `SELECT * FROM books${where}`;
         
         // Adiciona paginação se fornecida
         if (limit !== null) {
@@ -140,6 +143,18 @@ class BooksModel {
         }
     }    
 
+    async getBooksBy(field) {
+        const query = `SELECT *, COUNT(*) as count FROM books GROUP BY ${field} ${this.orderBy(field)}`;
+        try {
+            const books = await allQuery(query);
+            console.log(`🟢 [BooksModel] Livros agrupados por ${field} encontrados: ${books.length}`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao buscar livros agrupados:", error.message);
+            throw error;
+        }
+    }
+
     async getAllBooks() {
         console.log("🔵 [BooksModel] Buscando todos os livros");
         return this.getBooks(null, null, null);
@@ -155,13 +170,26 @@ class BooksModel {
         // Executa a query e retorna o total
         try {
             const result = await getQuery(query, params);
-            const count = result?.count || 0;
+            const count = result.count;
             console.log(`🟢 [BooksModel] Total de livros: ${count}`);
             return count;
         } catch (error) {
             console.error("🔴 [BooksModel] Erro ao contar livros:", error.message);
             throw error;
         }
+    }
+
+    async countBooksBy(field) {
+      console.log(`🔵 [BooksModel] Contando livros agrupados por ${field}`);
+      const query = `SELECT ${field}, COUNT(*) as count FROM books GROUP BY ${field} ${this.orderBy(field)}`;
+      try {
+          const result = await allQuery(query);
+          console.log(`🟢 [BooksModel] Contagem agrupada:`, result);
+          return result;
+      } catch (error) {
+          console.error("🔴 [BooksModel] Erro ao contar agrupado:", error.message);
+          throw error;
+      }
     }
 
     async setReservedStatus(bookId, status) {

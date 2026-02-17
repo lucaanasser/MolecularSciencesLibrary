@@ -19,9 +19,9 @@ const LoansController = {
             return res.status(400).json({ error: 'ID do livro, NUSP e senha são obrigatórios' });
         }
         try {
-            const loan = await LoansService.borrowBook(book_id, NUSP, password);
-            console.log(`🟢 [LoansController] Empréstimo criado com sucesso:`, loan);
-            res.status(201).json({...loan, is_overdue: false});
+            await LoansService.borrowBook(book_id, NUSP, password);
+            console.log(`🟢 [LoansController] Empréstimo criado com sucesso`);
+            res.status(201).json({ message: 'Empréstimo criado com sucesso' });
         } catch (err) {
             console.error(`🔴 [LoansController] Erro ao criar empréstimo: ${err.message}`);
             res.status(400).json({ error: err.message });
@@ -55,10 +55,9 @@ const LoansController = {
             return res.status(400).json({ error: 'ID do livro é obrigatório' });
         }
         try {
-            // Busca o empréstimo ativo para o livro
-            const loan = await LoansService.returnBook(book_id);
-            console.log(`🟢 [LoansController] Devolução registrada com sucesso:`, loan);
-            res.json({...loan, is_overdue: false});
+            await LoansService.returnBook(book_id);
+            console.log(`🟢 [LoansController] Devolução registrada com sucesso`);
+            res.json({ message: "Devolução registrada com sucesso" });
         } catch (err) {
             console.error(`🔴 [LoansController] Erro ao registrar devolução: ${err.message}`);
             res.status(400).json({ error: err.message });
@@ -76,9 +75,9 @@ const LoansController = {
         }
 
         try {
-            const result = await LoansService.registerInternalUse(book_id);
+            await LoansService.registerInternalUse(book_id);
             console.log("🟢 [LoansController] Uso interno registrado com sucesso");
-            res.status(201).json({...result, is_overdue: false});
+            res.status(201).json({ message: "Uso interno registrado com sucesso" });
         } catch (err) {
             console.error(`🔴 [LoansController] Erro ao registrar uso interno: ${err.message}`);
             res.status(400).json({ error: err.message });

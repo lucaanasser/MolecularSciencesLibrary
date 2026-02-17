@@ -8,9 +8,10 @@ import ManageLoans from "@/features/admin/_tabs/ManageLoans";
 import ManageDonators from "@/features/admin/_tabs/ManageDonators";
 import ManageReserve from "@/features/admin/_tabs/ManageReserve";
 import Notifications from "@/features/admin/_tabs/Notifications";
-import Reports from "@/features/admin/features/Reports";
+import Reports from "@/features/admin/_tabs/Reports";
 import Rules from "@/features/admin/_tabs/ManageRules";
 import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
+import { COLORS } from "@/constants/styles";
 
 const AdminPage = () => {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
@@ -35,40 +36,26 @@ const AdminPage = () => {
     { id: "books", label: "Livros", icon: BookOpen },
     { id: "users", label: "Usuários", icon: Users },
     { id: "loans", label: "Empréstimos", icon: Calendar },
-    { id: "donators", label: "Doadores", icon: Heart },
     { id: "reserve", label: "Reserva", icon: Bookmark },
+    { id: "rules", label: "Regras", icon: SettingsIcon },
+    { id: "donators", label: "Doadores", icon: Heart },
     { id: "notifications", label: "Notificações", icon: Bell },
     { id: "reports", label: "Relatórios", icon: BarChart3 },
-    { id: "rules", label: "Regras", icon: SettingsIcon },
   ];
-
-  const getTabColor = (tabId: string) => {
-    switch(tabId){
-      case "books": return "cm-red";
-      case "users": return "cm-orange";
-      case "loans": return "cm-yellow";
-      case "donators": return "cm-green";
-      case "reserve": return "cm-blue";
-      case "notifications": return "library-purple";
-      case "reports": return "cm-red";
-      case "rules": return "cm-orange";
-      default: return "library-purple";
-    }
-  };
 
   return (
     <div className="content-container">
       <h2>Painel do Administrador</h2>
       <ErrorBoundary>
-        <TabsCard tabs={tabs} getTabColor={getTabColor} initialTabId="books">
+        <TabsCard tabs={tabs} getTabColor={(tabId, idx) => COLORS[idx%COLORS.length]} initialTabId="books">
           <ErrorBoundary><ManageBooks /></ErrorBoundary>
           <ErrorBoundary><ManageUsers /></ErrorBoundary>
           <ErrorBoundary><ManageLoans /></ErrorBoundary>
-          <ErrorBoundary><ManageDonators /></ErrorBoundary>
           <ErrorBoundary><ManageReserve /></ErrorBoundary>
+          <ErrorBoundary><Rules /></ErrorBoundary>
+          <ErrorBoundary><ManageDonators /></ErrorBoundary>
           <ErrorBoundary><Notifications /></ErrorBoundary>
           <ErrorBoundary><Reports /></ErrorBoundary>
-          <ErrorBoundary><Rules /></ErrorBoundary>
         </TabsCard>
       </ErrorBoundary>
     </div>

@@ -14,8 +14,16 @@ interface ActionGridProps {
   columns?: number;
 }
 
-const ActionGrid: React.FC<ActionGridProps> = ({ actions, className = "", columns = 3 }) => (
-  <div className={`grid grid-cols-1 md:grid-cols-${columns} gap-4 ${className}`}>
+const ActionGrid: React.FC<ActionGridProps> = ({ actions, className = "", columns = 3 }) => {
+  const gridColsMap = {
+    1: "md:grid-cols-1",
+    2: "md:grid-cols-2",
+    3: "md:grid-cols-3",
+    4: "md:grid-cols-4",
+  };
+  const gridColsClass = gridColsMap[columns] || "md:grid-cols-3";
+  return (
+  <div className={`grid grid-cols-1 ${gridColsClass} gap-4 ${className}`}>
     {actions.map(({ label, onClick, color, icon, disabled }, i) => (
       <Button
         key={label}
@@ -30,6 +38,6 @@ const ActionGrid: React.FC<ActionGridProps> = ({ actions, className = "", column
       </Button>
     ))}
   </div>
-);
+)};
 
 export default ActionGrid;

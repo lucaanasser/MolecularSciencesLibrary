@@ -10,7 +10,7 @@ export interface TabDefinition {
 export interface TabsCardProps {
   tabs: TabDefinition[];
   initialTabId?: string;
-  getTabColor?: (tabId: string) => string;
+  getTabColor?: (tabId: string, idx: number) => string;
   children: ReactNode[];
   className?: string;
 }
@@ -34,14 +34,14 @@ export const TabsCard: React.FC<TabsCardProps> = ({
 
   return (
     <div
-      className={`rounded-2xl border-b bg-white shadow-lg p-0 flex flex-col w-full justify-center h-full ${className}`}
+      className={`p-0 flex flex-col w-full justify-center h-full ${className}`}
       style={{ width: '100%' }}
     >
-      <div className="flex flex-row bg-white rounded-t-2xl overflow-y-auto">
+      <div className="flex flex-row rounded-t-2xl overflow-y-auto">
         {tabs.map((tab, idx) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-          const color = getTabColor(tab.id);
+          const color = getTabColor(tab.id, idx);
           return (
             <button
               key={tab.id}
@@ -73,7 +73,7 @@ export const TabsCard: React.FC<TabsCardProps> = ({
         })}
       </div>
       <div
-        className="p-6 md:p-10 flex-1 tabs-content-transition"
+        className="bg-white rounded-b-2xl shadow-lg p-6 md:p-10 flex-1 tabs-content-transition"
         style={{overflow: 'auto', maxHeight: '65vh'}}
       >
         <div

@@ -335,14 +335,9 @@ class EmailService {
     /**
      * Envia email de confirmação de devolução de livro
      */
-    async sendReturnConfirmationEmail({ user_id, book_title, returnedAt }) {
-        const user = await usersModel.getUserById(user_id);
-        if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
-            return false;
-        }
+    async sendReturnConfirmationEmail({ user, book_title }) {
         const subject = 'Confirmação de devolução de livro';
-        const dateStr = returnedAt ? new Date(returnedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
+        const dateStr = (new Date()).toLocaleDateString('pt-BR');
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Confirmamos a devolução do livro <b>"${book_title}"</b> em ${dateStr}.</p>
@@ -365,12 +360,7 @@ class EmailService {
     /**
      * Envia email de confirmação de novo empréstimo
      */
-    async sendLoanConfirmationEmail({ user_id, book_title, borrowedAt }) {
-        const user = await usersModel.getUserById(user_id);
-        if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
-            return false;
-        }
+    async sendLoanConfirmationEmail({ user, book_title }) {
         const subject = 'Confirmação de empréstimo de livro';
         // Buscar a data de devolução real do banco de dados
         let dueDateStr = '';
@@ -384,7 +374,7 @@ class EmailService {
         } catch (err) {
             console.error('Erro ao buscar data de devolução:', err.message);
         }
-        const dateStr = borrowedAt ? new Date(borrowedAt).toLocaleDateString('pt-BR') : (new Date()).toLocaleDateString('pt-BR');
+        const dateStr = (new Date()).toLocaleDateString('pt-BR');
         const htmlContent = `
             <p>Olá, <strong>${user.name || 'colega'}</strong>!</p>
             <p>Confirmamos o registro do empréstimo do livro <b>"${book_title}"</b> em ${dateStr}.</p>
@@ -444,12 +434,7 @@ class EmailService {
      /**
      * Envia email de confirmação de renovação de empréstimo
      */
-    async sendRenewalConfirmationEmail({ user_id, book_title, due_date }) {
-        const user = await usersModel.getUserById(user_id);
-        if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuário ${user_id} não encontrado ou sem email`);
-            return false;
-        }
+    async sendRenewalConfirmationEmail({ user, book_title, due_date }) {
         const subject = 'Renovação de empréstimo confirmada!';
         const dueDateStr = new Date(due_date).toLocaleDateString('pt-BR');
         const htmlContent = `

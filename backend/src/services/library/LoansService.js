@@ -1,10 +1,10 @@
 const LoansModel = require('../../models/library/LoansModel');
 const UsersModel = require('../../models/library/UsersModel');
 const BooksModel = require('../../models/library/BooksModel');
-const bcrypt = require('bcrypt');
 const RulesService = require('../utilities/RulesService');
 const EmailService = require('../utilities/EmailService');
-const { a } = require('framer-motion/client');
+const UsersService = require('./UsersService');
+const BooksService = require('./BooksService');
 
 /**
  * Service responsável pela lógica de negócio dos empréstimos de livros.
@@ -21,11 +21,15 @@ class LoansService {
      * @param {number} book_id - ID do livro
      * @param {number} NUSP - Identificador do usuário
      * @param {string} password - Senha do usuário
-     * @returns {Promise<Object>} Dados do empréstimo criado
      */
     async borrowBook(book_id, NUSP, password) {
         console.log(`🔵 [LoansService] Iniciando processo de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
-        return this._borrowBookCore(book_id, NUSP, password, true);
+        try {
+            await this._borrowBookCore(book_id, NUSP, password, true);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao realizar empréstimo: ${err.message}`);
+            throw err;
+        }
     }
 
     /**
@@ -36,7 +40,12 @@ class LoansService {
      */
     async borrowBookAsAdmin(book_id, NUSP) {
         console.log(`🔵 [LoansService] [ADMIN] Iniciando processo de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
-        return this._borrowBookCore(book_id, NUSP, null, false);
+        try {
+            await this._borrowBookCore(book_id, NUSP, null, false);
+        } catch (err) {
+            console.error(`🔴 [LoansService] [ADMIN] Erro ao realizar empréstimo: ${err.message}`);
+            throw err;
+        }
     }
  
     /**
@@ -53,44 +62,28 @@ class LoansService {
         const loans = await LoansModel.getLoansByBookId(book_id, true); // activeOnly = true
         if (!loans || loans.length === 0) {
             console.warn(`🟡 [LoansService] Nenhum empréstimo ativo encontrado para o livro ${book_id}`);
-            throw new Error('Nenhum empréstimo ativo encontrado para este livro');
+            throw new Error('Nenhum empréstimo ativo encontrado para este livro.');
         }
         
         // Registra a devolução
         const loan = loans[0];
         try {
-            await LoansModel.returnBook(loan.id);
+            await LoansModel.returnBook(loan.id, book_id);
             console.log(`🟢 [LoansService] Devolução registrada com sucesso para loan_id=${loan.id}`);
         } catch(err) {
             console.error(`🔴 [LoansService] Erro ao registrar devolução: ${err.message}`);
             throw err;
         }
 
-        // Busca detalhes do empréstimo
-        let bookTitle = "";
-        try {
-            const book = await BooksModel.getBookById(loan.book_id);
-            if (book && book.title) {
-                bookTitle = book.title;
-            }
-        } catch (err) {
-            console.warn(`🟡 [LoansService] Não foi possível buscar detalhes do livro para email de devolução: book_id=${loan.book_id}`);
-        }
-        
         // Envia email de confirmação de devolução
         try {
-            await EmailService.sendReturnConfirmationEmail({
-                user_id: loan.user_id,
-                book_title: bookTitle,
-                returnedAt: new Date().toISOString()
-            });
+            console.log(`🔵 [LoansService] Enviando email de confirmação de devolução para usuário ${loan.user.name}`);
+            await EmailService.sendReturnConfirmationEmail({ user: loan.user, book_title: loan.book.title });
         } catch (emailErr) {
-            console.error(`🔴 [LoansService] Erro ao enviar email de devolução (devolução registrada com sucesso):`, emailErr.message);
+            console.warn(`🟡 [LoansService] Erro ao enviar email de devolução (devolução registrada com sucesso):`, emailErr.message);
         }
         
         console.log(`🟢 [LoansService] Devolução registrada para empréstimo:`, loan.id);
-        
-        return loan;
     }
 
     /**
@@ -103,19 +96,26 @@ class LoansService {
      * @throws {Error} Caso o livro não seja encontrado ou ocorra erro no processo
      */
     async registerInternalUse(book_id) {
-        console.log(`🔵 [LoansService] [USO INTERNO] Iniciando registro de uso interno para book_id=${book_id}`);
+        console.log(`🔵 [LoansService] Iniciando registro de uso interno para book_id=${book_id}`);
         
         // Busca o livro pelo ID
-        const book = await BooksModel.getBookById(book_id);
-        if (!book) {
-            console.warn(`🟡 [LoansService] [USO INTERNO] Livro id ${book_id} não encontrado`);
-            throw new Error('Livro não encontrado');
+        try {
+            console.log(`🔵 [LoansService] Buscando livro por ID: ${book_id}`);
+            await BooksModel.getBookById(book_id);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar livro: ${err.message}`);
+            throw err;
         }
         
         // Cria o empréstimo fantasma
-        const result = await LoansModel.registerInternalUse(book_id);
-        console.log(`🟢 [LoansService] [USO INTERNO] Uso interno registrado com sucesso para livro ${book_id} - ${book.title}`);
-        return result; // formato {success: true/false, loan_id: number}
+        try {
+            console.log(`🔵 [LoansService] Registrando uso interno para livro ${book_id}`);
+            await LoansModel.registerInternalUse(book_id);
+            console.log(`🟢 [LoansService] Uso interno registrado com sucesso para livro ${book_id} - ${book.title}`);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao registrar uso interno: ${err.message}`);
+            throw err;
+        }
     }
 
     /**
@@ -124,14 +124,15 @@ class LoansService {
      */
     async getLoans(status = 'all') {
         console.log(`🔵 [LoansService] Buscando empréstimos (status=${status})`);
-        const loans = await LoansModel.getAllLoans();
-        if (status === 'active') {
-            return loans.filter(l => !l.returned_at);
+        try {
+            const loans = await LoansModel.getAllLoans(status);
+            console.log(`🟢 [LoansService] Empréstimos buscados com sucesso: ${loans.length} encontrados`);
+            return loans;
         }
-        if (status === 'returned') {
-            return loans.filter(l => l.returned_at);
+        catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar empréstimos: ${err.message}`);
+            throw err;
         }
-        return loans;
     }
 
     /**
@@ -141,14 +142,14 @@ class LoansService {
      */
     async getUserLoans(userId, status = 'all') {
         console.log(`🔵 [LoansService] Buscando empréstimos do usuário ${userId} (status=${status})`);
-        const loans = await LoansModel.getLoansByUser(userId);
-        if (status === 'active') {
-            return loans.filter(l => !l.returned_at);
+        try {
+            const loans = await LoansModel.getLoansByUser(userId, status);
+            console.log(`🟢 [LoansService] Empréstimos encontrados para o usuário ${userId}: ${loans.length}`);
+            return loans;
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar empréstimos do usuário ${userId}: ${err.message}`);
+            throw err;
         }
-        if (status === 'returned') {
-            return loans.filter(l => l.returned_at);
-        }
-        return loans;
     }
 
     /**
@@ -166,7 +167,7 @@ class LoansService {
         console.log(`🔵 [LoansService] Preview de renovação: loan_id=${loan_id}, user_id=${user_id}`);
         
         // Busca empréstimo do livro e checa se está ativo e pertence ao usuário
-        const loan = await LoansModel.getLoanById(loan_id);
+        const loan = await this.getLoanById(loan_id);
         if (!loan) {
             console.warn(`🟡 [LoansService] Empréstimo não encontrado: loan_id=${loan_id}`);
             throw new Error('Empréstimo não encontrado.');
@@ -211,6 +212,7 @@ class LoansService {
         // Valida a renovação e calcula a nova due_date
         let preview;
         try {
+            console.log(`🔵 [LoansService] Validando renovação para loan_id=${loan_id}, user_id=${user_id}`);
             preview = await this.previewRenewLoan(loan_id, user_id);
         } catch (err) {
             console.error(`🔴 [LoansService] Renovação não permitida: ${err.message}`);
@@ -219,25 +221,28 @@ class LoansService {
 
         // Atualiza empréstimo usando a due_date calculada
         try {
+            console.log(`🔵 [LoansService] Atualizando empréstimo com nova due_date: loan_id=${loan_id}, new_due_date=${preview.new_due_date}`);
             await LoansModel.renewLoan(loan_id, preview.new_due_date);
         } catch (err) {
             console.error(`🔴 [LoansService] Erro ao atualizar empréstimo: ${err.message}`);
-            throw new Error('Erro ao atualizar empréstimo.');
+            throw err;
         }
 
-        // Busca dados do livro para email
-        let book;
+        // Busca dados do empréstimo atualizado
+        let loan;
         try {
-            book = await BooksModel.getBookById(updatedLoan.book_id);
+            console.log(`🔵 [LoansService] Buscando dados do empréstimo atualizado: loan_id=${loan_id}`);
+            loan = await this.getLoanById(loan_id);
         } catch (err) {
-            console.warn(`🟡 [LoansService] Erro ao buscar dados para email: ${err.message}`);
+            console.error(`🔴 [LoansService] Erro ao buscar dados do empréstimo atualizado: ${err.message}`);
+            throw err;
         }
 
         // Envia email de confirmação de renovação
         try {
             await EmailService.sendRenewalConfirmationEmail({
-                user_id,
-                book_title: book?.title || '',
+                user: loan.user,
+                book_title: loan.book.title,
                 due_date: preview.new_due_date
             });
         } catch (emailErr) {
@@ -245,12 +250,7 @@ class LoansService {
         }
 
         console.log(`🟢 [LoansService] Empréstimo renovado com sucesso: loan_id=${loan_id}`);
-
-        return {
-            message: 'Empréstimo renovado com sucesso.',
-            new_due_date: preview.new_due_date,
-            renewals_left: preview.renewals_left
-        };
+        return loan;
     }  
 
     /**
@@ -262,9 +262,30 @@ class LoansService {
      */
     isLoanOverdue(loan) {
         if (!loan || loan.returned_at) return false;
-        if (!loan.due_date) return false;
+        if (!loan.due_date){
+            console.warn(`🟡 [LoansService] Empréstimo sem due_date definido: loan_id=${loan.id}`);
+            throw new Error('Empréstimo sem data de devolução definida.');
+        }
         const due = new Date(loan.due_date.replace(' ', 'T'));
         return due < new Date();
+    }
+
+    /**
+     * Conta empréstimos com filtro de status.
+     * @param {'all'|'active'|'returned'} status
+     * 
+     * OBSERVAÇÃO: Atualmente não está na rota pois só é usada internamente por ReportsService
+     */
+    async countLoans(status = 'all') {
+        console.log(`🔵 [LoansService] Contando total de empréstimos com status "${status}"`);
+        try {
+            const result =  await LoansModel.countLoans(status);
+            console.log(`🟢 [LoansService] Contagem de empréstimos concluída: ${result}`);
+            return result;
+        } catch (error) {
+            console.error(`🔴 [LoansService] Erro ao contar empréstimos: ${error.message}`);
+            throw error;
+        }
     }
 
     /* ==================== Funções auxiliares ==================== */
@@ -287,46 +308,67 @@ class LoansService {
         console.log(`🔵 [LoansService] Iniciando processo de empréstimo: book_id=${book_id}, NUSP=${NUSP}, requirePassword=${requirePassword}`);
         
         // Valida usuário
-        const user = await UsersModel.getUserByNUSP(NUSP);
-        if (!user) {
-            console.warn(`🟡 [LoansService] Usuário NUSP ${NUSP} não encontrado`);
-            throw new Error('Usuário não encontrado');
+        let user;
+        try {
+            console.log(`🔵 [LoansService] Buscando usuário por NUSP: ${NUSP}`);
+            user = await UsersService.getUserByNUSP(NUSP);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar usuário: ${err.message}`);
+            throw err;
         }
 
-        // Valida senha
-        if (requirePassword) {
-            const passwordMatch = await bcrypt.compare(password, user.password_hash);
-            if (!passwordMatch) {
-                console.warn(`🟡 [LoansService] Senha incorreta para NUSP ${NUSP}`);
-                throw new Error('Senha incorreta');
-            }
+        // Valida senha (se requirePassword)
+        if (requirePassword){
+          try {
+              console.log(`🔵 [LoansService] Validando senha para usuário NUSP: ${NUSP}`);
+              await UsersService.authenticateUser(NUSP, password);
+          } catch(err) {
+              console.error(`🔴 [LoansService] Erro ao validar senha: ${err.message}`);
+              throw err;
+          }
         }
 
         // Valida livro
-        const book = await BooksModel.getBookById(book_id);
-        if (!book) {
-            console.warn(`🟡 [LoansService] Livro id ${book_id} não encontrado`);
-            throw new Error('Livro não encontrado');
+        let book;
+        try {
+            console.log(`🔵 [LoansService] Buscando livro por ID: ${book_id}`);
+            book = await BooksService.getBookById(book_id);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar livro: ${err.message}`);
+            throw err;
         }
 
         // Valida regras de empréstimo
-        const rulesCheck = await this._checkLoanRules(user.id, book);
+        let rulesCheck;
+        try {
+            console.log(`🔵 [LoansService] Validando regras de empréstimo para usuário ${user.id} e livro ${book_id}`);
+            rulesCheck = await this._checkLoanRules(user.id, book);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao validar regras de empréstimo: ${err.message}`);
+            throw err;
+        }
         if (!rulesCheck.allowed) {
             console.warn(`🟡 [LoansService] Regras de empréstimo não atendidas: ${rulesCheck.reason}`);
             throw new Error(rulesCheck.reason);
         }
 
         // Realiza o empréstimo
-        const loan = await LoansModel.createLoan(book_id, user.id, rulesCheck.due_date);
-        console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`, loan);
+        try {
+            console.log(`🔵 [LoansService] Criando empréstimo para usuário ${user.id} e livro ${book_id}`);
+            await LoansModel.createLoan(book_id, user.id, rulesCheck.due_date);
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao criar empréstimo: ${err.message}`);
+            throw err;
+        }
+        
+        console.log(`🟢 [LoansService] Empréstimo criado com sucesso:`);
 
         try {
-            await EmailService.sendLoanConfirmationEmail(user.email, book, loan);
+            console.log(`🔵 [LoansService] Enviando email de confirmação de empréstimo para usuário ${user.id}`);
+            await EmailService.sendLoanConfirmationEmail({user, book_title: book.title});
         } catch (emailErr) {
-            console.error(`🔴 [LoansService] Erro ao enviar email de confirmação: ${emailErr.message}`);
+            console.warn(`🟡 [LoansService] Erro ao enviar email de confirmação: ${emailErr.message}`);
         }
-
-        return loan; // formato {success: true/false, loan_id: number}
     }
 
     /**
@@ -342,11 +384,17 @@ class LoansService {
      * @returns {Promise<{ allowed: boolean, reason: string, due_date?: string }>}
      */
     async _checkLoanRules(user_id, book) {
-        const rules = await RulesService.getRules();
+        let rules;
+        try {
+            rules = await RulesService.getRules();
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar regras: ${err.message}`);
+            throw err;
+        }
 
         // 1. Verifica se o usuário atingiu o limite de empréstimos ativos
         const userActiveLoans = await this.getUserLoans(user_id, 'active');
-        const maxActiveLoans = rules.max_books_per_user || 5;
+        const maxActiveLoans = rules.max_books_per_user;
         if (userActiveLoans.length >= maxActiveLoans) {
             return {
                 allowed: false,
@@ -391,9 +439,15 @@ class LoansService {
         const rules = await RulesService.getRules();
 
         // 1. Busca empréstimos atrasados do usuário
-        const allLoans = await this.getUserLoans(user_id, 'active');
-        const now = new Date();
-        const hasOverdue = allLoans.some(l => l.due_date && new Date(l.due_date) < now);
+        let userLoans;
+        try {
+            console.log(`🔵 [LoansService] Verificando empréstimos atrasados para usuário ${user_id}`);
+            userLoans = await this.getUserLoans(user_id, 'active');
+        } catch (err) {
+            console.error(`🔴 [LoansService] Erro ao buscar empréstimos do usuário para verificação de atrasos: ${err.message}`);
+            throw err;
+        }
+        const hasOverdue = userLoans.some(l => l.is_overdue);
         if (hasOverdue) {
             return { 
               allowed: false, 
@@ -409,7 +463,7 @@ class LoansService {
             return { allowed: false, reason: 'Limite de renovações atingido.', renewals_left: 0 };
         }
 
-        // 3. Calcula nova due_date sugerida
+        // 3. Calcula nova due_date pelas regras
         const renewalDays = rules.renewal_days || 7;
         const nowDate = new Date();
         const newDueDate = new Date(nowDate);
@@ -574,7 +628,7 @@ class LoansService {
         }
         // 5. Verifica se o usuário tem empréstimos atrasados
         const allLoans = await LoansModel.getLoansByUser(user.id);
-        const hasOverdue = allLoans.some(l => !l.returned_at && l.due_date && new Date(l.due_date) < now);
+        const hasOverdue = allLoans.some(l => l.book.status);
         if (hasOverdue) {
             return { allowed: false, reason: 'Você possui livro(s) atrasado(s). Devolva-o(s) antes de estender qualquer empréstimo.' };
         }

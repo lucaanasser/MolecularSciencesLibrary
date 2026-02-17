@@ -1,5 +1,5 @@
 import { TrendingUp, BookMarked, Gift } from "lucide-react";
-import { StatsSidebar } from "@/features/profile/StatsSidebar";
+import { StatsSidebar } from "@/components/StatsSidebar";
 
 export function PrivateStats({ userStats }) {
   const stats = [

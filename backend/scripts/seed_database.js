@@ -61,12 +61,20 @@ function allQuery(sql, params = []) {
 // ⚠️ MODO DESENVOLVIMENTO - Senha padrão: 1
 // NUSP 1 = Admin, NUSP 2 = ProAluno (já criados na inicialização)
 const USERS = [
-    { name: 'Teste Aluno 1', nusp: 3, email: 'aluno3@usp.br', phone: '(11) 91111-1111', role: 'aluno', class: '2024A' },
-    { name: 'Teste Aluno 2', nusp: 4, email: 'aluno4@usp.br', phone: '(11) 92222-2222', role: 'aluno', class: '2024B' },
-    { name: 'Teste Aluno 3', nusp: 5, email: 'aluno5@usp.br', phone: '(11) 93333-3333', role: 'aluno', class: '2023A' },
-    { name: 'Teste Aluno 4', nusp: 6, email: 'aluno6@usp.br', phone: '(11) 94444-4444', role: 'aluno', class: '2023B' },
-    { name: 'Teste Aluno 5', nusp: 7, email: 'aluno7@usp.br', phone: '(11) 95555-5555', role: 'aluno', class: '2024A' },
-    { name: 'Teste Aluno 6', nusp: 8, email: 'aluno8@usp.br', phone: '(11) 96666-6666', role: 'aluno', class: '2024B' },
+    // 30 alunos mockados, 6 por turma (NUSP de 10 a 39)
+    ...Array.from({ length: 30 }).map((_, i) => {
+        const turmaList = ['31', '32', '33', '34', '35'];
+        const turma = turmaList[Math.floor(i / 6)];
+        const nusp = 10 + i;
+        return {
+            name: `Aluno ${nusp}`,
+            nusp,
+            email: `aluno${nusp}@usp.br`,
+            phone: `(11) 9${String(nusp).padStart(4, '0')}-${String(nusp).padStart(4, '0')}`,
+            role: 'aluno',
+            class: turma
+        };
+    })
 ];
 
 const BOOKS = [
@@ -499,34 +507,56 @@ async function seedDonators() {
 
 async function seedLoans() {
     console.log('\n📖 Criando empréstimos de exemplo...');
-    
-    // Buscar o aluno 1 (NUSP 3) e os 6 primeiros livros
-    const aluno1 = await getQuery('SELECT id FROM users WHERE NUSP = ?', [3]);
-    const livros = await allQuery('SELECT id FROM books ORDER BY id ASC LIMIT 6');
 
-    if (!aluno1 || livros.length < 6) {
-        console.log('  ⏭️  Sem aluno 1 ou livros suficientes para criar empréstimos');
+    // Buscar todos os alunos e livros
+    const alunos = await allQuery('SELECT id FROM users WHERE role = "aluno"');
+    const livros = await allQuery('SELECT id FROM books ORDER BY id ASC LIMIT 30');
+
+    if (alunos.length === 0 || livros.length < 30) {
+        console.log('  ⏭️  Sem alunos ou livros suficientes para criar empréstimos');
         return;
     }
 
     const now = new Date();
-    // 2 empréstimos em dia (ativos)
-    for (let i = 0; i < 2; i++) {
-        const borrowedAt = new Date(now.getTime() - (i * 2) * 24 * 60 * 60 * 1000); // hoje e ontem
-        const dueDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // daqui 7 dias
-        try {
-            await runQuery(
-                `INSERT INTO loans (book_id, student_id, borrowed_at, due_date, renewals, is_extended, returned_at)
-                 VALUES (?, ?, ?, ?, 0, 0, NULL)`,
-                [livros[i].id, aluno1.id, borrowedAt.toISOString(), dueDate.toISOString()]
-            );
-            await runQuery('UPDATE books SET is_reserved = 1 WHERE id = ?', [livros[i].id]);
-            console.log(`  ✅ Empréstimo em dia criado: Livro ${livros[i].id} para Aluno 1`);
-        } catch (err) {
-            console.error(`  ❌ Erro ao criar empréstimo em dia:`, err.message);
+    let livroIndex = 0;
+
+    // Para cada um dos últimos 6 meses
+    for (let m = 0; m < 6; m++) {
+        // Data base para o mês (dia 10 de cada mês para variar)
+        const baseDate = new Date(now.getFullYear(), now.getMonth() - m, 10);
+
+        for (let i = 0; i < 5; i++) {
+            const aluno = alunos[(m * 5 + i) % alunos.length];
+            const livro = livros[livroIndex % livros.length];
+            livroIndex++;
+
+            // borrowed_at em dias diferentes do mês
+            const borrowedAt = new Date(baseDate.getTime() + i * 2 * 24 * 60 * 60 * 1000);
+            const dueDate = new Date(borrowedAt.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+            // 80% devolvido, 20% ativo
+            const returned = i % 5 === 0;
+            const returnedAt = returned ? new Date(dueDate.getTime() - 2 * 24 * 60 * 60 * 1000) : null;
+
+            try {
+                await runQuery(
+                    `INSERT INTO loans (book_id, user_id, borrowed_at, due_date, renewals, is_extended, returned_at)
+                     VALUES (?, ?, ?, ?, 0, 0, ?)`,
+                    [
+                        livro.id,
+                        aluno.id,
+                        borrowedAt.toISOString(),
+                        dueDate.toISOString(),
+                        returnedAt ? returnedAt.toISOString() : null
+                    ]
+                );
+                await runQuery('UPDATE books SET status = ? WHERE id = ?', [returned ? "disponível" : "emprestado", livro.id]);
+                console.log(`  ✅ Empréstimo criado: Livro ${livro.id} para Aluno ${aluno.id} em ${borrowedAt.toISOString().slice(0,10)}`);
+            } catch (err) {
+                console.error(`  ❌ Erro ao criar empréstimo:`, err.message);
+            }
         }
     }
-    // Não criar empréstimos atrasados nem devolvidos para o aluno teste 1
 }
 
 async function seedDisciplineClasses() {
@@ -1284,7 +1314,7 @@ async function main() {
     
     try {
         await seedUsers();
-        await seedBooks();
+        //await seedBooks();
         await seedDisciplines();
         const classesCount = await seedDisciplineClasses();
         await seedDonators();

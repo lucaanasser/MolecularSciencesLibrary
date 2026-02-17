@@ -200,11 +200,35 @@ class BooksService {
     }
 
     /**
+     * Busca livros agrupados por um campo específico.
+     * @param {string} field - Campo para agrupar
+     * @returns {Promise<Array>} Lista de livros encontrados
+     * 
+     * OBSERVAÇÃO: Atualmente não está na rota pois só era usada internamente por ReportsService
+     */
+    async getBooksBy(field) {
+        console.log(`🔵 [BooksService] Buscando livros agrupados por ${field}`);
+        if (!this.allFields.includes(field)) {
+            console.warn(`🟡 [BooksService] Campo ${field} não é válido. Campos válidos: ${this.allFields.join(', ')}`);
+            throw new Error(`Campo inválido: ${field}. Campos válidos: ${this.allFields.join(', ')}`);
+        }
+        try {
+            // Busca todos os livros daquele campo
+            const books = await BooksModel.getBooksBy(field);
+            console.log(`🟢 [BooksService] Livros agrupados por ${field}: ${Object.keys(books).length} grupos`);
+            return books;
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao agrupar livros por ${field}:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Conta livros com filtros.
      * @param {Object} filters - Filtros de busca. Campos aceitos: os mesmos de getBooks()
      * @returns {Promise<number>} Total de livros encontrados
      */
-    async countBooks(filters) {
+    async countBooks(filters = {}) {
         console.log(`🔵 [BooksService] Contando livros com filtros:`, filters);
         try {
             const count = await BooksModel.countBooks(filters);
@@ -212,6 +236,29 @@ class BooksService {
             return count;
         } catch (error) {
             console.error("🔴 [BooksService] Erro ao contar livros:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Conta livros agrupados por um campo específico.
+     * @param {string} field - Campo para agrupar (area, subarea, status, language)
+     * @returns {Promise<number>} Total de livros encontrados
+     * 
+     * OBSERVAÇÃO: Atualmente não está na rota pois só é usada internamente por ReportsService
+     */
+    async countBooksBy(field) {
+        console.log(`🔵 [BooksService] Contando livros agrupados por ${field}`);
+        if (!this.allFields.includes(field)) {
+            console.warn(`🟡 [BooksService] Campo ${field} não é válido. Campos válidos: ${this.allFields.join(', ')}`);
+            throw new Error(`Campo inválido: ${field}. Campos válidos: ${this.allFields.join(', ')}`);
+        }
+        try {
+            const count = await BooksModel.countBooksBy(field);
+            console.log(`🟢 [BooksService] Contagem agrupada por ${field} concluída`);
+            return count;
+        } catch (error) {
+            console.error(`🔴 [BooksService] Erro ao contar livros por ${field}:`, error.message);
             throw error;
         }
     }

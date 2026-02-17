@@ -18,8 +18,7 @@ class ReportsController {
     async getLoansStatistics(req, res) {
         try {
             console.log('🔵 [ReportsController] GET /reports/loans');
-            const { startDate, endDate } = req.query;
-            const data = await ReportsService.getLoansStatistics(startDate, endDate);
+            const data = await ReportsService.getLoansStatistics();
             res.json(data);
         } catch (error) {
             console.error('🔴 [ReportsController] Erro:', error.message);
@@ -54,8 +53,7 @@ class ReportsController {
     async getUsersStatistics(req, res) {
         try {
             console.log('🔵 [ReportsController] GET /reports/users');
-            const { startDate, endDate } = req.query;
-            const data = await ReportsService.getUsersStatistics(startDate, endDate);
+            const data = await ReportsService.getUsersStatistics();
             res.json(data);
         } catch (error) {
             console.error('🔴 [ReportsController] Erro:', error.message);

@@ -29,10 +29,10 @@ const StatCard = (Stat: Stats) => {
   </div>
 );};
 
-export const StatsSidebar = ({ stats }: { stats: Stats[] }) => {
+export const StatsSidebar = ({ stats, layout = "sidebar" }: { stats: Stats[]; layout?: "sidebar" | "horizontal" }) => {
   return (
-    <aside className="w-full lg:w-64 flex-shrink-0">
-      <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
+    <aside className={`w-full ${layout === "sidebar" ? "lg:w-64" : ""} flex-shrink-0`}>
+      <div className={`grid grid-cols-${stats.length} ${layout === "sidebar" ? "lg:grid-cols-1" : "" } gap-3`}>
         {stats.map((stat, idx) => (
           <StatCard
             key={idx}

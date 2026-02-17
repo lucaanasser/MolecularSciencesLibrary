@@ -36,12 +36,11 @@ export const LoansService = {
   borrowBook: async (data: { book_id: number; NUSP: number; password: string }) => {
     logger.log("🔵 [LoansService] Criando empréstimo:", data);
     try {
-      const result = await fetchJson(`${API_BASE}`, {
+      await fetchJson(`${API_BASE}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      logger.log("🟢 [LoansService] Empréstimo criado:", result);
-      return result;
+      logger.log("🟢 [LoansService] Empréstimo criado com sucesso");
     } catch (err: any) {
       let technicalMsg = "";
       try { technicalMsg = JSON.parse(err.message).error; } catch {}
@@ -55,12 +54,11 @@ export const LoansService = {
   borrowBookAsAdmin: async (data: { book_id: number; NUSP: number }) => {
     logger.log("🔵 [LoansService] Criando empréstimo (admin):", data);
     try {
-      const result = await fetchJson(`${API_BASE}/admin`, {
+      await fetchJson(`${API_BASE}/admin`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      logger.log("🟢 [LoansService] Empréstimo (admin) criado:", result);
-      return result;
+      logger.log("🟢 [LoansService] Empréstimo (admin) criado com sucesso");
     } catch (err: any) {
       let technicalMsg = "";
       try { technicalMsg = JSON.parse(err.message).error; } catch {}
@@ -74,12 +72,11 @@ export const LoansService = {
   returnBook: async (data: { book_id: number }) => {
     logger.log("🔵 [LoansService] Devolvendo livro:", data.book_id);
     try {
-      const result = await fetchJson(`${API_BASE}/return`, {
+      await fetchJson(`${API_BASE}/return`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      logger.log("🟢 [LoansService] Livro devolvido:", result);
-      return result;
+      logger.log("🟢 [LoansService] Livro devolvido com sucesso");
     } catch (err: any) {
       let technicalMsg = "";
       try { technicalMsg = JSON.parse(err.message).error; } catch {}
