@@ -1,6 +1,5 @@
 import AdminTabRenderer, { AdminTabRendererProps, AdminAction, TabComponent, TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
-import LoanRulesView from "@/features/admin/features/rules/LoanRulesView";
-import LoanRulesForm from "@/features/admin/features/rules/LoanRulesEdit";
+import { LoanRulesView, LoanRulesEdit } from "@/features/admin/features/rules";
 
 const actions: AdminAction[] = [
   { id: "view", label: "Ver regras", color: "bg-cm-blue" },
@@ -10,21 +9,11 @@ const actions: AdminAction[] = [
 const tabComponents: TabComponent[] = [
   {
     id: "view",
-    component: (props: TabComponentProps) => (
-      <LoanRulesView
-        {...props}
-        // Chama a aba de edição ao clicar em editar
-        onEdit={() => props.onTabChange?.("edit")}      
-        />
-    ),
+    component: (props: TabComponentProps) => ( <LoanRulesView {...props}  onEdit={() => props.onTabChange?.("edit")} /> ),
   },
   {
     id: "edit",
-    component: (props: TabComponentProps) => (
-      <LoanRulesForm
-        {...props}
-      />
-    ),
+    component: (props: TabComponentProps) => ( <LoanRulesEdit {...props} /> ),
   },
 ];
 

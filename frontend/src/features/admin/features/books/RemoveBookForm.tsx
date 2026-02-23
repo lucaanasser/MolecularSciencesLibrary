@@ -2,19 +2,10 @@ import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { BooksService } from "@/services/BooksService";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import type { Book } from "@/types/new_book";
 
-/**
- * Formulário para remover livro.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
 
-export default function RemoveBookForm({ onSuccess, onError, onBack }: TabComponentProps) {
+export default function RemoveBookForm({ onSuccess, onError, onBack }) {
   // Estados
   const [query, setQuery] = useState("");
   const [foundBooks, setFoundBooks] = useState<Book[]>([]);

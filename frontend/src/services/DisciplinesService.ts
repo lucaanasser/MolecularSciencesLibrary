@@ -292,3 +292,19 @@ export async function createDiscipline(data: CreateDisciplineData): Promise<Disc
   console.log(`🟢 [DisciplinesService] Disciplina criada: ${discipline.codigo}`);
   return discipline;
 }
+
+const DisciplinesService = {
+  searchDisciplines,
+  getDisciplines,
+  getDisciplineByCodigo,
+  getFullDiscipline,
+  getCampi,
+  getUnidades,
+  getStats,
+  countDisciplines,
+  getDisciplinesWithPagination,
+  checkExactMatch,
+  createDiscipline,
+};
+
+export default DisciplinesService;

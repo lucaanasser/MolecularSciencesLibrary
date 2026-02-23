@@ -1,9 +1,7 @@
-import React from "react";
 import CSVImportWizard from "@/features/admin/components/CSVImportWizard";
 import { UsersService } from "@/services/UsersService";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-const ImportUsers: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+export default function ImportUsers({ onBack, onSuccess, onError }) {
   // Template CSV para usuários com todos os campos
   const templateCsv = `name,NUSP,email,phone,role,class,profile_image,password_hash
 João Silva,12345678,joao@email.com,+5511999998888,aluno,33,,
@@ -52,5 +50,3 @@ Admin User,99887766,admin@email.com,+5511966665555,admin,,,$2b$10$abcdefghijklmn
     />
   );
 };
-
-export default ImportUsers;

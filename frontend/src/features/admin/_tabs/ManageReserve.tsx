@@ -1,8 +1,5 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
-import AddReserveForm from "@/features/admin/features/reserve/AddReserveForm";
-import RemoveReserveForm from "@/features/admin/features/reserve/RemoveReserveForm";
-import ListReserve from "@/features/admin/features/reserve/ListReserve";
-import ClearReserve from "@/features/admin/features/reserve/ClearReserve";
+import { AddToReserve, RemoveFromReserve, ListReservedBooks, ClearReserve } from "@/features/admin/features/reserve";
 
 const ManageReserve = () => {
   console.log("🔵 [AdminPage/ManageReserve] Renderizando gerenciamento de reserva");
@@ -18,10 +15,10 @@ const ManageReserve = () => {
         { id: "list", label: "Ver livros reservados", color: "bg-academic-blue" },
       ]}
       tabComponents={[
-        { id: "add", component: AddReserveForm },
-        { id: "remove", component: RemoveReserveForm },
+        { id: "add", component: AddToReserve },
+        { id: "remove", component: RemoveFromReserve },
         { id: "clear", component: ClearReserve },
-        { id: "list", component: ListReserve },
+        { id: "list", component: ListReservedBooks },
       ]}
       columns={4}
     />

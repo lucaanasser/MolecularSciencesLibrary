@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { BooksService } from "@/services/BooksService";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-const ClearReserve: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+export default function ClearReserve({ onBack, onSuccess, onError }) {
   const [loading, setLoading] = useState(false);
 
   const handleClearAll = async () => {
@@ -44,5 +43,3 @@ const ClearReserve: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError 
     </>
   );
 };
-
-export default ClearReserve;

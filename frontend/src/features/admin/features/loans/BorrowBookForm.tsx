@@ -1,15 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ActionBar from '@/features/admin/components/ActionBar';
-import type { TabComponentProps } from '@/features/admin/components/AdminTabRenderer';
 import { LoansService } from '@/services/LoansService';
 
-interface BorrowBookFormProps extends TabComponentProps {
-  adminMode?: boolean;
-}
-
-const BorrowBookForm: React.FC<BorrowBookFormProps> = ({ onBack, onSuccess, onError, adminMode = true }) => {
+export default function BorrowBookForm({ onBack, onSuccess, onError, adminMode = true }) {
   // Campos do formulário
   const [bookId, setBookId] = useState('');
   const [nusp, setNusp] = useState('');
@@ -91,5 +86,3 @@ const BorrowBookForm: React.FC<BorrowBookFormProps> = ({ onBack, onSuccess, onEr
     </>
   );
 };
-
-export default BorrowBookForm;

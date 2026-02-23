@@ -1,10 +1,6 @@
 import { logger } from "@/utils/logger";
 import { BookOpen, Users, TrendingUp, BarChart3 } from "lucide-react";
-import { BooksReportView } from '@/features/reports/components';
-import { LoansReportView } from '@/features/reports/components';
-import { UsersReportView } from '@/features/reports/components';
-import { DonatorsReportView } from '@/features/reports/components';
-
+import { BooksReport, LoansReport, UsersReport, DonatorsReport } from '@/features/admin/features/reports';
 
 export default function TransparencyPortalPage() {
   logger.log("🔵 [TransparencyPortalPage] Renderizando página do portal de transparência");
@@ -45,9 +41,9 @@ export default function TransparencyPortalPage() {
           </div>
         </div>
 
-      <BooksReportView />
+      <BooksReport />
       <div className='mb-20'/>
-      <LoansReportView />
+      <LoansReport />
       <div className='mb-20'/>
       
         {/* Nota sobre transparência */}

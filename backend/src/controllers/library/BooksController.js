@@ -93,12 +93,12 @@ class BooksController {
     }
 
     async getBooks(req, res) {
-        const { limit, offset, ...filters } = req.query;
+        const filters = req.query;
         console.log(`🔵 [BooksController] Buscando livros com filtros:`, filters);    
         try {
-            const books = await BooksService.getBooks(filters, limit, offset);
+            const books = await BooksService.getBooks(filters);
             console.log(`🟢 [BooksController] Livros encontrados: ${books.length}`);
-            res.json(books);
+            res.json({results: books, total: books.length});
         } catch (error) {
             console.error("🔴 [BooksController] Erro ao buscar livros:", error.message);
             res.status(500).json({ error: error.message });

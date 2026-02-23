@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { Donator } from "@/features/donators/types/Donator";
 import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 
-const DonatorsList: React.FC<TabComponentProps> = ({ onBack }) => {
+export default function DonatorsList({ onBack }) {
   const { donators, loading, error, fetchDonators } = useDonatorsList();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -144,5 +144,3 @@ const DonatorsList: React.FC<TabComponentProps> = ({ onBack }) => {
     </>
   );
 };
-
-export default DonatorsList;

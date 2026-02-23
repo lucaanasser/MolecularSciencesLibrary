@@ -56,36 +56,6 @@ router.post('/import/csv', upload.single('csvFile'), (req, res) => {
     BooksController.importBooksFromCSV(req, res);
 });
 
-/* ===================== EMPRÉSTIMO E DEVOLUÇÃO ====================== */
-
-/**
- * @route POST /borrow
- * @desc Empresta um livro para um usuário
- * @body {
- *   bookId: number, // id do livro (EAN-13)
- *   userId: number  // id do usuário
- * }
- * @returns {Object} Resultado do empréstimo
- */
-router.post('/borrow', (req, res) => {
-    console.log("🔵 [BooksRoutes] POST /borrow - Emprestar livro");
-    BooksController.borrowBook(req, res);
-});
-
-
-/**
- * @route POST /return
- * @desc Devolve um livro emprestado
- * @body {
- *   bookId: number // id do livro (EAN-13)
- * }
- * @returns {Object} Resultado da devolução
- */
-router.post('/return', (req, res) => {
-    console.log("🔵 [BooksRoutes] POST /return - Devolver livro");
-    BooksController.returnBook(req, res);
-});
-
 /* ========================= BUSCA ========================= */
 
 
@@ -112,8 +82,6 @@ router.get('/search', async (req, res) => {
  *   area?: string | string[],
  *   subarea?: string | string[],
  *   status?: string | string[],
- *   limit?: number,            // para paginação
- *   offset?: number            // para paginação (começa a exibir a partir deste índice)
  * }
  * @returns {Array<Object>} Livros encontrados (formato completo)
  */

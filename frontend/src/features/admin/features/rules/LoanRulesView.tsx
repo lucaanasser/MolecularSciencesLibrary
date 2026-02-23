@@ -4,7 +4,7 @@ import { RulesService } from "@/services/RulesService";
 import ActionBar from "@/features/admin/components/ActionBar";
 
 
-export default function LoanRulesView({ onEdit, onError}: { onEdit: () => void, onError: (err: any) => void }) {
+export default function LoanRulesView({ onEdit, onError}) {
   const [rules, setRules] = useState<Record<string, number> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

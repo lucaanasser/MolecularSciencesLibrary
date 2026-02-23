@@ -1,21 +1,12 @@
 import { useState, useEffect } from "react";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import { Input } from "@/components/ui/input";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 import { UsersService } from "@/services/UsersService";
 import type { User } from "@/types/user";
 
-/**
- * Lista de usuários cadastrados.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
 
-const ListUsers: React.FC<TabComponentProps> = ({ onBack, onError }) => {
+export default function ListUsers({ onBack, onError }) {
   // Estados
   const [searchTerm, setSearchTerm] = useState("");
   const [foundUsers, setFoundUsers] = useState<User[]>([]);
@@ -83,5 +74,3 @@ const ListUsers: React.FC<TabComponentProps> = ({ onBack, onError }) => {
     </>
   );
 };
-
-export default ListUsers;

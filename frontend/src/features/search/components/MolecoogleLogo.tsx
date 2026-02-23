@@ -1,9 +1,16 @@
-import React from "react";
+/**
+ * Logo colorido do Molecoogle.
+ *
+ * Props:
+ * - fontSize (opcional): Classe de tamanho da fonte.
+ * - pagination (opcional): Ativa modo interativo para paginação.
+ * - pages, currentPage, onPageClick (opcionais): Usados para integração com paginação.
+ */
 
-/* Definição de tipo para letras */
+// Definição de tipo para letras
 type Letter = { char: string; color: string; pageIndex?: number };
 
-/* Função auxiliar para montar o array final de letras */
+// Função auxiliar para montar o array final de letras
 function getLogoLetters(pages: number[], currentPage: number): Letter[] {
   const prefix: Letter[] = [
     { char: "M", color: "#4285F4" },
@@ -25,31 +32,37 @@ function getLogoLetters(pages: number[], currentPage: number): Letter[] {
   return [...prefix, ...oLetters, ...suffix];
 }
 
-/* Props do logo */
-type LogoProps =
-  | { pagination: true; 
-      fontSize?: string
-      pages: number[]; 
-      currentPage: number; 
-      onClick: (page: number) => void; 
-      onClickLogo?: () => void;
-    }
-  | { pagination?: false; fontSize?: string; onClickLogo?: () => void };
+// Props do logo
+type LogoProps = {
+  fontSize?: string;
+  onLogoClick?: () => void;
+  pagination?: boolean;
+  pages?: number[];
+  currentPage?: number;
+  onPageClick?: (page: number) => void;
+}
 
-/* Componente do logo */
-export const MolecoogleLogo: React.FC<LogoProps> = (props) => {
+// Renderização do logo
+export default function MolecoogleLogo(props: LogoProps) {
+  
+  // Desestruturação de props
   const fontSize = props.fontSize || "text-4xl";
-  const pagination = props.pagination === true;
-  const currentPage = pagination ? props.currentPage : 0;
-  const onClick = pagination ? props.onClick : undefined;
-  const letters = getLogoLetters(pagination ? props.pages : [0, 1], currentPage);
-  const cursorStyle = (pagination && props.onClick || props.onClickLogo ? { cursor: "pointer" } : {cursor: "default"});
+  const onLogoClick = props.onLogoClick || undefined;
+
+  const pagination = props.pagination || false;
+  const pages = props.pages || [0, 1];
+  const currentPage = props.currentPage || 0;
+  const onPageClick = props.onPageClick || undefined;
+  const isPageClickable = (l: Letter) => pagination && l.pageIndex !== undefined && onPageClick;
+
+  // Geração das letras do logo
+  const letters = getLogoLetters(pages, currentPage);
 
   return (
     <span
       className="flex items-top gap-0"
-      onClick={props.onClickLogo}
-      style={cursorStyle}
+      onClick={() => onLogoClick()}
+      style={onLogoClick ? { cursor: "pointer" } : { cursor: "default" }}
     >
       {letters.map((l, i) => (
         <div
@@ -58,10 +71,10 @@ export const MolecoogleLogo: React.FC<LogoProps> = (props) => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            cursor: cursorStyle.cursor
+            cursor: isPageClickable(l) || onLogoClick ? "pointer" : "default"
           }}
-          aria-label={pagination && l.char === "o" && l.pageIndex !== undefined ? `Página ${l.pageIndex}` : undefined}
-          onClick={pagination && l.char === "o" && l.pageIndex !== undefined && onClick ? () => onClick(l.pageIndex) : undefined}
+          aria-label={isPageClickable(l) ? `Página ${l.pageIndex}` : undefined}
+          onClick={() => onPageClick && onPageClick(l.pageIndex)}
         >
           <span
             style={{
@@ -72,7 +85,7 @@ export const MolecoogleLogo: React.FC<LogoProps> = (props) => {
           >
             {l.char}
           </span>
-          {pagination && i >= 5 && l.char === "o" && l.pageIndex !== undefined && (
+          {isPageClickable(l) && (
             <span
               style={{
                 color: l.pageIndex === currentPage ? "#000000" : "#4285F4",

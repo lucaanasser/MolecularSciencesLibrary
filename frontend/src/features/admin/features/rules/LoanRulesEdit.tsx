@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LOAN_RULES, LOAN_RULES_META } from "@/constants/loan_rules";
 import { RulesService } from "@/services/RulesService";
 import ActionBar from "@/features/admin/components/ActionBar";
-import { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function LoanRulesForm({ onSuccess, onBack, onError }: TabComponentProps) {
+export default function LoanRulesForm({ onSuccess, onBack, onError }) {
   const [form, setForm] = useState<Record<string, number> | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

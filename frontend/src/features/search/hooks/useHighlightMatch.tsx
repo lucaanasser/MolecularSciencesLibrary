@@ -1,34 +1,52 @@
 import React from "react";
 
+/**
+ * Hook para destacar ocorrências de um termo em textos ou ReactNodes.
+ */
 export function useHighlightMatch() {
-  
-  const highlightMatch = (text: string, query: string) => {
+  /**
+   * Destaca todas as ocorrências de `query` em `text`.
+   */
+  const highlightMatch = (text: string, query: string): React.ReactNode => {
+    if (!text || typeof text !== "string") return text;
     if (!query) return text;
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const parts = text.split(new RegExp(`(${escapedQuery})`, 'gi'));
+
+    // Divide a query em palavras e escapa cada uma para regex
+    const words = query.trim().split(/\s+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    if (words.length === 0) return text;
+
+    // Cria uma regex para todas as palavras
+    const regex = new RegExp(`(${words.join('|')})`, 'gi');
+    const parts = text.split(regex);
+
     return parts.map((part, i) =>
-      part.toLowerCase() === query.toLowerCase()
+      words.some(w => part.toLowerCase() === w.toLowerCase())
         ? <strong key={i} className="font-semibold">{part}</strong>
         : part
     );
   };
-  
-  /* Cria um renderSuggestion padrão com highlight e formatação estilizada
-   * @param field O nome do campo do item a destacar (ex: 'title', 'nome', 'name')
-   * @param extraRender Função opcional para renderizar conteúdo extra
+
+  /**
+   * Aplica highlight recursivamente em todos os textos de um ReactNode.
    */
-  function renderSuggestionWithHighlight<T = any>(field: keyof T, extraRender?: (item: T) => React.ReactNode) {
-    return (item: T, query: string) => (
-      <>
-        <div className="flex-1 min-w-0 text-gray-800">
-          {highlightMatch(String(item[field] ?? ""), query)}
-        </div>
-        {extraRender && (
-          <div className="ml-2 flex-shrink-0">{extraRender(item)}</div>
-        )}
-      </>
-    );
+  function highlightAllInNode(node: React.ReactNode, query: string): React.ReactNode {
+    if (typeof node === "string") {
+      return highlightMatch(node, query);
+    }
+    if (React.isValidElement(node)) {
+      return React.cloneElement(
+        node,
+        node.props,
+        React.Children.map(node.props.children, child =>
+          highlightAllInNode(child, query)
+        )
+      );
+    }
+    if (Array.isArray(node)) {
+      return node.map((child, idx) => <React.Fragment key={idx}>{highlightAllInNode(child, query)}</React.Fragment>);
+    }
+    return node;
   }
 
-  return { highlightMatch, renderSuggestionWithHighlight };
+  return { highlightMatch, highlightAllInNode };
 }

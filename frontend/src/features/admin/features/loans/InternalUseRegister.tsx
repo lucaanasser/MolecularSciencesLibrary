@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { LoansService } from "@/services/LoansService";
 
-const InternalUseRegister: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+export default function InternalUseRegister({ onBack, onSuccess, onError }) {
   const [internalUseCode, setInternalUseCode] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -50,5 +49,3 @@ const InternalUseRegister: React.FC<TabComponentProps> = ({ onBack, onSuccess, o
     </>
   );
 };
-
-export default InternalUseRegister;

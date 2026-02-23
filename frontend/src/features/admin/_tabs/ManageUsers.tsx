@@ -1,8 +1,5 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
-import AddUserForm from "@/features/admin/features/users/AddUserForm";
-import ListUsers from "@/features/admin/features/users/ListUsers";
-import RemoveUserForm from "@/features/admin/features/users/RemoveUserForm";
-import ImportUsers from "@/features/admin/features/users/ImportUsers";
+import { AddUser, RemoveUser, ListUsers, ImportUsers } from "@/features/admin/features/users";
 
 const ManageUsers = () => {
   return (
@@ -16,8 +13,8 @@ const ManageUsers = () => {
         { id: "import", label: "Importar CSV", color: "bg-library-purple" },
       ]}
       tabComponents={[
-        { id: "add", component: AddUserForm },
-        { id: "remove", component: RemoveUserForm },
+        { id: "add", component: AddUser },
+        { id: "remove", component: RemoveUser },
         { id: "list", component: ListUsers },
         { id: "import", component: ImportUsers },
       ]}

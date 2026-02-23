@@ -1,8 +1,5 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
-import ActiveLoansList from "@/features/admin/features/loans/ActiveLoansList";
-import InternalUseRegister from "@/features/admin/features/loans/InternalUseRegister";
-import BorrowBookForm from "@/features/admin/features/loans/BorrowBookForm";
-import ReturnBookForm from "@/features/admin/features/loans/ReturnBookForm";
+import { BorrowBook, ReturnBook, RegisterInternalUse, ListActiveLoans } from "@/features/admin/features/loans";
 import { logger } from "@/utils/logger";
 
 const ManageLoans = () => {
@@ -19,10 +16,10 @@ const ManageLoans = () => {
         { id: "list", label: "Ver Empréstimos Ativos", color: "bg-cm-blue" },
       ]}
       tabComponents={[
-        { id: "loan", component: BorrowBookForm },
-        { id: "return", component: ReturnBookForm },
-        { id: "internal", component: InternalUseRegister },
-        { id: "list", component: ActiveLoansList },
+        { id: "loan", component: BorrowBook },
+        { id: "return", component: ReturnBook },
+        { id: "internal", component: RegisterInternalUse },
+        { id: "list", component: ListActiveLoans },
       ]}
       columns={4}
     />

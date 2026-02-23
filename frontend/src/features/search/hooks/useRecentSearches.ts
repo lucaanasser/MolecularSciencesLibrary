@@ -1,20 +1,33 @@
-import { useState, useCallback } from "react";
+/**
+ * Hook para gerenciar buscas recentes do usuário.
+ *
+ * Retorna:
+ * - recents: Array de buscas recentes.
+ * - addRecent: Função para adicionar uma nova busca.
+ * - clearRecents: Função para limpar o histórico.
+ */
 
-export function useRecentSearches(key = "academicRecentSearches", max = 5) {
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+import { useState, useEffect } from "react";
 
-  const saveRecentSearch = useCallback((term: string) => {
-    const updated = [term, ...recentSearches.filter(s => s !== term)].slice(0, max);
-    setRecentSearches(updated);
+export function useRecentSearches(key = "recentSearches", limit = 5) {
+  const [recents, setRecents] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem(key) || "[]");
+    setRecents(stored);
+  }, []);
+
+  function addRecent(query: string) {
+    if (!query) return;
+    const updated = [query, ...recents.filter(q => q !== query)].slice(0, limit);
+    setRecents(updated);
     localStorage.setItem(key, JSON.stringify(updated));
-  }, [recentSearches, key, max]);
+  }
 
-  return { recentSearches, saveRecentSearch };
+  function clearRecents() {
+    localStorage.removeItem(key);
+    setRecents([]);
+  }
+
+  return [recents, addRecent, clearRecents] as const;
 }

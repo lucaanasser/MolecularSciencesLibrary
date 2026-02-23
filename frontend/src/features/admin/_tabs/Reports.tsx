@@ -1,6 +1,6 @@
 
 import AdminTabRenderer, { AdminAction, TabComponent } from "@/features/admin/components/AdminTabRenderer";
-import { LoansReportView, UsersReportView, BooksReportView, DonatorsReportView, CompleteReportCard } from '@/features/reports/components';
+import { LoansReport, UsersReport, BooksReport, DonatorsReport, CompleteReport } from '@/features/admin/features/reports';
 
 const Reports = () => {
   const actions: AdminAction[] = [
@@ -12,11 +12,11 @@ const Reports = () => {
   ];
 
   const tabComponents: TabComponent[] = [
-    { id: "books", component: (props) => <BooksReportView {...props} /> },
-    { id: "loans", component: (props) => <LoansReportView {...props} /> },
-    { id: "users", component: (props) => <UsersReportView {...props} /> },
-    { id: "donators", component: () => <DonatorsReportView /> },
-    { id: "complete", component: () => <CompleteReportCard /> },
+    { id: "books", component: (props) => <BooksReport {...props} /> },
+    { id: "loans", component: (props) => <LoansReport {...props} /> },
+    { id: "users", component: (props) => <UsersReport {...props} /> },
+    { id: "donators", component: () => <DonatorsReport /> },
+    { id: "complete", component: () => <CompleteReport /> },
   ];
 
   return (

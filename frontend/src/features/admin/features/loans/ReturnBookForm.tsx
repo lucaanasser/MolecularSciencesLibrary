@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ActionBar from '@/features/admin/components/ActionBar';
 import { LoansService } from '@/services/LoansService';
-import type { TabComponentProps } from '@/features/admin/components/AdminTabRenderer';
 
-const ReturnBookForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+export default function ReturnBookForm({ onBack, onSuccess, onError }) {
   // Campo do formulário
   const [bookId, setBookId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,5 +49,3 @@ const ReturnBookForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
     </>
   );
 };
-
-export default ReturnBookForm;

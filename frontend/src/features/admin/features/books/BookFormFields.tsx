@@ -10,7 +10,7 @@ type BookFormFieldsProps = {
   disabledFields?: Partial<Record<keyof Book, boolean>>;
 };
 
-const BookFormFields: React.FC<BookFormFieldsProps> = ({ book, setBook, disabledFields: givenFields }) => {
+export default function BookFormFields({ book, setBook, disabledFields: givenFields }: BookFormFieldsProps) {
   const disabledFields = { id: true, code: true, status: true, ...givenFields };
   const availableSubareas =
     book.area && SUBAREAS[book.area as keyof typeof SUBAREAS]
@@ -205,5 +205,3 @@ const BookFormFields: React.FC<BookFormFieldsProps> = ({ book, setBook, disabled
     </>
   );
 };
-
-export default BookFormFields;

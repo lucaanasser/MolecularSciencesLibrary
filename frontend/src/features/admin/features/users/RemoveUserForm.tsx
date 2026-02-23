@@ -2,19 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { UsersService } from "@/services/UsersService";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import type { User } from "@/types/user";
 
-/**
- * Formulário para remover usuário.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
-
-export default function RemoveUserForm({ onSuccess, onError, onBack }: TabComponentProps) {
+export default function RemoveUserForm({ onSuccess, onError, onBack }) {
   // Estados
   const [query, setQuery] = useState("");
   const [foundUsers, setFoundUsers] = useState<User[]>([]);

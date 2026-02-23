@@ -1,12 +1,11 @@
 import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { BooksService } from "@/services/BooksService";
 import { Book } from "@/types/new_book";
 import BookFormFields from "@/features/admin/features/books/BookFormFields";
 
-const AddBookForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }) => {
+export default function AddBookForm({ onSuccess, onError, onBack }) {
   // Estados dos campos do formulário
   const [showManualForm, setShowManualForm] = useState(false);
   const [editableBook, setEditableBookData] = useState<Book>({
@@ -175,5 +174,3 @@ const AddBookForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
     </div>
   );
 };
-
-export default AddBookForm;

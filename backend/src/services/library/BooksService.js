@@ -187,10 +187,10 @@ class BooksService {
      * @param {number} offset - Offset de resultados
      * @returns {Promise<Array>} Lista de livros encontrados
      */
-    async getBooks(filters = {}, limit = null, offset = 0) {
+    async getBooks(filters = {}) {
         console.log(`🔵[BooksService] Buscando livros com filtros:`, filters);
         try {
-            const result = await BooksModel.getBooks(filters, limit, offset);
+            const result = await BooksModel.getBooks(filters);
             console.log(`🟢 [BooksService] Livros encontrados: ${result.length}`);
             return result;
         } catch (error) {

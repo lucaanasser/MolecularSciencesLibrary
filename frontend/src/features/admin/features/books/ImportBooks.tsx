@@ -1,9 +1,7 @@
-import React from "react";
 import CSVImportWizard from "@/features/admin/components/CSVImportWizard";
 import { BooksService } from "@/services/BooksService";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-const ImportBooks: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+export default function ImportBooks({ onBack, onSuccess, onError }) {
   // Template CSV para livros com todos os campos
   const templateCsv = `code,title,authors,area,subarea,edition,language,volume,subtitle,barcode
 FIS-01.01,Física Experimental I,"Silva, João",FIS,1,1,1,0,,9781234567890
@@ -54,5 +52,3 @@ MAT-03.02,Cálculo III,"Costa, Pedro",MAT,1,3,1,1,,`;
     
   );
 };
-
-export default ImportBooks;

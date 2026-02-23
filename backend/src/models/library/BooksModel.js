@@ -44,71 +44,50 @@ class BooksModel {
         }
     }
 
-    async borrowBook(bookId, userId) {
-        console.log(`🔵 [BooksModel] Emprestando livro bookId=${bookId} para userId=${userId}`);
-        const loanQuery = `
-            INSERT INTO loans (book_id, user_id)
-            VALUES (?, ?)
-        `;
-        const updateBookQuery = `
-            UPDATE books SET status = 'emprestado' WHERE id = ?
-        `;
+    async deleteBook(id) {
+        const query = `DELETE FROM books WHERE id = ?`;
+        console.log(`🔵 [BooksModel] Deletando livro id=${id}`);
         try {
-            const loanResult = await executeQuery(loanQuery, [bookId, userId]);
-            const updateBookResult = await executeQuery(updateBookQuery, [bookId]);
-            console.log(`🟢 [BooksModel] Livro emprestado: bookId=${bookId}, userId=${userId}`);
-            return {
-              loan: loanResult,
-              update: updateBookResult
-            };
+            const result = await executeQuery(query, [id]);
+            if (result > 0) {
+                console.log(`🟢 [BooksModel] Livro removido com sucesso: id=${id}`);
+            } else {
+                console.warn(`🟡 [BooksModel] Livro não encontrado para remoção: id=${id}`);
+            }
+            return result > 0;
         } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao emprestar livro:", error.message);
-            throw error;
-        }
-    }
-
-    async returnBook(bookId) {
-        console.log(`🔵 [BooksModel] Devolvendo livro bookId=${bookId}`);
-        const loanQuery = `
-            UPDATE loans
-            SET returned_at = CURRENT_TIMESTAMP
-            WHERE book_id = ? AND returned_at IS NULL
-        `;
-        const updateBookQuery = `
-            UPDATE books SET status = 'disponível' WHERE id = ?
-        `;
-        try {
-            const loanResult = await executeQuery(loanQuery, [bookId]);
-            const updateBookResult = await executeQuery(updateBookQuery, [bookId]);
-            console.log(`🟢 [BooksModel] Livro devolvido: bookId=${bookId}`);
-            return {
-                loan: loanResult,
-                update: updateBookResult
-            };
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao devolver livro:", error.message);
+            console.error("🔴 [BooksModel] Erro ao remover livro:", error.message);
             throw error;
         }
     }
 
     async searchBooks(q, limit, fields) {
         console.log(`🔵 [BooksModel] Buscando com autocomplete: query="${q}", limit=${limit}, fields=${fields.join(', ')}`);
+        const words = q.trim().split(/\s+/);
+        const conditions = words.map(() => '(title LIKE ? OR authors LIKE ? OR code LIKE ?)').join(' AND ');
         const sql = `
             SELECT ${fields.join(', ')}
             FROM books
-            WHERE title LIKE ? COLLATE NOCASE 
-              OR authors LIKE ? COLLATE NOCASE 
-              OR code LIKE ? COLLATE NOCASE
-            ORDER BY CASE 
-                WHEN title LIKE ? THEN 1
-                WHEN code LIKE ? THEN 2
-                ELSE 3
-            END, title ASC
+            WHERE ${conditions}
+            ORDER BY
+                CASE
+                    WHEN ${words.map(() => 'title LIKE ?').join(' AND ')} THEN 1
+                    WHEN ${words.map(() => 'authors LIKE ?').join(' AND ')} THEN 2
+                    WHEN ${words.map(() => 'code LIKE ?').join(' AND ')} THEN 3
+                    ELSE 4
+                END,
+                title ASC
             LIMIT ?
-        `;
-        const searchTerm = `%${q.trim()}%`;
-        const startsWith = `${q.trim()}%`;
-        const params = [searchTerm, searchTerm, searchTerm, startsWith, startsWith, limit];
+          `;
+
+        const params = [
+          ...words.flatMap(w => [`%${w}%`, `%${w}%`, `%${w}%`]), // WHERE
+          ...words.map(w => `%${w}%`), // ORDER BY title
+          ...words.map(w => `%${w}%`), // ORDER BY authors
+          ...words.map(w => `%${w}%`), // ORDER BY code
+          limit
+        ];
+        
         try {
             const books = await allQuery(sql, params);
             console.log(`🟢 [BooksModel] ${books.length} livros encontrados no autocomplete`);
@@ -119,18 +98,12 @@ class BooksModel {
         }
     }
 
-    async getBooks(filters, limit, offset) {
+    async getBooks(filters) {
         console.log(`🔵 [BooksModel] Buscando livros com filtros: ${JSON.stringify(filters)}`);
         
         // Usa o método auxiliar para montar filtros e parâmetros
         const { where, params } = this._buildFilterQuery(filters);
         let query = `SELECT * FROM books${where}`;
-        
-        // Adiciona paginação se fornecida
-        if (limit !== null) {
-            query += ` LIMIT ? OFFSET ?`;
-            params.push(limit, offset);
-        }
         
         // Executa a query e retorna os resultados
         try {
@@ -157,7 +130,7 @@ class BooksModel {
 
     async getAllBooks() {
         console.log("🔵 [BooksModel] Buscando todos os livros");
-        return this.getBooks(null, null, null);
+        return this.getBooks({});
     }
 
     async countBooks(filters) {
@@ -232,23 +205,6 @@ class BooksModel {
             return book;
         } catch (error) {
             console.error("🔴 [BooksModel] Erro ao buscar livro:", error.message);
-            throw error;
-        }
-    }
-
-    async deleteBook(id) {
-        const query = `DELETE FROM books WHERE id = ?`;
-        console.log(`🔵 [BooksModel] Deletando livro id=${id}`);
-        try {
-            const result = await executeQuery(query, [id]);
-            if (result > 0) {
-                console.log(`🟢 [BooksModel] Livro removido com sucesso: id=${id}`);
-            } else {
-                console.warn(`🟡 [BooksModel] Livro não encontrado para remoção: id=${id}`);
-            }
-            return result > 0;
-        } catch (error) {
-            console.error("🔴 [BooksModel] Erro ao remover livro:", error.message);
             throw error;
         }
     }

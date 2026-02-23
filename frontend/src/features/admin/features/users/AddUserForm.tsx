@@ -2,10 +2,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ActionBar from "@/features/admin/components/ActionBar";
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 import { UsersService } from "@/services/UsersService";
 
-const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }) => {
+export default function AddUserForm({ onSuccess, onError, onBack }) {
   // Estados para os campos do formulário
   const [name, setName] = useState("");
   const [NUSP, setNUSP] = useState("");
@@ -67,5 +66,3 @@ const AddUserForm: React.FC<TabComponentProps> = ({ onSuccess, onError, onBack }
     </form>
   );
 };
-
-export default AddUserForm;

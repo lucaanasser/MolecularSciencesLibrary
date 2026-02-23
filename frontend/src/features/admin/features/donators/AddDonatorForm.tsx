@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -8,9 +8,8 @@ import { Donator } from '@/features/donators/types/Donator';
 import { UsersService } from '@/services/UsersService';
 import { useFindBookById } from '@/features/donators/hooks/useFindBookById';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import type { TabComponentProps } from "@/features/admin/components/AdminTabRenderer";
 
-const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onError }) => {
+export default function AddDonatorForm({ onBack, onSuccess, onError }) {
   const [form, setForm] = useState<Donator>({ donation_type: 'book' });
   const [isUser, setIsUser] = useState(false);
   const { createDonator, loading, error } = useCreateDonator();
@@ -26,19 +25,17 @@ const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
     const fetchUser = async () => {
       if (isUser && form.user_id) {
         setUserLoading(true);
-        setUserSearchError(null);
         try {
           const users = await UsersService.searchUsers({ q: form.user_id.toString() });
           setFoundUsers(users);
         } catch (err: any) {
           setFoundUsers([]);
-          setUserSearchError(err.message);
+          onError(err);
         } finally {
           setUserLoading(false);
         }
       } else {
         setFoundUsers([]);
-        setUserSearchError(null);
       }
     };
     fetchUser();
@@ -189,5 +186,3 @@ const AddDonatorForm: React.FC<TabComponentProps> = ({ onBack, onSuccess, onErro
     </div>
   );
 };
-
-export default AddDonatorForm;
