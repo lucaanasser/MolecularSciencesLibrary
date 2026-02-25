@@ -415,4 +415,4 @@ Attribution is optional, but **deeply appreciated**.
 **Build something. Improve something. Share it back.**
 PRs are open—so is the library.
 
-Made with curiosity & care by students of Ciências Moleculares.
+Made with curiosity & care by students of Ciências Moleculares
