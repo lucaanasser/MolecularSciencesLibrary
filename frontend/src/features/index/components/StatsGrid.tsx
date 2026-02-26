@@ -1,5 +1,5 @@
 import { Users, BookOpen, Lightbulb, BookMarked } from "lucide-react";
-import { useCountUp } from "../../../hooks/useCountUp";
+import { useCountUp } from "..";
 
 export type StatsType = Record<string, number | null>;
 
@@ -30,9 +30,14 @@ const DESCRIPTIONS: Record<string, string> = {
 };
 
 export function StatsGrid({ stats, order }: { stats: StatsType, order: string[] }) {
+  
+  const animatedValues = order.map((key) =>
+    useCountUp(stats[key], 3600)
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mx-auto">
-      {order.map((key) => (
+      {order.map((key, idx) => (
         <div className="text-center flex flex-col items-center" key={key}>
           <div className="flex justify-center mb-4 md:mb-6">
             <div className="h-14 w-14 md:h-16 md:w-16 rounded-full bg-default-bg/20 flex items-center justify-center">
@@ -40,7 +45,7 @@ export function StatsGrid({ stats, order }: { stats: StatsType, order: string[] 
             </div>
           </div>
           <p className="mb-1 md:mb-2 font-bold text-white prose-lg">
-            {stats[key] == null ? '-' : useCountUp(stats[key], 1200)}
+            {stats[key] == null ? '-' : animatedValues[idx]}
           </p>
           <p className="font-semibold text-white prose-lg">
             {LABELS[key]}

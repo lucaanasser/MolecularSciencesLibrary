@@ -1,5 +1,5 @@
 import React, { useRef, useState, useLayoutEffect } from "react";
-import BookRenderer from "@/features/bookshelf/components/BookRenderer";
+import { BookRenderer } from "..";
 import { Book } from "@/types/book";
 
 interface BookWithDimensions extends Book {
@@ -58,7 +58,7 @@ function calculateBookDimensions(
   });
 }
 
-const ShelfRenderer: React.FC<ShelfProps> = ({ books, width, height = 160 }) => {
+export default function ShelfRenderer({ books, width, height = 160 }: ShelfProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState<number>(0);
   
@@ -133,5 +133,3 @@ const ShelfRenderer: React.FC<ShelfProps> = ({ books, width, height = 160 }) => 
     </div>
   );
 };
-
-export default ShelfRenderer;

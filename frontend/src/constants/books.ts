@@ -7,10 +7,10 @@
  */
 
 export const AREAS = [
+  "Matemática",
   "Física",
   "Química",
   "Biologia",
-  "Matemática",
   "Computação",
   "Variados"
 ] as const;

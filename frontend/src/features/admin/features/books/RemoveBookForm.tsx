@@ -16,10 +16,14 @@ export default function RemoveBookForm({ onSuccess, onError, onBack }) {
     e.preventDefault();
     setFoundBooks([]);
     setSelectedBook(null);
+    if (!query.trim()) {
+      onError && onError("Digite algo para buscar.");
+      return;
+    }
     try {
       const books = await BooksService.searchBooks({q: query});
-      setFoundBooks(books);
-      if (books.length === 0) {
+      setFoundBooks(books.results);
+      if (books.total === 0) {
         onError && onError("Nenhum livro encontrado.");
       }
     } catch (err: any) {

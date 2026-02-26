@@ -1,27 +1,9 @@
 // Serviço para operações de usuários
 import { User } from "@/types/user";
 import { logger } from "@/utils/logger"; 
+import { fetchJson } from "@/utils/fetchJson";
 
 const API_BASE = '/api/users';
-
-function fetchJson(url: string, options: RequestInit = {}) {
-  const userData = localStorage.getItem('user');
-  const token = userData ? JSON.parse(userData).token : null;
-  return fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-    ...options,
-  }).then(async (res) => {
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error || 'Erro na requisição');
-    }
-    return res.json();
-  });
-}
 
 export const UsersService = {
 

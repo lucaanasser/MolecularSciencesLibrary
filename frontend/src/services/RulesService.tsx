@@ -10,36 +10,9 @@
  */
 
 import { logger } from "@/utils/logger";
+import { fetchJson } from "@/utils/fetchJson";
 
 const API_BASE = '/api/rules';
-
-function fetchJson(url: string, options: RequestInit = {}) {
-  const headers: Record<string, string> = {};
-
-  // Adiciona o token se existir
-  const user = localStorage.getItem('user');
-  if (user) {
-    headers['Authorization'] = `Bearer ${JSON.parse(user).token}`;
-  }
-
-  if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-  }
-
-  return fetch(url, {
-    headers: {
-      ...headers,
-      ...(options.headers || {}),
-    },
-    ...options,
-  }).then(async (res) => {
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error || 'Erro na requisição');
-    }
-    return res.json();
-  });
-}
 
 export const RulesService = {
   /* Buscar regras de empréstimo */

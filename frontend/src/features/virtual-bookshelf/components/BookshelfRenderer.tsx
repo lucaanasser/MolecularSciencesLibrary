@@ -1,5 +1,5 @@
 import React from "react";
-import ShelfRenderer from "@/features/bookshelf/components/ShelfRenderer";
+import { ShelfRenderer } from "..";
 import { Book } from "@/types/book";
 
 interface BookshelfRendererProps {
@@ -8,11 +8,7 @@ interface BookshelfRendererProps {
   booksByShelf: Book[][];
 }
 
-const BookshelfRenderer: React.FC<BookshelfRendererProps> = ({
-  width,
-  height = 86,
-  booksByShelf,
-}) => {
+export default function BookshelfRenderer({ width, height = 86, booksByShelf }: BookshelfRendererProps) {
   return (
     <div style={{
       display: 'flex',
@@ -32,5 +28,3 @@ const BookshelfRenderer: React.FC<BookshelfRendererProps> = ({
     </div>
   );
 };
-
-export default BookshelfRenderer;

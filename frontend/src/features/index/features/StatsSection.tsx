@@ -1,6 +1,6 @@
-import { StatsGrid, StatsType } from "../components/StatsGrid";
+import { StatsGrid, StatsType } from "..";
 
-export function StatsSection({
+export default function StatsSection({
   stats,
   order,
   title,
@@ -21,7 +21,7 @@ export function StatsSection({
 }) {
   return (
     <section
-      className={`${bgClass} diagonal-section`}
+      className={`${bgClass} ${diagonal ? "diagonal-section" : ""}`}
     >
       <div className="content-container">
         <div className="text-center mb-8 md:mb-12 lg:mb-16">

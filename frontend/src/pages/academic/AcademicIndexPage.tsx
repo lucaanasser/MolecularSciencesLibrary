@@ -1,12 +1,7 @@
-import { GraduationCap, Search, Calendar, Users, BookOpen, Lightbulb, MessageSquare } from "lucide-react";
+import { GraduationCap, Search, Calendar, MessageSquare } from "lucide-react";
 import { logger } from "@/utils/logger";
-import MolecoogleWindow from "@/features/index/components/MolecoogleWindow";
-import { useState, useEffect, useRef } from "react";
-import { TextSection } from "@/features/index/features/TextSection";
-import { StatsSection } from "@/features/index/features/StatsSection";
-import type { StatsType } from "@/features/index/components/StatsGrid";
-import { FeatureSection } from "@/features/index/features/FeaturesSection";
-import { HeroSection } from "@/features/index/features/HeroSection";
+import { useState } from "react";
+import { TextSection, StatsSection, type StatsType, FeatureSection, HeroSection, MolecoogleWindow } from "@/features/index";
 
 // Log de início de renderização da página inicial acadêmica
 logger.info("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
@@ -52,10 +47,10 @@ const AcademicIndexPage = () => {
       <TextSection
         title="Conheça melhor nossos números"
         paragraphs={[
-          "Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento da biblioteca.",
-          "Confira gráficos detalhados sobre empréstimos, acervo e usuários. Todos os dados são apresentados de forma agregada, sem expor informações pessoais."
+          "Acreditamos que a transparência fortalece a confiança e o engajamento da comunidade. Por isso, disponibilizamos dados e estatísticas atualizadas sobre o funcionamento do Ciclo Avançado.",
+          "Confira gráficos detalhados sobre inscritos, disciplinas e áreas. Todos os dados são apresentados de forma agregada, sem expor informações pessoais."
         ]}
-        buttonText="Biblioteca em Dados"
+        buttonText="Ciclo Avançado em Dados"
         buttonLink="/transparencia"
         imageSrc="/images/image.png"
         imageAlt=""

@@ -25,8 +25,8 @@ export default function ListBooks({onBack}) {
       subarea: selectedSubarea || undefined
     })
       .then(data => {
-        setBooks(data);
-        setTotalBooks(data.length);
+        setBooks(data.results);
+        setTotalBooks(data.total);
       })
       .catch(() => {
         setBooks([]);

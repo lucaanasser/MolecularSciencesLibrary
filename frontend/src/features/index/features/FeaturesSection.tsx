@@ -1,6 +1,6 @@
-import { FeatureCard, FeatureCardType } from "../components/FeatureCard";
+import { FeatureCard, FeatureCardType } from "..";
 
-export function FeatureSection({
+export default function FeatureSection({
   title,
   cards,
   columns,

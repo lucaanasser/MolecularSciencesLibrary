@@ -6,10 +6,10 @@
 
 // Nome da área -> Código da DB ("XXX")
 const areaMapping = {
+    "Matemática": "MAT",
     "Física": "FIS",
     "Química": "QUI",
     "Biologia": "BIO",
-    "Matemática": "MAT",
     "Computação": "CMP",
     "Variados": "VAR"
 };

@@ -18,7 +18,7 @@ const TYPED_SEQUENCES = [
   { text: "é possível", suggestions: SUGGESTIONS.filter(q => q.toLowerCase().startsWith("é possível")).slice(0, 3) }
 ];
 
-const MolecoogleWindow = () => {
+export default function MolecoogleWindow() {
   const [typed, setTyped] = useState("");
   const [phase, setPhase] = useState(0);
   const [showOptions, setShowOptions] = useState(false);
@@ -138,5 +138,3 @@ const MolecoogleWindow = () => {
     </div>
   );
 };
-
-export default MolecoogleWindow;

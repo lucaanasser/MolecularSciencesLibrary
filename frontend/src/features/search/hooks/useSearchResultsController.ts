@@ -16,7 +16,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchResultsPageProps, useFilters } from "..";
 
-const RESULTS_PER_PAGE = 20; // Número de resultados por página
+const RESULTS_PER_PAGE = 15; // Número de resultados por página
 
 export function useSearchResultsController(props: SearchResultsPageProps) {
 
@@ -26,7 +26,17 @@ export function useSearchResultsController(props: SearchResultsPageProps) {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
 
-  // Gerencia filtros usando o hook de filtros
+  // Inicializa filtros a partir dos parâmetros da URL
+  const initialGroups = (filterGroupsConfig || []).map(group => {
+    if (group.type === "checkbox") {
+      const param = searchParams.getAll(group.key);
+      if (param && param.length > 0) {
+        return { ...group, selected: param };
+      }
+    }
+    return group;
+  });
+
   const {
     groups: filterGroups,
     filters, // objeto plano já montado
@@ -34,7 +44,7 @@ export function useSearchResultsController(props: SearchResultsPageProps) {
     setInput,
     clearAll,
     getOptions,
-  } = useFilters(filterGroupsConfig || []);
+  } = useFilters(initialGroups);
 
   // Inicializa estados dos resultados e das páginas
   const [allResults, setAllResults] = useState<any[]>([]); // Todos os resultados retornados pela busca (sem paginação)

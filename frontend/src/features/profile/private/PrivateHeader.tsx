@@ -1,6 +1,4 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Camera, Mail, Phone } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { UserAvatar } from "@/features/profile/UserAvatar";
 
 export interface ProfileHeaderProps {
@@ -23,7 +21,7 @@ export function ProfileHeader({ user, onShowImageSelector }: ProfileHeaderProps)
       <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 bg-white rounded-2xl shadow-lg p-8 sm:p-12 border border-gray-100">
         
         {/* Avatar */}
-        <UserAvatar name={user.name} profileImage={user.profile_image} />
+        <UserAvatar name={user.name} profileImage={user.profile_image} onEditClick={onShowImageSelector} />
 
         {/* Nome, turma e NUSP */}
         <div className="flex-1 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

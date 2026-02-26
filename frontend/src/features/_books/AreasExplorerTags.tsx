@@ -1,19 +1,17 @@
-const TAGS = [
-  { label: "Matemática", color: "bg-cm-red" },
-  { label: "Física", color: "bg-cm-orange" },
-  { label: "Química", color: "bg-cm-yellow" },
-  { label: "Biologia", color: "bg-cm-green" },
-  { label: "Computação", color: "bg-cm-blue" },
-];
+import { AREAS, COLORS } from "@/constants";
+import { useNavigate } from "react-router-dom";
 
-interface AreasExplorerTagsProps {
-  onTagClick: (label: string) => void;
-}
+export default function AreasExplorerTags() {
+  const navigate = useNavigate();
 
-export default function AreasExplorerTags({ onTagClick }: AreasExplorerTagsProps) {
+  const TAGS = AREAS.slice(0,5).map((area, idx) => ({
+    label: area,
+    color: COLORS[idx % COLORS.length],
+  }));
+
   return (
     <div className="flex flex-col gap-4 items-center">
-      <p className="prose-sm">Explore por áreas:</p>
+      <p className="prose-sm">Explore por área:</p>
       <div className="flex flex-wrap justify-center">
         {TAGS.map((tag, idx) => {
           // Proporção áurea: gap decrescente
@@ -25,7 +23,10 @@ export default function AreasExplorerTags({ onTagClick }: AreasExplorerTagsProps
           return (
             <button
               key={tag.label}
-              onClick={() => onTagClick(tag.label)}
+              onClick={() => {
+                const params = new URLSearchParams({ area: tag.label });
+                navigate(`/biblioteca/buscar/resultados?${params.toString()}`);
+              }}
               className={`group relative flex items-center focus:outline-none`}
               style={{
                 background: "none",
@@ -36,7 +37,7 @@ export default function AreasExplorerTags({ onTagClick }: AreasExplorerTagsProps
               }}
             >
               <span
-                className={`transition-all duration-300 rounded-full w-7 h-7 ${tag.color} group-hover:w-32 group-hover:px-4 group-hover:py-2 group-hover:shadow-lg flex items-center justify-center`}
+                className={`transition-all duration-300 rounded-full w-7 h-7 bg-${tag.color} group-hover:w-32 group-hover:px-4 group-hover:py-2 group-hover:shadow-lg flex items-center justify-center`}
                 style={{ position: "relative", overflow: "hidden" }}
               >
                 <span

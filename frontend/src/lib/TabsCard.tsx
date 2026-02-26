@@ -9,7 +9,6 @@ export interface TabDefinition {
 
 export interface TabsCardProps {
   tabs: TabDefinition[];
-  initialTabId?: string;
   getTabColor?: (tabId: string, idx: number) => string;
   children: ReactNode[];
   className?: string;
@@ -17,12 +16,11 @@ export interface TabsCardProps {
 
 export const TabsCard: React.FC<TabsCardProps> = ({
   tabs,
-  initialTabId,
   getTabColor = () => "library-purple",
   children,
   className = "",
 }) => {
-  const [activeTab, setActiveTab] = useState<string>(initialTabId || tabs[0]?.id);
+  const [activeTab, setActiveTab] = useState<string>(tabs[0].id);
   const contentRef = useRef<HTMLDivElement>(null);
   const [fade, setFade] = useState(false);
 

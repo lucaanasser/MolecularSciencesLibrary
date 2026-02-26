@@ -5,7 +5,7 @@ interface HeroSectionProps {
   children: React.ReactNode;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ variant, children }) => {
+export default function HeroSection({ variant, children }: HeroSectionProps) {
   if (variant === "library") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-library-purple-muted via-library-purple/10 to-default-bg">
@@ -48,5 +48,3 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ variant, children }) =
     </section>
   );
 };
-
-export default HeroSection;

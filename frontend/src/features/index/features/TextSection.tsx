@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { Button, buttonVariants } from "@/components/ui/button";
-import type { VariantProps } from "class-variance-authority";
+import { Button } from "@/components/ui/button";
 
-export function TextSection({
+export default function TextSection({
   title,
   paragraphs,
   buttonText,

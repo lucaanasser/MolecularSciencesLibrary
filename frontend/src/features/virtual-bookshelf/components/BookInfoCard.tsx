@@ -6,7 +6,7 @@ interface BookInfoCardProps {
   style?: React.CSSProperties;
 }
 
-const BookInfoCard: React.FC<BookInfoCardProps> = ({ book, style }) => {
+export default function BookInfoCard({ book, style }: BookInfoCardProps) {
    const { title, volume, authors, code, is_reserved, available } = book;
    let statusLabel = '';
    let statusColor = '#228B22';
@@ -48,5 +48,3 @@ const BookInfoCard: React.FC<BookInfoCardProps> = ({ book, style }) => {
     </div>
    );
  };
-
-export default BookInfoCard;

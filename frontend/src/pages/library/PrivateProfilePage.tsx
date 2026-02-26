@@ -5,6 +5,7 @@ import { ProfileHeader } from "@/features/profile/private/PrivateHeader";
 import { ProfileImageSelector } from "@/features/profile/ProfileImageSelector";
 import { PrivateStats } from "@/features/profile/private/PrivateStats";
 import { ProfileTabsCard } from "@/features/profile/private/PrivateTabsCard";
+import { LoansService } from "@/services/LoansService";
 
 /**
  * Página de perfil do usuário.
@@ -15,32 +16,15 @@ import { ProfileTabsCard } from "@/features/profile/private/PrivateTabsCard";
  * 🔴 Erro
  */
 
-// Dados mockados (futuramente puxar do backend)
-const MOCK_DONATIONS = [
-  { id: 1, title: "Cálculo Vol. 1", author: "James Stewart", date: "2025-08-15", status: "aceita" },
-  { id: 2, title: "Física Básica", author: "Halliday", date: "2025-10-20", status: "aceita" },
-  { id: 3, title: "Química Orgânica", author: "Solomons", date: "2025-12-01", status: "em análise" },
-];
-const userStats = {
-  totalLoans: 12,
-  currentLoans: 2,
-  donations: MOCK_DONATIONS.filter(d => d.status === "aceita").length,
-};
-
 const PrivateProfilePage = () => {
   
   // Log de início de renderização da página de perfil
   logger.info("🔵 [ProfilePage] Renderizando página de perfil");
   
-  // Estados para dados do usuário, carregamento, erros e seleção de imagem
-  const [activeTab, setActiveTab] = useState("ativos");
+  // Busca do perfil do usuário autenticado ao carregar a página
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState(null);
-  const [showImageSelector, setShowImageSelector] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  // Busca do perfil do usuário autenticado ao carregar a página
   useEffect(() => {
     let isMounted = true;
     setUserLoading(true);
@@ -58,7 +42,37 @@ const PrivateProfilePage = () => {
     return () => { isMounted = false; };
   }, []);
 
+  // Busca estatísticas do usuário
+  const [userStats, setUserStats] = useState({
+    totalLoans: 0,
+    currentLoans: 0,
+    donations: 0,
+  });
+  useEffect(() => {
+    if (!user) return;
+
+    // Buscar empréstimos totais e ativos
+    Promise.all([
+      LoansService.getLoansByUser(user.id, "all"),
+      LoansService.getLoansByUser(user.id, "active"),
+    ]).then(([allLoans, activeLoans]) => {
+      setUserStats((prev) => ({
+        ...prev,
+        totalLoans: allLoans.length,
+        currentLoans: activeLoans.length,
+      }));
+    }).catch((err) => {
+      logger.error("🔴 [ProfilePage] Erro ao buscar estatísticas de empréstimos:", err);
+    });
+
+    setUserStats((prev) => ({
+      ...prev,
+    }));
+  }, [user]);
+
   // Handler para mudança de imagem de perfil
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const handleImageChange = async (img: string) => {
     setSelectedImage(img);
     setShowImageSelector(false);
@@ -111,8 +125,8 @@ const PrivateProfilePage = () => {
         <div className="flex-1 min-w-0">
           <ProfileTabsCard
               user={user}
-              donations={MOCK_DONATIONS}
-              initialTabId={activeTab}
+              donations={[]}
+              initialTabId={"ativos"}
             />
         </div>
         

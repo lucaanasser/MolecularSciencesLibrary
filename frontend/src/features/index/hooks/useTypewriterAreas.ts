@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 
-export interface Area {
+interface Area {
   name: string;
   color: string;
 }
 
-export function useTypewriterAreas(areas: Area[], typingSpeed = 110, pause = 1600, deletingSpeed = 70) {
+export default function useTypewriterAreas(areas: Area[], typingSpeed = 110, pause = 1600, deletingSpeed = 70) {
   const [areaIndex, setAreaIndex] = useState(0);
   const [displayText, setDisplayText] = useState(areas[0]?.name || "");
   const [typing, setTyping] = useState(true);

@@ -1,73 +1,17 @@
-import { BookOpen, Search, User, TrendingUp, Users, BookMarked, Lightbulb } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useTypewriterAreas } from "@/hooks/useTypewriterAreas";
-import { TextSection } from "@/features/index/features/TextSection";
-import { StatsSection } from "@/features/index/features/StatsSection";
-import { FeatureSection } from "@/features/index/features/FeaturesSection";
-import { HeroSection } from "@/features/index/features/HeroSection";
-import { LibraryHeroText } from "@/features/index/components/LibraryHeroText";
+import { BookOpen, Search, User } from "lucide-react";
+import { TextSection, StatsSection, FeatureSection, HeroSection, AreasHeroText, useLibraryStats } from "@/features/index";
 import { Button } from "@/components/ui/button";
 import { logger } from "@/utils/logger";
 
-/**
- * Página de FAQ da Biblioteca.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
- */
-
-const HERO_AREAS = [
-  { name: "Matemática", color: "text-cm-red" },
-  { name: "Física", color: "text-cm-orange" },
-  { name: "Química", color: "text-cm-yellow" },
-  { name: "Biologia", color: "text-cm-green" },
-  { name: "Computação", color: "text-cm-blue" },
-  { name: "Universo", color: "text-library-purple" },
-];
 
 const Index = () => {
   // Log de início de renderização da página inicial
   logger.info("🔵 [Index] Renderizando página inicial");
-  const { areaIndex, displayText } = useTypewriterAreas(HERO_AREAS);
-
-  // Estados para estatísticas
-  const [stats, setStats] = useState({ users: null, books: null, subareas: null });
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [statsError, setStatsError] = useState(null);
-
-  useEffect(() => {
-    setLoadingStats(true);
-    setStatsError(null);
-    Promise.all([
-      fetch("/api/users").then(r => r.json()),
-      fetch("/api/books").then(r => r.json())
-    ])
-      .then(([users, books]) => {
-        // Conta subáreas únicas
-        const subareasSet = new Set();
-        books.forEach(b => {
-          if (b.area && b.subarea !== undefined && b.subarea !== null) {
-            subareasSet.add(`${b.area}-${b.subarea}`);
-          }
-        });
-        setStats({
-          users: users.length,
-          books: books.length,
-          subareas: subareasSet.size
-        });
-      })
-      .catch((err) => {
-        setStatsError("Erro ao carregar estatísticas");
-      })
-      .finally(() => setLoadingStats(false));
-  }, []);
-
+  const { stats, loading: loadingStats, error: statsError } = useLibraryStats();
   return (
     <>
       <HeroSection variant="library">
-        <h1><LibraryHeroText /></h1>
+        <h1><AreasHeroText /></h1>
         <p className="prose-lg">
           Explore nosso acervo de livros, cuidadosamente selecionado para apoiar seu aprendizado e progresso durante o curso de Ciências Moleculares.
         </p>

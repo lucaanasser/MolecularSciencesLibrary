@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import BookInfoCard from '@/features/bookshelf/components/BookInfoCard';
+import { BookInfoCard } from '..';
 import { Book } from '@/types/book';
 
-export interface BookRendererProps {
+interface BookRendererProps {
   book: Book;
   height: number;
   width: number;
@@ -17,11 +17,7 @@ const AREA_CLASSES: Record<string, string> = {
   VAR: 'bg-library-purple',
 };
 
-const BookRenderer: React.FC<BookRendererProps> = ({
-  book,
-  height,
-  width,
-}) => {
+export default function BookRenderer({ book, height, width }: BookRendererProps) {
   const [hover, setHover] = useState(false);
   const bookRef = useRef<HTMLDivElement>(null);
   const [cardPos, setCardPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
@@ -71,5 +67,3 @@ const BookRenderer: React.FC<BookRendererProps> = ({
      </>
    );
 };
-
-export default BookRenderer;

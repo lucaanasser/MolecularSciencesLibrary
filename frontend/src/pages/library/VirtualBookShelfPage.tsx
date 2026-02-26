@@ -1,4 +1,4 @@
-import VirtualBookshelf from "@/features/bookshelf/VirtualBookshelf";
+import VirtualBookshelf from "@/features/virtual-bookshelf/VirtualBookshelf";
 import { logger } from "@/utils/logger";
 
 /**

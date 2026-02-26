@@ -11,8 +11,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Settings, Save } from 'lucide-react';
-import VirtualBookshelfService from '@/features/bookshelf/services/VirtualBookshelfService';
-import { VirtualShelf } from '@/features/bookshelf/types/virtualbookshelf';
+import { VirtualBookshelfService, VirtualShelf } from '..';
 
 interface ShelfRowData {
   startCode: string;
@@ -27,11 +26,7 @@ interface ShelfRowEditorProps {
   onChange: (data: ShelfRowData) => void;
 }
 
-const ShelfRowEditor: React.FC<ShelfRowEditorProps> = ({
-  shelfRow,
-  data,
-  onChange
-}) => {
+export function ShelfRowEditor({ shelfRow, data, onChange }: ShelfRowEditorProps) {
   return (
     <div className="flex flex-col gap-2 py-2">
       <div className="flex items-center justify-between">
@@ -66,11 +61,7 @@ interface ShelfConfigProps {
   onUpdate: () => void;
 }
 
-const ShelfConfig: React.FC<ShelfConfigProps> = ({
-  shelfNumber,
-  shelvesConfig,
-  onUpdate
-}) => {
+export function ShelfConfig({ shelfNumber, shelvesConfig, onUpdate }: ShelfConfigProps) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -167,5 +158,3 @@ const ShelfConfig: React.FC<ShelfConfigProps> = ({
     </Dialog>
   );
 };
-
-export default ShelfConfig;

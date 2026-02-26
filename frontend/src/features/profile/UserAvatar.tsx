@@ -30,7 +30,7 @@ export function UserAvatar({
   return (
     <div className={`relative inline-block`}>
       <div className="relative w-full h-full">
-        <Avatar className={`ring-4 ring-default-bg ${sizeClass}`}> 
+        <Avatar className={`ring-4 ring-gray-200 ${sizeClass}`}> 
           {avatarSrc ? (
             <AvatarImage src={avatarSrc} alt={name} />
           ) : null}

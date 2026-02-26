@@ -6,7 +6,7 @@ export default function LibrarySearchPage() {
   return (
     <div className="flex flex-col">
       <SearchPage {...searchProps} />
-      <AreasExplorerTags onTagClick={(label) => console.log(label)} /> {/*TODO: implementar navegação para página de resultados filtrados por área*/}
+      <AreasExplorerTags />
     </div>
   );
 }
