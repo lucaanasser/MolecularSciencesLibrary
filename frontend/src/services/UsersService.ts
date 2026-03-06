@@ -267,5 +267,84 @@ export const UsersService = {
     }
   },
 
+  /* Registrar novo usuário via auto-cadastro público (sem autenticação)
+   * Usada em: AccountCreationPage
+   */
+  registerUser: async (user: Pick<User, "name" | "email" | "NUSP" | "phone" | "class">) => {
+    logger.log("🔵 [UsersService] Registrando usuário:", user);
+    try {
+      const res = await fetch(`${API_BASE}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
+      });
+      if (!res.ok) {
+        const errData = await res.text();
+        let parsed: any;
+        try { parsed = JSON.parse(errData); } catch {}
+        throw new Error(parsed?.error || errData || 'Erro ao solicitar cadastro');
+      }
+      const data = await res.json();
+      logger.log("🟢 [UsersService] Solicitação de cadastro enviada:", data);
+      return data;
+    } catch (err: any) {
+      logger.error("🔴 [UsersService] Erro ao registrar usuário:", err.message);
+      throw err;
+    }
+  },
+
+  /* Listar usuários com cadastro pendente (admin only)
+   * Usada em: PendingUsersTable
+   */
+  getPendingUsers: async (): Promise<User[]> => {
+    logger.log("🔵 [UsersService] Buscando usuários pendentes");
+    try {
+      const data = await fetchJson(`${API_BASE}/pending`);
+      logger.log(`🟢 [UsersService] Usuários pendentes encontrados: ${data.length}`);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível carregar os pedidos de cadastro.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      logger.error("🔴 [UsersService] Erro ao buscar usuários pendentes:", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /* Aprovar usuário pendente (admin only)
+   * Usada em: PendingUsersTable
+   */
+  approveUser: async (id: number) => {
+    logger.log(`🔵 [UsersService] Aprovando usuário ID: ${id}`);
+    try {
+      const data = await fetchJson(`${API_BASE}/${id}/approve`, { method: 'PATCH' });
+      logger.log(`🟢 [UsersService] Usuário ${id} aprovado com sucesso`);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível aprovar o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      logger.error(`🔴 [UsersService] Erro ao aprovar usuário ID: ${id}`, technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /* Rejeitar usuário pendente (admin only)
+   * Usada em: PendingUsersTable
+   */
+  rejectUser: async (id: number) => {
+    logger.log(`🔵 [UsersService] Rejeitando usuário ID: ${id}`);
+    try {
+      const data = await fetchJson(`${API_BASE}/${id}/reject`, { method: 'DELETE' });
+      logger.log(`🟢 [UsersService] Usuário ${id} rejeitado com sucesso`);
+      return data;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível rejeitar o usuário.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      logger.error(`🔴 [UsersService] Erro ao rejeitar usuário ID: ${id}`, technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 
 };
