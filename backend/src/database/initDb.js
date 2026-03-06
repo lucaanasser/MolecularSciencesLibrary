@@ -42,7 +42,8 @@ db.serialize(() => {
             role TEXT NOT NULL, -- 'admin', 'aluno', 'proaluno'
             profile_image TEXT, -- Caminho da imagem de perfil
             class TEXT, -- Número da turma
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT NOT NULL DEFAULT 'active' -- 'active', 'pending'
         )
     `, (err) => {
         if (err) {
