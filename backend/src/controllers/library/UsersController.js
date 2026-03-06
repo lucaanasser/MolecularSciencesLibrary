@@ -353,6 +353,75 @@ class UsersController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+    /**
+     * Registra novo usuário via auto-cadastro público (rota pública).
+     * O cadastro fica com status 'pending' até o admin aprovar.
+     */
+    async registerUser(req, res) {
+        try {
+            console.log("🔵 [registerUser] Dados recebidos:", req.body);
+            const { name, email, phone, NUSP, class: userClass } = req.body;
+            if (!name || !email || !phone || !NUSP || !userClass) {
+                return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+            }
+            if (!/^\+?\d{10,15}$/.test(phone)) {
+                return res.status(400).json({ error: 'Telefone inválido. Informe DDD e número.' });
+            }
+            const user = await usersService.registerUser({ name, email, phone, NUSP, class: userClass });
+            console.log("🟢 [registerUser] Usuário pendente criado:", user.id);
+            res.status(201).json(user);
+        } catch (error) {
+            console.error("🔴 [registerUser] Erro:", error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Lista todos os usuários com cadastro pendente (admin only).
+     */
+    async getPendingUsers(req, res) {
+        try {
+            console.log("🔵 [getPendingUsers] Listando usuários pendentes.");
+            const users = await usersService.getPendingUsers();
+            console.log("🟢 [getPendingUsers] Encontrados:", users.length);
+            res.status(200).json(users);
+        } catch (error) {
+            console.error("🔴 [getPendingUsers] Erro:", error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Aprova cadastro pendente e envia email de boas-vindas (admin only).
+     */
+    async approveUser(req, res) {
+        try {
+            const { id } = req.params;
+            console.log("🔵 [approveUser] Aprovando usuário id:", id);
+            await usersService.approveUser(id);
+            console.log("🟢 [approveUser] Usuário aprovado:", id);
+            res.status(200).json({ success: true, id });
+        } catch (error) {
+            console.error("🔴 [approveUser] Erro:", error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Rejeita e deleta cadastro pendente (admin only).
+     */
+    async rejectUser(req, res) {
+        try {
+            const { id } = req.params;
+            console.log("🔵 [rejectUser] Rejeitando usuário id:", id);
+            await usersService.rejectUser(id);
+            console.log("🟢 [rejectUser] Usuário rejeitado:", id);
+            res.status(200).json({ success: true, id });
+        } catch (error) {
+            console.error("🔴 [rejectUser] Erro:", error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new UsersController();
