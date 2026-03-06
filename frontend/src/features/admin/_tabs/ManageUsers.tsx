@@ -1,5 +1,5 @@
 import AdminTabRenderer from "@/features/admin/components/AdminTabRenderer";
-import { AddUser, RemoveUser, ListUsers, ImportUsers } from "@/features/admin/features/users";
+import { AddUser, RemoveUser, ListUsers, ImportUsers, PendingUsersTable } from "@/features/admin/features/users";
 
 const ManageUsers = () => {
   return (
@@ -11,12 +11,14 @@ const ManageUsers = () => {
         { id: "remove", label: "Remover usuário", color: "bg-cm-red" },
         { id: "list", label: "Ver lista de usuários", color: "bg-cm-blue" },
         { id: "import", label: "Importar CSV", color: "bg-library-purple" },
+        { id: "pending", label: "Solicitações de Cadastro", color: "bg-cm-yellow" },
       ]}
       tabComponents={[
         { id: "add", component: AddUser },
         { id: "remove", component: RemoveUser },
         { id: "list", component: ListUsers },
         { id: "import", component: ImportUsers },
+        { id: "pending", component: PendingUsersTable },
       ]}
       columns={4}
     />
