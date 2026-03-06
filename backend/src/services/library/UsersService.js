@@ -89,6 +89,10 @@ class UsersService {
             console.error("🔴 [authenticateUser] Usuário não encontrado:", login);
             throw new Error('Usuário não encontrado');
         }
+        if (user.status === 'pending') {
+            console.warn("🟡 [authenticateUser] Usuário com cadastro pendente tentou logar:", login);
+            throw new Error('Seu cadastro ainda está aguardando aprovação do administrador.');
+        }
         const valid = user.password_hash && await bcrypt.compare(password, user.password_hash);
         if (!valid) {
             console.warn("🟡 [authenticateUser] Senha incorreta para usuário:", login);
@@ -237,6 +241,101 @@ class UsersService {
         const users = await usersModel.searchUsers(searchTerm, limit);
         console.log("🟢 [searchUsers] Encontrados:", users.length, "usuários");
         return users;
+    }
+
+    /**
+     * Registra novo usuário via auto-cadastro público.
+     * Verifica unicidade de email, NUSP e telefone.
+     * Cria usuário com status 'pending' e notifica admins.
+     *
+     * @param {Object} userData - name, email, NUSP, phone, class
+     * @returns {Promise<Object>} Dados do usuário pendente (sem senha)
+     * @throws {Error} Se já existir cadastro com email, NUSP ou telefone
+     */
+    async registerUser({ name, email, NUSP, phone, class: userClass }) {
+        console.log("🔵 [registerUser] Verificando duplicatas para:", email, NUSP, phone);
+
+        const byEmail = await usersModel.getUserByEmail(email);
+        if (byEmail) throw new Error('Este email já está cadastrado no sistema.');
+
+        const byNUSP = await usersModel.getUserByNUSP(NUSP);
+        if (byNUSP) throw new Error('Este NUSP já está cadastrado no sistema.');
+
+        const byPhone = await usersModel.getUserByPhone(phone);
+        if (byPhone) throw new Error('Este telefone já está cadastrado no sistema.');
+
+        const userId = await usersModel.createPendingUser({ name, email, NUSP, phone, class: userClass });
+        console.log("🟢 [registerUser] Usuário pendente criado com id:", userId);
+
+        const created = await usersModel.getUserById(userId);
+
+        // Notifica admins sobre novo pedido de cadastro (fire and forget)
+        EmailService.sendRegistrationRequestNotification({ user: created }).catch(err => {
+            console.error("🔴 [registerUser] Falha ao notificar admins:", err.message);
+        });
+
+        const { password_hash: _, ...userData } = created || {};
+        return userData;
+    }
+
+    /**
+     * Retorna lista de usuários com status 'pending'.
+     *
+     * @returns {Promise<Array>} Lista de usuários pendentes
+     */
+    async getPendingUsers() {
+        console.log("🔵 [getPendingUsers] Buscando usuários pendentes.");
+        return await usersModel.getPendingUsers();
+    }
+
+    /**
+     * Aprova cadastro pendente: ativa a conta, cria perfil público e envia email de boas-vindas.
+     *
+     * @param {number} id - ID do usuário pendente
+     * @returns {Promise<boolean>} true se aprovado com sucesso
+     * @throws {Error} Se usuário não existir ou não estiver pendente
+     */
+    async approveUser(id) {
+        console.log("🔵 [approveUser] Aprovando usuário id:", id);
+        const user = await usersModel.getUserById(id);
+        if (!user) throw new Error('Usuário não encontrado.');
+        if (user.status !== 'pending') throw new Error('Usuário não está com cadastro pendente.');
+
+        await usersModel.approveUser(id);
+        console.log("🟢 [approveUser] Status atualizado para 'active':", id);
+
+        // Cria perfil público
+        try {
+            await publicProfilesModel.createProfile(id);
+            console.log("🟢 [approveUser] Perfil público criado para user:", id);
+        } catch (error) {
+            console.error("🔴 [approveUser] Erro ao criar perfil público:", error.message);
+        }
+
+        // Envia email de boas-vindas com link de primeiro acesso (fire and forget)
+        EmailService.sendWelcomeEmail({ user_id: id }).catch(err => {
+            console.error("🔴 [approveUser] Falha ao enviar email de boas-vindas:", err.message);
+        });
+
+        return true;
+    }
+
+    /**
+     * Rejeita cadastro pendente: deleta o registro do banco.
+     *
+     * @param {number} id - ID do usuário pendente
+     * @returns {Promise<boolean>} true se rejeitado com sucesso
+     * @throws {Error} Se usuário não existir ou não estiver pendente
+     */
+    async rejectUser(id) {
+        console.log("🔵 [rejectUser] Rejeitando usuário id:", id);
+        const user = await usersModel.getUserById(id);
+        if (!user) throw new Error('Usuário não encontrado.');
+        if (user.status !== 'pending') throw new Error('Usuário não está com cadastro pendente.');
+
+        await usersModel.deleteUserById(id);
+        console.log("🟢 [rejectUser] Usuário rejeitado e deletado:", id);
+        return true;
     }
 }
 
