@@ -17,8 +17,8 @@ class UsersModel {
         
         // Insere o usuário no banco e retorna o ID gerado
         const result = await executeQuery(
-            `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image, class) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, NUSP, email, phone, password_hash, role, profile_image, userClass]
+            `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image, class, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, NUSP, email, phone, password_hash, role, profile_image, userClass, 'active']
         );
         return result.lastID;
     }
@@ -29,7 +29,7 @@ class UsersModel {
     async getUserByEmail(email) {
         console.log("🟢 [getUserByEmail] email:", email);
         return await getQuery(
-            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash FROM users WHERE email = ?`,
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash, status FROM users WHERE email = ?`,
             [email]
         );
     }
@@ -40,7 +40,7 @@ class UsersModel {
     async getUserById(id) {
         console.log("🟢 [getUserById] id:", id);
         return await getQuery(
-            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash FROM users WHERE id = ?`,
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash, status FROM users WHERE id = ?`,
             [id]
         );
     }
@@ -51,7 +51,7 @@ class UsersModel {
     async getAllUsers() {
         console.log("🟢 [getAllUsers] Listando todos os usuários.");
         return await allQuery(
-            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at FROM users`
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at FROM users WHERE status != 'pending'`
         );
     }
 
@@ -82,7 +82,7 @@ class UsersModel {
     async getUserByNUSP(NUSP) {
         console.log("🟢 [getUserByNUSP] NUSP:", NUSP);
         return await getQuery(
-            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash FROM users WHERE NUSP = ?`,
+            `SELECT id, name, NUSP, email, phone, role, profile_image, class, created_at, password_hash, status FROM users WHERE NUSP = ?`,
             [NUSP]
         );
     }
@@ -116,6 +116,64 @@ class UsersModel {
     }
 
     /**
+     * Busca usuário por telefone.
+     */
+    async getUserByPhone(phone) {
+        console.log("🟢 [getUserByPhone] phone:", phone);
+        return await getQuery(
+            `SELECT id, name, NUSP, email, phone, role, status FROM users WHERE phone = ?`,
+            [phone]
+        );
+    }
+
+    /**
+     * Cria usuário com status 'pending' (auto-cadastro aguardando aprovação).
+     */
+    async createPendingUser({ name, email, NUSP, phone, class: userClass }) {
+        const role = "aluno";
+        const profile_image = null;
+        const password_hash = null;
+        const status = "pending";
+        console.log("🟢 [createPendingUser] Criando usuário pendente:", { name, email, phone, NUSP, class: userClass });
+        const result = await executeQuery(
+            `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image, class, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, NUSP, email, phone, password_hash, role, profile_image, userClass, status]
+        );
+        return result.lastID;
+    }
+
+    /**
+     * Retorna todos os usuários com status 'pending'.
+     */
+    async getPendingUsers() {
+        console.log("🟢 [getPendingUsers] Listando usuários pendentes.");
+        return await allQuery(
+            `SELECT id, name, NUSP, email, phone, class, created_at FROM users WHERE status = 'pending' ORDER BY created_at ASC`
+        );
+    }
+
+    /**
+     * Aprova usuário: muda status de 'pending' para 'active'.
+     */
+    async approveUser(id) {
+        console.log("🟢 [approveUser] Aprovando usuário id:", id);
+        return await executeQuery(
+            `UPDATE users SET status = 'active' WHERE id = ?`,
+            [id]
+        );
+    }
+
+    /**
+     * Retorna todos os administradores ativos do sistema.
+     */
+    async getAllAdmins() {
+        console.log("🟢 [getAllAdmins] Listando administradores ativos.");
+        return await allQuery(
+            `SELECT id, name, email FROM users WHERE role = 'admin' AND status = 'active'`
+        );
+    }
+
+    /**
      * Busca usuários por nome, NUSP ou email (para autocomplete)
      * @param {string} searchTerm - Termo de busca
      * @param {number} limit - Limite de resultados
@@ -132,9 +190,9 @@ class UsersModel {
             )`);
             params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
         }
-        const whereClause = whereConditions.length > 0 
-            ? `WHERE ${whereConditions.join(' AND ')}`
-            : '';
+        // Sempre exclui usuários com cadastro pendente
+        whereConditions.push(`status != 'pending'`);
+        const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
         const users = await allQuery(
             `SELECT id, name, NUSP, email, phone, class, profile_image, role FROM users
              ${whereClause}
