@@ -4,7 +4,8 @@ export interface User {
   id: number;
   name: string;
   role: Role;
-  
+  status?: 'active' | 'pending';
+
   class?: number;
   NUSP?: number;
   email?: string;
