@@ -149,7 +149,7 @@ export function AddCustomDiscipline({ onAdd, disabled, colorIndex = 0 }: AddCust
           </Button>
         </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Adicionar Disciplina Manual</DialogTitle>
           <DialogDescription>
@@ -157,7 +157,13 @@ export function AddCustomDiscipline({ onAdd, disabled, colorIndex = 0 }: AddCust
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        {/* Aviso */}
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm text-amber-800 dark:text-amber-200">
+          <p className="font-medium mb-1">⚠️ Atenção</p>
+          <p>Pesquise a disciplina na busca antes de criar manualmente. Disciplinas customizadas ficam armazenadas no sistema.</p>
+        </div>
+
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           {/* Nome */}
           <div className="space-y-2">
             <Label htmlFor="nome">Nome *</Label>
@@ -292,7 +298,7 @@ export function AddCustomDiscipline({ onAdd, disabled, colorIndex = 0 }: AddCust
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button
             variant="ghost"
             onClick={() => {

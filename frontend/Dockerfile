@@ -12,11 +12,11 @@ RUN cp public/sitemap.xml dist/sitemap.xml
 # Etapa final com Nginx
 FROM nginx:1.27-alpine
 
-# Instalar openssl para gerar certificado
+# Instalar openssl para gerar certificado autoassinado (fallback)
 RUN apk add --no-cache openssl
 
-# Criar pasta para certificados
-RUN mkdir -p /etc/letsencrypt
+# Criar pastas necessárias
+RUN mkdir -p /etc/letsencrypt/live/bibliotecamoleculares.com /var/www/certbot
 
 # Copia os arquivos de build do frontend
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -28,6 +28,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY init-ssl.sh /usr/local/bin/init-ssl.sh
 RUN chmod +x /usr/local/bin/init-ssl.sh
 
-EXPOSE 443
+EXPOSE 80 443
 
 CMD ["/usr/local/bin/init-ssl.sh"]

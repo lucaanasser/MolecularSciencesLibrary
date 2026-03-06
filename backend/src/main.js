@@ -108,15 +108,8 @@ const httpServer = http.createServer(app);
 // Criar servidor HTTPS (apenas se os certificados existirem)
 let httpsServer = null;
 try {
-  // Tenta primeiro os caminhos diretos do Let's Encrypt
-  let sslKeyPath = '/etc/letsencrypt/live/bibliotecamoleculares.com/privkey.pem';
-  let sslCertPath = '/etc/letsencrypt/live/bibliotecamoleculares.com/fullchain.pem';
-  
-  // Se não encontrar, tenta os caminhos locais
-  if (!fs.existsSync(sslKeyPath) || !fs.existsSync(sslCertPath)) {
-    sslKeyPath = '/app/ssl/private.key';
-    sslCertPath = '/app/ssl/certificate.crt';
-  }
+  const sslKeyPath = '/etc/letsencrypt/live/bibliotecamoleculares.com/privkey.pem';
+  const sslCertPath = '/etc/letsencrypt/live/bibliotecamoleculares.com/fullchain.pem';
   
   if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
     const httpsOptions = {
