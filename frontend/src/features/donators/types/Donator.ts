@@ -2,6 +2,7 @@ export interface Donator {
   id?: number;
   user_id?: number | null;
   name?: string;
+  tag?: string | null;
   book_id?: number | null;
   donation_type: 'book' | 'money';
   amount?: number | null;
