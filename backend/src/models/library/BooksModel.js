@@ -211,7 +211,12 @@ class BooksModel {
 
     async getBooksByCode(code) {
         console.log(`🔵 [BooksModel] Buscando livros pelo código: ${code}`);
-        const query = `SELECT * FROM books WHERE code = ?`;
+        const query = `
+            SELECT b.*, d.name AS donator_name, d.tag AS donator_tag
+            FROM books b
+            LEFT JOIN donators d ON d.book_id = b.id AND d.donation_type = 'book'
+            WHERE b.code = ?
+        `;
         try {
             const books = await allQuery(query, [code]);
             console.log(`🟢 [BooksModel] Livros encontrados: ${books.length}`);

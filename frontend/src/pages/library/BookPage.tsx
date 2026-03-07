@@ -24,6 +24,7 @@ import {
   BookMarked,
   Layers,
   CheckCircle,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getBookById } from "@/services/SearchService";
@@ -269,6 +270,18 @@ const BookPage: React.FC = () => {
     { key: "precisao" as const, label: "Precisão", icon: CheckCircle, color: "cm-orange" },
   ];
 
+  const formatDonator = (name?: string, tag?: string): string => {
+    if (!name) return "";
+    if (!tag) return name;
+    if (tag === "Prof.") return `Prof. ${name}`;
+    return `${name} ${tag}`;
+  };
+
+  const donatorDisplay = (() => {
+    const found = books.find(b => b.donator_name);
+    return found ? formatDonator(found.donator_name, found.donator_tag) : "";
+  })();
+
   const tabs = [
     { id: "info" as const, label: "Informações", shortLabel: "Info", icon: Info },
     { id: "avaliacoes" as const, label: "Avaliações", shortLabel: "Avaliações", icon: MessageSquare },
@@ -343,6 +356,13 @@ const BookPage: React.FC = () => {
           <Hash className="w-4 h-4 text-library-purple" />
           <span className="font-medium">Subárea:</span>
           <span>{book?.subarea}</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <Gift className="w-4 h-4 text-library-purple" />
+          <span className="font-medium">Doador:</span>
+          {donatorDisplay && (
+            <span className="font-semibold text-library-purple">{donatorDisplay}</span>
+          )}
         </li>
       </ul>
       <h4 className="mt-6 mb-2 font-semibold text-gray-900">Exemplares</h4>

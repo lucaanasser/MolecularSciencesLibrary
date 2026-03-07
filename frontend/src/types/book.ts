@@ -23,6 +23,8 @@ export interface Book {
   due_in_window?: boolean;
   is_extended?: boolean;
   due_date?: string;
+  donator_name?: string;
+  donator_tag?: string;
 }
 
 export interface BookFilters {
