@@ -36,7 +36,7 @@ export default function BookInfoCard({ book, style }: BookInfoCardProps) {
     >
       <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 4 }}>
         {title}
-        {volume && String(volume) !== '0' && <span>, vol. {volume}</span>}
+        {!!volume && String(volume) !== '0' && <span>, vol. {volume}</span>}
       </div>
       <div style={{ fontStyle: 'italic', marginBottom: 4 }}>
         {authors}

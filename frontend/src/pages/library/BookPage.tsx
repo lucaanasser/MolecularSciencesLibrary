@@ -335,7 +335,7 @@ const BookPage: React.FC = () => {
             <span>{book.edition}ª</span>
           </li>
         )}
-        {book?.volume && (
+        {!!book?.volume && (
           <li className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-library-purple" />
             <span className="font-medium">Volume:</span>

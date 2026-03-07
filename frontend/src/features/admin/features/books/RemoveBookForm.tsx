@@ -114,7 +114,7 @@ export default function RemoveBookForm({ onSuccess, onError, onBack }) {
             <div><b>Título: </b> 
               {selectedBook.title}
               {selectedBook.subtitle && <span>: {selectedBook.subtitle}</span>}
-              {selectedBook.volume && <span>, vol. {selectedBook.volume}</span>}
+              {!!selectedBook.volume && <span>, vol. {selectedBook.volume}</span>}
               {selectedBook.edition && <span>, {selectedBook.edition}ª ed.</span>}
             </div>
             <span><b>Autor(es):</b> {selectedBook.authors}</span>

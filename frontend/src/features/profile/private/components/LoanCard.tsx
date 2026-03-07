@@ -44,7 +44,7 @@ export default function LoanCard({
           <div className="flex flex-col min-w-0">
             <div className="prose-sm font-semibold truncate">
               {loan.book?.title || `ID do livro: ${loan.book.id}`}
-              {loan.book?.volume && <span className="font-normal text-gray-600">, vol. {loan.book.volume}</span>}
+              {!!loan.book?.volume && <span className="font-normal text-gray-600">, vol. {loan.book.volume}</span>}
             </div>
             <div className="prose-xs italic text-gray-500 truncate">
               {loan.book?.authors || "Autor desconhecido"}
