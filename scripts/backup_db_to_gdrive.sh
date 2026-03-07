@@ -8,7 +8,7 @@ BACKUP_DIR="$(dirname "$0")/../database/backups"
 # Nome do arquivo de backup
 BACKUP_FILE="library_$(date +%Y-%m-%d_%H-%M-%S).db"
 # Caminho para o rclone.conf
-RCLONE_CONF="/app/scripts/rclone.conf"
+RCLONE_CONF="$(dirname "$0")/rclone.conf"
 REMOTE="gdrive"
 BACKUP_FOLDER_NAME="Backup Database"
 TARGET_DIR="$REMOTE:$BACKUP_FOLDER_NAME"
