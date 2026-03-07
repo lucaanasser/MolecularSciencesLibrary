@@ -33,7 +33,7 @@ const LoginForm: React.FC = () => {
       else if (data.role === "proaluno") 
         navigate(ROUTES.PROALUNO);
       else
-        navigate(ROUTES.MY_PAGE);
+        navigate(ROUTES.PROFILE);
     } catch (err: any) {
       toast({
         title: "Erro de autenticação",
