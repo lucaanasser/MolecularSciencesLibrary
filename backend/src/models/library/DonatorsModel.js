@@ -6,6 +6,7 @@ const { executeQuery, getQuery, allQuery } = require('../../database/db'); // Ca
  * - id: INTEGER PRIMARY KEY AUTOINCREMENT
  * - user_id: INTEGER (nullable, se for usuário cadastrado)
  * - name: TEXT (nome do doador, obrigatório se não for usuário)
+ * - tag: TEXT (opcional, etiqueta/turma/identificador do doador, ex: 'Prof.', 'T9')
  * - book_id: INTEGER (nullable, id do livro doado se aplicável)
  * - donation_type: TEXT ('book' ou 'money')
  * - amount: REAL (nullable, valor doado se for doação financeira)
@@ -15,12 +16,12 @@ const { executeQuery, getQuery, allQuery } = require('../../database/db'); // Ca
  */
 
 class DonatorsModel {
-    async addDonator({ user_id = null, name = null, book_id = null, donation_type, amount = null, contact = null, notes = null }) {
+    async addDonator({ user_id = null, name = null, tag = null, book_id = null, donation_type, amount = null, contact = null, notes = null }) {
         const query = `
-            INSERT INTO donators (user_id, name, book_id, donation_type, amount, contact, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO donators (user_id, name, tag, book_id, donation_type, amount, contact, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        return executeQuery(query, [user_id, name, book_id, donation_type, amount, contact, notes]);
+        return executeQuery(query, [user_id, name, tag, book_id, donation_type, amount, contact, notes]);
     }
 
     async removeDonator(id) {

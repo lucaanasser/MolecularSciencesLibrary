@@ -80,39 +80,39 @@ const USERS = [
 const BOOKS = [
     // Códigos de barras simples: 1, 2, 3, 4... (modo dev)
     // Física
-    { barcode: '1', area: 'Física', subarea: 1, title: 'Física I - Mecânica', authors: 'Halliday', edition: 10, volume: 1, language: 1 },
-    { barcode: '2', area: 'Física', subarea: 1, title: 'Física I - Mecânica', authors: 'Halliday', edition: 10, volume: 1, language: 1 },
-    { barcode: '3', area: 'Física', subarea: 2, title: 'Física II - Termodinâmica', authors: 'Halliday', edition: 10, volume: 2, language: 1 },
-    { barcode: '4', area: 'Física', subarea: 3, title: 'Física III - Eletromagnetismo', authors: 'Halliday', edition: 10, volume: 3, language: 1 },
-    { barcode: '5', area: 'Física', subarea: 4, title: 'Física Moderna', authors: 'Eisberg', edition: 1, volume: 0, language: 1 },
+    { barcode: '1', area: 'Física', subarea: 'Física Geral', title: 'Física I - Mecânica', authors: 'Halliday', edition: 10, volume: 1, language: 'Português' },
+    { barcode: '2', area: 'Física', subarea: 'Física Geral', title: 'Física I - Mecânica', authors: 'Halliday', edition: 10, volume: 1, language: 'Português' },
+    { barcode: '3', area: 'Física', subarea: 'Termodinâmica', title: 'Física II - Termodinâmica', authors: 'Halliday', edition: 10, volume: 2, language: 'Português' },
+    { barcode: '4', area: 'Física', subarea: 'Eletromagnetismo', title: 'Física III - Eletromagnetismo', authors: 'Halliday', edition: 10, volume: 3, language: 'Português' },
+    { barcode: '5', area: 'Física', subarea: 'Física Moderna', title: 'Física Moderna', authors: 'Eisberg', edition: 1, volume: 0, language: 'Português' },
     
     // Química
-    { barcode: '6', area: 'Química', subarea: 1, title: 'Química Geral', authors: 'Atkins', edition: 9, volume: 0, language: 1 },
-    { barcode: '7', area: 'Química', subarea: 1, title: 'Química Geral', authors: 'Atkins', edition: 9, volume: 0, language: 1 },
-    { barcode: '8', area: 'Química', subarea: 2, title: 'Química Orgânica', authors: 'Solomons', edition: 12, volume: 1, language: 1 },
-    { barcode: '9', area: 'Química', subarea: 2, title: 'Química Orgânica', authors: 'Solomons', edition: 12, volume: 2, language: 1 },
-    { barcode: '10', area: 'Química', subarea: 3, title: 'Físico-Química', authors: 'Atkins', edition: 10, volume: 1, language: 1 },
+    { barcode: '6', area: 'Química', subarea: 'Química Geral', title: 'Química Geral', authors: 'Atkins', edition: 9, volume: 0, language: 'Português' },
+    { barcode: '7', area: 'Química', subarea: 'Química Geral', title: 'Química Geral', authors: 'Atkins', edition: 9, volume: 0, language: 'Português' },
+    { barcode: '8', area: 'Química', subarea: 'Química Orgânica', title: 'Química Orgânica', authors: 'Solomons', edition: 12, volume: 1, language: 'Português' },
+    { barcode: '9', area: 'Química', subarea: 'Química Orgânica', title: 'Química Orgânica', authors: 'Solomons', edition: 12, volume: 2, language: 'Português' },
+    { barcode: '10', area: 'Química', subarea: 'Fisico-Química', title: 'Físico-Química', authors: 'Atkins', edition: 10, volume: 1, language: 'Português' },
     
     // Biologia
-    { barcode: '11', area: 'Biologia', subarea: 1, title: 'Biologia Celular', authors: 'Alberts', edition: 6, volume: 0, language: 1 },
-    { barcode: '12', area: 'Biologia', subarea: 2, title: 'Bioquímica', authors: 'Lehninger', edition: 7, volume: 0, language: 1 },
-    { barcode: '13', area: 'Biologia', subarea: 2, title: 'Bioquímica', authors: 'Voet', edition: 4, volume: 0, language: 1 },
-    { barcode: '14', area: 'Biologia', subarea: 3, title: 'Genética', authors: 'Griffiths', edition: 11, volume: 0, language: 1 },
-    { barcode: '15', area: 'Biologia', subarea: 4, title: 'Microbiologia', authors: 'Madigan', edition: 15, volume: 0, language: 1 },
+    { barcode: '11', area: 'Biologia', subarea: 'Biologia Molecular e Celular', title: 'Biologia Celular', authors: 'Alberts', edition: 6, volume: 0, language: 'Português' },
+    { barcode: '12', area: 'Biologia', subarea: 'Bioquímica', title: 'Bioquímica', authors: 'Lehninger', edition: 7, volume: 0, language: 'Português' },
+    { barcode: '13', area: 'Biologia', subarea: 'Bioquímica', title: 'Bioquímica', authors: 'Voet', edition: 4, volume: 0, language: 'Português' },
+    { barcode: '14', area: 'Biologia', subarea: 'Genética e Evolução', title: 'Genética', authors: 'Griffiths', edition: 11, volume: 0, language: 'Português' },
+    { barcode: '15', area: 'Biologia', subarea: 'Biologia de Sistemas', title: 'Microbiologia', authors: 'Madigan', edition: 15, volume: 0, language: 'Português' },
     
     // Matemática
-    { barcode: '16', area: 'Matemática', subarea: 1, title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 1 },
-    { barcode: '17', area: 'Matemática', subarea: 1, title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 1 },
-    { barcode: '18', area: 'Matemática', subarea: 2, title: 'Cálculo II', authors: 'Stewart', edition: 8, volume: 2, language: 1 },
-    { barcode: '19', area: 'Matemática', subarea: 3, title: 'Álgebra Linear', authors: 'Boldrini', edition: 3, volume: 0, language: 1 },
-    { barcode: '20', area: 'Matemática', subarea: 4, title: 'Equações Diferenciais', authors: 'Boyce', edition: 10, volume: 0, language: 1 },
+    { barcode: '16', area: 'Matemática', subarea: 'Cálculo', title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 'Português' },
+    { barcode: '17', area: 'Matemática', subarea: 'Cálculo', title: 'Cálculo I', authors: 'Stewart', edition: 8, volume: 1, language: 'Português' },
+    { barcode: '18', area: 'Matemática', subarea: 'Cálculo', title: 'Cálculo II', authors: 'Stewart', edition: 8, volume: 2, language: 'Português' },
+    { barcode: '19', area: 'Matemática', subarea: 'Álgebra Linear', title: 'Álgebra Linear', authors: 'Boldrini', edition: 3, volume: 0, language: 'Português' },
+    { barcode: '20', area: 'Matemática', subarea: 'Equações Diferenciais', title: 'Equações Diferenciais', authors: 'Boyce', edition: 10, volume: 0, language: 'Português' },
     
     // Computação
-    { barcode: '21', area: 'Computação', subarea: 1, title: 'Python', authors: 'Downey', edition: 2, volume: 0, language: 1 },
-    { barcode: '22', area: 'Computação', subarea: 2, title: 'Algoritmos', authors: 'Cormen', edition: 3, volume: 0, language: 1 },
-    { barcode: '23', area: 'Computação', subarea: 3, title: 'Sistemas Operacionais', authors: 'Tanenbaum', edition: 4, volume: 0, language: 1 },
-    { barcode: '24', area: 'Computação', subarea: 4, title: 'Redes', authors: 'Tanenbaum', edition: 5, volume: 0, language: 1 },
-    { barcode: '25', area: 'Computação', subarea: 5, title: 'Banco de Dados', authors: 'Elmasri', edition: 7, volume: 0, language: 1 },
+    { barcode: '21', area: 'Computação', subarea: 'Programação', title: 'Python', authors: 'Downey', edition: 2, volume: 0, language: 'Português' },
+    { barcode: '22', area: 'Computação', subarea: 'Algoritmos e Estruturas de Dados', title: 'Algoritmos', authors: 'Cormen', edition: 3, volume: 0, language: 'Português' },
+    { barcode: '23', area: 'Computação', subarea: 'Sistemas e Redes', title: 'Sistemas Operacionais', authors: 'Tanenbaum', edition: 4, volume: 0, language: 'Português' },
+    { barcode: '24', area: 'Computação', subarea: 'Sistemas e Redes', title: 'Redes', authors: 'Tanenbaum', edition: 5, volume: 0, language: 'Português' },
+    { barcode: '25', area: 'Computação', subarea: 'Fundamentos de Computação', title: 'Banco de Dados', authors: 'Elmasri', edition: 7, volume: 0, language: 'Português' },
 ];
 
 const DISCIPLINES = [
@@ -452,8 +452,8 @@ async function seedBooks() {
             const existing = await getQuery('SELECT * FROM books WHERE code = ?', [book.barcode]);
             if (!existing) {
                 await runQuery(
-                    `INSERT INTO books (id, code, area, subarea, title, authors, edition, volume, language, is_reserved) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+                    `INSERT INTO books (id, code, area, subarea, title, authors, edition, volume, language, status) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponível')`,
                     [i + 1, book.barcode, book.area, book.subarea, book.title, book.authors, book.edition, book.volume, book.language]
                 );
                 console.log(`  ✅ Livro criado: Código ${book.barcode} - ${book.title}`);

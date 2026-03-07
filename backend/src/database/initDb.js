@@ -195,6 +195,7 @@ db.serialize(() => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             name TEXT,
+            tag TEXT,
             book_id INTEGER,
             donation_type TEXT NOT NULL, -- 'book' ou 'money'
             amount REAL,

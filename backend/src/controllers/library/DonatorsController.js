@@ -60,6 +60,7 @@ const DonatorsController = {
             const headers = [
                 'ID',
                 'Nome',
+                'Tag',
                 'NUSP (user_id)',
                 'ID do Livro',
                 'Tipo de Doação',
@@ -76,6 +77,7 @@ const DonatorsController = {
                 const row = [
                     donator.id || '',
                     escapeCSV(donator.name || ''),
+                    escapeCSV(donator.tag || ''),
                     donator.user_id || '',
                     donator.book_id || '',
                     donator.donation_type || '',
@@ -127,6 +129,7 @@ const DonatorsController = {
                     }
                     return {
                         name: donatorData.name.trim(),
+                        tag: donatorData.tag?.trim() || null,
                         user_id: donatorData.user_id ? parseInt(donatorData.user_id) : null,
                         book_id: donatorData.book_id ? parseInt(donatorData.book_id) : null,
                         donation_type: donatorData.donation_type.toLowerCase(),
