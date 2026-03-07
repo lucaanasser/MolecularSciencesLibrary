@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # Caminho para o banco de dados
-DB_PATH="/app/database/library.db"
+DB_PATH="$(dirname "$0")/../database/library.db"
 # Caminho para a pasta de backup local
-BACKUP_DIR="/app/database/backups"
+BACKUP_DIR="$(dirname "$0")/../database/backups"
 # Nome do arquivo de backup
 BACKUP_FILE="library_$(date +%Y-%m-%d_%H-%M-%S).db"
 # Caminho para o rclone.conf
