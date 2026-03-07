@@ -20,6 +20,10 @@ class DonatorsService {
     async getFilteredDonators(filters) {
         return donatorsModel.getFilteredDonators(filters);
     }
+
+    async getAllDonatorsWithBooks() {
+        return donatorsModel.getAllDonatorsWithBooks();
+    }
 }
 
 module.exports = new DonatorsService();

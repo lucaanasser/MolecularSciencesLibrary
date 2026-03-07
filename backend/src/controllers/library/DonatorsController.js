@@ -27,6 +27,14 @@ const DonatorsController = {
             res.status(400).json({ error: err.message });
         }
     },
+    async getAllDonatorsWithBooks(req, res) {
+        try {
+            const donators = await DonatorsService.getAllDonatorsWithBooks();
+            res.json(donators);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    },
     async getDonatorById(req, res) {
         try {
             const donator = await DonatorsService.getDonatorById(req.params.id);

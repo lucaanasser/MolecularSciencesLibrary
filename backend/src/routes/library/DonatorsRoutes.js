@@ -23,6 +23,7 @@ router.post('/import/csv', authenticateToken, requireAdmin, upload.single('csvFi
 
 router.post('/', DonatorsController.addDonator);
 router.delete('/:id', DonatorsController.removeDonator);
+router.get('/wall', DonatorsController.getAllDonatorsWithBooks);
 router.get('/', DonatorsController.getAllDonators);
 router.get('/:id', DonatorsController.getDonatorById);
 router.get('/filter', DonatorsController.getFilteredDonators);

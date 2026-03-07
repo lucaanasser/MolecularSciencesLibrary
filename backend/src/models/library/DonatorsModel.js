@@ -65,6 +65,19 @@ class DonatorsModel {
         const query = `SELECT * FROM donators WHERE book_id = ? AND donation_type = 'book' LIMIT 1`;
         return getQuery(query, [book_id]);
     }
+
+    async getAllDonatorsWithBooks() {
+        const query = `
+            SELECT 
+                d.name, d.tag, d.donation_type, d.book_id, d.amount, d.created_at,
+                b.title AS book_title, b.authors AS book_authors, b.code AS book_code
+            FROM donators d
+            LEFT JOIN books b ON d.book_id = b.id
+            WHERE d.name IS NOT NULL AND d.name != ''
+            ORDER BY d.name ASC, d.created_at DESC
+        `;
+        return allQuery(query);
+    }
 }
 
 module.exports = new DonatorsModel();
