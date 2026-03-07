@@ -10,7 +10,6 @@ CREATE TABLE users (
             class TEXT, -- Número da turma
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         , status TEXT NOT NULL DEFAULT 'active');
-CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE books (
             id INTEGER UNIQUE PRIMARY KEY,
             code TEXT NOT NULL, 
