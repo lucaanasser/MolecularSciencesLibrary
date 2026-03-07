@@ -14,6 +14,43 @@ PRAGMA foreign_keys = OFF;
 ATTACH DATABASE '/root/MolecularSciencesLibrary/database/banco.db' AS old;
 
 -- ============================================================
+-- 0. LIMPAR DADOS SEMEADOS PELO initDb (para evitar conflitos)
+-- ============================================================
+DELETE FROM book_evaluation_votes;
+DELETE FROM book_evaluations;
+DELETE FROM evaluation_votes;
+DELETE FROM discipline_evaluations;
+DELETE FROM profile_follows;
+DELETE FROM post_cm_info;
+DELETE FROM international_experiences;
+DELETE FROM profile_disciplines;
+DELETE FROM advanced_cycles;
+DELETE FROM area_tags;
+DELETE FROM public_profiles;
+DELETE FROM forum_votes;
+DELETE FROM forum_question_tags;
+DELETE FROM forum_tags;
+DELETE FROM forum_answers;
+DELETE FROM forum_questions;
+DELETE FROM user_custom_discipline_schedules;
+DELETE FROM user_custom_disciplines;
+DELETE FROM user_schedule_disciplines;
+DELETE FROM user_schedule_classes;
+DELETE FROM user_schedules;
+DELETE FROM class_professors;
+DELETE FROM class_schedules;
+DELETE FROM discipline_classes;
+DELETE FROM disciplines;
+DELETE FROM virtual_bookshelf;
+DELETE FROM donators;
+DELETE FROM badges;
+DELETE FROM rules;
+DELETE FROM notifications;
+DELETE FROM loans;
+DELETE FROM books;
+DELETE FROM users;
+
+-- ============================================================
 -- 1. USERS — adiciona status = 'active' para todos
 -- ============================================================
 INSERT INTO users (id, name, NUSP, email, phone, password_hash, role, profile_image, class, created_at, status)
