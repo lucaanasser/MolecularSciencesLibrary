@@ -103,7 +103,19 @@ class BooksModel {
         
         // Usa o método auxiliar para montar filtros e parâmetros
         const { where, params } = this._buildFilterQuery(filters);
-        let query = `SELECT * FROM books${where}`;
+        let query = `
+            SELECT *,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1 FROM loans l
+                        WHERE l.book_id = books.id
+                          AND l.returned_at IS NULL
+                          AND l.due_date IS NOT NULL
+                          AND l.due_date < CURRENT_TIMESTAMP
+                    ) THEN 'atrasado'
+                    ELSE status
+                END as display_status
+            FROM books${where}`;
         
         // Executa a query e retorna os resultados
         try {
