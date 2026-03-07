@@ -35,7 +35,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
           <img src="/images/logos/logoHorizontal.png" alt="Logo" className="h-20 hidden lg:block" />
           <img src="/images/logos/logoCompacto.png" alt="Logo" className="h-20 block lg:hidden" />
         </Link>
-        <ModeSwitcher />
+        {/* <ModeSwitcher /> */}
       </div>
 
       <div className="hidden md:flex md:items-center md:space-x-4">
@@ -74,11 +74,11 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
             <DropdownMenuContent align="end" className={cn("min-w-[180px]", textColor)}>
               
               { /* Itens do menu */ }
-              {isRegularUser(user) && (
+              {/* isRegularUser(user) && (
                 <DropdownMenuItem onClick={() => navigate(ROUTES.MY_PAGE)} className="gap-2">
                   <UserCircle size={16} /> Página Pessoal
                 </DropdownMenuItem>
-              )}
+              ) */}
               
               <DropdownMenuItem onClick={navigateToProfile} className="gap-2">
                 <Settings size={16} /> {getPageLabel(user)}

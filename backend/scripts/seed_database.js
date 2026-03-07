@@ -1314,7 +1314,7 @@ async function main() {
     
     try {
         await seedUsers();
-        //await seedBooks();
+        await seedBooks();
         await seedDisciplines();
         const classesCount = await seedDisciplineClasses();
         await seedDonators();
