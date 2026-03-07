@@ -4,7 +4,7 @@ import { BooksService } from "@/services/BooksService";
 
 // Campos do resultado
 const resultsFields: FieldConfig[] = [
-  { key: "title", type: "main", linkTo: (result) => `/biblioteca/livro/${result.id}` },
+  { key: "title", type: "main", linkTo: (result) => `/biblioteca/livro/${result.code}`},
   { key: "subtitle", type: "main" },
   { key: "code", type: "secondary" },
   { key: "authors", type: "secondary", className: "text-gray-600" },

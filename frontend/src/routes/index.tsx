@@ -50,7 +50,7 @@ const routes: RouteObject[] = [
   { path: "/transparencia", element: RenderPage(TransparencyPortalPage) },
   { path: "/biblioteca/buscar", element: RenderPage(LibrarySearchPage) },
   { path: "/biblioteca/buscar/resultados", element: RenderPage(LibrarySearchResultsPage) },
-  { path: "/biblioteca/livro/:id", element: RenderPage(BookPage) },
+  { path: "/biblioteca/livro/:code", element: RenderPage(BookPage) },
 
   // Rotas do modo acadêmico
   { path: "/academico", element: RenderPage(AcademicIndexPage) },

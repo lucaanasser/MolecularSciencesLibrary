@@ -41,6 +41,7 @@ import {
 } from "@/services/BookEvaluationsService";
 import StarRating from "@/components/rating/StarRating";
 import ResultPage from "@/features/result-page/ResultPage";
+import { BooksService } from "@/services/BooksService";
 
 interface FormRatings {
   geral: number | null;
@@ -51,6 +52,29 @@ interface FormRatings {
 }
 
 const BookPage: React.FC = () => {
+  const { code } = useParams<{ code: string }>();
+  const [books, setBooks] = useState<Book[]>([]);
+
+  const loadBooks = useCallback(async () => {
+    if (!code) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await BooksService.getBooksByCode(code);
+      if (!data || data.length === 0) {
+        setError("Nenhum exemplar encontrado para este código");
+        return;
+      }
+      setBooks(data);
+      setBook(data[0]);
+    } catch (err) {
+      logger.error("Erro ao carregar exemplares:", err);
+      setError("Erro ao carregar exemplares");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [code]);
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"info" | "avaliacoes">("info");
@@ -84,26 +108,6 @@ const BookPage: React.FC = () => {
   const isLoggedIn = !!localStorage.getItem("token");
   const bookId = id ? parseInt(id) : null;
 
-  // Carregar dados do livro
-  const loadBook = useCallback(async () => {
-    if (!bookId) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getBookById(bookId);
-      if (!data) {
-        setError("Livro não encontrado");
-        return;
-      }
-      setBook(data);
-    } catch (err) {
-      logger.error("Erro ao carregar livro:", err);
-      setError("Erro ao carregar livro");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [bookId]);
-
   // Carregar avaliações
   const loadEvaluations = useCallback(async () => {
     if (!bookId) return;
@@ -131,9 +135,9 @@ const BookPage: React.FC = () => {
   }, [bookId, isLoggedIn]);
 
   useEffect(() => {
-    loadBook();
+    loadBooks();
     loadEvaluations();
-  }, [loadBook, loadEvaluations]);
+  }, [loadBooks, loadEvaluations]);
 
   // Preencher formulário com avaliação existente
   const fillFormWithExisting = useCallback((eval_: BookEvaluation) => {
@@ -270,15 +274,6 @@ const BookPage: React.FC = () => {
     { id: "avaliacoes" as const, label: "Avaliações", shortLabel: "Avaliações", icon: MessageSquare },
   ];
 
-  const getStatusInfo = () => {
-    if (!book) return { label: "Desconhecido", color: "gray" };
-    if (book.is_reserved) return { label: "Reserva Didática", color: "yellow" };
-    if (book.overdue) return { label: "Atrasado", color: "red" };
-    if (!book.available) return { label: "Emprestado", color: "orange" };
-    return { label: "Disponível", color: "green" };
-  };
-  const statusInfo = getStatusInfo();
-
   // Props para o RatingCard
   const ratingCardProps = {
     isLoading: isLoadingEvaluations,
@@ -313,88 +308,67 @@ const BookPage: React.FC = () => {
   // Conteúdo das abas
   const tabContents = [
     // Aba Informações
-    <div key="info" className="space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-      >
-        <div className="p-4 bg-gray-50 rounded-xl">
-          <div className="flex items-center gap-2 mb-1">
-            <Users className="w-4 h-4 text-library-purple" />
-            <span className="text-sm font-semibold text-gray-700">Autores</span>
-          </div>
-          <p className="text-gray-900">{book?.authors}</p>
-        </div>
+    <div key="info">
+      <ul className="flex flex-col gap-1 text-gray-700">
+        <li className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-library-purple" />
+          <span className="font-medium">Autores:</span>
+          <span className="truncate">{book?.authors}</span>
+        </li>
         {book?.edition && (
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-center gap-2 mb-1">
-              <BookMarked className="w-4 h-4 text-library-purple" />
-              <span className="text-sm font-semibold text-gray-700">Edição</span>
-            </div>
-            <p className="text-gray-900">{book.edition}ª edição</p>
-          </div>
+          <li className="flex items-center gap-2">
+            <BookMarked className="w-4 h-4 text-library-purple" />
+            <span className="font-medium">Edição:</span>
+            <span>{book.edition}ª</span>
+          </li>
         )}
         {book?.volume && (
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-center gap-2 mb-1">
-              <Layers className="w-4 h-4 text-library-purple" />
-              <span className="text-sm font-semibold text-gray-700">Volume</span>
-            </div>
-            <p className="text-gray-900">Volume {book.volume}</p>
-          </div>
+          <li className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-library-purple" />
+            <span className="font-medium">Volume:</span>
+            <span>{book.volume}</span>
+          </li>
         )}
-        <div className="p-4 bg-gray-50 rounded-xl">
-          <div className="flex items-center gap-2 mb-1">
-            <Globe className="w-4 h-4 text-library-purple" />
-            <span className="text-sm font-semibold text-gray-700">Idioma</span>
-          </div>
-          <p className="text-gray-900">{book?.language}</p>
-        </div>
-        <div className="p-4 bg-gray-50 rounded-xl">
-          <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-4 h-4 text-library-purple" />
-            <span className="text-sm font-semibold text-gray-700">Área</span>
-          </div>
-          <p className="text-gray-900">{book?.area}</p>
-        </div>
-        <div className="p-4 bg-gray-50 rounded-xl">
-          <div className="flex items-center gap-2 mb-1">
-            <Hash className="w-4 h-4 text-library-purple" />
-            <span className="text-sm font-semibold text-gray-700">Subárea</span>
-          </div>
-          <p className="text-gray-900">{book?.subarea}</p>
-        </div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className={cn(
-          "p-4 rounded-xl border",
-          statusInfo.color === "green" && "bg-green-50 border-green-200",
-          statusInfo.color === "yellow" && "bg-yellow-50 border-yellow-200",
-          statusInfo.color === "orange" && "bg-orange-50 border-orange-200",
-          statusInfo.color === "red" && "bg-red-50 border-red-200",
-        )}
-      >
-        <p className={cn(
-          "font-semibold",
-          statusInfo.color === "green" && "text-green-700",
-          statusInfo.color === "yellow" && "text-yellow-700",
-          statusInfo.color === "orange" && "text-orange-700",
-          statusInfo.color === "red" && "text-red-700",
-        )}>
-          Status: {statusInfo.label}
-        </p>
-        {book?.due_date && !book?.available && (
-          <p className="text-sm text-gray-600 mt-1">
-            Previsão de devolução: {new Date(book.due_date).toLocaleDateString("pt-BR")}
-          </p>
-        )}
-      </motion.div>
+        <li className="flex items-center gap-2">
+          <Globe className="w-4 h-4 text-library-purple" />
+          <span className="font-medium">Idioma:</span>
+          <span>{book?.language}</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <BookOpen className="w-4 h-4 text-library-purple" />
+          <span className="font-medium">Área:</span>
+          <span>{book?.area}</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <Hash className="w-4 h-4 text-library-purple" />
+          <span className="font-medium">Subárea:</span>
+          <span>{book?.subarea}</span>
+        </li>
+      </ul>
+      <h4 className="mt-6 mb-2 font-semibold text-gray-900">Exemplares</h4>
+      <table className="w-full text-sm border rounded-lg bg-white">
+        <thead>
+          <tr className="bg-gray-50">
+            <th className="px-2 py-1 text-left">ID</th>
+            <th className="px-2 py-1 text-left">Volume</th>
+            <th className="px-2 py-1 text-left">Exemplar</th>
+            <th className="px-2 py-1 text-left">Status</th>
+            <th className="px-2 py-1 text-left">Disponível</th>
+          </tr>
+        </thead>
+        <tbody>
+          {books.map((exemplar) => (
+            <tr key={exemplar.id} className="border-t">
+              <td className="px-2 py-1">{exemplar.id}</td>
+              <td className="px-2 py-1">{exemplar.volume ?? "-"}</td>
+              <td className="px-2 py-1">{exemplar.exemplar ?? "-"}</td>
+              <td className="px-2 py-1">{exemplar.status}</td>
+              <td className="px-2 py-1">{exemplar.available ? "Sim" : "Não"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>,
-
     // Aba Avaliações
     <div key="avaliacoes" className="space-y-6">
       {/* Formulário de Avaliação */}

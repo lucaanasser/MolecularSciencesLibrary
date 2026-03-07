@@ -362,6 +362,18 @@ class BooksService {
         }
     }
 
+    async getBooksByCode(code) {
+        console.log(`🔵 [BooksService] Buscando livros pelo código: ${code}`);
+        try {
+            const books = await BooksModel.getBooksByCode(code);
+            console.log(`🟢 [BooksService] Livros encontrados: ${books.length}`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksService] Erro ao buscar livros pelo código:", error.message);
+            throw error;
+        }
+    }
+
     /**
      * Remove livro por ID.
      * @param {number} id - ID do livro

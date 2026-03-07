@@ -209,6 +209,19 @@ class BooksModel {
         }
     }
 
+    async getBooksByCode(code) {
+        console.log(`🔵 [BooksModel] Buscando livros pelo código: ${code}`);
+        const query = `SELECT * FROM books WHERE code = ?`;
+        try {
+            const books = await allQuery(query, [code]);
+            console.log(`🟢 [BooksModel] Livros encontrados: ${books.length}`);
+            return books;
+        } catch (error) {
+            console.error("🔴 [BooksModel] Erro ao buscar livros pelo código:", error.message);
+            throw error;
+        }
+    }
+
     async getLastBookInSubarea(area, subarea) {
         console.log(`🔵 [BooksModel] Buscando último livro sequencial com area=${area}, subarea=${subarea}`);
         const query = `

@@ -143,6 +143,18 @@ export const BooksService = {
     }
   },
 
+  getBooksByCode: async (code: string) => {
+    logger.log(`🔵 [BooksService] Buscando livros pelo código: ${code}`);
+    try {
+      const data = await fetchJson(`/api/books/by-code/${code}`);
+      logger.log("🟢 [BooksService] Livros encontrados:", data);
+      return data;
+    } catch (err: any) {
+      logger.error(`🔴 [BooksService] Erro ao buscar livros pelo código: ${code}`, err);
+      throw err;
+    }
+  },
+
   /* Contar livros com filtros */
   countBooks: async (filters: {
     q?: string;

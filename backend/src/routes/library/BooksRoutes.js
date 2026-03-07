@@ -90,6 +90,17 @@ router.get('/', async (req, res) => {
     BooksController.getBooks(req, res);
 });
 
+/**
+ * @route GET /by-code/:code
+ * @desc Busca todos os livros pelo código
+ * @param {code} string // código do livro
+ * @returns {Array<Object>} Lista de exemplares
+ */
+router.get('/by-code/:code', async (req, res) => {
+    console.log("🔵 [BooksRoutes] GET /by-code/:code - Buscar livros pelo código");
+    BooksController.getBooksByCode(req, res);
+});
+
 
 /* ========================= DADOS DO ACERVO ========================= */
 

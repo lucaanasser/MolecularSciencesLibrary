@@ -187,6 +187,19 @@ class BooksController {
         }
     }
 
+    async getBooksByCode(req, res) {
+        const { code } = req.params;
+        console.log(`🔵 [BooksController] Buscando livros pelo código: ${code}`);
+        try {
+            const books = await BooksService.getBooksByCode(code);
+            console.log("🟢 [BooksController] Livros encontrados:", books.length);
+            res.status(200).json(books);
+        } catch (error) {
+            console.error("🔴 [BooksController] Erro ao buscar livros pelo código:", error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+    
     async deleteBook(req, res) {
         const { id } = req.params;
         console.log(`🔵 [BooksController] Removendo livro id=${id}`);

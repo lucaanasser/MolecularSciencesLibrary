@@ -15,7 +15,7 @@ export default function ResultItem({ result, fields, searchQuery }: {
 
   const renderField = (field: FieldConfig) => {
     const value = result[field.key];
-    const rendered = field.render ? field.render(value, result) : value;
+    const rendered = field.render ? field.render(value) : value;
     if (rendered === undefined || rendered === null) return null;
 
     let className = field.className;

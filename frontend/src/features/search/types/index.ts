@@ -80,7 +80,7 @@ export interface FieldConfig {
   key: string;
   type?: FieldType;
   className?: string;
-  render?: (value: any, result: any) => React.ReactNode; // para campos customizados
+  render?: (value: any) => React.ReactNode; // para campos customizados
   linkTo?: (result: any) => string; // para links dinâmicos
 }
 
