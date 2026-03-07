@@ -357,13 +357,13 @@ const BookPage: React.FC = () => {
           <span className="font-medium">Subárea:</span>
           <span>{book?.subarea}</span>
         </li>
-        <li className="flex items-center gap-2">
-          <Gift className="w-4 h-4 text-library-purple" />
-          <span className="font-medium">Doador:</span>
-          {donatorDisplay && (
+        {donatorDisplay && (
+          <li className="flex items-center gap-2">
+            <Gift className="w-4 h-4 text-library-purple" />
+            <span className="font-medium">Doador:</span>
             <span className="font-semibold text-library-purple">{donatorDisplay}</span>
-          )}
-        </li>
+          </li>
+        )}
       </ul>
       <h4 className="mt-6 mb-2 font-semibold text-gray-900">Exemplares</h4>
       <table className="w-full text-sm border rounded-lg bg-white">
