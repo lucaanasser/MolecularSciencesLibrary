@@ -40,7 +40,7 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
       const res = await fetch(`/api/loans/${loan.id}/preview-renew`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ user_id: loan.user.id }),
+        body: JSON.stringify({ user_id: loan.user?.id ?? loan.user_id }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -53,7 +53,7 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
         });
         throw new Error(data.error || "Erro ao renovar empréstimo");
       }
-      setRenewDialog({ open: true, due_date: data.due_date });
+      setRenewDialog({ open: true, due_date: data.new_due_date });
     } catch (err: any) {
       setRenewError(err.message || "Erro ao renovar empréstimo");
       toast({
@@ -73,7 +73,7 @@ export function RenewButton({ loan, color = "library-purple", renewLoading, setR
       const res = await fetch(`/api/loans/${loan.id}/renew`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ user_id: loan.user.id }),
+        body: JSON.stringify({ user_id: loan.user?.id ?? loan.user_id }),
       });
       const data = await res.json();
       if (!res.ok) {

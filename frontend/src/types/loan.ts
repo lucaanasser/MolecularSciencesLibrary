@@ -5,6 +5,7 @@ export interface Loan {
   id: number;
   book: Book;
   user: User;
+  user_id?: number;
 
   borrowed_at: string;
   returned_at: string | null;

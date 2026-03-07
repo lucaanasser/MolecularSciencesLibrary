@@ -142,7 +142,7 @@ const LoansController = {
         const user_id = req.body.user_id;
         if (!user_id) return res.status(400).json({ error: 'ID do usuário é obrigatório' });
         try {
-            const result = await LoansService.renewLoan(Number(id), user_id);
+            const result = await LoansService.renewLoan(Number(id), Number(user_id));
             res.json(result);
         } catch (err) {
             res.status(400).json({ error: err.message });

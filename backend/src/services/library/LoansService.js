@@ -167,7 +167,7 @@ class LoansService {
         console.log(`🔵 [LoansService] Preview de renovação: loan_id=${loan_id}, user_id=${user_id}`);
         
         // Busca empréstimo do livro e checa se está ativo e pertence ao usuário
-        const loan = await this.getLoanById(loan_id);
+        const loan = await LoansModel.getLoanById(loan_id);
         if (!loan) {
             console.warn(`🟡 [LoansService] Empréstimo não encontrado: loan_id=${loan_id}`);
             throw new Error('Empréstimo não encontrado.');
@@ -176,7 +176,7 @@ class LoansService {
             console.warn(`🟡 [LoansService] Empréstimo já devolvido: loan_id=${loan_id}`);
             throw new Error('Empréstimo já foi devolvido.');
         }
-        if (loan.user_id !== user_id) {
+        if (Number(loan.user_id) !== Number(user_id)) {
             console.warn(`🟡 [LoansService] Este empréstimo não pertence ao usuário: user_id=${user_id}, loan_id=${loan_id}`);
             throw new Error('Este empréstimo não pertence ao usuário informado.');
         }
@@ -232,7 +232,7 @@ class LoansService {
         let loan;
         try {
             console.log(`🔵 [LoansService] Buscando dados do empréstimo atualizado: loan_id=${loan_id}`);
-            loan = await this.getLoanById(loan_id);
+            loan = await LoansModel.getLoanById(loan_id);
         } catch (err) {
             console.error(`🔴 [LoansService] Erro ao buscar dados do empréstimo atualizado: ${err.message}`);
             throw err;
@@ -604,7 +604,7 @@ class LoansService {
             console.warn(`🟡 [LoansService] Empréstimo já devolvido: loan_id=${loan_id}`);
             throw new Error('Empréstimo já foi devolvido.');
         }
-        if (loan.user_id !== user_id) {
+        if (Number(loan.user_id) !== Number(user_id)) {
             console.warn(`🟡 [LoansService] Este empréstimo não pertence ao usuário: user_id=${user_id}, loan_id=${loan_id}`);
             throw new Error('Este empréstimo não pertence ao usuário informado.');
         }

@@ -259,8 +259,9 @@ class LoansModel {
         } 
         if (Object.keys(user).length > 1) {
             loan.user = user;
+            loan.user_id = user.id;
         } else { // só tem user_id, então inclui como campo simples
-            loan.user_id = user[0];
+            loan.user_id = user.id;
         }
         return loan;
     }
