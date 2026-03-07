@@ -11,7 +11,7 @@
 
 PRAGMA foreign_keys = OFF;
 
-ATTACH DATABASE 'banco.db' AS old;
+ATTACH DATABASE '/root/MolecularSciencesLibrary/database/banco.db' AS old;
 
 -- ============================================================
 -- 1. USERS — adiciona status = 'active' para todos
