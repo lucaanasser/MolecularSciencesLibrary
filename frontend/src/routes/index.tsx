@@ -8,6 +8,7 @@ import Index from "@/pages/library/Index";
 import LibrarySearchPage from "@/pages/library/LibrarySearchPage";
 import VirtualShelfPage from "@/pages/library/VirtualBookShelfPage";
 import DonationPage from "@/pages/library/HelpTheLibrary";
+import DonatorsWallPage from "@/pages/library/DonatorsWallPage";
 import FAQ from "@/pages/library/FAQ";
 import TransparencyPortalPage from "@/pages/library/TransparencyPortalPage";
 import LibrarySearchResultsPage from "@/pages/library/LibrarySearchResultsPage";
@@ -46,6 +47,7 @@ const routes: RouteObject[] = [
   { path: "/buscar", element: RenderPage(LibrarySearchPage) },
   { path: "/estante-virtual", element: RenderPage(VirtualShelfPage) },
   { path: "/ajude", element: RenderPage(DonationPage) },
+  { path: "/doadores", element: RenderPage(DonatorsWallPage) },
   { path: "/faq", element: RenderPage(FAQ) },
   { path: "/transparencia", element: RenderPage(TransparencyPortalPage) },
   { path: "/biblioteca/buscar", element: RenderPage(LibrarySearchPage) },
