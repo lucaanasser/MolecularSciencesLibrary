@@ -88,7 +88,6 @@ const BookPage: React.FC = () => {
     }
   }, [code]);
 
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"info" | "avaliacoes">("info");
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -119,7 +118,7 @@ const BookPage: React.FC = () => {
 
   // Verificar se está logado
   const isLoggedIn = !!localStorage.getItem("token");
-  const bookId = id ? parseInt(id) : null;
+  const bookId = book?.id ?? null;
 
   // Carregar avaliações
   const loadEvaluations = useCallback(async () => {
@@ -149,8 +148,11 @@ const BookPage: React.FC = () => {
 
   useEffect(() => {
     loadBooks();
+  }, [loadBooks]);
+
+  useEffect(() => {
     loadEvaluations();
-  }, [loadBooks, loadEvaluations]);
+  }, [loadEvaluations]);
 
   // Preencher formulário com avaliação existente
   const fillFormWithExisting = useCallback((eval_: BookEvaluation) => {
