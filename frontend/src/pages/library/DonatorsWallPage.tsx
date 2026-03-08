@@ -108,6 +108,7 @@ export default function DonatorsWallPage() {
     fetch("/api/donators/wall")
       .then((res) => res.json())
       .then((data) => {
+        console.log("Raw donators data:", data);
         setRaw(data);
         logger.info(`🟢 [DonatorsWallPage] ${data.length} registros carregados`);
       })

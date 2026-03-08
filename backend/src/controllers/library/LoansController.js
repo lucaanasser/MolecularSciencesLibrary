@@ -149,6 +149,20 @@ const LoansController = {
         }
     },
 
+    getLoansByBook: async (req, res) => {
+        const book_id = req.params.bookId;
+        const activeOnly = req.query.activeOnly === 'true';
+        if (!book_id) {
+            return res.status(400).json({ error: 'ID do livro é obrigatório' });
+        }
+        try {
+            const loans = await LoansService.getLoansByBookId(book_id, activeOnly);
+            res.json(loans);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
     /* ============================= NÃO UTILIZADOS ============================= */
 
     // Preview da extensão

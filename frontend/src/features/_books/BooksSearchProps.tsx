@@ -8,7 +8,7 @@ const searchProps = {
   autocompleteService: (query: string) => BooksService.autocompleteSearchBooks(query),
   onLogoClick: () => window.location.href = "/biblioteca/buscar", // redireciona para a página de busca
   resultRoute: "/biblioteca/buscar/resultados",                   // do arquivo routes/index.tsx
-  suggestionRoute: (item) => `/biblioteca/livro/${item.id}`,                           // do arquivo routes/index.tsx
+  suggestionRoute: (item) => `/biblioteca/livro/${item.code}`,                           // do arquivo routes/index.tsx
   renderSuggestion: (item) => {
     return (
       <div>

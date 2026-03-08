@@ -1,3 +1,4 @@
+export { default as BookFormFields } from './BookFormFields';
 export { default as AddBook } from './AddBookForm';
 export { default as ImportBooks } from './ImportBooks';
 export { default as ListBooks } from './ListBooks';

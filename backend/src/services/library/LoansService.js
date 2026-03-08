@@ -288,6 +288,10 @@ class LoansService {
         }
     }
 
+    async getLoansByBookId(book_id, activeOnly = false) {
+        return await LoansModel.getLoansByBookId(book_id, activeOnly);
+    }
+
     /* ==================== Funções auxiliares ==================== */
     
     /**

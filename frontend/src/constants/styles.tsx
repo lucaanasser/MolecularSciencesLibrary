@@ -3,12 +3,13 @@ import { IMAGE_PATHS } from "@/constants/users";
 
 /* Cores padrão */
 export const COLORS = [
-  "cm-red",
-  "cm-orange",
-  "cm-yellow",
-  "cm-green",
-  "cm-blue",
-  "library-purple"
+  "#eb0000",
+  "#ff6300",
+  "#ffcf00",
+  "#00c80e",
+  "#008cff",
+  "#b657b3",
+  "#01aad0",
 ]
 
 export const MUTED_COLORS = [

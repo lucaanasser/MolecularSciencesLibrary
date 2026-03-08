@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Download, BookOpen, BookMarked,TrendingUp } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { ReportsService } from "@/services/ReportsService";
-import { COLORS } from "@/constants/colors";
+import { COLORS } from "@/constants";
 import { StatsSidebar } from '@/components/StatsSidebar';
 import ActionBar from '@/features/admin/components/ActionBar';
 

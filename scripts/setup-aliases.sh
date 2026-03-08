@@ -39,6 +39,7 @@ alias dseed='bash $PROJECT_DIR/scripts/dseed.sh'
 alias backup='cd $PROJECT_DIR && npm run backup:db'
 alias scrape='cd $PROJECT_DIR && npm run scrape:disciplines'
 alias db='cd $PROJECT_DIR && sqlite3 database/library.db'
+alias fixdb='bash $PROJECT_DIR/scripts/fix-db-permissions.sh'
 alias rebuild='cd $PROJECT_DIR && docker compose down && docker system prune -af --volumes && docker compose up -d --build'
 # End BibliotecaCM aliases
 EOF
@@ -70,6 +71,7 @@ echo "   status      - Status dos containers"
 echo ""
 echo "   🗄️  Banco & Dados:"
 echo "   db          - Abre SQLite CLI do banco"
+echo "   fixdb       - Corrige permissões do banco de dados"
 echo "   seed        - Popular banco com dados iniciais"
 echo "   dseed       - Mostra informações da seed (usuários, senhas, livros)"
 echo "   backup      - Backup do banco no Google Drive"

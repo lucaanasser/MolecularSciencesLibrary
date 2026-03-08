@@ -48,6 +48,12 @@ router.get('/user/:userId', (req, res) => {
     LoansController.getLoansByUser(req, res);
 });
 
+// Buscar empréstimos de um livro específico (filtro opcional por status)
+router.get('/book/:bookId', (req, res) => {
+    console.log(`🔵 [LoansRoutes] GET /book/${req.params.bookId} - Buscar empréstimos do livro com filtro de status`);
+    LoansController.getLoansByBook(req, res);
+});
+
 /* ======================== ROTAS COM ID ======================== */
 /*                   Atenção: devem vir por último                */
 

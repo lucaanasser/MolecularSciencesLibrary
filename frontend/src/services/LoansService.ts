@@ -169,4 +169,21 @@ export const LoansService = {
     }
   },
 
+  // Buscar empréstimos de um livro específico (com filtro opcional de ativos)
+  getLoansByBook: async (bookId: number, activeOnly?: boolean) => {
+    const params = new URLSearchParams();
+    if (activeOnly) params.append('activeOnly', activeOnly.toString());
+    logger.log(`🔵 [LoansService] Buscando empréstimos do livro ${bookId} (activeOnly: ${activeOnly})`);
+    try {
+      const loans = await fetchJson(`${API_BASE}/book/${bookId}?${params.toString()}`);
+      logger.log("🟢 [LoansService] Empréstimos do livro encontrados:", loans.length);
+      return loans;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível buscar os empréstimos do livro.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      logger.error("🔴 [LoansService] Erro ao buscar empréstimos do livro", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
 };

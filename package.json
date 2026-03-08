@@ -16,6 +16,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
     "autoprefixer": "^10.4.24",
+    "canvas-confetti": "^1.9.4",
     "cropperjs": "^2.1.0",
     "csv-parser": "^3.2.0",
     "formdata-node": "^6.0.3",

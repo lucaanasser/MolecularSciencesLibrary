@@ -48,4 +48,4 @@ export default function InternalUseRegister({ onBack, onSuccess, onError }) {
       />
     </>
   );
-};
+};export {default as BorrowBookForm } from './BorrowBookForm';

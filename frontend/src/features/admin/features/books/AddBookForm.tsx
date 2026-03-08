@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import ActionBar from "@/features/admin/components/ActionBar";
 import { BooksService } from "@/services/BooksService";
 import { Book } from "@/types/new_book";
-import BookFormFields from "@/features/admin/features/books/BookFormFields";
+import { BookFormFields } from ".";
 
 export default function AddBookForm({ onSuccess, onError, onBack }) {
   // Estados dos campos do formulário

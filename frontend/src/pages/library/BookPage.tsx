@@ -25,9 +25,9 @@ import {
   Layers,
   CheckCircle,
   Gift,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getBookById } from "@/services/SearchService";
 import { Book } from "@/types/book";
 import {
   getBookEvaluations,
@@ -43,6 +43,8 @@ import {
 import StarRating from "@/components/rating/StarRating";
 import ResultPage from "@/features/result-page/ResultPage";
 import { BooksService } from "@/services/BooksService";
+import { LoansService } from "@/services/LoansService";
+import NudgeButton from "@/features/old_books/NudgeButton"; // Adicione o import
 
 interface FormRatings {
   geral: number | null;
@@ -68,6 +70,16 @@ const BookPage: React.FC = () => {
       }
       setBooks(data);
       setBook(data[0]);
+      const loanResults = await Promise.all(
+        data.map(b =>
+          LoansService.getLoansByBook(b.id, true)
+            .then(loans => ({ id: b.id, loan: loans[0] ?? null }))
+            .catch(() => ({ id: b.id, loan: null }))
+        )
+      );
+      const loanMap: { [id: number]: any } = {};
+      loanResults.forEach(r => { loanMap[r.id] = r.loan; });
+      setLoanByBook(loanMap);
     } catch (err) {
       logger.error("Erro ao carregar exemplares:", err);
       setError("Erro ao carregar exemplares");
@@ -304,6 +316,21 @@ const BookPage: React.FC = () => {
     onLogin: () => navigate("/login"),
   };
 
+  const [loanByBook, setLoanByBook] = useState<{ [id: number]: any }>({});
+
+  const getReturnInfo = (book: Book) => {
+    if (book.status === "emprestado") {
+      const loan = loanByBook[book.id];
+      if (loan) {
+        if (loan.is_overdue)
+          return `Atrasado desde ${new Date(loan.due_date!).toLocaleDateString("pt-BR")}`;
+        else
+          return `Deve ser devolvido até ${new Date(loan.due_date!).toLocaleDateString("pt-BR")}`;
+      }
+    }
+    return `-`;
+  };
+
   // Header info para o ResultPage
   const headerInfo = (
     <>
@@ -328,13 +355,6 @@ const BookPage: React.FC = () => {
           <span className="font-medium">Autores:</span>
           <span className="truncate">{book?.authors}</span>
         </li>
-        {book?.edition && (
-          <li className="flex items-center gap-2">
-            <BookMarked className="w-4 h-4 text-library-purple" />
-            <span className="font-medium">Edição:</span>
-            <span>{book.edition}ª</span>
-          </li>
-        )}
         {!!book?.volume && (
           <li className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-library-purple" />
@@ -365,29 +385,130 @@ const BookPage: React.FC = () => {
           </li>
         )}
       </ul>
-      <h4 className="mt-6 mb-2 font-semibold text-gray-900">Exemplares</h4>
-      <table className="w-full text-sm border rounded-lg bg-white">
-        <thead>
-          <tr className="bg-gray-50">
-            <th className="px-2 py-1 text-left">ID</th>
-            <th className="px-2 py-1 text-left">Volume</th>
-            <th className="px-2 py-1 text-left">Exemplar</th>
-            <th className="px-2 py-1 text-left">Status</th>
-            <th className="px-2 py-1 text-left">Disponível</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.map((exemplar) => (
-            <tr key={exemplar.id} className="border-t">
-              <td className="px-2 py-1">{exemplar.id}</td>
-              <td className="px-2 py-1">{exemplar.volume ?? "-"}</td>
-              <td className="px-2 py-1">{exemplar.exemplar ?? "-"}</td>
-              <td className="px-2 py-1">{exemplar.status}</td>
-              <td className="px-2 py-1">{exemplar.available ? "Sim" : "Não"}</td>
+      {/* Exemplares */}
+      <div className="mt-6">
+        <h4 className="mb-3 font-semibold text-gray-900">Exemplares</h4>
+
+        {/* Desktop */}
+        <table className="w-full text-sm hidden sm:table">
+          <thead>
+            <tr className="text-left text-xs text-gray-400 uppercase tracking-wider">
+              <th className="pb-2 font-medium pl-1">ID</th>
+              <th className="pb-2 font-medium">Edição</th>
+              <th className="pb-2 font-medium">Idioma</th>
+              <th className="pb-2 font-medium">Doador</th>
+              <th className="pb-2 font-medium">Status</th>
+              <th className="pb-2 font-medium">Devolução</th>
+              <th className="pb-2 font-medium"></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {books.map((exemplar) => {
+              const returnInfo = getReturnInfo(exemplar);
+              const isOverdue = loanByBook[exemplar.id]?.is_overdue;
+              const donator = formatDonator(exemplar.donator_name, exemplar.donator_tag);
+              const dotColor = exemplar.status === "disponível" ? "bg-emerald-500" : exemplar.status === "emprestado" ? (isOverdue ? "bg-red-500" : "bg-amber-400") : exemplar.status === "reservado" ? "bg-sky-500" : "bg-gray-400";
+              const statusLabel = exemplar.status === "disponível" ? "Disponível" : exemplar.status === "emprestado" ? (isOverdue ? "Atrasado" : "Emprestado") : exemplar.status === "reservado" ? "Reservado" : "Indisponível";
+
+              return (
+                <tr key={exemplar.id} className="hover:bg-library-purple/5 transition-colors">
+                  <td className="py-2.5 pl-1 font-mono text-xs text-gray-400">#{exemplar.id}</td>
+                  <td className="py-2.5 text-gray-700">{exemplar.edition || "—"}</td>
+                  <td className="py-2.5 text-gray-600">{exemplar.language}</td>
+                  <td className="py-2.5">
+                    {donator ? <span className="text-library-purple font-medium text-xs">{donator}</span> : <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="py-2.5">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${dotColor}`} />
+                      <span className="text-gray-700">{statusLabel}</span>
+                    </span>
+                  </td>
+                  <td className={`py-2.5 text-xs ${isOverdue ? "text-red-600 font-medium" : "text-gray-500"}`}>
+                    {exemplar.status === "emprestado" ? returnInfo : "—"}
+                  </td>
+                  <td className="py-2.5">
+                    {exemplar.status === "emprestado" && <NudgeButton book={exemplar} />}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {/* Mobile */}
+        <div className="sm:hidden flex flex-col gap-3">
+          {books.map((exemplar) => {
+            const returnInfo = getReturnInfo(exemplar);
+            const isOverdue = loanByBook[exemplar.id]?.is_overdue;
+            const donator = formatDonator(exemplar.donator_name, exemplar.donator_tag);
+            const statusConfig = exemplar.status === "disponível"
+              ? { dot: "bg-emerald-500", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Disponível", accent: "border-l-emerald-500" }
+              : exemplar.status === "emprestado"
+                ? isOverdue
+                  ? { dot: "bg-red-500", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", label: "Atrasado", accent: "border-l-red-500" }
+                  : { dot: "bg-amber-400", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "Emprestado", accent: "border-l-amber-400" }
+                : exemplar.status === "reservado"
+                  ? { dot: "bg-sky-500", bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200", label: "Reservado", accent: "border-l-sky-500" }
+                  : { dot: "bg-gray-400", bg: "bg-gray-50", text: "text-gray-600", border: "border-gray-200", label: "Indisponível", accent: "border-l-gray-400" };
+
+            return (
+              <div
+                key={exemplar.id}
+                className={`rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm border-l-[3px] ${statusConfig.accent}`}
+              >
+                <div className="p-4 space-y-3">
+                  {/* Top row: status badge + ID */}
+                  <div className="flex items-center justify-between">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text} border ${statusConfig.border}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                      {statusConfig.label}
+                    </span>
+                    <span className="font-mono text-xs text-gray-400">#{exemplar.id}</span>
+                  </div>
+
+                  {/* Info rows with icons and labels */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <BookMarked className="w-4 h-4 text-library-purple flex-shrink-0" />
+                      <span className="text-xs text-gray-400 w-14 flex-shrink-0">Edição</span>
+                      <span className="text-sm text-gray-800 font-medium">{exemplar.edition || "—"}</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <Globe className="w-4 h-4 text-library-purple flex-shrink-0" />
+                      <span className="text-xs text-gray-400 w-14 flex-shrink-0">Idioma</span>
+                      <span className="text-sm text-gray-800 font-medium">{exemplar.language}</span>
+                    </div>
+                    {donator && (
+                      <div className="flex items-center gap-2.5">
+                        <Gift className="w-4 h-4 text-library-purple flex-shrink-0" />
+                        <span className="text-xs text-gray-400 w-14 flex-shrink-0">Doador</span>
+                        <span className="text-sm text-library-purple font-semibold">{donator}</span>
+                      </div>
+                    )}
+                    {exemplar.status === "emprestado" && (
+                      <div className="flex items-center gap-2.5">
+                        <Calendar className={`w-4 h-4 flex-shrink-0 ${isOverdue ? "text-red-500" : "text-library-purple"}`} />
+                        <span className="text-xs text-gray-400 w-14 flex-shrink-0">Devol.</span>
+                        <span className={`text-sm font-medium ${isOverdue ? "text-red-600" : "text-gray-700"}`}>
+                          {returnInfo}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Nudge button for borrowed books */}
+                  {exemplar.status === "emprestado" && (
+                    <div className="pt-2 border-t border-gray-100 flex justify-end">
+                      <NudgeButton book={exemplar} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>,
     // Aba Avaliações
     <div key="avaliacoes" className="space-y-6">
