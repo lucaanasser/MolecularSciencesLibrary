@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import ActionBar from '@/features/admin/components/ActionBar';
 import { LoansService } from '@/services/LoansService';
 
-export default function ReturnBookForm({ onBack, onSuccess, onError }) {
+export default function ReturnBookForm({onBack, onSuccess, onError, bgColor = "bg-cm-green"}) {
   // Campo do formulário
   const [bookId, setBookId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,6 +42,7 @@ export default function ReturnBookForm({ onBack, onSuccess, onError }) {
         />
         <ActionBar
           onConfirm={() => handleSubmit()}
+          confirmColor={bgColor}
           onCancel={onBack}
           confirmLabel={loading ? "Registrando..." : "Registrar"}
         />

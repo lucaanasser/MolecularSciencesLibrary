@@ -14,7 +14,6 @@ interface MobileNavProps {
 export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
   const {
     navLinks,
-    showProAlunoHeader,
     textColor,
     hoverBg,
     linkStyle,
@@ -26,8 +25,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
     setIsMobileMenuOpen,
     navigateToProfile,
     handleLogout,
-    getPageLabel,
-    isRegularUser,
   } = headerState;
 
 
@@ -84,7 +81,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                       {link.label}
                     </Link>
                   ))}
-                  {showProAlunoHeader && (
+                  {user?.role == "proaluno" && (
                     <Link 
                       to={ROUTES.PROALUNO} 
                       onClick={() => setIsMobileMenuOpen(false)} 
@@ -117,7 +114,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                         onClick={e => { e.preventDefault(); navigateToProfile(); setIsMobileMenuOpen(false); }}
                         className={cn("gap-2", linkStyle, textColor, hoverBg)}
                       >
-                        <Settings size={18} /> {getPageLabel(user)}
+                        <Settings size={18} /> {
+                          user?.role == "admin" 
+                            ? "Painel Admin" 
+                            : user?.role == "proaluno"
+                              ? "Portal Pró-Aluno"
+                              : "Minha Conta"
+                        }
                       </Link>
 
                       <Link

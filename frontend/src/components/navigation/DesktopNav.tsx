@@ -6,6 +6,7 @@ import { ROUTES } from "@/constants/navigation";
 import ModeSwitcher from "./ModeSwitcher";
 import { cn } from "@/lib/utils";
 import { useHeaderState } from "@/hooks/useHeaderState";
+import { hover } from "framer-motion";
 
 interface DesktopNavProps {
   user: User | null;
@@ -16,14 +17,11 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
   const navigate = useNavigate();
   const { 
     navLinks, 
-    showProAlunoHeader, 
     textColor, 
     hoverBg, 
     linkStyle,
     navigateToProfile, 
     handleLogout,
-    getPageLabel,
-    isRegularUser,
   } = headerState;
 
 
@@ -50,7 +48,9 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
             {link.label}
           </Link>
         ))}
-        {showProAlunoHeader && (
+
+        {/* Link para os Portais ProAluno e Admin */}
+        {user?.role === "proaluno" && (
           <Link 
             to={ROUTES.PROALUNO} 
             className={cn(linkStyle, textColor, hoverBg)}
@@ -58,9 +58,41 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
             Portal Pró-Aluno
           </Link>
         )}
+        {user?.role === "admin" && (
+          <Link 
+            to={ROUTES.ADMIN} 
+            className={cn(linkStyle, textColor, hoverBg)}
+          >
+            Painel Admin
+          </Link>
+        )}
+        {user?.role !== "aluno" &&(
+          <>
+          {user ? ( 
+            <button
+              onClick={handleLogout}
+              className={cn(
+                `px-3 py-2 rounded-md text-red-600 flex items-center gap-2 secondary-bg ${hoverBg}`
+              )}
+            >
+              <LogIn size={16} /> Sair
+            </button>
+          ) :
+          (
+            <Link
+              to={ROUTES.LOGIN}
+              className={cn(
+                "px-3 py-2 rounded-md text-white flex items-center gap-2 secondary-bg hover:primary-bg"
+              )}
+            >
+              <LogIn size={16} /> Entrar
+            </Link>
+          )}
+          </>
+        )}
 
         { /* Menu do usuário */ }
-        {user ? (
+        { user?.role === "aluno" && (
           <DropdownMenu>
             
             { /* Trigger: nome do usuário */ }
@@ -81,7 +113,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
               ) */}
               
               <DropdownMenuItem onClick={navigateToProfile} className="gap-2">
-                <Settings size={16} /> {getPageLabel(user)}
+                <Settings size={16} /> Minha Conta
               </DropdownMenuItem>
               
               <DropdownMenuItem onClick={handleLogout} className="gap-2 text-cm-red focus:text-cm-red focus:bg-cm-red/20">
@@ -91,18 +123,6 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
             </DropdownMenuContent>
 
           </DropdownMenu>
-        ) : (
-          <>
-          { /* Link de login */ }
-          <Link
-            to={ROUTES.LOGIN}
-            className={cn(
-              "px-3 py-2 rounded-md text-white flex items-center gap-2 secondary-bg hover:primary-bg"
-            )}
-          >
-            <LogIn size={16} /> Entrar
-          </Link>
-          </>
         )}
 
       </div>

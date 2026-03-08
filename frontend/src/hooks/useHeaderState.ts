@@ -70,7 +70,7 @@ export const useHeaderState = (user: User | null) => {
       proaluno: ROUTES.PROALUNO,
     };
 
-    const destination = roleRoutes[user.role?.toLowerCase()] || ROUTES.PROFILE;
+    const destination = roleRoutes[user.role] || ROUTES.PROFILE;
     logger.info(`🔵 [useHeaderState] Navegando para perfil: ${destination}`, { role: user.role });
     navigate(destination);
   };
@@ -115,18 +115,6 @@ export const useHeaderState = (user: User | null) => {
     }
   }, [isMobileMenuOpen, isDrawerVisible]);
   
-  // Helpers para navegação baseada em role
-  const isRegularUser = (user: User | null): boolean => {
-    return !!user && user.role !== "admin" && user.role !== "proaluno";
-  };
-
-  const getPageLabel = (user: User | null): string => {
-    if (!user) return "";
-    if (user.role === "admin") return "Painel Admin";
-    if (user.role === "proaluno") return "Painel Pro Aluno";
-    return "Minha Conta";
-  };
-  
   return {
     // Estado UI
     isMobileMenuOpen,
@@ -137,7 +125,6 @@ export const useHeaderState = (user: User | null) => {
     
     // Dados
     navLinks,
-    showProAlunoHeader,
     
     // Estilos
     navbarBg,
@@ -149,9 +136,5 @@ export const useHeaderState = (user: User | null) => {
     // Ações
     navigateToProfile,
     handleLogout,
-
-    // Roles
-    isRegularUser,
-    getPageLabel,
   };
 };

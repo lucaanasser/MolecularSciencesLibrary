@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import ActionBar from '@/features/admin/components/ActionBar';
 import { LoansService } from '@/services/LoansService';
 
-export default function BorrowBookForm({ onBack, onSuccess, onError, adminMode = true }) {
+export default function BorrowBookForm({ onBack, onSuccess, onError, bgColor = "bg-cm-green" , adminMode = true }) {
   // Campos do formulário
   const [bookId, setBookId] = useState('');
   const [nusp, setNusp] = useState('');
@@ -80,6 +80,7 @@ export default function BorrowBookForm({ onBack, onSuccess, onError, adminMode =
           onConfirm={() => handleSubmit()}
           onCancel={onBack}
           confirmLabel={loading ? "Registrando..." : "Registrar"}
+          confirmColor={bgColor}
           loading={loading}
         />
       </form>
