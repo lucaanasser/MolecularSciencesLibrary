@@ -1,34 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { logger } from "@/utils/logger";
+import React, { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { motion } from "framer-motion";
-import {
-  BookOpen,
-  Star,
-  Users,
-  MessageSquare,
-  ThumbsUp,
-  ChevronLeft,
-  Award,
-  Target,
-  FileText,
-  Info,
-  Loader2,
-  AlertCircle,
-  Globe,
-  Hash,
-  BookMarked,
-  Layers,
-  CheckCircle,
-  Gift,
-  Calendar,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Book } from "@/types/book";
+import { BookOpen, MessageSquare, Info } from "lucide-react";
 import {
   getBookEvaluations,
   getBookAggregatedRatings,
@@ -40,685 +12,160 @@ import {
   type BookEvaluation,
   type BookAggregatedRatings,
 } from "@/services/BookEvaluationsService";
-import StarRating from "@/components/rating/StarRating";
+import { useEvaluations, RatingCard, EvaluationsTab } from "@/features/rating";
 import ResultPage from "@/features/result-page/ResultPage";
-import { BooksService } from "@/services/BooksService";
-import { LoansService } from "@/services/LoansService";
-import NudgeButton from "@/features/old_books/NudgeButton"; // Adicione o import
+import { PageLoadingState, PageErrorState } from "@/features/result-page";
+import {
+  BookInfoSection,
+  useBookPage,
+  BOOK_INITIAL_RATINGS,
+  BOOK_CRITERIOS_FORM,
+  BOOK_CRITERIOS_CARD,
+} from "@/features/library-book";
 
-interface FormRatings {
-  geral: number | null;
-  qualidade: number | null;
-  legibilidade: number | null;
-  utilidade: number | null;
-  precisao: number | null;
-}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const BookPage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
-  const [books, setBooks] = useState<Book[]>([]);
-
-  const loadBooks = useCallback(async () => {
-    if (!code) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await BooksService.getBooksByCode(code);
-      if (!data || data.length === 0) {
-        setError("Nenhum exemplar encontrado para este código");
-        return;
-      }
-      setBooks(data);
-      setBook(data[0]);
-      const loanResults = await Promise.all(
-        data.map(b =>
-          LoansService.getLoansByBook(b.id, true)
-            .then(loans => ({ id: b.id, loan: loans[0] ?? null }))
-            .catch(() => ({ id: b.id, loan: null }))
-        )
-      );
-      const loanMap: { [id: number]: any } = {};
-      loanResults.forEach(r => { loanMap[r.id] = r.loan; });
-      setLoanByBook(loanMap);
-    } catch (err) {
-      logger.error("Erro ao carregar exemplares:", err);
-      setError("Erro ao carregar exemplares");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [code]);
-
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"info" | "avaliacoes">("info");
-  const [showReviewForm, setShowReviewForm] = useState(false);
-
-  // Estados de dados
-  const [book, setBook] = useState<Book | null>(null);
-  const [evaluations, setEvaluations] = useState<BookEvaluation[]>([]);
-  const [aggregatedRatings, setAggregatedRatings] = useState<BookAggregatedRatings | null>(null);
-  const [myEvaluation, setMyEvaluation] = useState<BookEvaluation | null>(null);
-
-  // Estados de carregamento
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingEvaluations, setIsLoadingEvaluations] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Estados do formulário
-  const [formRatings, setFormRatings] = useState<FormRatings>({
-    geral: null,
-    qualidade: null,
-    legibilidade: null,
-    utilidade: null,
-    precisao: null,
-  });
-  const [formComentario, setFormComentario] = useState("");
-  const [formIsAnonymous, setFormIsAnonymous] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  // Verificar se está logado
   const isLoggedIn = !!localStorage.getItem("token");
+
+  const { books, book, loanByBook, isLoading, error } = useBookPage(code);
   const bookId = book?.id ?? null;
 
-  // Carregar avaliações
-  const loadEvaluations = useCallback(async () => {
-    if (!bookId) return;
-    setIsLoadingEvaluations(true);
-    try {
-      const [evals, stats] = await Promise.all([
-        getBookEvaluations(bookId),
-        getBookAggregatedRatings(bookId),
-      ]);
-      setEvaluations(evals);
-      setAggregatedRatings(stats);
-      if (isLoggedIn) {
-        try {
-          const myEval = await getMyBookEvaluation(bookId);
-          setMyEvaluation(myEval);
-        } catch {
-          setMyEvaluation(null);
-        }
-      }
-    } catch (err) {
-      logger.error("Erro ao carregar avaliações:", err);
-    } finally {
-      setIsLoadingEvaluations(false);
-    }
-  }, [bookId, isLoggedIn]);
+  // ─── Evaluation hook ──────────────────────────────────────────────────────
 
-  useEffect(() => {
-    loadBooks();
-  }, [loadBooks]);
-
-  useEffect(() => {
-    loadEvaluations();
-  }, [loadEvaluations]);
-
-  // Preencher formulário com avaliação existente
-  const fillFormWithExisting = useCallback((eval_: BookEvaluation) => {
-    setFormRatings({
-      geral: eval_.rating_geral,
-      qualidade: eval_.rating_qualidade,
-      legibilidade: eval_.rating_legibilidade,
-      utilidade: eval_.rating_utilidade,
-      precisao: eval_.rating_precisao,
-    });
-    setFormComentario(eval_.comentario || "");
-    setFormIsAnonymous(eval_.is_anonymous);
-    setIsEditMode(true);
-    setShowReviewForm(true);
-    setActiveTab("avaliacoes");
-  }, []);
-
-  // Limpar formulário
-  const resetForm = () => {
-    setFormRatings({
-      geral: null,
-      qualidade: null,
-      legibilidade: null,
-      utilidade: null,
-      precisao: null,
-    });
-    setFormComentario("");
-    setFormIsAnonymous(false);
-    setIsEditMode(false);
-    setShowReviewForm(false);
-  };
-
-  // Submeter avaliação
-  const handleSubmitEvaluation = async () => {
-    if (!bookId) return;
-    const hasRating = Object.values(formRatings).some(r => r !== null);
-    const hasComment = formComentario.trim().length > 0;
-    if (!hasRating && !hasComment) {
-      alert("Por favor, avalie com estrelas ou deixe um comentário");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      if (isEditMode && myEvaluation) {
-        await updateBookEvaluation(myEvaluation.id, {
-          ratingGeral: formRatings.geral,
-          ratingQualidade: formRatings.qualidade,
-          ratingLegibilidade: formRatings.legibilidade,
-          ratingUtilidade: formRatings.utilidade,
-          ratingPrecisao: formRatings.precisao,
-          comentario: formComentario.trim() || undefined,
-          isAnonymous: formIsAnonymous,
-        });
-      } else {
+  const evalState = useEvaluations<BookEvaluation, BookAggregatedRatings>({
+    entityKey: bookId,
+    isLoggedIn,
+    initialFormRatings: BOOK_INITIAL_RATINGS,
+    fetchAll: useCallback(
+      () => (bookId ? getBookEvaluations(bookId) : Promise.resolve([])),
+      [bookId]
+    ),
+    fetchStats: useCallback(
+      () =>
+        bookId
+          ? getBookAggregatedRatings(bookId)
+          : Promise.resolve(null as unknown as BookAggregatedRatings),
+      [bookId]
+    ),
+    fetchMine: useCallback(
+      () => (bookId ? getMyBookEvaluation(bookId) : Promise.resolve(null)),
+      [bookId]
+    ),
+    createEval: useCallback(
+      async (ratings, comentario, isAnonymous) => {
         await createBookEvaluation({
-          bookId,
-          ratingGeral: formRatings.geral,
-          ratingQualidade: formRatings.qualidade,
-          ratingLegibilidade: formRatings.legibilidade,
-          ratingUtilidade: formRatings.utilidade,
-          ratingPrecisao: formRatings.precisao,
-          comentario: formComentario.trim() || undefined,
-          isAnonymous: formIsAnonymous,
+          bookId: bookId!,
+          ratingGeral: ratings.geral,
+          ratingQualidade: ratings.qualidade,
+          ratingLegibilidade: ratings.legibilidade,
+          ratingUtilidade: ratings.utilidade,
+          ratingPrecisao: ratings.precisao,
+          comentario: comentario || undefined,
+          isAnonymous,
         });
+      },
+      [bookId]
+    ),
+    updateEval: useCallback(
+      async (_id, ratings, comentario, isAnonymous) => {
+        await updateBookEvaluation(_id, {
+          ratingGeral: ratings.geral,
+          ratingQualidade: ratings.qualidade,
+          ratingLegibilidade: ratings.legibilidade,
+          ratingUtilidade: ratings.utilidade,
+          ratingPrecisao: ratings.precisao,
+          comentario: comentario || undefined,
+          isAnonymous,
+        });
+      },
+      []
+    ),
+    deleteEval: deleteBookEvaluation,
+    toggleLike: toggleBookEvaluationLike,
+    parseFormRatings: useCallback(
+      (e: BookEvaluation) => ({
+        geral: e.rating_geral,
+        qualidade: e.rating_qualidade,
+        legibilidade: e.rating_legibilidade,
+        utilidade: e.rating_utilidade,
+        precisao: e.rating_precisao,
+      }),
+      []
+    ),
+  });
+
+  // ─── Derived ──────────────────────────────────────────────────────────────
+
+  const aggregatedForCard = evalState.aggregatedRatings
+    ? {
+        geral: evalState.aggregatedRatings.media_geral ?? 0,
+        qualidade: evalState.aggregatedRatings.media_qualidade ?? 0,
+        legibilidade: evalState.aggregatedRatings.media_legibilidade ?? 0,
+        utilidade: evalState.aggregatedRatings.media_utilidade ?? 0,
+        precisao: evalState.aggregatedRatings.media_precisao ?? 0,
       }
-      resetForm();
-      await loadEvaluations();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erro ao salvar avaliação";
-      alert(message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Deletar avaliação
-  const handleDeleteEvaluation = async () => {
-    if (!myEvaluation || !confirm("Tem certeza que deseja excluir sua avaliação?")) return;
-    try {
-      await deleteBookEvaluation(myEvaluation.id);
-      setMyEvaluation(null);
-      resetForm();
-      await loadEvaluations();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erro ao excluir avaliação";
-      alert(message);
-    }
-  };
-
-  // Toggle like
-  const handleToggleLike = async (evaluationId: number) => {
-    if (!isLoggedIn) {
-      alert("Faça login para curtir avaliações");
-      return;
-    }
-    try {
-      const result = await toggleBookEvaluationLike(evaluationId);
-      setEvaluations(prev => prev.map(e => {
-        if (e.id === evaluationId) {
-          return {
-            ...e,
-            helpful_count: result.liked ? e.helpful_count + 1 : e.helpful_count - 1,
-            user_has_voted: result.liked,
-          };
-        }
-        return e;
-      }));
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erro ao processar like";
-      alert(message);
-    }
-  };
-
-  // Médias para exibição
-  const mediaAvaliacoes = aggregatedRatings ? {
-    geral: aggregatedRatings.media_geral || 0,
-    qualidade: aggregatedRatings.media_qualidade || 0,
-    legibilidade: aggregatedRatings.media_legibilidade || 0,
-    utilidade: aggregatedRatings.media_utilidade || 0,
-    precisao: aggregatedRatings.media_precisao || 0,
-  } : null;
-
-  const totalAvaliacoes = aggregatedRatings?.total_avaliacoes || 0;
-
-  const criterios = [
-    { key: "qualidade" as const, label: "Qualidade do Conteúdo", icon: Award, color: "library-purple" },
-    { key: "legibilidade" as const, label: "Legibilidade", icon: FileText, color: "cm-blue" },
-    { key: "utilidade" as const, label: "Utilidade", icon: Target, color: "cm-green" },
-    { key: "precisao" as const, label: "Precisão", icon: CheckCircle, color: "cm-orange" },
-  ];
-
-  const formatDonator = (name?: string, tag?: string): string => {
-    if (!name) return "";
-    if (!tag) return name;
-    if (tag === "Prof.") return `Prof. ${name}`;
-    return `${name} ${tag}`;
-  };
-
-  const donatorDisplay = (() => {
-    const found = books.find(b => b.donator_name);
-    return found ? formatDonator(found.donator_name, found.donator_tag) : "";
-  })();
+    : null;
 
   const tabs = [
     { id: "info" as const, label: "Informações", shortLabel: "Info", icon: Info },
     { id: "avaliacoes" as const, label: "Avaliações", shortLabel: "Avaliações", icon: MessageSquare },
   ];
 
-  // Props para o RatingCard
-  const ratingCardProps = {
-    isLoading: isLoadingEvaluations,
-    mediaAvaliacoes,
-    totalAvaliacoes,
-    criterios,
-    isLoggedIn,
-    myEvaluation,
-    onEdit: myEvaluation ? () => fillFormWithExisting(myEvaluation) : () => {},
-    onDelete: handleDeleteEvaluation,
-    onCreate: () => {
-      setActiveTab("avaliacoes");
-      setShowReviewForm(true);
-    },
-    onLogin: () => navigate("/login"),
-  };
-
-  const [loanByBook, setLoanByBook] = useState<{ [id: number]: any }>({});
-
-  const getReturnInfo = (book: Book) => {
-    if (book.status === "emprestado") {
-      const loan = loanByBook[book.id];
-      if (loan) {
-        if (loan.is_overdue)
-          return `Atrasado desde ${new Date(loan.due_date!).toLocaleDateString("pt-BR")}`;
-        else
-          return `Deve ser devolvido até ${new Date(loan.due_date!).toLocaleDateString("pt-BR")}`;
-      }
-    }
-    return `-`;
-  };
-
-  // Header info para o ResultPage
-  const headerInfo = (
-    <>
-      <h3 className="my-0">
-        {book?.title}
-        {book?.subtitle && <span className="text-gray-600">: {book.subtitle}</span>}
-      </h3>
-      <p className="my-0">{book?.authors}</p>
-      <span className="px-3 py-1 secondary-bg text-white font-mono text-sm rounded-lg font-semibold">
-        {book?.code}
-      </span>
-    </>
+  const sidebar = (
+    <RatingCard
+      aggregatedRatings={aggregatedForCard}
+      totalAvaliacoes={evalState.aggregatedRatings?.total_avaliacoes ?? 0}
+      myEvaluation={evalState.myEvaluation}
+      isLoading={evalState.isLoadingEvaluations}
+      isLoggedIn={isLoggedIn}
+      criterios={BOOK_CRITERIOS_CARD}
+      onLogin={() => navigate("/login")}
+      onOpenForm={(myEval) => {
+        if (myEval) evalState.fillFormWithExisting(myEval as BookEvaluation);
+        else evalState.setShowReviewForm(true);
+        setActiveTab("avaliacoes");
+      }}
+      onDelete={evalState.handleDelete}
+    />
   );
 
-  // Conteúdo das abas
+  const headerInfo = book ? (
+    <>
+      <h3 className="my-0">
+        {book.title}
+        {book.subtitle && <span className="text-gray-600">: {book.subtitle}</span>}
+      </h3>
+      <p className="my-0">{book.authors}</p>
+      <span className="px-3 py-1 secondary-bg text-white font-mono text-sm rounded-lg font-semibold">
+        {book.code}
+      </span>
+    </>
+  ) : null;
+
   const tabContents = [
-    // Aba Informações
-    <div key="info">
-      <ul className="flex flex-col gap-1 text-gray-700">
-        <li className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-library-purple" />
-          <span className="font-medium">Autores:</span>
-          <span className="truncate">{book?.authors}</span>
-        </li>
-        {!!book?.volume && (
-          <li className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-library-purple" />
-            <span className="font-medium">Volume:</span>
-            <span>{book.volume}</span>
-          </li>
-        )}
-        <li className="flex items-center gap-2">
-          <Globe className="w-4 h-4 text-library-purple" />
-          <span className="font-medium">Idioma:</span>
-          <span>{book?.language}</span>
-        </li>
-        <li className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-library-purple" />
-          <span className="font-medium">Área:</span>
-          <span>{book?.area}</span>
-        </li>
-        <li className="flex items-center gap-2">
-          <Hash className="w-4 h-4 text-library-purple" />
-          <span className="font-medium">Subárea:</span>
-          <span>{book?.subarea}</span>
-        </li>
-        {donatorDisplay && (
-          <li className="flex items-center gap-2">
-            <Gift className="w-4 h-4 text-library-purple" />
-            <span className="font-medium">Doador:</span>
-            <span className="font-semibold text-library-purple">{donatorDisplay}</span>
-          </li>
-        )}
-      </ul>
-      {/* Exemplares */}
-      <div className="mt-6">
-        <h4 className="mb-3 font-semibold text-gray-900">Exemplares</h4>
-
-        {/* Desktop */}
-        <table className="w-full text-sm hidden sm:table">
-          <thead>
-            <tr className="text-left text-xs text-gray-400 uppercase tracking-wider">
-              <th className="pb-2 font-medium pl-1">ID</th>
-              <th className="pb-2 font-medium">Edição</th>
-              <th className="pb-2 font-medium">Idioma</th>
-              <th className="pb-2 font-medium">Doador</th>
-              <th className="pb-2 font-medium">Status</th>
-              <th className="pb-2 font-medium">Devolução</th>
-              <th className="pb-2 font-medium"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((exemplar) => {
-              const returnInfo = getReturnInfo(exemplar);
-              const isOverdue = loanByBook[exemplar.id]?.is_overdue;
-              const donator = formatDonator(exemplar.donator_name, exemplar.donator_tag);
-              const dotColor = exemplar.status === "disponível" ? "bg-emerald-500" : exemplar.status === "emprestado" ? (isOverdue ? "bg-red-500" : "bg-amber-400") : exemplar.status === "reservado" ? "bg-sky-500" : "bg-gray-400";
-              const statusLabel = exemplar.status === "disponível" ? "Disponível" : exemplar.status === "emprestado" ? (isOverdue ? "Atrasado" : "Emprestado") : exemplar.status === "reservado" ? "Reservado" : "Indisponível";
-
-              return (
-                <tr key={exemplar.id} className="hover:bg-library-purple/5 transition-colors">
-                  <td className="py-2.5 pl-1 font-mono text-xs text-gray-400">#{exemplar.id}</td>
-                  <td className="py-2.5 text-gray-700">{exemplar.edition || "—"}</td>
-                  <td className="py-2.5 text-gray-600">{exemplar.language}</td>
-                  <td className="py-2.5">
-                    {donator ? <span className="text-library-purple font-medium text-xs">{donator}</span> : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="py-2.5">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${dotColor}`} />
-                      <span className="text-gray-700">{statusLabel}</span>
-                    </span>
-                  </td>
-                  <td className={`py-2.5 text-xs ${isOverdue ? "text-red-600 font-medium" : "text-gray-500"}`}>
-                    {exemplar.status === "emprestado" ? returnInfo : "—"}
-                  </td>
-                  <td className="py-2.5">
-                    {exemplar.status === "emprestado" && <NudgeButton book={exemplar} />}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-
-        {/* Mobile */}
-        <div className="sm:hidden flex flex-col gap-3">
-          {books.map((exemplar) => {
-            const returnInfo = getReturnInfo(exemplar);
-            const isOverdue = loanByBook[exemplar.id]?.is_overdue;
-            const donator = formatDonator(exemplar.donator_name, exemplar.donator_tag);
-            const statusConfig = exemplar.status === "disponível"
-              ? { dot: "bg-emerald-500", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Disponível", accent: "border-l-emerald-500" }
-              : exemplar.status === "emprestado"
-                ? isOverdue
-                  ? { dot: "bg-red-500", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", label: "Atrasado", accent: "border-l-red-500" }
-                  : { dot: "bg-amber-400", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "Emprestado", accent: "border-l-amber-400" }
-                : exemplar.status === "reservado"
-                  ? { dot: "bg-sky-500", bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200", label: "Reservado", accent: "border-l-sky-500" }
-                  : { dot: "bg-gray-400", bg: "bg-gray-50", text: "text-gray-600", border: "border-gray-200", label: "Indisponível", accent: "border-l-gray-400" };
-
-            return (
-              <div
-                key={exemplar.id}
-                className={`rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm border-l-[3px] ${statusConfig.accent}`}
-              >
-                <div className="p-4 space-y-3">
-                  {/* Top row: status badge + ID */}
-                  <div className="flex items-center justify-between">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text} border ${statusConfig.border}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
-                      {statusConfig.label}
-                    </span>
-                    <span className="font-mono text-xs text-gray-400">#{exemplar.id}</span>
-                  </div>
-
-                  {/* Info rows with icons and labels */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2.5">
-                      <BookMarked className="w-4 h-4 text-library-purple flex-shrink-0" />
-                      <span className="text-xs text-gray-400 w-14 flex-shrink-0">Edição</span>
-                      <span className="text-sm text-gray-800 font-medium">{exemplar.edition || "—"}</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <Globe className="w-4 h-4 text-library-purple flex-shrink-0" />
-                      <span className="text-xs text-gray-400 w-14 flex-shrink-0">Idioma</span>
-                      <span className="text-sm text-gray-800 font-medium">{exemplar.language}</span>
-                    </div>
-                    {donator && (
-                      <div className="flex items-center gap-2.5">
-                        <Gift className="w-4 h-4 text-library-purple flex-shrink-0" />
-                        <span className="text-xs text-gray-400 w-14 flex-shrink-0">Doador</span>
-                        <span className="text-sm text-library-purple font-semibold">{donator}</span>
-                      </div>
-                    )}
-                    {exemplar.status === "emprestado" && (
-                      <div className="flex items-center gap-2.5">
-                        <Calendar className={`w-4 h-4 flex-shrink-0 ${isOverdue ? "text-red-500" : "text-library-purple"}`} />
-                        <span className="text-xs text-gray-400 w-14 flex-shrink-0">Devol.</span>
-                        <span className={`text-sm font-medium ${isOverdue ? "text-red-600" : "text-gray-700"}`}>
-                          {returnInfo}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Nudge button for borrowed books */}
-                  {exemplar.status === "emprestado" && (
-                    <div className="pt-2 border-t border-gray-100 flex justify-end">
-                      <NudgeButton book={exemplar} />
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>,
-    // Aba Avaliações
-    <div key="avaliacoes" className="space-y-6">
-      {/* Formulário de Avaliação */}
-      {showReviewForm && isLoggedIn && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="p-4 sm:p-6 bg-library-purple/5 rounded-xl border border-library-purple/20"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {isEditMode ? "Editar Avaliação" : "Sua Avaliação"}
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Avalie com estrelas (anônimo) e/ou deixe um comentário
-          </p>
-          <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-3 bg-white rounded-lg border border-gray-200 sm:col-span-2">
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Avaliação Geral
-                </Label>
-                <StarRating
-                  rating={formRatings.geral}
-                  size="lg"
-                  interactive
-                  onChange={(v) => setFormRatings(prev => ({ ...prev, geral: v }))}
-                />
-              </div>
-              {criterios.map((criterio) => (
-                <div key={criterio.key} className="p-3 bg-white rounded-lg border border-gray-200">
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                    {criterio.label}
-                  </Label>
-                  <StarRating
-                    rating={formRatings[criterio.key]}
-                    size="md"
-                    interactive
-                    onChange={(v) => setFormRatings(prev => ({ ...prev, [criterio.key]: v }))}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mb-4">
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">
-              Comentário (opcional)
-            </Label>
-            <Textarea
-              value={formComentario}
-              onChange={(e) => setFormComentario(e.target.value)}
-              placeholder="Compartilhe sua opinião sobre o livro..."
-              rows={4}
-              className="resize-none"
-            />
-          </div>
-          {formComentario.trim() && (
-            <div className="flex items-center gap-3 mb-4 p-3 bg-white rounded-lg border border-gray-200">
-              <Switch
-                id="anonymous"
-                checked={formIsAnonymous}
-                onCheckedChange={setFormIsAnonymous}
-              />
-              <Label htmlFor="anonymous" className="text-sm text-gray-700 cursor-pointer">
-                Publicar comentário como anônimo
-              </Label>
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSubmitEvaluation}
-              disabled={isSubmitting}
-              className="bg-library-purple hover:bg-library-purple/90"
-            >
-              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {isEditMode ? "Salvar Alterações" : "Publicar Avaliação"}
-            </Button>
-            <Button onClick={resetForm}>
-              Cancelar
-            </Button>
-          </div>
-        </motion.div>
-      )}
-
-      {!showReviewForm && isLoggedIn && !myEvaluation && (
-        <Button
-          onClick={() => setShowReviewForm(true)}
-          className="w-full border-dashed border-library-purple text-library-purple hover:bg-library-purple/5"
-        >
-          <Star className="w-4 h-4 mr-2" />
-          Escrever uma avaliação
-        </Button>
-      )}
-
-      {isLoadingEvaluations && (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-        </div>
-      )}
-
-      {!isLoadingEvaluations && evaluations.length > 0 && (
-        <div className="space-y-4">
-          {evaluations.map((evaluation) => (
-            <motion.div
-              key={evaluation.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "p-4 rounded-xl border",
-                evaluation.is_own_evaluation
-                  ? "bg-library-purple/5 border-library-purple/20"
-                  : "bg-gray-50 border-gray-100"
-              )}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  {evaluation.comentario ? (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-library-purple/10 flex items-center justify-center">
-                        <span className="text-library-purple font-semibold">
-                          {evaluation.is_anonymous ? "?" : (evaluation.user_name?.charAt(0) || "?")}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {evaluation.is_anonymous ? "Anônimo" : evaluation.user_name}
-                          {evaluation.is_own_evaluation && (
-                            <span className="text-xs ml-2 text-library-purple">(você)</span>
-                          )}
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-sm text-gray-500 italic">Avaliação anônima</p>
-                  )}
-                </div>
-                {evaluation.rating_geral && (
-                  <div className="flex items-center gap-2">
-                    <StarRating rating={evaluation.rating_geral} size="sm" />
-                  </div>
-                )}
-              </div>
-              {evaluation.comentario && (
-                <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                  {evaluation.comentario}
-                </p>
-              )}
-              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                <button
-                  onClick={() => handleToggleLike(evaluation.id)}
-                  disabled={evaluation.is_own_evaluation}
-                  className={cn(
-                    "flex items-center gap-2 text-sm transition-colors",
-                    evaluation.is_own_evaluation
-                      ? "text-gray-300 cursor-not-allowed"
-                      : evaluation.user_has_voted
-                        ? "text-library-purple font-medium"
-                        : "text-gray-500 hover:text-library-purple"
-                  )}
-                >
-                  <ThumbsUp className={cn("w-4 h-4", evaluation.user_has_voted && "fill-current")} />
-                  <span>{evaluation.helpful_count} acharam útil</span>
-                </button>
-                <span className="text-xs text-gray-400">
-                  {new Date(evaluation.created_at).toLocaleDateString("pt-BR")}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {!isLoadingEvaluations && evaluations.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p>Nenhuma avaliação ainda.</p>
-          <p className="text-sm">Seja o primeiro a avaliar este livro!</p>
-        </div>
-      )}
-    </div>,
+    book ? (
+      <BookInfoSection key="info" book={book} books={books} loanByBook={loanByBook} />
+    ) : null,
+    <EvaluationsTab
+      key="avaliacoes"
+      evalState={evalState}
+      isLoggedIn={isLoggedIn}
+      criterios={BOOK_CRITERIOS_FORM}
+      accentColor="library-purple"
+      placeholder="Compartilhe sua opinião sobre o livro..."
+      emptyMessage={"Nenhuma avaliação ainda.\nSeja o primeiro a avaliar este livro!"}
+    />,
   ];
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <div className="flex-grow flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-library-purple" />
-        </div>
-      </div>
-    );
-  }
+  // ─── Render ───────────────────────────────────────────────────────────────
 
-  // Error state
-  if (error || !book) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <div className="flex-grow flex flex-col items-center justify-center gap-4">
-          <AlertCircle className="w-12 h-12 text-red-500" />
-          <p className="text-gray-600">{error || "Livro não encontrado"}</p>
-          <Button onClick={() => navigate(-1)}>
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Voltar
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoadingState color="library-purple" />;
+  if (error || !book) return <PageErrorState message={error ?? "Livro não encontrado"} onBack={() => navigate(-1)} />;
 
   return (
     <ResultPage
@@ -728,7 +175,9 @@ const BookPage: React.FC = () => {
       tabs={tabs}
       tabContents={tabContents}
       onBack={() => navigate(-1)}
-      ratingCardProps={ratingCardProps}
+      sidebar={sidebar}
+      activeTab={activeTab}
+      onTabChange={(id) => setActiveTab(id as "info" | "avaliacoes")}
     />
   );
 };
