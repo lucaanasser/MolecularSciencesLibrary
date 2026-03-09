@@ -12,6 +12,7 @@ interface LoanListProps {
 export default function LoanList({ user, showActive = true }: LoanListProps) {
   const { loans, loading, error, refetch } = useGetUserLoans(user.id);
   const [renewLoading, setRenewLoading] = useState<number | null>(null);
+  const [extendLoading, setExtendLoading] = useState<number | null>(null);
 
   const filteredLoans = showActive 
     ? (loans || []).filter(l => !l.returned_at) 
@@ -38,6 +39,8 @@ export default function LoanList({ user, showActive = true }: LoanListProps) {
           color={accentColor(user.profile_image)}
           renewLoading={renewLoading}
           setRenewLoading={setRenewLoading}
+          extendLoading={extendLoading}
+          setExtendLoading={setExtendLoading}
           refetch={refetch}
         />
       ))}
