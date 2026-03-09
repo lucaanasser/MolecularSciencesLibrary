@@ -69,4 +69,16 @@ router.put('/:id/renew', (req, res) => {
     LoansController.renewLoan(req, res);
 });
 
+// Preview da extensão
+router.post('/:id/preview-extend', (req, res) => {
+    console.log('🔵 [LoansRoutes] POST /:id/preview-extend - Preview extensão');
+    LoansController.previewExtendLoan(req, res);
+});
+
+// Estender empréstimo
+router.put('/:id/extend', (req, res) => {
+    console.log('🔵 [LoansRoutes] PUT /:id/extend - Estender empréstimo');
+    LoansController.extendLoan(req, res);
+});
+
 module.exports = router;
