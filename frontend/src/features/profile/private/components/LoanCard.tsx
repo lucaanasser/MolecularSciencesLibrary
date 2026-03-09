@@ -3,12 +3,15 @@ import { Clock } from "lucide-react";
 import { AreaIcon } from "@/constants/styles";
 import { LoanStatusDot } from "./LoanStatusDot";
 import { RenewButton } from "./RenewButton";
+import { ExtendButton } from "./ExtendButton";
 import { mutedColor } from "@/constants/styles";
 
 interface LoanCardProps {
   loan: Loan;
   renewLoading: number | null;
   setRenewLoading: (id: number | null) => void;
+  extendLoading: number | null;
+  setExtendLoading: (id: number | null) => void;
   refetch?: () => void;
   color?: string;
 }
@@ -17,6 +20,8 @@ export default function LoanCard({
   loan,
   renewLoading,
   setRenewLoading,
+  extendLoading,
+  setExtendLoading,
   refetch,
   color='library-purple'
 }: LoanCardProps) {
@@ -82,16 +87,26 @@ export default function LoanCard({
 
       </div>
 
-      {/* Botão de renovação */}
+      {/* Botões de renovação e extensão */}
       {!loan.returned_at && (
-        <div className="mt-2 mb-0">
-          <RenewButton
-            loan={loan}
-            color={color}
-            renewLoading={renewLoading}
-            setRenewLoading={setRenewLoading}
-            refetch={refetch}
-          />
+        <div className="mt-2 mb-0 flex flex-row gap-2 flex-wrap">
+          {!loan.is_extended && (
+            <RenewButton
+              loan={loan}
+              color={color}
+              renewLoading={renewLoading}
+              setRenewLoading={setRenewLoading}
+              refetch={refetch}
+            />
+          )}
+          {!loan.is_extended && (
+            <ExtendButton
+              loan={loan}
+              extendLoading={extendLoading}
+              setExtendLoading={setExtendLoading}
+              refetch={refetch}
+            />
+          )}
         </div>
       )}
       
