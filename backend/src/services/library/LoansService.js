@@ -506,7 +506,7 @@ class LoansService {
         }
 
         // 2. Valida regras de extensão
-        const check = await this._checkExtensionRules(user, book);
+        const check = await this._checkExtensionRules(user, book, loan_id, user_id);
         if (!check.allowed) {
             console.warn(`🟡 [LoansService] Extensão não permitida: ${check.reason}`);
             throw new Error(check.reason || 'Extensão não permitida.');
@@ -595,7 +595,7 @@ class LoansService {
      * RECEBE user, book e loan.
      * RETORNA { allowed: boolean, reason: string }
      */
-    async _checkExtensionRules(user, book) {
+    async _checkExtensionRules(user, book, loan_id, user_id) {
         const rules = await RulesService.getRules();
        
         // Busca empréstimo do livro e checa se está ativo e pertence ao usuário
