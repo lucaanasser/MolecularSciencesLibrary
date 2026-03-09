@@ -30,7 +30,7 @@ export default function RatingCard({
   isLoading,
   isLoggedIn,
   criterios,
-  accentColor = "library-purple",
+  accentColor = "#b657b3",
   onLogin,
   onOpenForm,
   onDelete,
@@ -96,13 +96,13 @@ export default function RatingCard({
               </Button>
             </div>
           ) : (
-            <Button onClick={() => onOpenForm(null)} variant="wide" className={`bg-${accentColor} hover:bg-${accentColor}/90 text-white`}>
+            <Button onClick={() => onOpenForm(null)} variant="wide" className="text-white" style={{ backgroundColor: accentColor }}>
               <Star className="w-4 h-4 mr-2" />
               Avaliar
             </Button>
           )
         ) : (
-          <Button onClick={onLogin} variant="wide" className={`bg-${accentColor} hover:bg-${accentColor}/90 text-white`}>
+          <Button onClick={onLogin} variant="wide" className="text-white" style={{ backgroundColor: accentColor }}>
             Faça login para avaliar
           </Button>
         )}
