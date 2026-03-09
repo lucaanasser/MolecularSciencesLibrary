@@ -5,6 +5,7 @@ export interface TabDefinition {
   label: string;
   shortLabel?: string;
   icon?: React.ElementType;
+  badge?: (isActive: boolean) => React.ReactNode;
 }
 
 export interface TabsCardProps {
@@ -12,6 +13,8 @@ export interface TabsCardProps {
   getTabColor?: (tabId: string, idx: number) => string;
   children: ReactNode[];
   className?: string;
+  activeTab?: string;
+  onTabChange?: (id: string) => void;
 }
 
 export const TabsCard: React.FC<TabsCardProps> = ({
@@ -19,8 +22,15 @@ export const TabsCard: React.FC<TabsCardProps> = ({
   getTabColor = () => "library-purple",
   children,
   className = "",
+  activeTab: externalActiveTab,
+  onTabChange,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>(tabs[0].id);
+  const [internalActiveTab, setInternalActiveTab] = useState<string>(tabs[0].id);
+  const activeTab = externalActiveTab ?? internalActiveTab;
+  const setActiveTab = (id: string) => {
+    setInternalActiveTab(id);
+    onTabChange?.(id);
+  };
   const contentRef = useRef<HTMLDivElement>(null);
   const [fade, setFade] = useState(false);
 
@@ -66,6 +76,7 @@ export const TabsCard: React.FC<TabsCardProps> = ({
               <span className="sm:hidden text-sm font-semibold">
                 {isActive ? (tab.shortLabel || tab.label) : ''}
               </span>
+              {tab.badge?.(isActive)}
             </button>
           );
         })}
