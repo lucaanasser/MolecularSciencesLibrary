@@ -169,6 +169,46 @@ export const LoansService = {
     }
   },
 
+  /* ================ EXTENSÃO ================ */
+
+  // Preview da extensão
+  previewExtendLoan: async (loanId: number, userId: number) => {
+    logger.log(`🔵 [LoansService] Preview de extensão: loanId=${loanId}, userId=${userId}`);
+    try {
+      const result = await fetchJson(`${API_BASE}/${loanId}/preview-extend`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId }),
+      });
+      logger.log("🟢 [LoansService] Preview de extensão obtido:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível obter a prévia da extensão.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      logger.error("🔴 [LoansService] Erro ao obter preview de extensão", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
+  // Estender empréstimo
+  extendLoan: async (loanId: number, userId: number) => {
+    logger.log(`🔵 [LoansService] Estendendo empréstimo: loanId=${loanId}, userId=${userId}`);
+    try {
+      const result = await fetchJson(`${API_BASE}/${loanId}/extend`, {
+        method: 'PUT',
+        body: JSON.stringify({ user_id: userId }),
+      });
+      logger.log("🟢 [LoansService] Empréstimo estendido:", result);
+      return result;
+    } catch (err: any) {
+      let technicalMsg = "";
+      try { technicalMsg = JSON.parse(err.message).error; } catch {}
+      const errorMsg = `Não foi possível estender o empréstimo.${technicalMsg ? '\nMotivo: ' + technicalMsg : ''}`;
+      logger.error("🔴 [LoansService] Erro ao estender empréstimo", technicalMsg || err);
+      throw new Error(errorMsg);
+    }
+  },
+
   // Buscar empréstimos de um livro específico (com filtro opcional de ativos)
   getLoansByBook: async (bookId: number, activeOnly?: boolean) => {
     const params = new URLSearchParams();
