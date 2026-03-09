@@ -19,7 +19,7 @@ export interface TabsCardProps {
 
 export const TabsCard: React.FC<TabsCardProps> = ({
   tabs,
-  getTabColor = () => "library-purple",
+  getTabColor = () => `var(--primary-color)`,
   children,
   className = "",
   activeTab: externalActiveTab,
@@ -54,12 +54,13 @@ export const TabsCard: React.FC<TabsCardProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 transition-transform duration-200
-                ${isActive
-                  ? `text-white border-b-4 border-${color} bg-${color}`
-                  : `text-gray-500 border-b-4 border-${color} hover:text-${color}`}
-              `}
-              style={{ zIndex: isActive ? 1 : 0 }}
+              className={`flex-1 rounded-t-2xl flex items-center justify-center gap-2 px-4 py-3 transition-transform duration-200`}
+              style={{ 
+                zIndex: isActive ? 1 : 0, 
+                color: isActive ? "white" : "#6b7280", 
+                backgroundColor: isActive ? getTabColor(tab.id, idx) : undefined, 
+                borderBottom: `4px solid ${getTabColor(tab.id, idx)}`,
+              }}
             >
               {Icon && (
                 <span

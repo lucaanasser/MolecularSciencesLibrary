@@ -9,7 +9,7 @@ const HelpTabsCard: React.FC = () => {
 
     return (
         <div className="w-full mt-4 md:mt-8">
-            <TabsCard tabs={tabs} initialTabId="feedback">
+            <TabsCard tabs={tabs}>
 
                 {/* Feedback */}
                 <div className="flex flex-col-reverse md:flex-row justify-between items-stretch gap-4 md:gap-6 min-h-[500px]">

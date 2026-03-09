@@ -6,7 +6,7 @@ export default function AreasExplorerTags() {
 
   const TAGS = AREAS.slice(0,5).map((area, idx) => ({
     label: area,
-    color: COLORS[idx % COLORS.length],
+    color: COLORS[idx],
   }));
 
   return (
@@ -37,8 +37,8 @@ export default function AreasExplorerTags() {
               }}
             >
               <span
-                className={`transition-all duration-300 rounded-full w-7 h-7 bg-${tag.color} group-hover:w-32 group-hover:px-4 group-hover:py-2 group-hover:shadow-lg flex items-center justify-center`}
-                style={{ position: "relative", overflow: "hidden" }}
+                className={`transition-all duration-300 rounded-full w-7 h-7 group-hover:w-32 group-hover:px-4 group-hover:py-2 group-hover:shadow-lg flex items-center justify-center`}
+                style={{ position: "relative", overflow: "hidden", backgroundColor: tag.color }}
               >
                 <span
                   className="absolute inset-0 flex items-center justify-center w-full h-full text-white prose-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap"
