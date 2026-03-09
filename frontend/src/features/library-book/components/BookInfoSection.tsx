@@ -19,7 +19,7 @@ const BookInfoSection: React.FC<BookInfoSectionProps> = ({ book, books, loanByBo
     <div>
       <ul className="flex flex-col gap-1 text-gray-700">
         <li className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-library-purple" />
+          <Users className="w-4 h-4" style={{color: book?.area}}/>
           <span className="font-medium">Autores:</span>
           <span className="truncate">{book.authors}</span>
         </li>

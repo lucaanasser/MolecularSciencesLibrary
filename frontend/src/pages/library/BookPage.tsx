@@ -22,6 +22,7 @@ import {
   BOOK_CRITERIOS_FORM,
   BOOK_CRITERIOS_CARD,
 } from "@/features/library-book";
+import { AREA_COLORS } from "@/constants";
 
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ const BookPage: React.FC = () => {
 
   const { books, book, loanByBook, isLoading, error } = useBookPage(code);
   const bookId = book?.id ?? null;
-
+  
   // ─── Evaluation hook ──────────────────────────────────────────────────────
 
   const evalState = useEvaluations<BookEvaluation, BookAggregatedRatings>({
@@ -116,6 +117,8 @@ const BookPage: React.FC = () => {
     { id: "avaliacoes" as const, label: "Avaliações", shortLabel: "Avaliações", icon: MessageSquare },
   ];
 
+    const accentColor = AREA_COLORS[book?.area];
+
   const sidebar = (
     <RatingCard
       aggregatedRatings={aggregatedForCard}
@@ -124,6 +127,7 @@ const BookPage: React.FC = () => {
       isLoading={evalState.isLoadingEvaluations}
       isLoggedIn={isLoggedIn}
       criterios={BOOK_CRITERIOS_CARD}
+      accentColor={accentColor}
       onLogin={() => navigate("/login")}
       onOpenForm={(myEval) => {
         if (myEval) evalState.fillFormWithExisting(myEval as BookEvaluation);
@@ -141,7 +145,7 @@ const BookPage: React.FC = () => {
         {book.subtitle && <span className="text-gray-600">: {book.subtitle}</span>}
       </h3>
       <p className="my-0">{book.authors}</p>
-      <span className="px-3 py-1 secondary-bg text-white font-mono text-sm rounded-lg font-semibold">
+      <span className="px-3 py-1 text-white font-mono text-sm rounded-lg font-semibold" style={{ backgroundColor: AREA_COLORS[book.area], opacity: 0.7 }}>
         {book.code}
       </span>
     </>
@@ -149,14 +153,14 @@ const BookPage: React.FC = () => {
 
   const tabContents = [
     book ? (
-      <BookInfoSection key="info" book={book} books={books} loanByBook={loanByBook} />
+      <BookInfoSection key="info" book={book} books={books} loanByBook={loanByBook} highlightColor={accentColor} />
     ) : null,
     <EvaluationsTab
       key="avaliacoes"
       evalState={evalState}
       isLoggedIn={isLoggedIn}
       criterios={BOOK_CRITERIOS_FORM}
-      accentColor="library-purple"
+      accentColor={accentColor}
       placeholder="Compartilhe sua opinião sobre o livro..."
       emptyMessage={"Nenhuma avaliação ainda.\nSeja o primeiro a avaliar este livro!"}
     />,
@@ -164,14 +168,14 @@ const BookPage: React.FC = () => {
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
-  if (isLoading) return <PageLoadingState color="library-purple" />;
+  if (isLoading) return <PageLoadingState color={accentColor} />;
   if (error || !book) return <PageErrorState message={error ?? "Livro não encontrado"} onBack={() => navigate(-1)} />;
 
   return (
     <ResultPage
       icon={<BookOpen className="h-full w-full" />}
       headerInfo={headerInfo}
-      highlightColor="library-purple"
+      highlightColor={accentColor}
       tabs={tabs}
       tabContents={tabContents}
       onBack={() => navigate(-1)}

@@ -42,7 +42,7 @@ const ResultPage: React.FC<ResultPageProps> = ({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 my-4 sm:my-6">
-        <div className={`w-20 sm:w-24 aspect-square rounded-2xl flex items-center justify-center bg-${iconBgColor ?? highlightColor}`}>
+        <div className={`w-20 sm:w-24 aspect-square rounded-2xl flex items-center justify-center`} style = {{backgroundColor: iconBgColor ?? highlightColor}}>
           <div className="w-10 sm:w-12 aspect-square text-white">
             {icon}
           </div>

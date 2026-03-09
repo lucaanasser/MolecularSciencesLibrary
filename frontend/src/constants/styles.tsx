@@ -1,5 +1,6 @@
 import { ImagePath } from "@/types/user";
 import { IMAGE_PATHS } from "@/constants/users";
+import { AREAS } from "@/constants";
 
 /* Cores padrão */
 export const COLORS = [
@@ -11,6 +12,15 @@ export const COLORS = [
   "#b657b3",
   "#01aad0",
 ]
+
+export const AREA_COLORS: Record<string, string> = {
+  "Biologia": COLORS[3],
+  "Química": COLORS[2],
+  "Física": COLORS[1],
+  "Matemática": COLORS[0],
+  "Computação": COLORS[4],
+  "Geral": COLORS[5],
+}
 
 export const MUTED_COLORS = [
   "bg-cm-red/10",

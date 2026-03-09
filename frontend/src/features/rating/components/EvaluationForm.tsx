@@ -111,6 +111,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({
         <Button
           onClick={onSubmit}
           disabled={isSubmitting}
+          style={{ backgroundColor: accentColor, opacity: isSubmitting ? 0.9 : 1 }}
           className={`bg-${accentColor} hover:bg-${accentColor}/90`}
         >
           {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

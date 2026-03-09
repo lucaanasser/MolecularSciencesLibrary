@@ -63,6 +63,11 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({
           ? `bg-${accentColor}/5 border-${accentColor}/20` 
           : "bg-gray-50 border-gray-100"
       )}
+      style={{
+        backgroundColor: isOwn ? accentColor : "#f9fafb",
+        opacity: isOwn ? 0.05 : 1,
+        borderColor: isOwn ? accentColor : "#f3f4f6",
+      }}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
@@ -77,7 +82,7 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({
                 <p className="font-semibold text-gray-900">
                   {evaluation.is_anonymous ? "Anônimo" : evaluation.user_name}
                   {isOwn && (
-                    <span className={`text-xs ml-2 text-${accentColor}`}>(você)</span>
+                    <span className={`text-xs ml-2`} style={{color: accentColor}}>(você)</span>
                   )}
                 </p>
                 <p className="text-xs text-gray-500">
@@ -115,6 +120,7 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({
                 ? `text-${accentColor} font-medium`
                 : `text-gray-500 hover:text-${accentColor}`
           )}
+          style={{ color: isOwn || likeDisabled ? "#d1d5db" : hasVoted ? accentColor : "#6b7280" }}
         >
           <ThumbsUp className={cn("w-4 h-4", hasVoted && "fill-current")} />
           <span>{evaluation.helpful_count} acharam útil</span>
