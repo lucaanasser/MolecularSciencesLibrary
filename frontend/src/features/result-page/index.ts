@@ -5,4 +5,5 @@ export * from './types';
 export { default as useGenericEvaluation } from './useGenericEvaluation';
 
 /* Componentes */
-export { default as RatingCard } from './RatingCard';
+export { default as PageLoadingState } from './PageLoadingState';
+export { default as PageErrorState } from './PageErrorState';

@@ -2,27 +2,34 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { TabsCard, TabDefinition } from "@/lib/TabsCard";
-import { RatingCard } from ".";
+import { RatingCard } from "@/features/rating";
 
 interface ResultPageProps {
   icon: React.ReactNode;
   headerInfo: React.ReactNode;
   highlightColor: string;
+  iconBgColor?: string;
   sidebar?: React.ReactNode;
   tabs: TabDefinition[];
   tabContents: React.ReactNode[];
   onBack?: () => void;
-  ratingCardProps: any;
+  ratingCardProps?: any;
+  activeTab?: string;
+  onTabChange?: (id: string) => void;
 }
 
 const ResultPage: React.FC<ResultPageProps> = ({
   icon,
   headerInfo,
   highlightColor,
+  iconBgColor,
   tabs,
   tabContents,
   onBack,
-  ratingCardProps
+  ratingCardProps,
+  sidebar,
+  activeTab,
+  onTabChange,
 }) => {
   return (
     <div className="content-container">
@@ -35,7 +42,7 @@ const ResultPage: React.FC<ResultPageProps> = ({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 my-4 sm:my-6">
-        <div className={`w-20 sm:w-24 aspect-square rounded-2xl flex items-center justify-center bg-${highlightColor}`}>
+        <div className={`w-20 sm:w-24 aspect-square rounded-2xl flex items-center justify-center bg-${iconBgColor ?? highlightColor}`}>
           <div className="w-10 sm:w-12 aspect-square text-white">
             {icon}
           </div>
@@ -48,7 +55,7 @@ const ResultPage: React.FC<ResultPageProps> = ({
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
         <aside className="w-full max-w-72 flex-shrink-0">
-          <RatingCard {...ratingCardProps} />
+          {sidebar ?? (ratingCardProps && <RatingCard {...ratingCardProps} />)}
         </aside>
 
         {/* TabsCard como Card principal */}
@@ -56,6 +63,8 @@ const ResultPage: React.FC<ResultPageProps> = ({
           <TabsCard
             tabs={tabs}
             getTabColor={() => highlightColor}
+            activeTab={activeTab}
+            onTabChange={onTabChange}
           >
             {tabContents}
           </TabsCard>
