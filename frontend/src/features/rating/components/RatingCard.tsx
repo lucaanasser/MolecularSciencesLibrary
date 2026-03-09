@@ -17,6 +17,7 @@ interface RatingCardProps {
   isLoading: boolean;
   isLoggedIn: boolean;
   criterios: RatingCriterio[];
+  accentColor?: string;
   onLogin: () => void;
   onOpenForm: (myEvaluation: { id: number } | null) => void;
   onDelete: () => void;
@@ -29,6 +30,7 @@ export default function RatingCard({
   isLoading,
   isLoggedIn,
   criterios,
+  accentColor = "library-purple",
   onLogin,
   onOpenForm,
   onDelete,
@@ -94,13 +96,13 @@ export default function RatingCard({
               </Button>
             </div>
           ) : (
-            <Button onClick={() => onOpenForm(null)} variant="wide" className="primary-bg">
+            <Button onClick={() => onOpenForm(null)} variant="wide" className={`bg-${accentColor} hover:bg-${accentColor}/90 text-white`}>
               <Star className="w-4 h-4 mr-2" />
               Avaliar
             </Button>
           )
         ) : (
-          <Button onClick={onLogin} variant="wide" className="primary-bg">
+          <Button onClick={onLogin} variant="wide" className={`bg-${accentColor} hover:bg-${accentColor}/90 text-white`}>
             Faça login para avaliar
           </Button>
         )}
