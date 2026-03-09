@@ -28,15 +28,6 @@ export const EvaluationsList: React.FC<EvaluationsListProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      {!showReviewForm && isLoggedIn && !myEvaluation && (
-        <Button
-          onClick={onShowForm}
-          className={`w-full border-dashed border-${accentColor} text-${accentColor} hover:bg-${accentColor}/5`}
-        >
-          <Star className="w-4 h-4 mr-2" />
-          Escrever uma avaliação
-        </Button>
-      )}
 
       {isLoading && (
         <div className="flex items-center justify-center py-8">
@@ -67,6 +58,18 @@ export const EvaluationsList: React.FC<EvaluationsListProps> = ({
           ))}
         </div>
       )}
+
+      {!showReviewForm && isLoggedIn && !myEvaluation && (
+        <Button
+          onClick={onShowForm}
+          className={`w-full border-dashed border-${accentColor} text-${accentColor} hover:bg-${accentColor}/5`}
+          style={{ borderColor: accentColor, color: accentColor }}
+        >
+          <Star className="w-4 h-4 mr-2" />
+          Escrever uma avaliação
+        </Button>
+      )}
+
     </div>
   );
 };

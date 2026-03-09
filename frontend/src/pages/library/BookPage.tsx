@@ -153,7 +153,7 @@ const BookPage: React.FC = () => {
 
   const tabContents = [
     book ? (
-      <BookInfoSection key="info" book={book} books={books} loanByBook={loanByBook} />
+      <BookInfoSection key="info" book={book} books={books} loanByBook={loanByBook} highlightColor={accentColor} />
     ) : null,
     <EvaluationsTab
       key="avaliacoes"

@@ -83,16 +83,16 @@ function DonatorsCarousel() {
   if (baseLength === 0) return null;
 
   return (
-    <div className="mt-10 pt-8 border-t border-gray-200">
-      <a href="/doadores" className="text-sm text-library-purple hover:underline text-center block mb-3">Veja a lista completa de doadores &rarr;</a>
-      <div className="text-center text-lg sm:text-xl font-semibold flex flex-wrap justify-center items-center gap-2 px-4">
+    <div className="mt-10 pt-10">
+      {/* <a href="/doadores" className="text-sm text-library-purple hover:underline text-center block mb-3">Veja a lista completa de doadores &rarr;</a> */}
+      <div className="text-center text-xl sm:text-2xl font-semibold flex flex-wrap justify-center items-center gap-2 px-4">
         <span className="text-gray-700">Obrigado,</span>
         <div className="overflow-hidden h-[10rem] sm:h-[11rem] relative" style={{ minWidth: "12rem" }}>
           <div ref={listRef} className="transition-transform duration-500 ease-in-out">
             {displayNames.map((name, i) => (
               <div
                 key={i}
-                className={`h-[2rem] sm:h-[2.2rem] flex items-center justify-center font-bold text-sm sm:text-base ${
+                className={`h-[2rem] sm:h-[2.2rem] flex items-center justify-center font-bold ${
                   i === index + 2 ? "text-library-purple" : "text-gray-400"
                 }`}
               >

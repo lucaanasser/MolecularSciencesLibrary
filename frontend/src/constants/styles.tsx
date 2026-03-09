@@ -19,7 +19,7 @@ export const AREA_COLORS: Record<string, string> = {
   "Física": COLORS[1],
   "Matemática": COLORS[0],
   "Computação": COLORS[4],
-  "Geral": COLORS[5],
+  "Variados": COLORS[5],
 }
 
 export const MUTED_COLORS = [
