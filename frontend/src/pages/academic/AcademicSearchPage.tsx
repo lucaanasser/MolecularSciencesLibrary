@@ -1,7 +1,6 @@
+import { searchProps } from "@/features/_disciplines";
 import { SearchPage } from "@/features/search";
 
-const AcademicSearchPage = () => {
-  return <></>;
+export default function AcademicSearchPage() {
+  return <SearchPage {...searchProps} />;
 }
-
-export default AcademicSearchPage;
