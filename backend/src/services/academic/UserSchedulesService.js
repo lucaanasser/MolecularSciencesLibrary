@@ -263,28 +263,29 @@ class UserSchedulesService {
     }
 
     /**
-     * Remove uma disciplina customizada
+     * Exclui permanentemente uma disciplina customizada (hard delete).
+     * Remove de todas as tabelas e de todos os planos onde foi adicionada.
      */
     async deleteCustomDiscipline(customId, userId) {
-        console.log(`🔵 [UserSchedulesService] Removendo disciplina customizada ${customId}`);
+        console.log(`🔵 [UserSchedulesService] Excluindo permanentemente disciplina customizada ${customId}`);
         try {
-            // Busca a disciplina customizada para obter o schedule_id
+            // Busca a disciplina para validar que pertence ao usuário
             const custom = await userSchedulesModel.getCustomDisciplineById(customId);
             if (!custom) {
                 throw new Error('Disciplina customizada não encontrada');
             }
-            
-            // Valida que pertence ao usuário
+
+            // Valida que pertence ao usuário via o plano de origem
             const schedule = await userSchedulesModel.getScheduleById(custom.schedule_id);
             if (!schedule || schedule.user_id !== userId) {
                 throw new Error('Acesso negado');
             }
-            
-            await userSchedulesModel.deleteCustomDiscipline(customId, custom.schedule_id);
-            console.log(`🟢 [UserSchedulesService] Disciplina customizada removida`);
+
+            await userSchedulesModel.deleteCustomDiscipline(customId);
+            console.log(`🟢 [UserSchedulesService] Disciplina customizada ${customId} excluída permanentemente`);
             return true;
         } catch (error) {
-            console.error("🔴 [UserSchedulesService] Erro ao remover disciplina customizada:", error.message);
+            console.error("🔴 [UserSchedulesService] Erro ao excluir disciplina customizada:", error.message);
             throw error;
         }
     }

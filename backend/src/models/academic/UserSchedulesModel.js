@@ -548,21 +548,31 @@ class UserSchedulesModel {
     }
 
     /**
-     * Remove uma disciplina customizada (soft delete via user_schedule_disciplines)
+     * Remove uma disciplina customizada permanentemente (hard delete de todas as tabelas relacionadas)
      */
-    async deleteCustomDiscipline(id, scheduleId) {
-        console.log(`🔵 [UserSchedulesModel] Removendo disciplina customizada ${id} do plano ${scheduleId}`);
+    async deleteCustomDiscipline(id) {
+        console.log(`🔵 [UserSchedulesModel] Excluindo permanentemente disciplina customizada ${id}`);
         try {
-            // Soft delete: marca como invisível em user_schedule_disciplines
+            // Remove horários da customizada
             await executeQuery(
-                `UPDATE user_schedule_disciplines SET is_visible = 0 WHERE schedule_id = ? AND discipline_id = ?`,
-                [scheduleId, -id]
+                `DELETE FROM user_custom_discipline_schedules WHERE custom_discipline_id = ?`,
+                [id]
             );
-            
-            console.log(`🟢 [UserSchedulesModel] Disciplina customizada marcada como invisível`);
+            // Remove de TODOS os planos onde foi adicionada via search (discipline_id = -id)
+            await executeQuery(
+                `DELETE FROM user_schedule_disciplines WHERE discipline_id = ?`,
+                [-id]
+            );
+            // Remove o registro principal
+            await executeQuery(
+                `DELETE FROM user_custom_disciplines WHERE id = ?`,
+                [id]
+            );
+
+            console.log(`🟢 [UserSchedulesModel] Disciplina customizada ${id} excluída permanentemente`);
             return true;
         } catch (error) {
-            console.error("🔴 [UserSchedulesModel] Erro ao remover disciplina customizada:", error.message);
+            console.error("🔴 [UserSchedulesModel] Erro ao excluir disciplina customizada:", error.message);
             throw error;
         }
     }
@@ -743,21 +753,26 @@ class UserSchedulesModel {
     }
 
     /**
-     * Remove uma disciplina da lista do plano
+     * Remove uma disciplina da lista do plano (apenas remove o vínculo com o plano).
+     * Para disciplinas customizadas, os dados em user_custom_disciplines são mantidos
+     * para que possam ser encontrados via busca e re-adicionados no futuro.
+     * Use deleteCustomDiscipline() para exclusão permanente dos dados.
      */
     async removeDisciplineFromSchedule(scheduleId, disciplineId) {
         console.log(`🔵 [UserSchedulesModel] Removendo disciplina ${disciplineId} do plano ${scheduleId}`);
-        const query = `DELETE FROM user_schedule_disciplines WHERE schedule_id = ? AND discipline_id = ?`;
         try {
-            await executeQuery(query, [scheduleId, disciplineId]);
-            console.log(`🟢 [UserSchedulesModel] Disciplina removida do plano`);
-            
+            await executeQuery(
+                `DELETE FROM user_schedule_disciplines WHERE schedule_id = ? AND discipline_id = ?`,
+                [scheduleId, disciplineId]
+            );
+            console.log(`🟢 [UserSchedulesModel] Disciplina ${disciplineId} removida do plano`);
+
             // Atualiza updated_at do plano
             await executeQuery(
                 `UPDATE user_schedules SET updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
                 [scheduleId]
             );
-            
+
             return true;
         } catch (error) {
             console.error("🔴 [UserSchedulesModel] Erro ao remover disciplina do plano:", error.message);
