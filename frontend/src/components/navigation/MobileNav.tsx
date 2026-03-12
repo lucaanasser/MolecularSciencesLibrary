@@ -99,7 +99,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                 <div className="space-y-1 flex flex-col">
                   {user ? (
                     <>
-                      {/* isRegularUser(user) && (
+                      {user?.role === "aluno" && (
                         <Link
                           to={ROUTES.MY_PAGE}
                           onClick={() => setIsMobileMenuOpen(false)}
@@ -107,7 +107,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                         >
                           <UserCircle size={18} /> Página Pessoal
                         </Link>
-                      ) */}
+                      )}
 
                       <Link
                         to="#"
