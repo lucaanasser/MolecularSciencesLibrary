@@ -56,12 +56,6 @@ if ! command -v sqlite3 &>/dev/null; then
     exit 1
 fi
 
-if ! command -v node &>/dev/null; then
-    log "${RED}❌ node não encontrado no PATH.${NC}"
-    log "${YELLOW}   Tente: docker compose exec backend node scripts/scrapeUSPDisciplines.js${NC}"
-    exit 1
-fi
-
 # ===================== DIAGNÓSTICO INICIAL =====================
 
 log "${BLUE}📊 Estado atual do banco:${NC}"
@@ -116,10 +110,21 @@ log "${BLUE}🌐 Iniciando scraping completo da USP JupiterWeb...${NC}"
 log "   (isso pode levar vários minutos)"
 log ""
 
-cd "$BACKEND_DIR"
-node scripts/scrapeUSPDisciplines.js 2>&1 | tee -a "$LOG_FILE"
+cd "$PROJECT_DIR"
 
-EXIT_CODE=${PIPESTATUS[0]}
+# Preferir rodar via Docker (onde os node_modules estão instalados),
+# com fallback para node direto no host (ex: ambiente de dev local).
+if command -v docker &>/dev/null && docker compose ps --services 2>/dev/null | grep -q "backend"; then
+    log "${BLUE}🐳 Rodando scraping via Docker (docker compose exec backend)...${NC}"
+    docker compose exec -T backend node scripts/scrapeUSPDisciplines.js 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+else
+    log "${YELLOW}⚠️  Docker não disponível ou container backend não está rodando.${NC}"
+    log "${BLUE}💻 Tentando rodar com node do host...${NC}"
+    cd "$BACKEND_DIR"
+    node scripts/scrapeUSPDisciplines.js 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+fi
 
 log ""
 log "${BLUE}========================================${NC}"
