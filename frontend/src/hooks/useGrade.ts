@@ -324,8 +324,6 @@ export function useGrade() {
     setIsSaving(true);
     try {
       await userSchedulesService.deleteCustomDiscipline(disciplineId);
-      // Recarrega scheduleDisciplines para remover a customizada
-      await reloadActiveScheduleData();
       return true;
     } catch (err) {
       logger.error('Erro ao remover disciplina:', err);
@@ -334,7 +332,7 @@ export function useGrade() {
     } finally {
       setIsSaving(false);
     }
-  }, [reloadActiveScheduleData]);
+  }, []);
 
   // ================ OPERAÇÕES COM DISCIPLINAS DA LISTA (SIDEBAR) ================
 

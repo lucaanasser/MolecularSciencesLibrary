@@ -55,6 +55,7 @@ export function useGradePageLogic() {
     handleSelectClass,
     handleToggleExpanded,
     handleRemoveDiscipline,
+    handlePermanentDeleteDiscipline,
     loadDisciplines,
     clearList,
     setDisciplineStates
@@ -122,10 +123,18 @@ export function useGradePageLogic() {
     }
   };
 
-  // Handler wrapper para remover disciplina da lista
+  // Handler wrapper para remover disciplina da lista (apenas do plano atual)
   const handleRemoveDisciplineFromList = useCallback((disciplineId: number) => {
     return handleRemoveDiscipline(disciplineId, removeCustomDiscipline);
   }, [handleRemoveDiscipline, removeCustomDiscipline]);
+
+  // Handler para excluir permanentemente uma disciplina customizada
+  const handlePermanentDeleteFromList = useCallback((
+    disciplineId: number,
+    customDisciplineId: number
+  ) => {
+    return handlePermanentDeleteDiscipline(disciplineId, customDisciplineId, removeCustomDiscipline);
+  }, [handlePermanentDeleteDiscipline, removeCustomDiscipline]);
 
   // Handler para adicionar turma (modo busca individual)
   const handleAddClass = async (classId: number): Promise<{ success: boolean; conflicts?: any[] }> => {
@@ -384,6 +393,7 @@ export function useGradePageLogic() {
     previousCombination,
     handleRemoveSlot,
     handleRemoveDisciplineFromList,
+    handlePermanentDeleteFromList,
     handleAddClass,
     handleAddCustom,
     handleAddDisciplineFromSearch,

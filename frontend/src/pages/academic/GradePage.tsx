@@ -93,6 +93,7 @@ const GradePage: React.FC = () => {
                 onToggleVisibility={logic.handleToggleVisibility}
                 onSelectClass={logic.handleSelectClass}
                 onRemoveDiscipline={logic.handleRemoveDisciplineFromList}
+                onDeleteDisciplinePermanently={logic.handlePermanentDeleteFromList}
                 onToggleExpanded={logic.handleToggleExpanded}
                 disabled={logic.isSaving}
                 maxDisciplines={10}

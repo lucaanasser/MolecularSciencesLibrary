@@ -375,9 +375,9 @@ class UserSchedulesService {
   async createCustomDiscipline(data: {
     nome: string;
     codigo?: string;
-    dia: string;
-    horario_inicio: string;
-    horario_fim: string;
+    schedules: Array<{ dia: string; horario_inicio: string; horario_fim: string }>;
+    creditos_aula?: number;
+    creditos_trabalho?: number;
     color?: string;
     schedule_id: number;
   }): Promise<CustomDiscipline> {

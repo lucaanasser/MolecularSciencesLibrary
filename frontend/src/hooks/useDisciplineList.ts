@@ -223,6 +223,26 @@ export function useDisciplineList(
     }
   }, [isAuthenticated, activeScheduleId, removeDisciplineFromList]);
 
+  // Exclui permanentemente uma disciplina customizada (hard delete em todas as tabelas)
+  const handlePermanentDeleteDiscipline = useCallback(async (
+    disciplineId: number,
+    customDisciplineId: number,
+    deleteCustomPermanently: (id: number) => Promise<boolean>
+  ) => {
+    logger.info(`🔵 [useDisciplineList] Excluindo permanentemente disciplina customizada ${customDisciplineId}`);
+
+    // Remove do estado local imediatamente
+    setDisciplineStates(prev => prev.filter(d => d.discipline.id !== disciplineId));
+
+    // Hard delete no backend
+    try {
+      await deleteCustomPermanently(customDisciplineId);
+      logger.info(`🟢 [useDisciplineList] Disciplina customizada ${customDisciplineId} excluída permanentemente`);
+    } catch (error) {
+      logger.error(`🔴 [useDisciplineList] Erro ao excluir disciplina permanentemente:`, error);
+    }
+  }, []);
+
   // Limpa a lista (útil ao trocar de plano)
   const clearList = useCallback(() => {
     logger.info(`🔵 [useDisciplineList] Limpando lista de disciplinas`);
@@ -246,6 +266,7 @@ export function useDisciplineList(
     handleSelectClass,
     handleToggleExpanded,
     handleRemoveDiscipline,
+    handlePermanentDeleteDiscipline,
     clearList,
     loadDisciplines,
     setDisciplineStates

@@ -6,11 +6,22 @@ import {
   GripVertical,
   ChevronDown,
   ChevronUp,
-  Check
+  Check,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DisciplineWithClasses, ClassOption } from '@/utils/combinationsGenerator';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 
 interface DisciplineState {
   discipline: DisciplineWithClasses;
@@ -28,6 +39,7 @@ interface DisciplineListNewProps {
   onToggleVisibility: (disciplineId: number) => void;
   onSelectClass: (disciplineId: number, classId: number) => void;
   onRemoveDiscipline: (disciplineId: number) => void;
+  onDeleteDisciplinePermanently?: (disciplineId: number, customDisciplineId: number) => void;
   onToggleExpanded: (disciplineId: number) => void;
   disabled?: boolean;
   maxDisciplines?: number;
@@ -42,10 +54,17 @@ export function DisciplineListNew({
   onToggleVisibility,
   onSelectClass,
   onRemoveDiscipline,
+  onDeleteDisciplinePermanently,
   onToggleExpanded,
   disabled,
   maxDisciplines = 10
 }: DisciplineListNewProps) {
+  // Estado para controlar o diálogo de confirmação de remoção de customizada
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    disciplineId: number;
+    customDisciplineId: number;
+    nome: string;
+  } | null>(null);
   // Calcula créditos totais das disciplinas visíveis
   const totalCredits = disciplines
     .filter(d => d.isVisible)
@@ -173,7 +192,17 @@ export function DisciplineListNew({
                   )}
 
                   <button
-                    onClick={() => onRemoveDiscipline(discipline.id)}
+                    onClick={() => {
+                      if (isCustom && customDisciplineId && onDeleteDisciplinePermanently) {
+                        setDeleteConfirm({
+                          disciplineId: discipline.id,
+                          customDisciplineId,
+                          nome: discipline.nome,
+                        });
+                      } else {
+                        onRemoveDiscipline(discipline.id);
+                      }
+                    }}
                     disabled={disabled}
                     className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
@@ -232,6 +261,46 @@ export function DisciplineListNew({
           </span>
         </div>
       )}
+
+      {/* Diálogo de confirmação para remoção de disciplina customizada */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={open => { if (!open) setDeleteConfirm(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover "{deleteConfirm?.nome}"</AlertDialogTitle>
+            <AlertDialogDescription>
+              Como deseja remover esta disciplina customizada?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel onClick={() => setDeleteConfirm(null)}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+              onClick={() => {
+                if (deleteConfirm) {
+                  onRemoveDiscipline(deleteConfirm.disciplineId);
+                  setDeleteConfirm(null);
+                }
+              }}
+            >
+              Remover do plano
+            </AlertDialogAction>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => {
+                if (deleteConfirm && onDeleteDisciplinePermanently) {
+                  onDeleteDisciplinePermanently(deleteConfirm.disciplineId, deleteConfirm.customDisciplineId);
+                  setDeleteConfirm(null);
+                }
+              }}
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Excluir permanentemente
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
