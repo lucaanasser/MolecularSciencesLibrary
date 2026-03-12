@@ -297,7 +297,8 @@ class DisciplinesModel {
         ];
 
         try {
-            const lastID = await executeQuery(query, params);
+            const result = await executeQuery(query, params);
+            const lastID = result.lastID;
             console.log(`🟢 [DisciplinesModel] Turma inserida: ${data.codigo_turma}, ID: ${lastID}`);
             return { id: lastID, ...data };
         } catch (error) {
@@ -357,7 +358,8 @@ class DisciplinesModel {
         ];
 
         try {
-            const lastID = await executeQuery(query, params);
+            const result = await executeQuery(query, params);
+            const lastID = result.lastID;
             console.log(`🟢 [DisciplinesModel] Horário inserido: ID ${lastID}`);
             return { id: lastID, ...data };
         } catch (error) {
@@ -416,7 +418,8 @@ class DisciplinesModel {
         ];
 
         try {
-            const lastID = await executeQuery(query, params);
+            const result = await executeQuery(query, params);
+            const lastID = result.lastID;
             console.log(`🟢 [DisciplinesModel] Professor inserido: ${data.nome}, ID: ${lastID}`);
             return { id: lastID, ...data };
         } catch (error) {
