@@ -99,7 +99,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                 <div className="space-y-1 flex flex-col">
                   {user ? (
                     <>
-                      {user?.role === "aluno" && (
+                      {/* user?.role === "aluno" && (
                         <Link
                           to={ROUTES.MY_PAGE}
                           onClick={() => setIsMobileMenuOpen(false)}
@@ -107,7 +107,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                         >
                           <UserCircle size={18} /> Página Pessoal
                         </Link>
-                      )}
+                      ) */}{/* TODO: habilitar quando o perfil público for lançado */}
 
                       <Link
                         to="#"
