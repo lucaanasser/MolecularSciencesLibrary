@@ -16,7 +16,7 @@
 
 require('dotenv').config();
 
-const LoansService = require('../src/services/library/LoansService'); // Caminho já está correto
+const LoansService = require('../src/services/library/loans/LoansService');
 const NotificationsService = require('../src/services/utilities/NotificationsService'); // Caminho já está correto
 const EmailService = require('../src/services/utilities/EmailService'); // Caminho já está correto
 const RulesService = require('../src/services/utilities/RulesService'); // Caminho já está correto
