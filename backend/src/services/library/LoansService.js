@@ -99,9 +99,10 @@ class LoansService {
         console.log(`🔵 [LoansService] Iniciando registro de uso interno para book_id=${book_id}`);
         
         // Busca o livro pelo ID
+        let book;
         try {
             console.log(`🔵 [LoansService] Buscando livro por ID: ${book_id}`);
-            await BooksModel.getBookById(book_id);
+            book = await BooksService.getBookById(book_id);
         } catch (err) {
             console.error(`🔴 [LoansService] Erro ao buscar livro: ${err.message}`);
             throw err;
@@ -290,6 +291,42 @@ class LoansService {
 
     async getLoansByBookId(book_id, activeOnly = false) {
         return await LoansModel.getLoansByBookId(book_id, activeOnly);
+    }
+
+    /**
+     * Lista empréstimos ativos com a flag de atraso calculada.
+     * Mantido por compatibilidade com scripts legados.
+     */
+    async listActiveLoansWithOverdue() {
+        console.log('🔵 [LoansService] Listando empréstimos ativos com cálculo de atraso');
+        const loans = await this.getLoans('active');
+        return loans.map((loan) => ({
+            ...loan,
+            is_overdue: this.isLoanOverdue(loan)
+        }));
+    }
+
+    /**
+     * Alias legado para listagem de empréstimos ativos.
+     */
+    async listActiveLoans() {
+        return this.listActiveLoansWithOverdue();
+    }
+
+    /**
+     * Compatibilidade com fluxo legado de extensão pendente.
+     * No modelo atual não há fila persistida de extensão pendente.
+     */
+    async processPendingExtension() {
+        console.log('🟡 [LoansService] processPendingExtension chamado, mas não há extensões pendentes persistidas neste fluxo.');
+        return 0;
+    }
+
+    /**
+     * Alias plural para manter compatibilidade com scripts antigos.
+     */
+    async processPendingExtensions() {
+        return this.processPendingExtension();
     }
 
     /* ==================== Funções auxiliares ==================== */
