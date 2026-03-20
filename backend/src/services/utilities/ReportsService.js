@@ -12,7 +12,7 @@ const { allQuery, getQuery } = require('../../database/db');
 const BooksService = require('../library/BooksService');
 const { areaMapping, subareaMapping } = require('../../utils/validBookAreas');
             
-const LoansService = require('../library/LoansService');
+const LoansService = require('../library/loans/LoansService');
 const UsersService = require('../library/UsersService');
 
 class ReportsService {
