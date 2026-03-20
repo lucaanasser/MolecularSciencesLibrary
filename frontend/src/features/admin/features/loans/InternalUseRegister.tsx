@@ -10,15 +10,26 @@ export default function InternalUseRegister({ onBack, onSuccess, onError }) {
   // Submissão do formulário usando LoansService
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (loading) return;
+
+    const bookId = Number(internalUseCode);
+    if (!Number.isInteger(bookId) || bookId <= 0) {
+      if (onError) onError("Informe um código de livro válido.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await LoansService.registerInternalUse({ book_id: Number(internalUseCode) });
+      await LoansService.registerInternalUse({ book_id: bookId });
       setInternalUseCode("");
       setLoading(false);
       onSuccess("Uso interno registrado com sucesso!");
     } catch (err: any) {
       setLoading(false);
-      if (onError) onError(err || "Erro ao registrar uso interno");
+      if (onError) {
+        const message = err instanceof Error ? err.message : "Erro ao registrar uso interno";
+        onError(message);
+      }
     }
   };
 
@@ -48,4 +59,4 @@ export default function InternalUseRegister({ onBack, onSuccess, onError }) {
       />
     </>
   );
-};export {default as BorrowBookForm } from './BorrowBookForm';
+}
