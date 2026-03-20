@@ -1,8 +1,6 @@
 const { getQuery, allQuery, executeQuery } = require('../../database/db');
 const UsersModel = require('./UsersModel');
 const BooksModel = require('./BooksModel');
-const { count } = require('node:console');
-const { countLoans } = require('../../services/library/LoansService');
         
 /**
  * Model responsável pelo acesso ao banco de dados para empréstimos de livros.
