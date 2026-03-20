@@ -1,4 +1,4 @@
-const LoansService = require('../../services/library/LoansService');
+const LoansService = require('../../services/library/loans/LoansService');
 
 /**
  * Controller responsável pelas operações de empréstimo de livros.

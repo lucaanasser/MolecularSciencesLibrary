@@ -1,6 +1,6 @@
 const notificationsService = require('../../services/utilities/NotificationsService');
 const emailService = require('../../services/utilities/EmailService');
-const LoansService = require('../../services/library/LoansService');
+const LoansService = require('../../services/library/loans/LoansService');
 const LoansModel = require('../../models/library/LoansModel');
 
 /**
