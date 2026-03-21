@@ -25,7 +25,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copia o script de inicialização SSL
-COPY init-ssl.sh /usr/local/bin/init-ssl.sh
+COPY scripts/runtime/init-ssl.sh /usr/local/bin/init-ssl.sh
 RUN chmod +x /usr/local/bin/init-ssl.sh
 
 EXPOSE 80 443

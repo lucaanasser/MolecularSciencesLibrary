@@ -8,11 +8,11 @@
     "build": "echo 'skip build'",
     "dev": "nodemon src/main.js",
     "init-db": "node src/database/initDb.js",
-    "seed": "node scripts/seed_database.js",
-    "import:csv": "node scripts/importCsv.js",
-    "clean:test": "node scripts/clean_test_scenarios.js",
-    "scrape:disciplines": "node scripts/scrapeUSPDisciplines.js",
-    "scrape:disciplines:test": "node scripts/scrapeUSPDisciplines.js -u 45 -v --dry-run"
+    "seed": "node scripts/data/seed_database.js",
+    "import:csv": "node scripts/data/importCsv.js",
+    "clean:test": "node scripts/data/clean_test_scenarios.js",
+    "scrape:disciplines": "node scripts/operations/scrapeUSPDisciplines.js",
+    "scrape:disciplines:test": "node scripts/operations/scrapeUSPDisciplines.js -u 45 -v --dry-run"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",

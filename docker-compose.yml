@@ -23,7 +23,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y tzdata && ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime && echo $${TZ} > /etc/timezone && sleep 30 && while true; do node scripts/checkOverdues.js; sleep 86400; done"]
+    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y tzdata && ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime && echo $${TZ} > /etc/timezone && sleep 30 && while true; do node scripts/operations/checkOverdues.js; sleep 86400; done"]
     volumes:
       - ./database:/app/database
     environment:
@@ -50,7 +50,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y tzdata && ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime && echo $${TZ} > /etc/timezone && sleep 60 && while true; do echo \"[$(date)] Iniciando scraping de disciplinas USP...\"; node scripts/scrapeUSPDisciplines.js; echo \"[$(date)] Scraping concluído. Próximo em 7 dias.\"; sleep 604800; done"]
+    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y tzdata && ln -snf /usr/share/zoneinfo/$${TZ} /etc/localtime && echo $${TZ} > /etc/timezone && sleep 60 && while true; do echo \"[$(date)] Iniciando scraping de disciplinas USP...\"; node scripts/operations/scrapeUSPDisciplines.js; echo \"[$(date)] Scraping concluído. Próximo em 7 dias.\"; sleep 604800; done"]
     volumes:
       - ./database:/app/database
     environment:
