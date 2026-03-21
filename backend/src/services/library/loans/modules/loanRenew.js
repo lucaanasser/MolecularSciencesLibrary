@@ -1,35 +1,48 @@
+/**
+ * Responsabilidade: fluxo de preview e confirmacao de renovacao de emprestimos.
+ * Camada: service.
+ * Entradas/Saidas: recebe loan_id/user_id e atualiza due_date quando permitido.
+ * Dependencias criticas: LoansModel, RulesService e EmailService.
+ */
+
 const LoansModel = require('../../../../models/library/LoansModel');
 const RulesService = require('../../../utilities/RulesService');
 const EmailService = require('../../../utilities/EmailService');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
-     * Gera uma previa da renovacao de um emprestimo.
+     * O que faz: valida e simula renovacao retornando nova due_date prevista.
+     * Onde e usada: renewHandlers.previewRenewLoan e renewLoan.
+     * Dependencias chamadas: LoansModel.getLoanById e _checkRenewRules.
+     * Efeitos colaterais: nenhum; somente validacao/simulacao.
      */
     async previewRenewLoan(loan_id, user_id) {
-        console.log(`🔵 [LoansService] Preview de renovação: loan_id=${loan_id}, user_id=${user_id}`);
+        log.start('Preview de renovacao solicitado', { loan_id, user_id });
 
         const loan = await LoansModel.getLoanById(loan_id);
         if (!loan) {
-            console.warn(`🟡 [LoansService] Empréstimo não encontrado: loan_id=${loan_id}`);
+            log.warn('Emprestimo nao encontrado para preview de renovacao', { loan_id, user_id });
             throw new Error('Empréstimo não encontrado.');
         }
         if (loan.returned_at) {
-            console.warn(`🟡 [LoansService] Empréstimo já devolvido: loan_id=${loan_id}`);
+            log.warn('Emprestimo ja devolvido; renovacao bloqueada', { loan_id, user_id });
             throw new Error('Empréstimo já foi devolvido.');
         }
         if (Number(loan.user_id) !== Number(user_id)) {
-            console.warn(`🟡 [LoansService] Este empréstimo não pertence ao usuário: user_id=${user_id}, loan_id=${loan_id}`);
+            log.warn('Emprestimo nao pertence ao usuario informado', { loan_id, user_id, owner_user_id: loan.user_id });
             throw new Error('Este empréstimo não pertence ao usuário informado.');
         }
 
         const check = await this._checkRenewRules(user_id, loan);
         if (!check.allowed) {
-            console.warn(`🟡 [LoansService] Renovação não permitida: ${check.reason}`);
+            log.warn('Renovacao nao permitida pelas regras', { loan_id, user_id, reason: check.reason });
             throw new Error(check.reason || 'Renovação não permitida.');
         }
 
-        console.log(`🟢 [LoansService] Preview de renovação bem-sucedido: loan_id=${loan_id}, nova due_date=${check.new_due_date}`);
+        log.success('Preview de renovacao calculado com sucesso', { loan_id, user_id, new_due_date: check.new_due_date });
         return {
             new_due_date: check.new_due_date,
             renewals_left: check.renewals_left,
@@ -38,34 +51,34 @@ module.exports = {
     },
 
     /**
-     * Realiza a renovacao de um emprestimo.
+     * O que faz: valida e confirma renovacao persistindo nova due_date.
+     * Onde e usada: renewHandlers.renewLoan.
+     * Dependencias chamadas: previewRenewLoan, LoansModel.renewLoan, LoansModel.getLoanById e EmailService.sendRenewalConfirmationEmail.
+     * Efeitos colaterais: atualiza emprestimo e dispara email de confirmacao.
      */
     async renewLoan(loan_id, user_id) {
-        console.log(`🔵 [LoansService] Renovando empréstimo: loan_id=${loan_id}${user_id ? ', user_id=' + user_id : ''}`);
+        log.start('Iniciando renovacao de emprestimo', { loan_id, user_id });
 
         let preview;
         try {
-            console.log(`🔵 [LoansService] Validando renovação para loan_id=${loan_id}, user_id=${user_id}`);
             preview = await this.previewRenewLoan(loan_id, user_id);
         } catch (err) {
-            console.error(`🔴 [LoansService] Renovação não permitida: ${err.message}`);
+            log.error('Renovacao bloqueada na validacao', { err: err.message, loan_id, user_id });
             throw err;
         }
 
         try {
-            console.log(`🔵 [LoansService] Atualizando empréstimo com nova due_date: loan_id=${loan_id}, new_due_date=${preview.new_due_date}`);
             await LoansModel.renewLoan(loan_id, preview.new_due_date);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao atualizar empréstimo: ${err.message}`);
+            log.error('Erro ao atualizar emprestimo renovado', { err: err.message, loan_id, user_id, new_due_date: preview.new_due_date });
             throw err;
         }
 
         let loan;
         try {
-            console.log(`🔵 [LoansService] Buscando dados do empréstimo atualizado: loan_id=${loan_id}`);
             loan = await LoansModel.getLoanById(loan_id);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao buscar dados do empréstimo atualizado: ${err.message}`);
+            log.error('Erro ao buscar emprestimo apos renovacao', { err: err.message, loan_id, user_id });
             throw err;
         }
 
@@ -76,29 +89,35 @@ module.exports = {
                 due_date: preview.new_due_date
             });
         } catch (emailErr) {
-            console.error('🟡 [LoansService] Erro ao enviar email de renovação (renovação realizada com sucesso):', emailErr.message);
+            log.warn('Falha no envio de email de renovacao (operacao principal concluida)', {
+                err: emailErr.message,
+                loan_id,
+                user_id
+            });
         }
 
-        console.log(`🟢 [LoansService] Empréstimo renovado com sucesso: loan_id=${loan_id}`);
+        log.success('Emprestimo renovado com sucesso', { loan_id, user_id });
         return loan;
     },
 
     /**
-     * Verifica se o emprestimo pode ser renovado.
+     * O que faz: aplica regras de negocio para permitir/bloquear renovacao.
+     * Onde e usada: previewRenewLoan.
+     * Dependencias chamadas: RulesService.getRules e getUserLoans.
+     * Efeitos colaterais: nenhum; apenas validacao.
      */
     async _checkRenewRules(user_id, loan) {
         const rules = await RulesService.getRules();
 
         let userLoans;
         try {
-            console.log(`🔵 [LoansService] Verificando empréstimos atrasados para usuário ${user_id}`);
             userLoans = await this.getUserLoans(user_id, 'active');
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao buscar empréstimos do usuário para verificação de atrasos: ${err.message}`);
+            log.error('Erro ao buscar emprestimos do usuario para validar renovacao', { err: err.message, user_id, loan_id: loan?.id });
             throw err;
         }
 
-        const hasOverdue = userLoans.some(l => l.is_overdue);
+        const hasOverdue = userLoans.some((userLoan) => this._isOverdueLoan(userLoan, false));
         if (hasOverdue) {
             return {
                 allowed: false,
