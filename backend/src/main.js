@@ -138,4 +138,4 @@ httpServer.listen(HTTP_PORT, () => {
   console.log(`🌐 [main] Acesse: http://localhost:${HTTP_PORT}`);
 });
 
-module.exports = app; // (se necessário para testes)
+module.exports = app; 
