@@ -1,29 +1,8 @@
-const donatorsModel = require('../../models/library/DonatorsModel');
+/**
+ * Responsabilidade: compatibilidade de import para service legado de donators.
+ * Camada: service.
+ * Entradas/Saidas: reexporta service unificado do dominio donators.
+ * Dependencias criticas: services/library/donators/DonatorsService.
+ */
 
-class DonatorsService {
-    async addDonator(data) {
-        return donatorsModel.addDonator(data);
-    }
-
-    async removeDonator(id) {
-        return donatorsModel.removeDonator(id);
-    }
-
-    async getAllDonators() {
-        return donatorsModel.getAllDonators();
-    }
-
-    async getDonatorById(id) {
-        return donatorsModel.getDonatorById(id);
-    }
-
-    async getFilteredDonators(filters) {
-        return donatorsModel.getFilteredDonators(filters);
-    }
-
-    async getAllDonatorsWithBooks() {
-        return donatorsModel.getAllDonatorsWithBooks();
-    }
-}
-
-module.exports = new DonatorsService();
+module.exports = require('./donators/DonatorsService');
