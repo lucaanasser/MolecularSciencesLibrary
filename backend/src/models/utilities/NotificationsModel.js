@@ -1,16 +1,23 @@
-const { executeQuery, getQuery, allQuery } = require('../../database/db');
-
 /**
- * Modelo para operações no banco de dados relacionadas a notificações.
- * Padrão de logs:
- * 🔵 Início de operação
- * 🟢 Sucesso
- * 🟡 Aviso/Fluxo alternativo
- * 🔴 Erro
+ * Responsabilidade: persistencia de notificacoes do dominio utilities.
+ * Camada: model.
+ * Entradas/Saidas: cria, consulta e atualiza status de notificacoes no SQLite.
+ * Dependencias criticas: database/db e logger compartilhado.
  */
+
+const { executeQuery, allQuery } = require('../../database/db');
+const { getLogger } = require('../../shared/logging/logger');
+
+const log = getLogger(__filename);
+
 class NotificationsModel {
+    /**
+     * O que faz: cria notificacao com metadata opcional e status inicial.
+     * Onde e usada: NotificationsService.createNotification e fluxos correlatos.
+     * Dependencias chamadas: executeQuery.
+     * Efeitos colaterais: insere registro na tabela notifications.
+     */
     async createNotification({ user_id, type, message, metadata, status = 'unread', loan_id = null }) {
-        console.log("🔵 [NotificationsModel] Criando notificação:", { user_id, type, message });
         const query = `
             INSERT INTO notifications (user_id, type, message, metadata, loan_id, status, created_at)
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
@@ -18,16 +25,20 @@ class NotificationsModel {
         const params = [user_id, type, message, metadata ? JSON.stringify(metadata) : null, loan_id, status];
         try {
             const result = await executeQuery(query, params);
-            console.log("🟢 [NotificationsModel] Notificação criada:", result.lastID);
             return result.lastID;
         } catch (error) {
-            console.error("🔴 [NotificationsModel] Erro ao criar notificação:", error.message);
+            log.error('Falha ao criar notificacao', { user_id, type, loan_id, err: error.message });
             throw error;
         }
     }
 
+    /**
+     * O que faz: consulta notificacoes de um usuario ordenadas por data.
+     * Onde e usada: NotificationsService.getUserNotifications.
+     * Dependencias chamadas: allQuery.
+     * Efeitos colaterais: nenhum alem de leitura.
+     */
     async getNotificationsByUser(user_id) {
-        console.log("🔵 [NotificationsModel] Buscando notificações do usuário:", user_id);
         const query = `
             SELECT * FROM notifications
             WHERE user_id = ?
@@ -35,45 +46,54 @@ class NotificationsModel {
         `;
         try {
             const notifications = await allQuery(query, [user_id]);
-            console.log("🟢 [NotificationsModel] Notificações encontradas:", notifications.length);
             return notifications;
         } catch (error) {
-            console.error("🔴 [NotificationsModel] Erro ao buscar notificações:", error.message);
+            log.error('Falha ao consultar notificacoes por usuario', { user_id, err: error.message });
             throw error;
         }
     }
 
+    /**
+     * O que faz: marca notificacao como lida.
+     * Onde e usada: NotificationsService.markNotificationAsRead.
+     * Dependencias chamadas: executeQuery.
+     * Efeitos colaterais: atualiza status do registro no banco.
+     */
     async markAsRead(notification_id) {
-        console.log("🔵 [NotificationsModel] Marcando notificação como lida:", notification_id);
         const query = `
             UPDATE notifications SET status = 'read' WHERE id = ?
         `;
         try {
             await executeQuery(query, [notification_id]);
-            console.log("🟢 [NotificationsModel] Notificação marcada como lida:", notification_id);
         } catch (error) {
-            console.error("🔴 [NotificationsModel] Erro ao marcar notificação como lida:", error.message);
+            log.error('Falha ao marcar notificacao como lida', { notification_id, err: error.message });
             throw error;
         }
     }
 
-    // Exclui notificação apenas para o usuário (soft delete)
+    /**
+     * O que faz: remove notificacao para usuario via soft delete.
+     * Onde e usada: NotificationsService.deleteForUser.
+     * Dependencias chamadas: executeQuery.
+     * Efeitos colaterais: atualiza status para deleted sem remover linha fisica.
+     */
     async deleteForUser(notification_id, user_id) {
-        console.log("🔵 [NotificationsModel] Excluindo notificação para o usuário:", notification_id, user_id);
-        // Marca como 'deleted' para o usuário, mas mantém no banco
         const query = `UPDATE notifications SET status = 'deleted' WHERE id = ? AND user_id = ?`;
         try {
             await executeQuery(query, [notification_id, user_id]);
-            console.log("🟢 [NotificationsModel] Notificação marcada como deletada para o usuário:", notification_id);
         } catch (error) {
-            console.error("🔴 [NotificationsModel] Erro ao deletar notificação para o usuário:", error.message);
+            log.error('Falha ao fazer soft delete de notificacao para usuario', { notification_id, user_id, err: error.message });
             throw error;
         }
     }
 
-    // Busca todas as notificações, com filtro opcional por usuário
+    /**
+     * O que faz: consulta notificacoes com filtro opcional por usuario.
+     * Onde e usada: NotificationsService.getAllNotifications.
+     * Dependencias chamadas: allQuery.
+     * Efeitos colaterais: nenhum alem de leitura.
+     */
     async getAllNotifications({ user_id } = {}) {
-        console.log("🔵 [NotificationsModel] Buscando todas as notificações", user_id ? `do usuário: ${user_id}` : "(todas)");
         let query = `SELECT * FROM notifications`;
         let params = [];
         if (user_id) {
@@ -83,10 +103,9 @@ class NotificationsModel {
         query += ` ORDER BY created_at DESC`;
         try {
             const notifications = await allQuery(query, params);
-            console.log("🟢 [NotificationsModel] Notificações encontradas:", notifications.length);
             return notifications;
         } catch (error) {
-            console.error("🔴 [NotificationsModel] Erro ao buscar todas as notificações:", error.message);
+            log.error('Falha ao consultar notificacoes gerais', { user_id, err: error.message });
             throw error;
         }
     }
