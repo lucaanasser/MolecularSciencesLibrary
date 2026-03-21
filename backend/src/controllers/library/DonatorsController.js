@@ -1,6 +1,6 @@
 
 const DonatorsService = require('../../services/library/DonatorsService');
-const { importFromCSV } = require('../../utils/csvUtils');
+const { importFromCSV, escapeCSV } = require('../../utils/csvUtils');
 
 const DonatorsController = {
     async addDonator(req, res) {
@@ -156,42 +156,5 @@ const DonatorsController = {
         }
     }
 };
-
-// Funções auxiliares para CSV
-function escapeCSV(value) {
-    if (value === null || value === undefined) return '';
-    const stringValue = String(value);
-    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-        return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-    return stringValue;
-}
-
-function parseCSVLine(line) {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        const nextChar = line[i + 1];
-        
-        if (char === '"') {
-            if (inQuotes && nextChar === '"') {
-                current += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-    result.push(current.trim());
-    return result;
-}
 
 module.exports = DonatorsController;
