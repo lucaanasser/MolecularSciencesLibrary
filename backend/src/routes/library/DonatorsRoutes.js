@@ -1,31 +1,30 @@
+/**
+ * Responsabilidade: compatibilidade de import para rota legado de donators.
+ * Camada: routes.
+ * Entradas/Saidas: preserva endpoint legado e delega para roteador unificado.
+ * Dependencias criticas: routes/library/donators/DonatorsRoutes e logger compartilhado.
+ */
+
 const express = require('express');
-const DonatorsController = require('../../controllers/library/DonatorsController');
-const multer = require('multer');
-const authenticateToken = require('../../middlewares/authenticateToken');
+const { getLogger } = require('../../shared/logging/logger');
+const unifiedDonatorsRouter = require('./donators/DonatorsRoutes');
+
 const router = express.Router();
+const log = getLogger(__filename);
+const deprecation = {
+    scope: 'legacy-route-wrapper',
+    replacement: 'routes/library/donators/DonatorsRoutes',
+    sunsetDate: '2026-06-30'
+};
 
-// Configurar multer para upload de arquivos em memória
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-function requireAdmin(req, res, next) {
-    if (!req.user || req.user.role !== 'admin') {
-        return res.status(403).json({ error: 'Acesso restrito a administradores.' });
-    }
+router.use((req, _res, next) => {
+    log.warn('Router legado de donators em uso; migrar para o roteador unificado', {
+        route: `${req.method} ${req.originalUrl}`,
+        ...deprecation
+    });
     next();
-}
+});
 
-// Exportar doadores como CSV
-router.get('/export/csv', DonatorsController.exportDonatorsToCSV);
-
-// Importar doadores de CSV
-router.post('/import/csv', authenticateToken, requireAdmin, upload.single('csvFile'), DonatorsController.importDonatorsFromCSV);
-
-router.post('/', DonatorsController.addDonator);
-router.delete('/:id', DonatorsController.removeDonator);
-router.get('/wall', DonatorsController.getAllDonatorsWithBooks);
-router.get('/', DonatorsController.getAllDonators);
-router.get('/:id', DonatorsController.getDonatorById);
-router.get('/filter', DonatorsController.getFilteredDonators);
+router.use('/', unifiedDonatorsRouter);
 
 module.exports = router;
