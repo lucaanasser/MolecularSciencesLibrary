@@ -26,6 +26,7 @@ const reportsRouter = require('./routes/utilities/ReportsRoutes');
 
 const disciplinesRouter = require('./routes/academic/DisciplinesRoutes');
 const disciplineEvaluationsRouter = require('./routes/academic/DisciplineEvaluationsRoutes');
+const academicDisciplinesRouter = require('./routes/academic/disciplines/AcademicDisciplinesRoutes');
 const userSchedulesRouter = require('./routes/academic/UserSchedulesRoutes');
 const forumRouter = require('./routes/academic/ForumRoutes');
 const publicProfilesRouter = require('./routes/academic/PublicProfilesRoutes');
@@ -66,6 +67,7 @@ app.use('/api/virtual-bookshelf', virtualBookShelfRouter);
 app.use('/api/forms', formsRouter);
 app.use('/api/disciplines', disciplinesRouter);
 app.use('/api/evaluations', disciplineEvaluationsRouter);
+app.use('/api/academic/disciplines', academicDisciplinesRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/user-schedules', userSchedulesRouter);
 app.use('/api/forum', forumRouter);
