@@ -1,6 +1,9 @@
 const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
+const { getLogger } = require('../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 // Database configuration - usar pasta database na raiz do projeto (fora de backend)
 const projectRoot = path.resolve(__dirname, '..', '..', '..');
@@ -14,14 +17,14 @@ if (!fs.existsSync(dbDir)) {
     fs.chmodSync(dbDir, 0o777);
 }
 
-console.log(`🔵 [db] Usando banco de dados em: ${dbPath}`);
+log.start('Inicializando conexao principal do banco', { db_path: dbPath });
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('🔴 [db] Erro ao abrir banco de dados:', err.message);
+        log.error('Erro ao abrir banco de dados', { err: err.message, db_path: dbPath });
         process.exit(1);
     }
-    console.log('🟢 [db] Conectado ao banco de dados SQLite.');
+    log.success('Conectado ao banco de dados SQLite', { db_path: dbPath });
     
     // Configurar timeout para evitar SQLITE_BUSY
     db.configure("busyTimeout", 30000);
@@ -29,74 +32,98 @@ const db = new sqlite3.Database(dbPath, (err) => {
     // Configurar WAL mode para melhor concorrência
     db.run("PRAGMA journal_mode=WAL", (err) => {
         if (err) {
-            console.warn('🟡 [db] Não foi possível configurar WAL mode:', err.message);
+            log.warn('Nao foi possivel configurar WAL mode', { err: err.message });
         } else {
-            console.log('🟢 [db] WAL mode configurado para melhor concorrência.');
+            log.success('WAL mode configurado para melhor concorrencia');
         }
     });
     
-    // Configurar busy timeout via PRAGMA também
+    // Configurar busy timeout via PRAGMA
     db.run("PRAGMA busy_timeout=30000", (err) => {
         if (err) {
-            console.warn('🟡 [db] Não foi possível configurar busy_timeout:', err.message);
+            log.warn('Nao foi possivel configurar busy_timeout', { err: err.message });
         } else {
-            console.log('🟢 [db] Busy timeout configurado para 30 segundos.');
+            log.success('Busy timeout configurado para 30 segundos');
         }
     });
 });
 
-// Função utilitária para executar queries com Promise
+/**
+ * O que faz: executa SQL de escrita e retorna metadados da operacao.
+ * Onde e usada: camada model em toda aplicacao.
+ * Dependencias chamadas: sqlite3.Database.run.
+ * Efeitos colaterais: altera dados no banco.
+ */
 function executeQuery(query, params = []) {
     return new Promise((resolve, reject) => {
         db.run(query, params, function(err) {
             if (err) {
-                console.error('🔴 [db] Erro ao executar query:', err.message, query, params);
+                log.error('Erro ao executar query de escrita', { err: err.message });
                 return reject(err);
             }
-            console.log('🟢 [db] Query executada com sucesso:', query);
             resolve({ lastID: this.lastID, changes: this.changes });
         });
     });
 }
 
+/**
+ * O que faz: executa SQL de leitura unitária e retorna uma linha.
+ * Onde e usada: camada model em toda aplicacao.
+ * Dependencias chamadas: sqlite3.Database.get.
+ * Efeitos colaterais: nenhum; leitura de dados.
+ */
 function getQuery(query, params = []) {
     return new Promise((resolve, reject) => {
         db.get(query, params, function(err, row) {
             if (err) {
-                console.error('🔴 [db] Erro ao executar getQuery:', err.message, query, params);
+                log.error('Erro ao executar query de leitura unitária', { err: err.message });
                 return reject(err);
             }
-            console.log('🟢 [db] getQuery executada com sucesso:', query);
             resolve(row);
         });
     });
 }
 
+/**
+ * O que faz: executa SQL de leitura multipla e retorna lista de linhas.
+ * Onde e usada: camada model em toda aplicacao.
+ * Dependencias chamadas: sqlite3.Database.all.
+ * Efeitos colaterais: nenhum; leitura de dados.
+ */
 function allQuery(query, params = []) {
     return new Promise((resolve, reject) => {
         db.all(query, params, function(err, rows) {
             if (err) {
-                console.error('🔴 [db] Erro ao executar allQuery:', err.message, query, params);
+                log.error('Erro ao executar query de leitura multipla', { err: err.message });
                 return reject(err);
             }
-            console.log('🟢 [db] allQuery executada com sucesso:', query);
             resolve(rows);
         });
     });
 }
 
-// Função para fechar o banco de dados com segurança
+/**
+ * O que faz: fecha conexao principal do banco de forma segura.
+ * Onde e usada: encerramento controlado de processos/scripts.
+ * Dependencias chamadas: sqlite3.Database.close.
+ * Efeitos colaterais: encerra conexao ativa com SQLite.
+ */
 function closeDatabase() {
     db.close((err) => {
         if (err) {
-            console.error('🔴 [db] Erro ao fechar banco de dados:', err.message);
+            log.error('Erro ao fechar banco de dados', { err: err.message });
         } else {
-            console.log('🟢 [db] Banco de dados fechado com sucesso.');
+            log.success('Banco de dados fechado com sucesso');
         }
     });
 }
 
-// Função utilitária para executar múltiplas queries em transação
+/**
+ * O que faz: executa lista de queries dentro de transacao unica.
+ * Onde e usada: fluxos de persistencia que exigem atomicidade.
+ * Dependencias chamadas: sqlite3.Database.serialize/run.
+ * Efeitos colaterais: aplica commit/rollback no banco.
+ */
 async function runInTransaction(queriesWithParams = []) {
     return new Promise((resolve, reject) => {
         db.serialize(() => {
@@ -109,11 +136,13 @@ async function runInTransaction(queriesWithParams = []) {
             });
             if (errors.length > 0) {
                 db.run('ROLLBACK');
+                log.error('Erro em transacao; rollback aplicado', { err: errors[0].message });
                 return reject(errors[0]);
             }
             db.run('COMMIT', (err) => {
                 if (err) {
                     db.run('ROLLBACK');
+                    log.error('Erro ao confirmar transacao; rollback aplicado', { err: err.message });
                     return reject(err);
                 }
                 resolve();
