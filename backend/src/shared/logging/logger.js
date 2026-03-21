@@ -27,6 +27,7 @@ const inferLayerFromPath = (sourceFile) => {
     if (normalized.includes('/controllers/')) return 'Controller';
     if (normalized.includes('/services/')) return 'Service';
     if (normalized.includes('/models/')) return 'Model';
+    if (normalized.includes('/database/')) return 'Model';
     if (normalized.includes('/scripts/')) return 'Scripts';
     if (normalized.includes('/shared/')) return 'Shared';
     if (normalized.includes('/utils/')) return 'Utils';
