@@ -1,3 +1,14 @@
+/**
+ * Responsabilidade: regras de notificacao para atrasos e lembretes de atraso.
+ * Camada: service.
+ * Entradas/Saidas: recebe loan e cria notificacoes de overdue quando aplicavel.
+ * Dependencias criticas: coreNotification (via this) e logger compartilhado.
+ */
+
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
+
 module.exports = {
     /**
      * Cria notificacao de atraso se ainda nao existir para o mesmo emprestimo.
@@ -13,7 +24,7 @@ module.exports = {
         );
 
         if (alreadyNotified) {
-            console.log(`🟡 [NotificationsService] Notificacao de atraso ja existe para emprestimo ${loan_id}`);
+            log.warn('Notificacao de atraso ja existente para emprestimo', { loan_id, user_id: student_id });
             return null;
         }
 
@@ -27,7 +38,7 @@ module.exports = {
             metadata
         });
 
-        console.log(`🟢 [NotificationsService] Notificacao de atraso criada para emprestimo ${loan_id}`);
+        log.success('Notificacao de atraso criada', { loan_id, user_id: student_id, notification_id: notificationId });
         return notificationId;
     },
 
@@ -64,7 +75,7 @@ module.exports = {
         }
 
         if (!shouldSend) {
-            console.log(`🟡 [NotificationsService] Lembrete de atraso ja enviado recentemente para emprestimo ${loan_id}`);
+            log.warn('Lembrete de atraso ignorado por cooldown', { loan_id, user_id: student_id, reminder_days: reminderDays });
             return null;
         }
 
@@ -78,7 +89,7 @@ module.exports = {
             metadata
         });
 
-        console.log(`🟢 [NotificationsService] Lembrete de atraso criado para emprestimo ${loan_id}`);
+        log.success('Lembrete de atraso criado', { loan_id, user_id: student_id, notification_id: notificationId });
         return notificationId;
     }
 };

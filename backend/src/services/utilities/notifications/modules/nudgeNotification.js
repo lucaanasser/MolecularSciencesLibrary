@@ -1,4 +1,14 @@
+/**
+ * Responsabilidade: regras de notificacao de nudge para devolucao de livro.
+ * Camada: service.
+ * Entradas/Saidas: recebe contexto de borrower/requester e cria notificacao de nudge.
+ * Dependencias criticas: LoansModel, coreNotification (via this) e logger compartilhado.
+ */
+
 const LoansModel = require('../../../../models/library/LoansModel');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
@@ -22,11 +32,11 @@ module.exports = {
                 if (loan && loan.returned_at == null && loan.is_extended === 1) {
                     const changed = await LoansModel.shortenDueDateIfLongerThan(loan_id, 5);
                     if (changed) {
-                        console.log(`🟢 [NotificationsService] Prazo reduzido para 5 dias apos nudge no emprestimo ${loan_id}`);
+                        log.success('Prazo reduzido apos nudge em emprestimo estendido', { loan_id, target_days: 5 });
                     }
                 }
             } catch (e) {
-                console.warn('🟡 [NotificationsService] Falha ao aplicar reducao de prazo apos nudge:', e.message);
+                log.warn('Falha ao aplicar reducao de prazo apos nudge', { loan_id, err: e.message });
             }
 
             await LoansModel.setLastNudged(loan_id).catch(() => {});

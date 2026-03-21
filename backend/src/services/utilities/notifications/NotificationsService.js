@@ -1,6 +1,7 @@
 const coreNotification = require('./modules/coreNotification');
 const overdueNotification = require('./modules/overdueNotification');
 const nudgeNotification = require('./modules/nudgeNotification');
+const deliveryNotification = require('./modules/deliveryNotification');
 
 /**
  * Orquestrador de notificacoes internas.
@@ -13,7 +14,8 @@ Object.assign(
     NotificationsService.prototype,
     coreNotification,
     overdueNotification,
-    nudgeNotification
+    nudgeNotification,
+    deliveryNotification
 );
 
 module.exports = new NotificationsService();

@@ -1,4 +1,14 @@
+/**
+ * Responsabilidade: casos de uso centrais de notificacoes internas.
+ * Camada: service.
+ * Entradas/Saidas: payloads de notificacao e consultas de listagem/status.
+ * Dependencias criticas: NotificationsModel e logger compartilhado.
+ */
+
 const notificationsModel = require('../../../../models/utilities/NotificationsModel');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
@@ -14,7 +24,7 @@ module.exports = {
             status: 'unread'
         });
 
-        console.log(`🟢 [NotificationsService] Notificacao ${type} criada para usuario ${user_id}`);
+        log.success('Notificacao interna criada', { notification_id: notificationId, type, user_id, loan_id });
         return notificationId;
     },
 
