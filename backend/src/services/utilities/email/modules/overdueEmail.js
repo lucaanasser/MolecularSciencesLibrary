@@ -1,4 +1,14 @@
+/**
+ * Responsabilidade: casos de uso de email para atraso e vencimento proximo.
+ * Camada: service.
+ * Entradas/Saidas: recebe dados de usuario/livros e envia email com template apropriado.
+ * Dependencias criticas: UsersModel e metodos base de EmailService.
+ */
+
 const usersModel = require('../../../../models/library/UsersModel');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
@@ -7,7 +17,7 @@ module.exports = {
     async sendOverdueEmail({ user_id, books }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para notificacao de atraso', { user_id });
             return false;
         }
 
@@ -57,7 +67,7 @@ module.exports = {
     async sendDueSoonEmail({ user_id, book_title, due_date, days_left }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para lembrete de vencimento', { user_id });
             return false;
         }
 

@@ -1,3 +1,10 @@
+/**
+ * Responsabilidade: orquestrar modulos de negocio do dominio de email.
+ * Camada: service.
+ * Entradas/Saidas: expoe API de envio/consulta de email para controllers e services.
+ * Dependencias criticas: nodemailer e modulos internos de email.
+ */
+
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -6,11 +13,9 @@ const overdueEmail = require('./modules/overdueEmail');
 const nudgeEmail = require('./modules/nudgeEmail');
 const loanEmail = require('./modules/loanEmail');
 const userLifecycleEmail = require('./modules/userLifecycleEmail');
+const adminEmail = require('./modules/adminEmail');
+const inboxEmail = require('./modules/inboxEmail');
 
-/**
- * Orquestrador de emails.
- * Delegando implementacoes para modulos de dominio.
- */
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
@@ -31,7 +36,9 @@ Object.assign(
     overdueEmail,
     nudgeEmail,
     loanEmail,
-    userLifecycleEmail
+    userLifecycleEmail,
+    adminEmail,
+    inboxEmail
 );
 
 module.exports = new EmailService();

@@ -1,4 +1,14 @@
+/**
+ * Responsabilidade: casos de uso de email para nudge de devolucao.
+ * Camada: service.
+ * Entradas/Saidas: recebe dados de usuario/livro e envia email de nudge.
+ * Dependencias criticas: UsersModel e metodos base de EmailService.
+ */
+
 const usersModel = require('../../../../models/library/UsersModel');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
@@ -7,7 +17,7 @@ module.exports = {
     async sendNudgeEmail({ user_id, requester_name, book_title }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para nudge', { user_id });
             return false;
         }
 
@@ -49,7 +59,7 @@ module.exports = {
     async sendExtensionNudgeEmail({ user_id, book_title, new_due_date }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para nudge de extensao', { user_id });
             return false;
         }
 

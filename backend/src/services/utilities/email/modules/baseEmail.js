@@ -1,9 +1,20 @@
+/**
+ * Responsabilidade: operacoes base de transporte e template de email.
+ * Camada: service.
+ * Entradas/Saidas: envia emails via transporter e gera HTML padrao.
+ * Dependencias criticas: this.transporter e logger compartilhado.
+ */
+
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
+
 module.exports = {
     /**
      * Metodo base para envio de emails.
      */
     async sendMail({ to, subject, text, html, type = 'generic', attachments = [] }) {
-        console.log(`🔵 [EmailService] Iniciando envio de email para ${to} - Tipo: ${type}`);
+        log.start('Iniciando envio de email', { to, type });
 
         const mailOptions = {
             from: process.env.SMTP_FROM || process.env.SMTP_USER,
@@ -16,10 +27,10 @@ module.exports = {
 
         try {
             await this.transporter.sendMail(mailOptions);
-            console.log(`🟢 [EmailService] Email enviado para ${to}: ${subject}`);
+            log.success('Email enviado com sucesso', { to, type, subject });
             return true;
         } catch (error) {
-            console.error(`🔴 [EmailService] Erro ao enviar email para ${to}:`, error.message);
+            log.error('Falha ao enviar email', { to, type, err: error.message });
             throw error;
         }
     },
@@ -75,10 +86,10 @@ module.exports = {
     async testConnection() {
         try {
             await this.transporter.verify();
-            console.log('🟢 [EmailService] Conexao SMTP configurada corretamente');
+            log.success('Conexao SMTP configurada corretamente');
             return true;
         } catch (error) {
-            console.error('🔴 [EmailService] Erro na configuracao SMTP:', error.message);
+            log.error('Erro na configuracao SMTP', { err: error.message });
             return false;
         }
     }

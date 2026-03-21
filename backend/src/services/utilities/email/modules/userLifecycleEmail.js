@@ -1,4 +1,15 @@
+/**
+ * Responsabilidade: casos de uso de email de ciclo de vida do usuario.
+ * Camada: service.
+ * Entradas/Saidas: recebe dados de usuario e envia emails de onboarding/recuperacao/comunicados.
+ * Dependencias criticas: UsersModel, jsonwebtoken e metodos base de EmailService.
+ */
+
 const usersModel = require('../../../../models/library/UsersModel');
+const jwt = require('jsonwebtoken');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
@@ -7,7 +18,7 @@ module.exports = {
     async sendCustomEmail({ user_id, subject, message, isAutomatic = false }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para envio customizado', { user_id });
             return false;
         }
 
@@ -43,7 +54,7 @@ module.exports = {
                 });
                 results.push({ user_id, success: result });
             } catch (error) {
-                console.error(`🔴 [EmailService] Erro ao enviar email para usuario ${user_id}:`, error.message);
+                log.error('Falha ao enviar email em lote para usuario', { user_id, err: error.message });
                 results.push({ user_id, success: false, error: error.message });
             }
         }
@@ -57,13 +68,12 @@ module.exports = {
     async sendWelcomeEmail({ user_id }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para boas-vindas', { user_id });
             return false;
         }
 
         const subject = 'Bem-vindo a Biblioteca Ciencias Moleculares!';
 
-        const jwt = require('jsonwebtoken');
         const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
         const resetToken = jwt.sign({ id: user.id, email: user.email, type: 'first_access' }, SECRET, { expiresIn: '24h' });
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/redefinir-senha?token=${resetToken}`;
@@ -117,7 +127,7 @@ module.exports = {
     async sendPasswordResetEmail({ user_id, resetToken }) {
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para redefinicao de senha', { user_id });
             return false;
         }
         const subject = 'Redefinicao de senha';
@@ -144,54 +154,5 @@ module.exports = {
             html,
             type: 'reset_password'
         });
-    },
-
-    /**
-     * Notifica administradores ativos sobre novo pedido de cadastro.
-     */
-    async sendRegistrationRequestNotification({ user }) {
-        try {
-            const ADMIN_EMAIL = 'bibliotecamoleculares@gmail.com';
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
-            const adminUrl = `${frontendUrl}/admin`;
-            const subject = 'Nova solicitacao de cadastro - Biblioteca CM';
-
-            const htmlContent = `
-                <p>Ola, administrador!</p>
-                <p>Um novo usuario solicitou cadastro na <strong>Biblioteca Ciencias Moleculares</strong> e aguarda sua aprovacao.</p>
-                <table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
-                    <tr><td style="padding: 6px 12px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Nome</td><td style="padding: 6px 12px; border: 1px solid #ddd;">${user.name}</td></tr>
-                    <tr><td style="padding: 6px 12px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">NUSP</td><td style="padding: 6px 12px; border: 1px solid #ddd;">${user.NUSP}</td></tr>
-                    <tr><td style="padding: 6px 12px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Email</td><td style="padding: 6px 12px; border: 1px solid #ddd;">${user.email}</td></tr>
-                    <tr><td style="padding: 6px 12px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Telefone</td><td style="padding: 6px 12px; border: 1px solid #ddd;">${user.phone}</td></tr>
-                    <tr><td style="padding: 6px 12px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Turma</td><td style="padding: 6px 12px; border: 1px solid #ddd;">${user.class || '-'}</td></tr>
-                </table>
-                <div style="text-align: center; margin: 20px 0;">
-                    <a href="${adminUrl}" style="background: #b657b3; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px;">Ver no painel de administracao</a>
-                </div>
-                <p style="font-size: 13px; color: #555;">Acesse: Painel Admin -> Usuarios -> <strong>Solicitacoes de Cadastro</strong> para aprovar ou rejeitar.</p>
-            `;
-
-            const textContent = `Nova solicitacao de cadastro\n\nNome: ${user.name}\nNUSP: ${user.NUSP}\nEmail: ${user.email}\nTelefone: ${user.phone}\nTurma: ${user.class || '-'}\n\nAcesse o painel de administracao para aprovar ou rejeitar:\n${adminUrl}`;
-
-            const html = this.generateEmailTemplate({
-                subject,
-                content: htmlContent,
-                isAutomatic: true
-            });
-
-            await this.sendMail({
-                to: ADMIN_EMAIL,
-                subject,
-                text: textContent,
-                html,
-                type: 'registration_request'
-            });
-            console.log(`🟢 [EmailService] Notificacao de cadastro enviada para: ${ADMIN_EMAIL}`);
-            return true;
-        } catch (error) {
-            console.error('🔴 [EmailService] Erro em sendRegistrationRequestNotification:', error.message);
-            return false;
-        }
     }
 };

@@ -1,4 +1,15 @@
+/**
+ * Responsabilidade: casos de uso de email para eventos de emprestimo/devolucao.
+ * Camada: service.
+ * Entradas/Saidas: recebe dados de usuario/livro e envia emails transacionais.
+ * Dependencias criticas: LoansModel, UsersModel e metodos base de EmailService.
+ */
+
 const loansModel = require('../../../../models/library/LoansModel');
+const usersModel = require('../../../../models/library/UsersModel');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
@@ -42,7 +53,7 @@ module.exports = {
                 }
             }
         } catch (err) {
-            console.error('Erro ao buscar data de devolucao:', err.message);
+            log.warn('Falha ao buscar due_date para email de confirmacao', { err: err.message, user_id: user?.id });
         }
 
         const dateStr = (new Date()).toLocaleDateString('pt-BR');
@@ -99,10 +110,9 @@ module.exports = {
      * Envia email de confirmacao de extensao de emprestimo.
      */
     async sendExtensionConfirmationEmail({ user_id, book_title, due_date }) {
-        const usersModel = require('../../../../models/library/UsersModel');
         const user = await usersModel.getUserById(user_id);
         if (!user || !user.email) {
-            console.log(`🟡 [EmailService] Usuario ${user_id} nao encontrado ou sem email`);
+            log.warn('Usuario sem email para confirmacao de extensao', { user_id });
             return false;
         }
         const subject = 'Extensao de emprestimo confirmada!';
