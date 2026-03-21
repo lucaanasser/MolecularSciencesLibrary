@@ -1,9 +1,6 @@
 /*
  * Este arquivo foi gerado automaticamente a partir do backend.
  * NÃO EDITE MANUALMENTE!
- * 
- * Para atualizar os campos de regras de empréstimo, edite o arquivo validLoanRules.js no backend, 
- * atualize a database e execute o script de geração novamente.
  */
 
 export const LOAN_RULES = [
