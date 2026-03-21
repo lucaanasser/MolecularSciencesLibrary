@@ -1,135 +1,167 @@
+/**
+ * Responsabilidade: fluxo de criacao de emprestimos e uso interno.
+ * Camada: service.
+ * Entradas/Saidas: recebe dados de livro/usuario e persiste emprestimos conforme regras.
+ * Dependencias criticas: LoansModel, UsersService, BooksService, RulesService e EmailService.
+ */
+
 const LoansModel = require('../../../../models/library/LoansModel');
 const RulesService = require('../../../utilities/RulesService');
 const EmailService = require('../../../utilities/EmailService');
 const UsersService = require('../../UsersService');
 const BooksService = require('../../BooksService');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
-     * Realiza emprestimo normal (com senha do usuario).
+     * O que faz: executa emprestimo normal validando senha do usuario.
+     * Onde e usada: borrowHandlers.borrowBook.
+     * Dependencias chamadas: _borrowBookCore.
+     * Efeitos colaterais: persiste emprestimo e pode disparar email de confirmacao.
      */
     async borrowBook(book_id, NUSP, password) {
-        console.log(`🔵 [LoansService] Iniciando processo de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
+        log.start('Iniciando processo de emprestimo autenticado', { book_id, NUSP });
         try {
-            await this._borrowBookCore(book_id, NUSP, password, true);
+            return await this._borrowBookCore(book_id, NUSP, password, true);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao realizar empréstimo: ${err.message}`);
+            log.error('Erro ao realizar emprestimo autenticado', { err: err.message, book_id, NUSP });
             throw err;
         }
     },
 
     /**
-     * Realiza emprestimo como admin (sem senha).
+     * O que faz: executa emprestimo administrativo sem senha.
+     * Onde e usada: borrowHandlers.borrowBookAsAdmin.
+     * Dependencias chamadas: _borrowBookCore.
+     * Efeitos colaterais: persiste emprestimo e pode disparar email de confirmacao.
      */
     async borrowBookAsAdmin(book_id, NUSP) {
-        console.log(`🔵 [LoansService] [ADMIN] Iniciando processo de empréstimo: book_id=${book_id}, NUSP=${NUSP}`);
+        log.start('Iniciando processo de emprestimo admin', { book_id, NUSP });
         try {
-            await this._borrowBookCore(book_id, NUSP, null, false);
+            return await this._borrowBookCore(book_id, NUSP, null, false);
         } catch (err) {
-            console.error(`🔴 [LoansService] [ADMIN] Erro ao realizar empréstimo: ${err.message}`);
+            log.error('Erro ao realizar emprestimo admin', { err: err.message, book_id, NUSP });
             throw err;
         }
     },
 
     /**
-     * Registra uso interno de um livro.
+     * O que faz: registra uso interno (emprestimo fantasma) para metricas.
+     * Onde e usada: borrowHandlers.registerInternalUse.
+     * Dependencias chamadas: BooksService.getBookById, LoansModel.registerInternalUse.
+     * Efeitos colaterais: cria registro de emprestimo interno no banco.
      */
     async registerInternalUse(book_id) {
-        console.log(`🔵 [LoansService] Iniciando registro de uso interno para book_id=${book_id}`);
+        log.start('Iniciando registro de uso interno', { book_id });
 
         let book;
         try {
-            console.log(`🔵 [LoansService] Buscando livro por ID: ${book_id}`);
+            log.start('Buscando livro para uso interno', { book_id });
             book = await BooksService.getBookById(book_id);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao buscar livro: ${err.message}`);
+            log.error('Erro ao buscar livro para uso interno', { err: err.message, book_id });
             throw err;
         }
 
         try {
-            console.log(`🔵 [LoansService] Registrando uso interno para livro ${book_id}`);
             await LoansModel.registerInternalUse(book_id);
-            console.log(`🟢 [LoansService] Uso interno registrado com sucesso para livro ${book_id} - ${book.title}`);
+            log.success('Uso interno registrado com sucesso', { book_id, title: book.title });
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao registrar uso interno: ${err.message}`);
+            log.error('Erro ao registrar uso interno', { err: err.message, book_id });
             throw err;
         }
     },
 
     /**
-     * Funcao auxiliar que valida e realiza a criacao do emprestimo.
+     * O que faz: valida usuario/livro/regras e executa a criacao do emprestimo.
+     * Onde e usada: borrowBook e borrowBookAsAdmin.
+     * Dependencias chamadas: UsersService, BooksService, _checkLoanRules, LoansModel e EmailService.
+     * Efeitos colaterais: persiste emprestimo, altera status do livro e envia email.
      */
     async _borrowBookCore(book_id, NUSP, password, requirePassword = true) {
-        console.log(`🔵 [LoansService] Iniciando processo de empréstimo: book_id=${book_id}, NUSP=${NUSP}, requirePassword=${requirePassword}`);
+        log.start('Validando pre-condicoes para criacao de emprestimo', { book_id, NUSP, requirePassword });
 
         let user;
         try {
-            console.log(`🔵 [LoansService] Buscando usuário por NUSP: ${NUSP}`);
+            log.start('Buscando usuario por NUSP', { NUSP });
             user = await UsersService.getUserByNUSP(NUSP);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao buscar usuário: ${err.message}`);
+            log.error('Erro ao buscar usuario por NUSP', { err: err.message, NUSP });
             throw err;
         }
 
         if (requirePassword) {
             try {
-                console.log(`🔵 [LoansService] Validando senha para usuário NUSP: ${NUSP}`);
+                log.start('Validando senha do usuario', { NUSP });
                 await UsersService.authenticateUser(NUSP, password);
             } catch (err) {
-                console.error(`🔴 [LoansService] Erro ao validar senha: ${err.message}`);
+                log.error('Erro ao validar senha do usuario', { err: err.message, NUSP });
                 throw err;
             }
         }
 
         let book;
         try {
-            console.log(`🔵 [LoansService] Buscando livro por ID: ${book_id}`);
+            log.start('Buscando livro por ID', { book_id });
             book = await BooksService.getBookById(book_id);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao buscar livro: ${err.message}`);
+            log.error('Erro ao buscar livro por ID', { err: err.message, book_id });
             throw err;
         }
 
         let rulesCheck;
         try {
-            console.log(`🔵 [LoansService] Validando regras de empréstimo para usuário ${user.id} e livro ${book_id}`);
+            log.start('Validando regras de emprestimo', { user_id: user.id, book_id });
             rulesCheck = await this._checkLoanRules(user.id, book);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao validar regras de empréstimo: ${err.message}`);
+            log.error('Erro ao validar regras de emprestimo', { err: err.message, user_id: user.id, book_id });
             throw err;
         }
         if (!rulesCheck.allowed) {
-            console.warn(`🟡 [LoansService] Regras de empréstimo não atendidas: ${rulesCheck.reason}`);
+            log.warn('Regras de emprestimo nao atendidas', { user_id: user.id, book_id, reason: rulesCheck.reason });
             throw new Error(rulesCheck.reason);
         }
 
         try {
-            console.log(`🔵 [LoansService] Criando empréstimo para usuário ${user.id} e livro ${book_id}`);
+            log.start('Persistindo emprestimo aprovado', { user_id: user.id, book_id });
             await LoansModel.createLoan(book_id, user.id, rulesCheck.due_date);
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao criar empréstimo: ${err.message}`);
+            log.error('Erro ao criar emprestimo no model', { err: err.message, user_id: user.id, book_id });
             throw err;
         }
 
-        console.log('🟢 [LoansService] Empréstimo criado com sucesso:');
+        const activeLoans = await LoansModel.getLoansByBookId(book_id, true);
+        const createdLoan = activeLoans[0] || null;
+        log.success('Emprestimo criado com sucesso', { user_id: user.id, book_id, loan_id: createdLoan?.id });
 
         try {
-            console.log(`🔵 [LoansService] Enviando email de confirmação de empréstimo para usuário ${user.id}`);
+            log.start('Enviando email de confirmacao de emprestimo', { user_id: user.id, book_id });
             await EmailService.sendLoanConfirmationEmail({ user, book_title: book.title });
         } catch (emailErr) {
-            console.warn(`🟡 [LoansService] Erro ao enviar email de confirmação: ${emailErr.message}`);
+            log.warn('Falha no envio de email de confirmacao (operacao principal concluida)', {
+                err: emailErr.message,
+                user_id: user.id,
+                book_id
+            });
         }
+
+        return createdLoan;
     },
 
     /**
-     * Verifica se o usuario pode pegar o livro emprestado, de acordo com as regras do sistema.
+     * O que faz: avalia regras de limite/estado para permitir emprestimo.
+     * Onde e usada: _borrowBookCore.
+     * Dependencias chamadas: RulesService.getRules e getUserLoans.
+     * Efeitos colaterais: nenhum; apenas validacao de negocio.
      */
     async _checkLoanRules(user_id, book) {
         let rules;
         try {
             rules = await RulesService.getRules();
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao buscar regras: ${err.message}`);
+            log.error('Erro ao buscar regras de emprestimo', { err: err.message, user_id, book_id: book?.id });
             throw err;
         }
 
