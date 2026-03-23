@@ -77,10 +77,16 @@ load_changed_entries() {
         raw="${line:3}"
         path="$raw"
         [[ "$raw" == *" -> "* ]] && path="${raw##* -> }"
+        # O porcelain pode envolver paths com espaco entre aspas; normaliza para uso no git add.
+        if [[ "$path" == \"*\" ]]; then
+            path="${path:1:${#path}-2}"
+            path="${path//\\\"/\"}"
+            path="${path//\\\\/\\}"
+        fi
         state="$(status_label "$xy")"
         files+=("$path")
         states+=("$state")
-    done < <(git status --porcelain)
+    done < <(git -c core.quotepath=false status --porcelain)
 }
 
 stage_selected_entries() {
