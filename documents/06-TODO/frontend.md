@@ -47,4 +47,5 @@
     * Terminar separação em componentes
 
 ## Documentação
-- Garantir que todos os hooks e serviços estejam com comentários atualizados.
+* Configurar snippet de logger do frontend
+* Garantir que todos os hooks e serviços estejam com comentários atualizados.
