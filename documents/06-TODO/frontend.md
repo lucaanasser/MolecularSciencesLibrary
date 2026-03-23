@@ -48,4 +48,4 @@
 
 ## Documentação
 * Configurar snippet de logger do frontend
-* Garantir que todos os hooks e serviços estejam com comentários atualizados.
+* Garantir que todos os hooks e serviços estejam com comentários atualizados
