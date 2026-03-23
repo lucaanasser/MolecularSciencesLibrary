@@ -2,7 +2,7 @@
 
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-[![Made with ❤️ by Students](https://img.shields.io/badge/made%20by-students-red)](#18-acknowledgements)
+[![Made with ❤️ by Students](https://img.shields.io/badge/made%20by-students-red)](#18-acknowledgements).
 
 > “Knowledge grows when it is shared.”
 > An open, student-driven platform to **map, preserve, and amplify** the collective learning resources of the Undergraduate Program in Molecular Sciences (Ciências Moleculares) at USP.
