@@ -1,0 +1,11 @@
+# TEMPLATES
+
+Objetivo: padronizar artefatos recorrentes.
+
+Arquivos base:
+- PR_TEMPLATE.md
+- ISSUE_TEMPLATE.md
+- POSTMORTEM_TEMPLATE.md
+- ia/PROMPT_TEMPLATE_REFATORACAO.md
+- ia/PROMPT_TEMPLATE_CORRECAO.md
+- ia/PROMPT_TEMPLATE_NOVA_FEATURE.md

@@ -1,9 +1,6 @@
 /*
  * Este arquivo foi gerado automaticamente a partir do backend.
  * NÃO EDITE MANUALMENTE!
- * 
- * Para atualizar as áreas e subáreas, edite o arquivo validBookAreas.js no backend 
- * e execute o script de geração novamente.
  */
 
 export const AREAS = [

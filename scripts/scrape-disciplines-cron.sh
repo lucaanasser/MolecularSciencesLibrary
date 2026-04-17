@@ -24,7 +24,7 @@ cd "$BACKEND_DIR"
 # Executar o scraping (sem --clear para não perder dados em caso de falha parcial)
 # Use --clear apenas se quiser limpar tudo antes
 echo "Executando scraping..." | tee -a "$LOG_FILE"
-node scripts/scrapeUSPDisciplines.js 2>&1 | tee -a "$LOG_FILE"
+node scripts/operations/scrapeUSPDisciplines.js 2>&1 | tee -a "$LOG_FILE"
 
 EXIT_CODE=${PIPESTATUS[0]}
 

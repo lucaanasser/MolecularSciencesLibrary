@@ -1,33 +1,49 @@
+/**
+ * Responsabilidade: fluxo de devolucao de emprestimos.
+ * Camada: service.
+ * Entradas/Saidas: recebe book_id e conclui devolucao do emprestimo ativo.
+ * Dependencias criticas: LoansModel e EmailService.
+ */
+
 const LoansModel = require('../../../../models/library/LoansModel');
 const EmailService = require('../../../utilities/EmailService');
+const { getLogger } = require('../../../../shared/logging/logger');
+
+const log = getLogger(__filename);
 
 module.exports = {
     /**
-     * Registra a devolucao de um livro.
+     * O que faz: identifica emprestimo ativo do livro e registra devolucao.
+     * Onde e usada: borrowHandlers.returnBook.
+     * Dependencias chamadas: LoansModel.getLoansByBookId, LoansModel.returnBook e EmailService.sendReturnConfirmationEmail.
+     * Efeitos colaterais: atualiza emprestimo/livro e dispara email de confirmacao.
      */
     async returnBook(book_id) {
+        log.start('Iniciando fluxo de devolucao', { book_id });
         const loans = await LoansModel.getLoansByBookId(book_id, true);
         if (!loans || loans.length === 0) {
-            console.warn(`🟡 [LoansService] Nenhum empréstimo ativo encontrado para o livro ${book_id}`);
+            log.warn('Nenhum emprestimo ativo encontrado para devolucao', { book_id });
             throw new Error('Nenhum empréstimo ativo encontrado para este livro.');
         }
 
         const loan = loans[0];
         try {
             await LoansModel.returnBook(loan.id, book_id);
-            console.log(`🟢 [LoansService] Devolução registrada com sucesso para loan_id=${loan.id}`);
+            log.success('Devolucao registrada com sucesso', { loan_id: loan.id, book_id });
         } catch (err) {
-            console.error(`🔴 [LoansService] Erro ao registrar devolução: ${err.message}`);
+            log.error('Erro ao registrar devolucao no model', { err: err.message, loan_id: loan.id, book_id });
             throw err;
         }
 
         try {
-            console.log(`🔵 [LoansService] Enviando email de confirmação de devolução para usuário ${loan.user.name}`);
+            log.start('Enviando email de confirmacao de devolucao', { loan_id: loan.id, user_id: loan.user?.id });
             await EmailService.sendReturnConfirmationEmail({ user: loan.user, book_title: loan.book.title });
         } catch (emailErr) {
-            console.warn('🟡 [LoansService] Erro ao enviar email de devolução (devolução registrada com sucesso):', emailErr.message);
+            log.warn('Falha no envio de email de devolucao (operacao principal concluida)', {
+                err: emailErr.message,
+                loan_id: loan.id,
+                book_id
+            });
         }
-
-        console.log('🟢 [LoansService] Devolução registrada para empréstimo:', loan.id);
     }
 };

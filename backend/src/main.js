@@ -12,7 +12,6 @@ const http = require('http');
 const fs = require('fs');
 
 const booksRouter = require('./routes/library/BooksRoutes');
-const bookEvaluationsRouter = require('./routes/library/BookEvaluationsRoutes');
 const usersRouter = require('./routes/library/UsersRoutes');
 const loansRouter = require('./routes/library/LoansRoutes');
 const badgesRouter = require('./routes/library/BadgesRoutes');
@@ -20,12 +19,14 @@ const donatorsRouter = require('./routes/library/DonatorsRoutes');
 const virtualBookShelfRouter = require('./routes/library/VirtualBookSheflRoute');
 
 const notificationsRouter = require('./routes/utilities/NotificationsRoutes');
+const emailRouter = require('./routes/utilities/EmailRoutes');
 const rulesRouter = require('./routes/utilities/RulesRoutes');
 const formsRouter = require('./routes/utilities/FormsRoutes');
 const reportsRouter = require('./routes/utilities/ReportsRoutes');
 
 const disciplinesRouter = require('./routes/academic/DisciplinesRoutes');
 const disciplineEvaluationsRouter = require('./routes/academic/DisciplineEvaluationsRoutes');
+const academicDisciplinesRouter = require('./routes/academic/disciplines/AcademicDisciplinesRoutes');
 const userSchedulesRouter = require('./routes/academic/UserSchedulesRoutes');
 const forumRouter = require('./routes/academic/ForumRoutes');
 const publicProfilesRouter = require('./routes/academic/PublicProfilesRoutes');
@@ -55,10 +56,10 @@ console.log('🟢 [main] Arquivos estáticos configurados em /images -> public/i
 
 // Rotas da API
 app.use('/api/books', booksRouter);
-app.use('/api/books', bookEvaluationsRouter); // Rotas de avaliações de livros
 app.use('/api/users', usersRouter);
 app.use('/api/loans', loansRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/email', emailRouter);
 app.use('/api/rules', rulesRouter);
 app.use('/api/badges', badgesRouter);
 app.use('/api/donators', donatorsRouter);
@@ -66,6 +67,7 @@ app.use('/api/virtual-bookshelf', virtualBookShelfRouter);
 app.use('/api/forms', formsRouter);
 app.use('/api/disciplines', disciplinesRouter);
 app.use('/api/evaluations', disciplineEvaluationsRouter);
+app.use('/api/academic/disciplines', academicDisciplinesRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/user-schedules', userSchedulesRouter);
 app.use('/api/forum', forumRouter);
@@ -138,4 +140,4 @@ httpServer.listen(HTTP_PORT, () => {
   console.log(`🌐 [main] Acesse: http://localhost:${HTTP_PORT}`);
 });
 
-module.exports = app; // (se necessário para testes)
+module.exports = app; 

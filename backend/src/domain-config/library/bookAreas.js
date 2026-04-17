@@ -1,0 +1,85 @@
+/*
+ * Mapeamentos das areas e subareas para os codigos usados no banco de dados.
+ */
+
+const areaMapping = {
+    "Matemática": "MAT",
+    "Física": "FIS",
+    "Química": "QUI",
+    "Biologia": "BIO",
+    "Computação": "CMP",
+    "Variados": "VAR"
+};
+
+const subareaMapping = {
+    "FIS": {
+        "Física Geral": 1,
+        "Mecânica": 2,
+        "Termodinâmica": 3,
+        "Eletromagnetismo": 4,
+        "Física Moderna": 5,
+        "Física Matemática": 6,
+        "Astronomia e Astrofísica": 7
+    },
+    "QUI": {
+        "Química Geral": 1,
+        "Fisico-Química": 2,
+        "Química Inorgânica": 3,
+        "Química Orgânica": 4,
+        "Química Experimental": 5
+    },
+    "BIO": {
+        "Bioquímica": 1,
+        "Biologia Molecular e Celular": 2,
+        "Genética e Evolução": 3,
+        "Biologia de Sistemas": 4,
+        "Desenvolvimento": 5,
+        "Ecologia": 6,
+        "Botânica": 7
+    },
+    "MAT": {
+        "Cálculo": 1,
+        "Geometria Analítica": 2,
+        "Álgebra Linear": 3,
+        "Análise": 4,
+        "Álgebra Abstrata": 5,
+        "Topologia e Geometria": 6,
+        "Lógica e Fundamentos": 7,
+        "Equações Diferenciais": 8,
+        "Funções Complexas": 9
+    },
+    "CMP": {
+        "Fundamentos de Computação": 1,
+        "Algoritmos e Estruturas de Dados": 2,
+        "Análise Numérica": 3,
+        "Probabilidade e Estatística": 4,
+        "Teoria da Computação": 5,
+        "Programação": 6,
+        "Sistemas e Redes": 7
+    },
+    "VAR": {
+        "Divulgação Científica": 1,
+        "História e Filosofia da Ciência": 2,
+        "Interdisciplinares": 3,
+        "Literatura": 4
+    }
+};
+
+function validateArea(area) {
+    if (!Object.prototype.hasOwnProperty.call(areaMapping, area)) {
+        throw new Error(`Area invalida: '${area}'. Areas validas: ${Object.keys(areaMapping).join(', ')}`);
+    }
+    return areaMapping[area];
+}
+
+function validateSubarea(areaCode, subarea) {
+    if (!Object.prototype.hasOwnProperty.call(subareaMapping, areaCode)) {
+        throw new Error(`Codigo de area invalido: '${areaCode}'.`);
+    }
+    if (!Object.prototype.hasOwnProperty.call(subareaMapping[areaCode], subarea)) {
+        throw new Error(`Subarea invalida: '${subarea}' para area '${areaCode}'. Subareas validas: ${Object.keys(subareaMapping[areaCode]).join(', ')}`);
+    }
+    return subareaMapping[areaCode][subarea];
+}
+
+module.exports = { areaMapping, subareaMapping, validateArea, validateSubarea };

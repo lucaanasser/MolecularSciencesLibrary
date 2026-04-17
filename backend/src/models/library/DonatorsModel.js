@@ -1,83 +1,8 @@
-// Modelo para operações no banco de dados relacionadas a doadores (donators)
-const { executeQuery, getQuery, allQuery } = require('../../database/db'); // Caminho já está correto
-
 /**
- * Estrutura esperada da tabela donators:
- * - id: INTEGER PRIMARY KEY AUTOINCREMENT
- * - user_id: INTEGER (nullable, se for usuário cadastrado)
- * - name: TEXT (nome do doador, obrigatório se não for usuário)
- * - tag: TEXT (opcional, etiqueta/turma/identificador do doador, ex: 'Prof.', 'T9')
- * - book_id: INTEGER (nullable, id do livro doado se aplicável)
- * - donation_type: TEXT ('book' ou 'money')
- * - amount: REAL (nullable, valor doado se for doação financeira)
- * - contact: TEXT (opcional, email ou telefone do doador)
- * - created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- * - notes: TEXT (opcional, observações)
+ * Responsabilidade: compatibilidade de import para model legado de donators.
+ * Camada: model.
+ * Entradas/Saidas: reexporta model unificado do dominio donators.
+ * Dependencias criticas: models/library/donators/DonatorsModel.
  */
 
-class DonatorsModel {
-    async addDonator({ user_id = null, name = null, tag = null, book_id = null, donation_type, amount = null, contact = null, notes = null }) {
-        const query = `
-            INSERT INTO donators (user_id, name, tag, book_id, donation_type, amount, contact, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        return executeQuery(query, [user_id, name, tag, book_id, donation_type, amount, contact, notes]);
-    }
-
-    async removeDonator(id) {
-        const query = `DELETE FROM donators WHERE id = ?`;
-        return executeQuery(query, [id]);
-    }
-
-    async getAllDonators() {
-        const query = `SELECT * FROM donators ORDER BY created_at DESC`;
-        return allQuery(query);
-    }
-
-    async getDonatorById(id) {
-        const query = `SELECT * FROM donators WHERE id = ?`;
-        return getQuery(query, [id]);
-    }
-
-    async getFilteredDonators({ isUser, donationType, name }) {
-        let query = `SELECT * FROM donators WHERE 1=1`;
-        const params = [];
-        if (isUser !== undefined) {
-            if (isUser) {
-                query += ` AND user_id IS NOT NULL`;
-            } else {
-                query += ` AND user_id IS NULL`;
-            }
-        }
-        if (donationType) {
-            query += ` AND donation_type = ?`;
-            params.push(donationType);
-        }
-        if (name) {
-            query += ` AND name LIKE ?`;
-            params.push(`%${name}%`);
-        }
-        query += ` ORDER BY created_at DESC`;
-        return allQuery(query, params);
-    }
-
-    async getDonatorByBookId(book_id) {
-        const query = `SELECT * FROM donators WHERE book_id = ? AND donation_type = 'book' LIMIT 1`;
-        return getQuery(query, [book_id]);
-    }
-
-    async getAllDonatorsWithBooks() {
-        const query = `
-            SELECT 
-                d.name, d.tag, d.donation_type, d.book_id, d.amount, d.created_at,
-                b.title AS book_title, b.authors AS book_authors, b.code AS book_code
-            FROM donators d
-            LEFT JOIN books b ON d.book_id = b.id
-            WHERE d.name IS NOT NULL AND d.name != ''
-            ORDER BY d.name ASC, d.created_at DESC
-        `;
-        return allQuery(query);
-    }
-}
-
-module.exports = new DonatorsModel();
+module.exports = require('./donators/DonatorsModel');
