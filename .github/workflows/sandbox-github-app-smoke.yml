@@ -1,0 +1,131 @@
+name: Sandbox GitHub App Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: "Sandbox target repository"
+        required: true
+        default: "ccm-website-public-sandbox"
+        type: string
+      base_branch:
+        description: "Base branch for PR"
+        required: true
+        default: "main"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    env:
+      SANDBOX_OWNER: ccm-usp
+      SANDBOX_TARGET_REPO: ${{ inputs.target_repo }}
+      BASE_BRANCH: ${{ inputs.base_branch }}
+
+    steps:
+      - name: Validate required secrets
+        run: |
+          set -euo pipefail
+          if [[ -z "${{ secrets.GH_APP_ID }}" ]]; then
+            echo "Missing secret: GH_APP_ID" >&2
+            exit 1
+          fi
+          if [[ -z "${{ secrets.GH_APP_PRIVATE_KEY }}" ]]; then
+            echo "Missing secret: GH_APP_PRIVATE_KEY" >&2
+            exit 1
+          fi
+
+      - name: Create GitHub App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ env.SANDBOX_OWNER }}
+          repositories: ${{ env.SANDBOX_TARGET_REPO }}
+
+      - name: Checkout sandbox target repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SANDBOX_OWNER }}/${{ env.SANDBOX_TARGET_REPO }}
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          path: sandbox-target
+
+      - name: Create canary commit on test branch
+        id: commit
+        run: |
+          set -euo pipefail
+          cd sandbox-target
+
+          BRANCH_NAME="bot/sandbox-smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          CANARY_PATH="automation/smoke-tests/smoke-${GITHUB_RUN_ID}.md"
+
+          mkdir -p "$(dirname "$CANARY_PATH")"
+          cat > "$CANARY_PATH" << EOF
+          # Sandbox Smoke Test
+
+          This file was generated automatically by the Biblioteca workflow.
+
+          - run_id: ${GITHUB_RUN_ID}
+          - run_attempt: ${GITHUB_RUN_ATTEMPT}
+          - repository: ${GITHUB_REPOSITORY}
+          EOF
+
+          git config user.name "biblioteca-sandbox-bot[app]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH_NAME"
+          git add "$CANARY_PATH"
+          git commit -m "chore: sandbox smoke test run ${GITHUB_RUN_ID}"
+          git push origin "$BRANCH_NAME"
+
+          echo "branch=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+          echo "canary_path=$CANARY_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request in sandbox repository
+        id: open-pr
+        uses: actions/github-script@v7
+        env:
+          BRANCH_NAME: ${{ steps.commit.outputs.branch }}
+          CANARY_PATH: ${{ steps.commit.outputs.canary_path }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.SANDBOX_OWNER;
+            const repo = process.env.SANDBOX_TARGET_REPO;
+            const head = process.env.BRANCH_NAME;
+            const base = process.env.BASE_BRANCH;
+            const canaryPath = process.env.CANARY_PATH;
+
+            const title = `chore: sandbox smoke test ${context.runId}`;
+            const body = [
+              "Automated smoke-test PR created by Biblioteca workflow.",
+              "",
+              `- Canary file: ${canaryPath}`,
+              `- Run URL: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              "",
+              "This PR is expected to target sandbox repositories only."
+            ].join("\n");
+
+            const response = await github.rest.pulls.create({
+              owner,
+              repo,
+              title,
+              head,
+              base,
+              body
+            });
+
+            core.setOutput("pr_url", response.data.html_url);
+
+      - name: Job summary
+        run: |
+          echo "Sandbox smoke test completed." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target repo: $SANDBOX_OWNER/$SANDBOX_TARGET_REPO" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branch: ${{ steps.commit.outputs.branch }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- PR: ${{ steps.open-pr.outputs.pr_url }}" >> "$GITHUB_STEP_SUMMARY"

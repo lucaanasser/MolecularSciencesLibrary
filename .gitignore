@@ -78,3 +78,9 @@ frontend/node_modules/
 /database/*.db-shm
 /database/backups/
 
+# Local website clones/sandboxes (not part of Biblioteca repo)
+/CMsite/
+/ccm-website-public/
+/CMsite-sandbox/
+/ccm-website-public-sandbox/
+
