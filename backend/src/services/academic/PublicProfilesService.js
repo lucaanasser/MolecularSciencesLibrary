@@ -6,8 +6,13 @@ const postCMModel = require('../../models/academic/publicProfiles/PostCMModel');
 const profileTagsModel = require('../../models/academic/publicProfiles/ProfileTagsModel');
 const profileFollowsModel = require('../../models/academic/publicProfiles/ProfileFollowsModel');
 const { getQuery } = require('../../database/db');
+const { ProfileTransformer } = require('./ProfileTransformer');
 
 class PublicProfilesService {
+    constructor() {
+        this.profileTransformer = new ProfileTransformer();
+    }
+
     /**
      * Get complete public profile with all related data
      * @param {Number} userId - User ID
@@ -174,6 +179,39 @@ class PublicProfilesService {
      */
     async getFollowStats(userId) {
         return await profileFollowsModel.getCounts(userId);
+    }
+
+    /**
+     * O que faz: prepara payload de perfil no schema esperado pelo site publico.
+     * Camada: Service.
+     * Entradas/Saidas: userId -> cmSchemaPayload.
+     * Dependencias criticas: getCompleteProfile e ProfileTransformer.
+     * Efeitos colaterais: nenhum.
+     * @param {Number} userId ID do usuario
+     * @returns {Promise<Object>} payload pronto para publicacao
+     */
+    async exportProfileToCMSchema(userId, selectedRosterName) {
+        console.log(`🔵 [PublicProfilesService.exportProfileToCMSchema] Exportando perfil para schema CM: ${userId}`);
+        const completeProfile = await this.getCompleteProfile(userId);
+        const payload = this.profileTransformer.toCMSchema(completeProfile, { selectedRosterName });
+        console.log(`🟢 [PublicProfilesService.exportProfileToCMSchema] Payload pronto para publicação`);
+        return payload;
+    }
+
+    /**
+     * Retorna nomes oficiais da roster da turma do usuario para selecao no frontend.
+     * @param {Number} userId ID do usuario
+     * @returns {Promise<{turma: string, students: string[]}>}
+     */
+    async getSandboxRosterOptions(userId) {
+        const completeProfile = await this.getCompleteProfile(userId);
+        const turma = String(completeProfile.turma || '').trim();
+        const students = this.profileTransformer.loadRosterByClassYear(turma);
+
+        return {
+            turma,
+            students
+        };
     }
 }
 
