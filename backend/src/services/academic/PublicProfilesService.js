@@ -7,6 +7,7 @@ const profileTagsModel = require('../../models/academic/publicProfiles/ProfileTa
 const profileFollowsModel = require('../../models/academic/publicProfiles/ProfileFollowsModel');
 const { getQuery } = require('../../database/db');
 const { ProfileTransformer } = require('./ProfileTransformer');
+const { normalizeNameForComparison } = require('../../shared/text/nameNormalizer');
 
 class PublicProfilesService {
     constructor() {
@@ -193,7 +194,7 @@ class PublicProfilesService {
     async exportProfileToCMSchema(userId, selectedRosterName) {
         console.log(`🔵 [PublicProfilesService.exportProfileToCMSchema] Exportando perfil para schema CM: ${userId}`);
         const completeProfile = await this.getCompleteProfile(userId);
-        const payload = this.profileTransformer.toCMSchema(completeProfile, { selectedRosterName });
+        const payload = await this.profileTransformer.toCMSchema(completeProfile, { selectedRosterName });
         console.log(`🟢 [PublicProfilesService.exportProfileToCMSchema] Payload pronto para publicação`);
         return payload;
     }
@@ -205,13 +206,147 @@ class PublicProfilesService {
      */
     async getSandboxRosterOptions(userId) {
         const completeProfile = await this.getCompleteProfile(userId);
-        const turma = String(completeProfile.turma || '').trim();
-        const students = this.profileTransformer.loadRosterByClassYear(turma);
+        const turma = this.profileTransformer.resolveClassYear(completeProfile.turma);
+        const rosterStudents = await this.profileTransformer.loadRosterByClassYear(turma);
+        const probableStudents = this.findProbableRosterNames(completeProfile.nome, rosterStudents);
+        const students = probableStudents.length ? probableStudents : rosterStudents;
 
         return {
             turma,
             students
         };
+    }
+
+    /**
+     * Retorna os nomes mais provaveis da roster para um nome de usuario.
+     * Se nao houver correspondencias confiaveis, retorna array vazio.
+     * @param {string} userName
+     * @param {string[]} rosterStudents
+     * @returns {string[]}
+     */
+    findProbableRosterNames(userName, rosterStudents) {
+        const normalizedUser = normalizeNameForComparison(userName);
+        if (!normalizedUser) {
+            return [];
+        }
+
+        const maxCandidates = Number(process.env.ROSTER_PROBABLE_MAX_CANDIDATES || 8);
+        const threshold = Number(process.env.ROSTER_PROBABLE_SCORE_THRESHOLD || 0.58);
+        const userTokens = this.tokenizeName(normalizedUser);
+
+        const scored = rosterStudents
+            .map((studentName) => {
+                const normalizedStudent = normalizeNameForComparison(studentName);
+                const studentTokens = this.tokenizeName(normalizedStudent);
+                const score = this.calculateNameSimilarityScore(
+                    normalizedUser,
+                    userTokens,
+                    normalizedStudent,
+                    studentTokens
+                );
+
+                return {
+                    studentName,
+                    score
+                };
+            })
+            .filter((entry) => entry.score >= threshold)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, Math.max(1, maxCandidates));
+
+        return scored.map((entry) => entry.studentName);
+    }
+
+    tokenizeName(normalizedName) {
+        return normalizedName
+            .split(' ')
+            .map((token) => token.trim())
+            .filter(Boolean);
+    }
+
+    calculateNameSimilarityScore(normalizedUser, userTokens, normalizedStudent, studentTokens) {
+        if (!normalizedStudent) {
+            return 0;
+        }
+
+        if (normalizedUser === normalizedStudent) {
+            return 1;
+        }
+
+        const tokenOverlap = this.computeTokenOverlap(userTokens, studentTokens);
+        const diceSimilarity = this.computeDiceSimilarity(normalizedUser, normalizedStudent);
+        const firstTokenBonus = userTokens.length && studentTokens.length && userTokens[0] === studentTokens[0] ? 0.08 : 0;
+        const lastTokenBonus = userTokens.length && studentTokens.length && userTokens[userTokens.length - 1] === studentTokens[studentTokens.length - 1]
+            ? 0.08
+            : 0;
+
+        return tokenOverlap * 0.55 + diceSimilarity * 0.37 + firstTokenBonus + lastTokenBonus;
+    }
+
+    computeTokenOverlap(tokensA, tokensB) {
+        if (!tokensA.length || !tokensB.length) {
+            return 0;
+        }
+
+        const setA = new Set(tokensA);
+        const setB = new Set(tokensB);
+        let intersectionCount = 0;
+
+        for (const token of setA) {
+            if (setB.has(token)) {
+                intersectionCount += 1;
+            }
+        }
+
+        return intersectionCount / Math.max(setA.size, setB.size);
+    }
+
+    computeDiceSimilarity(valueA, valueB) {
+        const compactA = String(valueA || '').replace(/\s+/g, '');
+        const compactB = String(valueB || '').replace(/\s+/g, '');
+
+        if (!compactA || !compactB) {
+            return 0;
+        }
+
+        if (compactA === compactB) {
+            return 1;
+        }
+
+        const bigramsA = this.toBigrams(compactA);
+        const bigramsB = this.toBigrams(compactB);
+
+        if (!bigramsA.length || !bigramsB.length) {
+            return 0;
+        }
+
+        const counts = new Map();
+        for (const gram of bigramsA) {
+            counts.set(gram, (counts.get(gram) || 0) + 1);
+        }
+
+        let intersectionCount = 0;
+        for (const gram of bigramsB) {
+            const current = counts.get(gram) || 0;
+            if (current > 0) {
+                intersectionCount += 1;
+                counts.set(gram, current - 1);
+            }
+        }
+
+        return (2 * intersectionCount) / (bigramsA.length + bigramsB.length);
+    }
+
+    toBigrams(value) {
+        if (value.length < 2) {
+            return [value];
+        }
+
+        const bigrams = [];
+        for (let i = 0; i < value.length - 1; i += 1) {
+            bigrams.push(value.slice(i, i + 2));
+        }
+        return bigrams;
     }
 }
 
