@@ -38,6 +38,7 @@ coverage/
 
 # Misc
 *.swp
+ssl-dev/
 backend/secrets/
 
 # Outros arquivos temporários/dev
