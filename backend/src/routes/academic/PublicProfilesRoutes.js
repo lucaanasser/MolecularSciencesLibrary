@@ -34,6 +34,16 @@ router.put('/:userId/avatar/default', authenticateToken, verifyProfileOwnership,
     publicProfilesController.selectDefaultAvatar(req, res);
 });
 
+// Publish profile to sandbox repository (PROTECTED - ownership required)
+router.post('/:userId/publish-sandbox', authenticateToken, verifyProfileOwnership, (req, res) => {
+    publicProfilesController.publishSandbox(req, res);
+});
+
+// Get roster options for sandbox publication (PROTECTED - ownership required)
+router.get('/:userId/publish-sandbox/roster-options', authenticateToken, verifyProfileOwnership, (req, res) => {
+    publicProfilesController.getSandboxRosterOptions(req, res);
+});
+
 // ==================== ADVANCED CYCLES ====================
 
 // Create advanced cycle (PROTECTED - ownership required)
