@@ -224,7 +224,7 @@ class PublicProfilesController {
             const options = await publicProfilesService.getSandboxRosterOptions(userId);
             return res.status(200).json({ success: true, ...options });
         } catch (error) {
-            if (error instanceof MissingRosterValidationError) {
+            if (error instanceof MissingRosterValidationError || error instanceof MissingRequiredFieldError) {
                 return res.status(400).json({ success: false, error: error.message });
             }
 
