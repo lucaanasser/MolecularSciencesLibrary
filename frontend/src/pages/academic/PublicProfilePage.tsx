@@ -6,10 +6,19 @@ import ProfileService from "@/services/ProfileService";
 import { UsersService } from "@/services/UsersService";
 import { usePublicProfile } from "@/features/publicProfile/hooks/usePublicProfile";
 import { useProfileEdit } from "@/features/publicProfile/hooks/useProfileEdit";
+import { usePublishSandbox } from "@/features/publicProfile/hooks/usePublishSandbox";
 import { PublicHeader } from "@/features/profile/public/PublicHeader";
 import { TabId } from "@/features/publicProfile/components/ProfileTabs";
 import { PublicStats } from "@/features/profile/public/PublicStats";
 import { PublicTabsCard } from "@/features/profile/public/PublicTabsCard";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 logger.info("🔵 [PublicProfilePage] Renderizando página pessoal pública");
 
@@ -36,6 +45,12 @@ const PublicProfilePage = () => {
     return () => { isMounted = false; };
   }, []);
   const { isEditing, isSaving, startEditing, saveChanges } = useProfileEdit();
+  const { publish, isPublishing, publishError, publishResult, clearStatus } = usePublishSandbox();
+  const [rosterOptions, setRosterOptions] = useState<string[]>([]);
+  const [rosterLoading, setRosterLoading] = useState(false);
+  const [rosterError, setRosterError] = useState<string | null>(null);
+  const [selectedRosterName, setSelectedRosterName] = useState("");
+  const [selectionError, setSelectionError] = useState<string | null>(null);
   const [avatarTimestamp, setAvatarTimestamp] = useState(Date.now());
   const [bannerTimestamp, setBannerTimestamp] = useState(Date.now());
   
@@ -61,6 +76,52 @@ const PublicProfilePage = () => {
 
   const isOwnProfile = !userIdParam || (user && userIdParam === String(user.id));
 
+  const normalizeNameForComparison = (name: string) => {
+    return String(name || "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s]/g, "");
+  };
+
+  useEffect(() => {
+    if (!isOwnProfile || !userId) return;
+
+    let isMounted = true;
+    setRosterLoading(true);
+    setRosterError(null);
+
+    ProfileService.getSandboxRosterOptions(userId)
+      .then((data) => {
+        if (!isMounted) return;
+
+        const students = Array.isArray(data?.students) ? data.students : [];
+        setRosterOptions(students);
+
+        const currentName = (profile.nome || user?.name || "").trim();
+        const exactMatch = students.find(
+          (studentName) =>
+            normalizeNameForComparison(studentName) === normalizeNameForComparison(currentName)
+        );
+
+        setSelectedRosterName(exactMatch || "");
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        const message = err instanceof Error ? err.message : "Erro ao carregar lista de estudantes";
+        setRosterError(message);
+      })
+      .finally(() => {
+        if (isMounted) setRosterLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOwnProfile, userId, profile.nome, user?.name]);
+
   // Create user object from profile data for display
   const displayUser = {
     name: profile.nome || user?.name || "Usuário",
@@ -70,6 +131,21 @@ const PublicProfilePage = () => {
 
   const handleSave = () => {
     saveChanges(profile.saveProfile);
+  };
+
+  const handlePublishSandbox = async () => {
+    if (!selectedRosterName) {
+      setSelectionError("Selecione seu nome na lista oficial antes de publicar.");
+      return;
+    }
+
+    try {
+      clearStatus();
+      setSelectionError(null);
+      await publish(userId, selectedRosterName);
+    } catch (error) {
+      logger.error('🔴 [PublicProfilePage] Falha ao publicar no sandbox:', error);
+    }
   };
 
   const handleAvatarUpload = async (file: File) => {
@@ -201,6 +277,83 @@ const PublicProfilePage = () => {
             initialTabId={activeTab}
           />
         </div>
+
+        {isOwnProfile && (
+          <div className="content-container mt-4 space-y-3">
+            <div className="max-w-xl space-y-2">
+              <p className="text-sm font-medium text-gray-800">
+                Selecione seu nome oficial na turma para vincular o perfil no CMsite
+              </p>
+              <Select
+                value={selectedRosterName}
+                onValueChange={(value) => {
+                  setSelectedRosterName(value);
+                  setSelectionError(null);
+                }}
+                disabled={rosterLoading || !!rosterError || isPublishing}
+              >
+                <SelectTrigger className={!selectedRosterName && !rosterLoading ? "border-red-300" : ""}>
+                  <SelectValue
+                    placeholder={rosterLoading ? "Carregando estudantes da turma..." : "Escolha seu nome na lista"}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {rosterOptions.map((studentName) => (
+                    <SelectItem key={studentName} value={studentName}>
+                      {studentName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-600">
+                A publicação só é permitida com um nome selecionado para evitar perfil órfão no site público.
+              </p>
+              {rosterError && (
+                <p className="text-sm text-red-600">
+                  Erro ao carregar estudantes da turma: {rosterError}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handlePublishSandbox}
+                disabled={isPublishing || !userId || !selectedRosterName || rosterLoading || !!rosterError}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {isPublishing ? "Publicando no sandbox..." : "Publicar no Sandbox"}
+              </Button>
+              {publishResult?.prUrl && (
+                <a
+                  href={publishResult.prUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-blue-700 underline"
+                >
+                  Abrir PR criada
+                </a>
+              )}
+            </div>
+
+            {publishResult?.noChanges && (
+              <p className="text-sm text-amber-700">
+                Nenhuma alteração detectada no perfil para abrir uma nova PR.
+              </p>
+            )}
+
+            {publishError && (
+              <p className="text-sm text-red-600">
+                Erro na publicação: {publishError}
+              </p>
+            )}
+
+            {selectionError && (
+              <p className="text-sm text-red-600">
+                {selectionError}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
