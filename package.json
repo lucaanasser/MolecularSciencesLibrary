@@ -11,7 +11,10 @@
     "clean:test": "cd backend && npm run clean:test",
     "clean": "bash scripts/clean.sh",
     "backup:db": "bash scripts/backup_db_to_gdrive.sh",
-    "troubleshoot": "bash scripts/troubleshoot.sh"
+    "troubleshoot": "bash scripts/troubleshoot.sh",
+    "generate:pages": "node scripts/generate-student-pages.js",
+    "generate:student-pages": "node scripts/generate-student-pages.js",
+    "create:student-shell-pages": "node scripts/create-student-shell-pages.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
