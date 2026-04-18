@@ -220,6 +220,53 @@ class ProfileService {
     }
   }
 
+  async getSandboxRosterOptions(userId: number): Promise<{ success: boolean; turma: string; students: string[]; error?: string }> {
+    console.log(`🔵 [ProfileService] Buscando roster options para usuário ${userId}`);
+    try {
+      const response = await fetch(`/api/profiles/${userId}/publish-sandbox/roster-options`, {
+        method: 'GET',
+        headers: this.getAuthHeaders()
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.error || `Erro HTTP: ${response.status}`);
+      }
+
+      return payload;
+    } catch (error) {
+      console.error('🔴 [ProfileService] Erro ao buscar roster options:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Publica perfil no repositorio sandbox e cria PR via backend.
+   */
+  async publishSandbox(userId: number, selectedRosterName: string): Promise<{ success: boolean; prUrl?: string; branchName?: string; noChanges?: boolean; filesChanged?: string[]; error?: string }> {
+    console.log(`🔵 [ProfileService] Publicando perfil em sandbox para usuário ${userId}`);
+    try {
+      const response = await fetch(`/api/profiles/${userId}/publish-sandbox`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ selectedRosterName })
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.error || `Erro HTTP: ${response.status}`);
+      }
+
+      console.log('🟢 [ProfileService] Publicação sandbox concluída');
+      return payload;
+    } catch (error) {
+      console.error('🔴 [ProfileService] Erro na publicação sandbox:', error);
+      throw error;
+    }
+  }
+
   // ==================== CICLOS AVANÇADOS ====================
 
   /**
