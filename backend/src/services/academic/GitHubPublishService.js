@@ -80,17 +80,18 @@ class GitHubPublishService {
     }
 
     #ensureConfig() {
-        if (!this.appId || !this.privateKey || !this.installationId) {
-            throw new Error('Credenciais GitHub App ausentes: GH_APP_ID, GH_APP_PRIVATE_KEY, GITHUB_INSTALLATION_ID');
+        if (!this.appId || !this.privateKey) {
+            throw new Error('Credenciais GitHub App ausentes: GH_APP_ID, GH_APP_PRIVATE_KEY');
         }
     }
 
     async #createInstallationToken() {
         log.start('Gerando token de instalacao do GitHub App');
         const appJwt = this.#buildAppJwt();
+        const installationId = this.installationId || await this.#resolveInstallationId(appJwt);
 
         const response = await axios.post(
-            `https://api.github.com/app/installations/${this.installationId}/access_tokens`,
+            `https://api.github.com/app/installations/${installationId}/access_tokens`,
             {},
             {
                 headers: {
@@ -110,9 +111,43 @@ class GitHubPublishService {
         return token;
     }
 
+    async #resolveInstallationId(appJwt) {
+        log.start('Resolvendo installation id do GitHub App automaticamente', {
+            owner: this.owner,
+            repo: this.repo
+        });
+
+        try {
+            const response = await axios.get(
+                `https://api.github.com/repos/${this.owner}/${this.repo}/installation`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${appJwt}`,
+                        Accept: 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    }
+                }
+            );
+
+            const installationId = response.data && response.data.id;
+            if (!installationId) {
+                throw new Error('Resposta da API sem id de instalacao');
+            }
+
+            this.installationId = installationId;
+            log.success('Installation id resolvido automaticamente', { installationId });
+            return installationId;
+        } catch (error) {
+            const message = error?.response?.data?.message || error.message;
+            throw new Error(
+                `Nao foi possivel resolver GITHUB_INSTALLATION_ID automaticamente para ${this.owner}/${this.repo}: ${message}`
+            );
+        }
+    }
+
     #buildAppJwt() {
         const now = Math.floor(Date.now() / 1000);
-        const key = String(this.privateKey).replace(/\\n/g, '\n');
+        const keyObject = this.#buildPrivateKeyObject(this.privateKey);
 
         return jwt.sign(
             {
@@ -120,9 +155,123 @@ class GitHubPublishService {
                 exp: now + 9 * 60,
                 iss: this.appId
             },
-            key,
+            keyObject,
             { algorithm: 'RS256' }
         );
+    }
+
+    #buildPrivateKeyObject(rawKey) {
+        const normalizedPem = this.#normalizePrivateKey(rawKey);
+        const pemType = this.#detectPemType(normalizedPem);
+
+        try {
+            return crypto.createPrivateKey(
+                pemType
+                    ? {
+                        key: normalizedPem,
+                        format: 'pem',
+                        type: pemType
+                    }
+                    : {
+                        key: normalizedPem,
+                        format: 'pem'
+                    }
+            );
+        } catch (error) {
+            throw new Error(`GH_APP_PRIVATE_KEY invalida para RS256: ${error.message}`);
+        }
+    }
+
+    #detectPemType(pem) {
+        const content = String(pem || '');
+        if (content.includes('BEGIN RSA PRIVATE KEY')) {
+            return 'pkcs1';
+        }
+        if (content.includes('BEGIN PRIVATE KEY')) {
+            return 'pkcs8';
+        }
+        return '';
+    }
+
+    #normalizePrivateKey(rawKey) {
+        let key = String(rawKey || '').trim();
+
+        if (!key) {
+            throw new Error('GH_APP_PRIVATE_KEY ausente');
+        }
+
+        // Allow pointing GH_APP_PRIVATE_KEY to a PEM file path to avoid multiline .env issues.
+        const resolvedKeyPath = this.#resolveExistingKeyPath(key);
+        if (resolvedKeyPath) {
+            key = fs.readFileSync(resolvedKeyPath, 'utf8').trim();
+        }
+
+        if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+            key = key.slice(1, -1);
+        }
+
+        const maybeBase64 = this.#decodeBase64Safely(key);
+        if (maybeBase64 && maybeBase64.includes('BEGIN') && maybeBase64.includes('PRIVATE KEY')) {
+            key = maybeBase64;
+        }
+
+        key = key
+            .replace(/\\n/g, '\n')
+            .replace(/\r\n/g, '\n')
+            .trim();
+
+        if (!key.includes('-----BEGIN') || !key.includes('PRIVATE KEY-----')) {
+            throw new Error('formato esperado: chave PEM (BEGIN/END PRIVATE KEY), com quebras reais ou \\n escapado');
+        }
+
+        return key;
+    }
+
+    #looksLikeFilePath(value) {
+        const trimmed = String(value || '').trim();
+        if (!trimmed) return false;
+        if (trimmed.startsWith('/')) return true;
+        if (trimmed.startsWith('./') || trimmed.startsWith('../')) return true;
+        return trimmed.endsWith('.pem') || trimmed.endsWith('.key');
+    }
+
+    #resolveExistingKeyPath(value) {
+        const trimmed = String(value || '').trim();
+        if (!this.#looksLikeFilePath(trimmed)) {
+            return '';
+        }
+
+        const candidates = [
+            trimmed,
+            path.resolve(process.cwd(), trimmed),
+            path.resolve(__dirname, '../../..', trimmed),
+            path.resolve(__dirname, '../../../..', trimmed)
+        ];
+
+        for (const candidate of candidates) {
+            if (fs.existsSync(candidate)) {
+                return candidate;
+            }
+        }
+
+        return '';
+    }
+
+    #decodeBase64Safely(value) {
+        const compact = String(value || '').replace(/\s+/g, '');
+        if (!compact || compact.length % 4 !== 0) {
+            return '';
+        }
+
+        if (!/^[A-Za-z0-9+/=]+$/.test(compact)) {
+            return '';
+        }
+
+        try {
+            return Buffer.from(compact, 'base64').toString('utf8');
+        } catch {
+            return '';
+        }
     }
 
     async #prepareRepo(token) {
