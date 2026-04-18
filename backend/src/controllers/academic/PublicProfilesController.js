@@ -8,6 +8,12 @@ const profileTagsModel = require('../../models/academic/publicProfiles/ProfileTa
 const profileFollowsModel = require('../../models/academic/publicProfiles/ProfileFollowsModel');
 const { uploadImage, deleteImage } = require('../../utils/imageUpload');
 const usersModel = require('../../models/library/UsersModel');
+const GitHubPublishService = require('../../services/academic/GitHubPublishService');
+const {
+    MissingRequiredFieldError,
+    MissingRosterSelectionError,
+    MissingRosterValidationError
+} = require('../../services/academic/ProfileTransformer');
 
 class PublicProfilesController {
     // ==================== PROFILE MAIN ====================
@@ -151,6 +157,79 @@ class PublicProfilesController {
         } catch (error) {
             console.error(`🔴 [PublicProfilesController.selectDefaultAvatar] Erro:`, error.message);
             res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * O que faz: publica perfil no repositorio sandbox e abre PR.
+     * Camada: Controller.
+     * Entradas/Saidas: req.params.userId -> resultado de publicacao.
+     * Dependencias criticas: PublicProfilesService e GitHubPublishService.
+     * Efeitos colaterais: cria branch/commit/PR no repo sandbox.
+     */
+    async publishSandbox(req, res) {
+        try {
+            const { userId } = req.params;
+            const { selectedRosterName } = req.body || {};
+            console.log(`🔵 [PublicProfilesController.publishSandbox] Iniciando publicação sandbox: ${userId}`);
+
+            const cmPayload = await publicProfilesService.exportProfileToCMSchema(userId, selectedRosterName);
+
+            const publisher = new GitHubPublishService();
+            const publishResult = await publisher.publishProfile(cmPayload, userId);
+
+            if (!publishResult.success) {
+                console.error(`🔴 [PublicProfilesController.publishSandbox] Falha na publicação`, publishResult);
+                return res.status(500).json(publishResult);
+            }
+
+            console.log(`🟢 [PublicProfilesController.publishSandbox] Publicação concluída`, {
+                branchName: publishResult.branchName,
+                prUrl: publishResult.prUrl,
+                noChanges: publishResult.noChanges
+            });
+
+            return res.status(200).json(publishResult);
+        } catch (error) {
+            if (
+                error instanceof MissingRequiredFieldError ||
+                error instanceof MissingRosterSelectionError ||
+                error instanceof MissingRosterValidationError
+            ) {
+                console.warn(`🟡 [PublicProfilesController.publishSandbox] Perfil incompleto para publicação: ${error.message}`);
+                return res.status(400).json({
+                    success: false,
+                    error: error.message
+                });
+            }
+
+            console.error(`🔴 [PublicProfilesController.publishSandbox] Erro:`, error.message);
+            return res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+
+    /**
+     * O que faz: lista nomes oficiais da turma para selecao de publicacao.
+     * Camada: Controller.
+     * Entradas/Saidas: req.params.userId -> { turma, students }.
+     * Dependencias criticas: PublicProfilesService.getSandboxRosterOptions.
+     * Efeitos colaterais: nenhum.
+     */
+    async getSandboxRosterOptions(req, res) {
+        try {
+            const { userId } = req.params;
+            const options = await publicProfilesService.getSandboxRosterOptions(userId);
+            return res.status(200).json({ success: true, ...options });
+        } catch (error) {
+            if (error instanceof MissingRosterValidationError) {
+                return res.status(400).json({ success: false, error: error.message });
+            }
+
+            console.error(`🔴 [PublicProfilesController.getSandboxRosterOptions] Erro:`, error.message);
+            return res.status(500).json({ success: false, error: error.message });
         }
     }
 
