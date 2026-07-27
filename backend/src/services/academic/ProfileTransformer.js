@@ -26,7 +26,8 @@ class ProfileTransformer {
 
         const turma = this.resolveClassYear(completeProfile.turma);
         const conteudo = this.#buildConteudo(completeProfile);
-        const hasPhoto = Boolean(completeProfile.profileImage);
+        const includePhoto = options.includePhoto !== false;
+        const hasPhoto = includePhoto && Boolean(completeProfile.profileImage);
         const selectedRosterName = this.#safeString(options.selectedRosterName);
 
         if (!selectedRosterName) {

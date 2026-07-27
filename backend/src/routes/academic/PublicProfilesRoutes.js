@@ -25,8 +25,17 @@ router.put('/:userId/banner', authenticateToken, verifyProfileOwnership, (req, r
 });
 
 // Upload profile avatar (PROTECTED - ownership required)
+router.get('/:userId/avatar/roster-options', authenticateToken, verifyProfileOwnership, (req, res) => {
+    publicProfilesController.getAvatarRosterOptions(req, res);
+});
+
 router.put('/:userId/avatar', authenticateToken, verifyProfileOwnership, upload.single('image'), (req, res) => {
     publicProfilesController.uploadAvatar(req, res);
+});
+
+// Remove current custom avatar (PROTECTED - ownership required)
+router.delete('/:userId/avatar', authenticateToken, verifyProfileOwnership, (req, res) => {
+    publicProfilesController.removeAvatar(req, res);
 });
 
 // Select default avatar (PROTECTED - ownership required)
@@ -42,6 +51,11 @@ router.post('/:userId/publish-sandbox', authenticateToken, verifyProfileOwnershi
 // Get roster options for sandbox publication (PROTECTED - ownership required)
 router.get('/:userId/publish-sandbox/roster-options', authenticateToken, verifyProfileOwnership, (req, res) => {
     publicProfilesController.getSandboxRosterOptions(req, res);
+});
+
+// Generate advanced cycle PDF (PROTECTED - ownership required)
+router.post('/:userId/advanced-cycles/:cycleId/pdf', authenticateToken, verifyProfileOwnership, (req, res) => {
+    publicProfilesController.getAdvancedCyclePDF(req, res);
 });
 
 // ==================== ADVANCED CYCLES ====================

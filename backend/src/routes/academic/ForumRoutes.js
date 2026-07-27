@@ -100,6 +100,30 @@ router.post('/questions/:id/close', authenticateToken, (req, res) => {
     forumController.toggleCloseQuestion(req, res);
 });
 
+// Fixar/desafixar pergunta (admin)
+router.post('/questions/:id/pin', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] POST /questions/:id/pin");
+    forumController.togglePinQuestion(req, res);
+});
+
+// Seguir/deixar de seguir pergunta (autenticado)
+router.post('/questions/:id/subscribe', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] POST /questions/:id/subscribe");
+    forumController.toggleSubscription(req, res);
+});
+
+// Salvar/remover pergunta dos favoritos (autenticado)
+router.post('/questions/:id/bookmark', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] POST /questions/:id/bookmark");
+    forumController.toggleBookmark(req, res);
+});
+
+// Listar perguntas salvas do usuário logado (autenticado)
+router.get('/bookmarks', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] GET /bookmarks");
+    forumController.getMyBookmarks(req, res);
+});
+
 // =====================================================
 // ANSWERS - Respostas
 // =====================================================
@@ -181,6 +205,44 @@ router.get('/topics', (req, res) => {
 });
 
 // =====================================================
+// COMMENTS - Comentários
+// =====================================================
+
+// Criar comentário (autenticado)
+router.post('/comments', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] POST /comments");
+    forumController.createComment(req, res);
+});
+
+// Remover comentário (autor ou admin)
+router.delete('/comments/:id', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] DELETE /comments/:id");
+    forumController.deleteComment(req, res);
+});
+
+// =====================================================
+// REPORTS - Denúncias de conteúdo
+// =====================================================
+
+// Registrar denúncia (autenticado)
+router.post('/reports', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] POST /reports");
+    forumController.createReport(req, res);
+});
+
+// Listar denúncias (admin)
+router.get('/reports', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] GET /reports");
+    forumController.getReports(req, res);
+});
+
+// Resolver/descartar denúncia (admin)
+router.post('/reports/:id/resolve', authenticateToken, (req, res) => {
+    console.log("🔵 [ForumRoutes] POST /reports/:id/resolve");
+    forumController.resolveReport(req, res);
+});
+
+// =====================================================
 // STATISTICS - Estatísticas
 // =====================================================
 
@@ -200,6 +262,12 @@ router.get('/top-contributors', (req, res) => {
 router.get('/users/:id/stats', (req, res) => {
     console.log("🔵 [ForumRoutes] GET /users/:id/stats");
     forumController.getUserStats(req, res);
+});
+
+// Respostas de um usuário (público)
+router.get('/users/:id/answers', (req, res) => {
+    console.log("🔵 [ForumRoutes] GET /users/:id/answers");
+    forumController.getUserAnswers(req, res);
 });
 
 module.exports = router;

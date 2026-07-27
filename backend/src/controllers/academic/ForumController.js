@@ -25,13 +25,15 @@ class ForumController {
         try {
             console.log("🔵 [ForumController] GET /questions - Listar perguntas");
             
-            const { 
-                sortBy = 'recente', 
-                search = '', 
+            const {
+                sortBy = 'recente',
+                search = '',
                 tag,
                 tagId,
-                page = 1, 
-                limit = 20 
+                disciplina,
+                autor,
+                page = 1,
+                limit = 20
             } = req.query;
 
             const questions = await ForumModel.getQuestions({
@@ -39,6 +41,8 @@ class ForumController {
                 search,
                 tagId: tagId ? Number(tagId) : null,
                 tagName: tag || null,
+                disciplina: disciplina || null,
+                autorId: autor ? Number(autor) : null,
                 page: Number(page),
                 limit: Number(limit)
             });
@@ -47,6 +51,8 @@ class ForumController {
                 search,
                 tagId: tagId ? Number(tagId) : null,
                 tagName: tag || null,
+                disciplina: disciplina || null,
+                autorId: autor ? Number(autor) : null,
                 sortBy
             });
 
@@ -61,22 +67,7 @@ class ForumController {
             const isAdmin = req.user && req.user.role === 'admin';
 
             // Formatar resposta
-            const formattedQuestions = questions.map(q => ({
-                id: q.id,
-                title: q.titulo,
-                content: q.conteudo,
-                user_id: q.autor_id,
-                user_name: q.is_anonymous && !isAdmin ? 'Anônimo' : q.autor_nome,
-                user_image: q.is_anonymous && !isAdmin ? null : q.autor_imagem,
-                is_anonymous: q.is_anonymous,
-                view_count: q.views,
-                answer_count: q.respostas_count,
-                vote_count: q.votos,
-                tags: q.tags,
-                has_accepted_answer: q.tem_resposta_aceita === 1 || q.tem_resposta_aceita === true,
-                created_at: q.created_at,
-                user_vote: userVotes[q.id] || 0
-            }));
+            const formattedQuestions = questions.map(q => this.formatQuestionRow(q, userVotes, isAdmin));
 
             console.log("🟢 [ForumController] Perguntas retornadas:", formattedQuestions.length);
             
@@ -129,6 +120,29 @@ class ForumController {
             // Verificar se usuário é admin
             const isAdmin = req.user && req.user.role === 'admin';
 
+            // Comentários da pergunta e de todas as respostas (uma query) + agrupamento
+            const allComments = await ForumModel.getCommentsForQuestion(Number(id));
+            const formatComment = (c) => ({
+                id: c.id,
+                content: c.conteudo,
+                user_id: c.autor_id,
+                user_name: c.autor_nome,
+                created_at: c.created_at
+            });
+            const questionComments = allComments
+                .filter(c => c.target_type === 'question' && c.target_id === Number(id))
+                .map(formatComment);
+            const commentsByAnswer = {};
+            for (const c of allComments) {
+                if (c.target_type === 'answer') {
+                    (commentsByAnswer[c.target_id] = commentsByAnswer[c.target_id] || []).push(formatComment(c));
+                }
+            }
+
+            // Está seguindo / favoritou a pergunta?
+            const isSubscribed = req.user ? await ForumModel.isSubscribed(req.user.id, Number(id)) : false;
+            const isBookmarked = req.user ? await ForumModel.isBookmarked(req.user.id, Number(id)) : false;
+
             // Formatar resposta
             const formattedQuestion = {
                 id: question.id,
@@ -145,6 +159,12 @@ class ForumController {
                 created_at: question.created_at,
                 updated_at: question.updated_at,
                 is_closed: question.is_closed === 1,
+                is_pinned: question.is_pinned === 1,
+                disciplina_codigo: question.disciplina_codigo || null,
+                disciplina_nome: question.disciplina_nome || null,
+                is_subscribed: isSubscribed,
+                is_bookmarked: isBookmarked,
+                comments: questionComments,
                 user_vote: userQuestionVote,
                 answers: answers.map(a => ({
                     id: a.id,
@@ -157,7 +177,8 @@ class ForumController {
                     is_accepted: a.is_accepted === 1,
                     created_at: a.created_at,
                     updated_at: a.updated_at,
-                    user_vote: userAnswerVotes[a.id] || 0
+                    user_vote: userAnswerVotes[a.id] || 0,
+                    comments: commentsByAnswer[a.id] || []
                 }))
             };
 
@@ -177,7 +198,7 @@ class ForumController {
         try {
             console.log("🔵 [ForumController] POST /questions - Criar pergunta");
 
-            const { titulo, conteudo, tags = [], is_anonymous = false } = req.body;
+            const { titulo, conteudo, tags = [], is_anonymous = false, disciplina_codigo = null } = req.body;
             const autor_id = req.user.id;
 
             // Validações básicas
@@ -196,7 +217,8 @@ class ForumController {
                 conteudo: conteudo.trim(),
                 autor_id,
                 tags,
-                is_anonymous: is_anonymous ? 1 : 0
+                is_anonymous: is_anonymous ? 1 : 0,
+                disciplina_codigo: disciplina_codigo || null
             });
 
             console.log("🟢 [ForumController] Pergunta criada:", questionId);
@@ -235,7 +257,7 @@ class ForumController {
                 return res.status(403).json({ error: 'Você não tem permissão para editar esta pergunta' });
             }
 
-            const { titulo, conteudo, tags } = req.body;
+            const { titulo, conteudo, tags, disciplina_codigo } = req.body;
 
             // Validações
             if (titulo && titulo.trim().length < 10) {
@@ -245,11 +267,17 @@ class ForumController {
                 return res.status(400).json({ error: 'Conteúdo deve ter pelo menos 20 caracteres' });
             }
 
-            await ForumModel.updateQuestion(Number(id), {
+            const updateFields = {
                 titulo: titulo?.trim() || question.titulo,
                 conteudo: conteudo?.trim() || question.conteudo,
                 tags
-            });
+            };
+            // Só altera o vínculo de disciplina se o cliente enviar o campo
+            if ('disciplina_codigo' in req.body) {
+                updateFields.disciplina_codigo = disciplina_codigo || null;
+            }
+
+            await ForumModel.updateQuestion(Number(id), updateFields);
 
             console.log("🟢 [ForumController] Pergunta atualizada");
             res.json({ success: true, message: 'Pergunta atualizada com sucesso' });
@@ -318,6 +346,12 @@ class ForumController {
             const question = await ForumModel.getQuestionById(Number(questionId));
             if (!question) {
                 return res.status(404).json({ error: 'Pergunta não encontrada' });
+            }
+
+            // Perguntas fechadas não aceitam novas respostas
+            if (question.is_closed === 1) {
+                console.log("🟡 [ForumController] Tentativa de responder pergunta fechada");
+                return res.status(403).json({ error: 'Esta pergunta está fechada para novas respostas' });
             }
 
             const answerId = await ForumService.createAnswer({
@@ -731,6 +765,30 @@ class ForumController {
         return user && user.role === 'admin';
     }
 
+    /** Formata uma linha de pergunta para listagens (fórum, salvos, meu conteúdo). */
+    formatQuestionRow(q, userVotes = {}, isAdmin = false) {
+        return {
+            id: q.id,
+            title: q.titulo,
+            content: q.conteudo,
+            user_id: q.autor_id,
+            user_name: q.is_anonymous && !isAdmin ? 'Anônimo' : q.autor_nome,
+            user_image: q.is_anonymous && !isAdmin ? null : q.autor_imagem,
+            is_anonymous: q.is_anonymous,
+            view_count: q.views,
+            answer_count: q.respostas_count,
+            vote_count: q.votos,
+            tags: q.tags,
+            has_accepted_answer: q.tem_resposta_aceita === 1 || q.tem_resposta_aceita === true,
+            is_closed: q.is_closed === 1,
+            is_pinned: q.is_pinned === 1,
+            disciplina_codigo: q.disciplina_codigo || null,
+            disciplina_nome: q.disciplina_nome || null,
+            created_at: q.created_at,
+            user_vote: userVotes[q.id] || 0
+        };
+    }
+
     // =====================================================
     // STATISTICS - Estatísticas
     // =====================================================
@@ -818,14 +876,322 @@ class ForumController {
             await ForumModel.updateQuestion(Number(id), { is_closed: newStatus });
 
             console.log("🟢 [ForumController] Pergunta", newStatus ? "fechada" : "reaberta");
-            res.json({ 
-                success: true, 
+            res.json({
+                success: true,
                 isClosed: newStatus === 1,
-                message: newStatus ? 'Pergunta fechada' : 'Pergunta reaberta' 
+                message: newStatus ? 'Pergunta fechada' : 'Pergunta reaberta'
             });
         } catch (error) {
             console.error("🔴 [ForumController] Erro ao fechar pergunta:", error.message);
             res.status(500).json({ error: 'Erro ao fechar pergunta', details: error.message });
+        }
+    }
+
+    /**
+     * Fixa/desafixa uma pergunta no topo do fórum (apenas admin)
+     * POST /api/forum/questions/:id/pin
+     */
+    async togglePinQuestion(req, res) {
+        try {
+            const { id } = req.params;
+            console.log("🔵 [ForumController] POST /questions/:id/pin - Fixar pergunta:", id);
+
+            if (req.user.role !== 'admin') {
+                return res.status(403).json({ error: 'Apenas administradores podem fixar perguntas' });
+            }
+
+            const question = await ForumModel.getQuestionById(Number(id));
+            if (!question) {
+                return res.status(404).json({ error: 'Pergunta não encontrada' });
+            }
+
+            const newStatus = question.is_pinned === 1 ? 0 : 1;
+            await ForumModel.updateQuestion(Number(id), { is_pinned: newStatus });
+
+            console.log("🟢 [ForumController] Pergunta", newStatus ? "fixada" : "desfixada");
+            res.json({
+                success: true,
+                isPinned: newStatus === 1,
+                message: newStatus ? 'Pergunta fixada' : 'Pergunta desfixada'
+            });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao fixar pergunta:", error.message);
+            res.status(500).json({ error: 'Erro ao fixar pergunta', details: error.message });
+        }
+    }
+
+    // =====================================================
+    // REPORTS - Denúncias de conteúdo
+    // =====================================================
+
+    /**
+     * Registra uma denúncia de pergunta ou resposta (autenticado)
+     * POST /api/forum/reports
+     */
+    async createReport(req, res) {
+        try {
+            console.log("🔵 [ForumController] POST /reports - Criar denúncia");
+
+            const { target_type, target_id, motivo } = req.body;
+
+            if (!['question', 'answer'].includes(target_type)) {
+                return res.status(400).json({ error: 'Tipo de conteúdo inválido' });
+            }
+            if (!target_id) {
+                return res.status(400).json({ error: 'Conteúdo denunciado não informado' });
+            }
+            if (!motivo || motivo.trim().length < 5) {
+                return res.status(400).json({ error: 'Descreva o motivo (mínimo 5 caracteres)' });
+            }
+
+            const reportId = await ForumModel.createReport({
+                reporter_id: req.user.id,
+                target_type,
+                target_id: Number(target_id),
+                motivo: motivo.trim()
+            });
+
+            console.log("🟢 [ForumController] Denúncia criada:", reportId);
+            res.status(201).json({ success: true, id: reportId, message: 'Denúncia registrada. Obrigado!' });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao criar denúncia:", error.message);
+            res.status(500).json({ error: 'Erro ao registrar denúncia', details: error.message });
+        }
+    }
+
+    /**
+     * Lista denúncias (apenas admin). ?status=pending|resolved|dismissed|all
+     * GET /api/forum/reports
+     */
+    async getReports(req, res) {
+        try {
+            console.log("🔵 [ForumController] GET /reports - Listar denúncias");
+
+            if (!this.isAdmin(req.user)) {
+                return res.status(403).json({ error: 'Acesso negado' });
+            }
+
+            const { status = 'pending' } = req.query;
+            const reports = await ForumModel.getReports({ status: status === 'all' ? null : status });
+
+            console.log("🟢 [ForumController] Denúncias retornadas:", reports.length);
+            res.json(reports);
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao listar denúncias:", error.message);
+            res.status(500).json({ error: 'Erro ao listar denúncias', details: error.message });
+        }
+    }
+
+    /**
+     * Marca uma denúncia como resolvida ou descartada (apenas admin)
+     * POST /api/forum/reports/:id/resolve
+     */
+    async resolveReport(req, res) {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            console.log("🔵 [ForumController] POST /reports/:id/resolve - Resolver denúncia:", id, status);
+
+            if (!this.isAdmin(req.user)) {
+                return res.status(403).json({ error: 'Acesso negado' });
+            }
+
+            if (!['resolved', 'dismissed'].includes(status)) {
+                return res.status(400).json({ error: 'Status inválido' });
+            }
+
+            await ForumModel.updateReportStatus(Number(id), status);
+
+            console.log("🟢 [ForumController] Denúncia atualizada");
+            res.json({ success: true, message: 'Denúncia atualizada' });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao resolver denúncia:", error.message);
+            res.status(500).json({ error: 'Erro ao resolver denúncia', details: error.message });
+        }
+    }
+
+    // =====================================================
+    // COMMENTS - Comentários
+    // =====================================================
+
+    /**
+     * Cria um comentário em uma pergunta ou resposta (autenticado)
+     * POST /api/forum/comments
+     */
+    async createComment(req, res) {
+        try {
+            const { target_type, target_id, conteudo } = req.body;
+
+            if (!['question', 'answer'].includes(target_type)) {
+                return res.status(400).json({ error: 'Tipo de alvo inválido' });
+            }
+            if (!target_id) {
+                return res.status(400).json({ error: 'Alvo não informado' });
+            }
+            if (!conteudo || conteudo.trim().length < 2) {
+                return res.status(400).json({ error: 'Comentário muito curto (mínimo 2 caracteres)' });
+            }
+
+            const commentId = await ForumModel.createComment({
+                target_type,
+                target_id: Number(target_id),
+                autor_id: req.user.id,
+                conteudo: conteudo.trim()
+            });
+
+            const { getQuery } = require('../../database/db');
+            const author = await getQuery('SELECT name FROM users WHERE id = ?', [req.user.id]);
+
+            res.status(201).json({
+                id: commentId,
+                content: conteudo.trim(),
+                user_id: req.user.id,
+                user_name: author ? author.name : 'Usuário',
+                created_at: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao criar comentário:", error.message);
+            res.status(500).json({ error: 'Erro ao criar comentário', details: error.message });
+        }
+    }
+
+    /**
+     * Remove um comentário (autor ou admin)
+     * DELETE /api/forum/comments/:id
+     */
+    async deleteComment(req, res) {
+        try {
+            const { id } = req.params;
+            const comment = await ForumModel.getCommentById(Number(id));
+
+            if (!comment) {
+                return res.status(404).json({ error: 'Comentário não encontrado' });
+            }
+
+            const isAdmin = req.user.role === 'admin';
+            const isAuthor = comment.autor_id === req.user.id;
+            if (!isAdmin && !isAuthor) {
+                return res.status(403).json({ error: 'Você não tem permissão para remover este comentário' });
+            }
+
+            await ForumModel.deleteComment(Number(id));
+            res.json({ success: true, message: 'Comentário removido' });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao remover comentário:", error.message);
+            res.status(500).json({ error: 'Erro ao remover comentário', details: error.message });
+        }
+    }
+
+    // =====================================================
+    // SUBSCRIPTIONS - Seguir perguntas
+    // =====================================================
+
+    /**
+     * Segue/deixa de seguir uma pergunta (autenticado)
+     * POST /api/forum/questions/:id/subscribe
+     */
+    async toggleSubscription(req, res) {
+        try {
+            const { id } = req.params;
+            const question = await ForumModel.getQuestionById(Number(id));
+            if (!question) {
+                return res.status(404).json({ error: 'Pergunta não encontrada' });
+            }
+
+            const already = await ForumModel.isSubscribed(req.user.id, Number(id));
+            if (already) {
+                await ForumModel.unsubscribe(req.user.id, Number(id));
+            } else {
+                await ForumModel.subscribe(req.user.id, Number(id));
+            }
+
+            res.json({
+                success: true,
+                is_subscribed: !already,
+                message: already ? 'Você deixou de seguir esta pergunta' : 'Você está seguindo esta pergunta'
+            });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao seguir pergunta:", error.message);
+            res.status(500).json({ error: 'Erro ao seguir pergunta', details: error.message });
+        }
+    }
+
+    /**
+     * Lista as respostas de um usuário (com título da pergunta)
+     * GET /api/forum/users/:id/answers
+     */
+    async getUserAnswers(req, res) {
+        try {
+            const { id } = req.params;
+            const answers = await ForumModel.getAnswersByUser(Number(id));
+
+            const formatted = answers.map(a => ({
+                id: a.id,
+                question_id: a.question_id,
+                question_title: a.question_titulo,
+                content: a.conteudo,
+                vote_count: a.votos,
+                is_accepted: a.is_accepted === 1,
+                is_anonymous: a.is_anonymous,
+                created_at: a.created_at
+            }));
+
+            res.json(formatted);
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao buscar respostas do usuário:", error.message);
+            res.status(500).json({ error: 'Erro ao buscar respostas', details: error.message });
+        }
+    }
+
+    // =====================================================
+    // BOOKMARKS - Favoritos
+    // =====================================================
+
+    /**
+     * Salva/remove uma pergunta dos favoritos (autenticado)
+     * POST /api/forum/questions/:id/bookmark
+     */
+    async toggleBookmark(req, res) {
+        try {
+            const { id } = req.params;
+            const question = await ForumModel.getQuestionById(Number(id));
+            if (!question) {
+                return res.status(404).json({ error: 'Pergunta não encontrada' });
+            }
+
+            const already = await ForumModel.isBookmarked(req.user.id, Number(id));
+            if (already) {
+                await ForumModel.removeBookmark(req.user.id, Number(id));
+            } else {
+                await ForumModel.addBookmark(req.user.id, Number(id));
+            }
+
+            res.json({
+                success: true,
+                is_bookmarked: !already,
+                message: already ? 'Removido dos salvos' : 'Pergunta salva!'
+            });
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao favoritar pergunta:", error.message);
+            res.status(500).json({ error: 'Erro ao favoritar pergunta', details: error.message });
+        }
+    }
+
+    /**
+     * Lista as perguntas salvas do usuário logado
+     * GET /api/forum/bookmarks
+     */
+    async getMyBookmarks(req, res) {
+        try {
+            const questions = await ForumModel.getBookmarkedQuestions(req.user.id);
+            const userVotes = questions.length
+                ? await ForumModel.getUserVotes(req.user.id, 'question', questions.map(q => q.id))
+                : {};
+            const isAdmin = req.user.role === 'admin';
+            res.json(questions.map(q => this.formatQuestionRow(q, userVotes, isAdmin)));
+        } catch (error) {
+            console.error("🔴 [ForumController] Erro ao buscar favoritos:", error.message);
+            res.status(500).json({ error: 'Erro ao buscar favoritos', details: error.message });
         }
     }
 }

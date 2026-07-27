@@ -23,7 +23,7 @@ const upload = multer({
     fileFilter
 });
 
-const uploadImage = (fileBuffer, originalName, directory, maxSizeMB = 5) => {
+const uploadImage = (fileBuffer, originalName, directory, maxSizeMB = 5, options = {}) => {
     log.start('Iniciando upload', { directory, original: originalName });
 
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
@@ -32,9 +32,18 @@ const uploadImage = (fileBuffer, originalName, directory, maxSizeMB = 5) => {
         throw new Error(`Arquivo muito grande. Maximo ${maxSizeMB}MB`);
     }
 
+    const ext = path.extname(originalName).toLowerCase();
+    const baseName = path.basename(originalName, ext)
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/-{2,}/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+    const shouldPreserveName = Boolean(options && options.preserveOriginalName);
     const timestamp = Date.now();
-    const ext = path.extname(originalName);
-    const filename = `${timestamp}${ext}`;
+    const filename = shouldPreserveName && baseName ? `${baseName}${ext}` : `${timestamp}${ext}`;
 
     const uploadDir = path.join(__dirname, '..', '..', '..', 'public', 'images', directory);
     const filePath = path.join(uploadDir, filename);

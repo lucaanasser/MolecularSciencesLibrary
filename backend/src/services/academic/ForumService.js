@@ -16,17 +16,21 @@ class ForumService {
     /**
      * Cria uma pergunta (delegado do Model com lógica adicional)
      */
-    async createQuestion({ titulo, conteudo, autor_id, tags, is_anonymous = 0 }) {
+    async createQuestion({ titulo, conteudo, autor_id, tags, is_anonymous = 0, disciplina_codigo = null }) {
         console.log("🔵 [ForumService] Criando pergunta");
-        
+
         try {
             const questionId = await ForumModel.createQuestion({
                 titulo,
                 conteudo,
                 autor_id,
                 tags,
-                is_anonymous
+                is_anonymous,
+                disciplina_codigo
             });
+
+            // Autor passa a seguir a própria pergunta (recebe notificação de novas respostas)
+            await ForumModel.subscribe(autor_id, questionId);
 
             console.log("🟢 [ForumService] Pergunta criada com sucesso:", questionId);
             return questionId;
@@ -50,10 +54,9 @@ class ForumService {
                 is_anonymous
             });
 
-            // Notificar autor da pergunta (se não for ele mesmo respondendo)
-            if (questionAutorId !== autor_id) {
-                await this.notifyNewAnswer(questionAutorId, question_id, autor_id);
-            }
+            // Notifica os seguidores da pergunta (inclui o autor); quem respondeu passa a seguir
+            await this.notifyNewAnswer(questionAutorId, question_id, autor_id);
+            await ForumModel.subscribe(autor_id, question_id);
 
             console.log("🟢 [ForumService] Resposta criada com sucesso:", answerId);
             return answerId;
@@ -105,23 +108,30 @@ class ForumService {
                 return;
             }
 
-            const truncatedTitle = question.titulo.length > 50 
-                ? question.titulo.substring(0, 50) + '...' 
+            const truncatedTitle = question.titulo.length > 50
+                ? question.titulo.substring(0, 50) + '...'
                 : question.titulo;
 
-            await NotificationsModel.createNotification({
-                user_id: questionAutorId,
-                type: 'forum_answer',
-                message: `${answerAutor.name} respondeu sua pergunta: "${truncatedTitle}"`,
-                metadata: {
-                    questionId,
-                    answerAutorId,
-                    answerAutorName: answerAutor.name
-                },
-                status: 'unread'
-            });
+            // Destinatários: seguidores da pergunta + autor (compat. perguntas antigas), exceto quem respondeu
+            const subscriberIds = await ForumModel.getSubscriberIds(questionId);
+            const recipients = new Set([questionAutorId, ...subscriberIds]);
+            recipients.delete(answerAutorId);
 
-            console.log("🟢 [ForumService] Notificação de nova resposta criada");
+            for (const userId of recipients) {
+                await NotificationsModel.createNotification({
+                    user_id: userId,
+                    type: 'forum_answer',
+                    message: `${answerAutor.name} respondeu a pergunta: "${truncatedTitle}"`,
+                    metadata: {
+                        questionId,
+                        answerAutorId,
+                        answerAutorName: answerAutor.name
+                    },
+                    status: 'unread'
+                });
+            }
+
+            console.log("🟢 [ForumService] Notificações de nova resposta criadas:", recipients.size);
         } catch (error) {
             // Não falhar a operação principal se notificação falhar
             console.error("🔴 [ForumService] Erro ao criar notificação de nova resposta:", error.message);

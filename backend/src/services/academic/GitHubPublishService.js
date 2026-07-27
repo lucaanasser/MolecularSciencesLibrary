@@ -6,6 +6,7 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { getLogger } = require('../../shared/logging/logger');
 const { ProfileTransformer } = require('./ProfileTransformer');
+const AdvancedPdfService = require('./AdvancedPdfService');
 
 const log = getLogger(__filename);
 
@@ -33,7 +34,7 @@ class GitHubPublishService {
      * @param {number|string} userId id do usuario dono do perfil
      * @returns {Promise<{success:boolean, noChanges?:boolean, prUrl?:string, branchName?:string, filesChanged?:string[], error?:string}>}
      */
-    async publishProfile(cmProfile, userId) {
+    async publishProfile(cmProfile, userId, options = {}) {
         log.start('Iniciando publicacao em sandbox', {
             owner: this.owner,
             repo: this.repo,
@@ -47,36 +48,50 @@ class GitHubPublishService {
         const branchName = this.#buildBranchName(userId);
         const profileFilePath = ProfileTransformer.generateFilePath(cmProfile.nome, cmProfile.turma);
         const rosterFilePath = `estudantes/${cmProfile.turma}/${cmProfile.turma}.json`;
+        const advancedPdfEntries = Array.isArray(options?.advancedPdfEntries) ? options.advancedPdfEntries : [];
+        let pdfFilePaths = [];
 
-        this.#checkoutFreshBranch(repoDir, branchName);
-        this.#writeJsonFile(repoDir, profileFilePath, cmProfile);
-        this.#upsertRoster(repoDir, rosterFilePath, cmProfile);
+        try {
+            this.#checkoutFreshBranch(repoDir, branchName);
+            this.#writeJsonFile(repoDir, profileFilePath, cmProfile);
+            this.#upsertRoster(repoDir, rosterFilePath, cmProfile);
+            const photoFilePaths = this.#syncProfilePhotos(repoDir, cmProfile);
+            pdfFilePaths = await this.#writeAdvancedPdfs(repoDir, cmProfile, advancedPdfEntries);
 
-        const filesChanged = this.#commitAndPushIfNeeded(repoDir, branchName, [profileFilePath, rosterFilePath], cmProfile.nome, cmProfile.turma);
+            const filesChanged = this.#commitAndPushIfNeeded(
+                repoDir,
+                branchName,
+                [profileFilePath, rosterFilePath, ...photoFilePaths, ...pdfFilePaths],
+                cmProfile.nome,
+                cmProfile.turma
+            );
 
-        if (!filesChanged.length) {
-            log.warn('Publicacao sem alteracoes', { userId, turma: cmProfile.turma });
+            if (!filesChanged.length) {
+                log.warn('Publicacao sem alteracoes', { userId, turma: cmProfile.turma });
+                return {
+                    success: true,
+                    noChanges: true,
+                    branchName,
+                    filesChanged: []
+                };
+            }
+
+            const prUrl = await this.#openPullRequest(token, branchName, cmProfile.nome, cmProfile.turma, filesChanged);
+
+            log.success('Publicacao em sandbox concluida', {
+                branchName,
+                filesChanged: filesChanged.length
+            });
+
             return {
                 success: true,
-                noChanges: true,
                 branchName,
-                filesChanged: []
+                prUrl,
+                filesChanged
             };
+        } finally {
+            this.#cleanupGeneratedFiles(repoDir, pdfFilePaths);
         }
-
-        const prUrl = await this.#openPullRequest(token, branchName, cmProfile.nome, cmProfile.turma, filesChanged);
-
-        log.success('Publicacao em sandbox concluida', {
-            branchName,
-            filesChanged: filesChanged.length
-        });
-
-        return {
-            success: true,
-            branchName,
-            prUrl,
-            filesChanged
-        };
     }
 
     #ensureConfig() {
@@ -317,6 +332,42 @@ class GitHubPublishService {
         log.success('Roster atualizado', { relativePath });
     }
 
+    #syncProfilePhotos(repoDir, cmProfile) {
+        if (!cmProfile || !cmProfile.hasPhoto) {
+            return [];
+        }
+
+        const turma = String(cmProfile.turma || '').trim();
+        const slug = ProfileTransformer.generateSlug(cmProfile.nome);
+        const sourceDir = path.resolve(__dirname, '../../../public/images/user-images');
+        const variants = [`${slug}.jpg`, `${slug}@2x.jpg`];
+        const copiedFiles = [];
+
+        for (const filename of variants) {
+            const sourcePath = path.join(sourceDir, filename);
+            if (!fs.existsSync(sourcePath)) {
+                continue;
+            }
+
+            const relativeTargetPath = path.posix.join('estudantes', turma, filename);
+            const targetPath = path.join(repoDir, relativeTargetPath);
+            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+            fs.copyFileSync(sourcePath, targetPath);
+            copiedFiles.push(relativeTargetPath);
+            log.success('Foto sincronizada para sandbox', { relativeTargetPath });
+        }
+
+        if (!copiedFiles.length) {
+            log.warn('Perfil indica hasPhoto=true, mas nenhum arquivo de foto foi encontrado em user-images', {
+                slug,
+                turma,
+                sourceDir
+            });
+        }
+
+        return copiedFiles;
+    }
+
     #upsertRosterEntry(roster, nome) {
         if (Array.isArray(roster)) {
             const idx = roster.findIndex((item) => this.#normalizeName(item.nome || item.name) === this.#normalizeName(nome));
@@ -361,8 +412,7 @@ class GitHubPublishService {
         const filesChanged = changedLines
             .split('\n')
             .map((line) => line.slice(3).trim())
-            .filter(Boolean)
-            .filter((file) => candidateFiles.includes(file));
+            .filter(Boolean);
 
         execSync(`git -C ${this.#q(repoDir)} config user.email "biblioteca-cm-bot@users.noreply.github.com"`, { stdio: 'pipe' });
         execSync(`git -C ${this.#q(repoDir)} config user.name "Biblioteca CM Bot"`, { stdio: 'pipe' });
@@ -374,6 +424,56 @@ class GitHubPublishService {
 
         log.success('Commit e push realizados', { branchName, filesChanged: filesChanged.length });
         return filesChanged;
+    }
+
+    async #writeAdvancedPdfs(repoDir, cmProfile, entries) {
+        if (!Array.isArray(entries) || !entries.length) {
+            return [];
+        }
+
+        const turma = String(cmProfile.turma || '').trim();
+        const studentName = cmProfile.nome;
+        const pdfPaths = [];
+
+        for (const entry of entries) {
+            const relativeTargetPath = path.posix.join('estudantes', turma, entry.fileName);
+            const targetPath = path.join(repoDir, relativeTargetPath);
+            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+
+            const pdfBuffer = await AdvancedPdfService.generateAdvancedPdf({
+                studentName,
+                turma,
+                cycle: entry.cycle,
+                disciplines: entry.disciplines,
+                experiences: entry.experiences
+            });
+
+            fs.writeFileSync(targetPath, pdfBuffer);
+            pdfPaths.push(relativeTargetPath);
+            log.success('PDF de ciclo avancado salvo', { relativeTargetPath });
+        }
+
+        return pdfPaths;
+    }
+
+    #cleanupGeneratedFiles(repoDir, relativePaths) {
+        if (!Array.isArray(relativePaths) || !relativePaths.length) {
+            return;
+        }
+
+        relativePaths.forEach((relativePath) => {
+            const absolutePath = path.join(repoDir, relativePath);
+            try {
+                if (fs.existsSync(absolutePath)) {
+                    fs.unlinkSync(absolutePath);
+                }
+            } catch (error) {
+                log.warn('Falha ao remover PDF gerado localmente', {
+                    relativePath,
+                    error: error.message
+                });
+            }
+        });
     }
 
     async #openPullRequest(token, branchName, nome, turma, filesChanged) {

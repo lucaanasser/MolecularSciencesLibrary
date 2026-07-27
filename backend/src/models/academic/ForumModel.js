@@ -18,14 +18,14 @@ class ForumModel {
     /**
      * Cria uma nova pergunta
      */
-    async createQuestion({ titulo, conteudo, autor_id, tags = [], is_anonymous = 0 }) {
-        console.log("🔵 [ForumModel] Criando pergunta:", { titulo, autor_id, is_anonymous });
-        
+    async createQuestion({ titulo, conteudo, autor_id, tags = [], is_anonymous = 0, disciplina_codigo = null }) {
+        console.log("🔵 [ForumModel] Criando pergunta:", { titulo, autor_id, is_anonymous, disciplina_codigo });
+
         try {
-            const questionId = await executeQuery(
-                `INSERT INTO forum_questions (titulo, conteudo, autor_id, votos, views, is_anonymous, created_at, updated_at)
-                 VALUES (?, ?, ?, 0, 0, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-                [titulo, conteudo, autor_id, is_anonymous ? 1 : 0]
+            const { lastID: questionId } = await executeQuery(
+                `INSERT INTO forum_questions (titulo, conteudo, autor_id, votos, views, is_anonymous, disciplina_codigo, created_at, updated_at)
+                 VALUES (?, ?, ?, 0, 0, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+                [titulo, conteudo, autor_id, is_anonymous ? 1 : 0, disciplina_codigo || null]
             );
 
             // Adicionar tags se fornecidas
@@ -49,14 +49,16 @@ class ForumModel {
         
         try {
             const question = await getQuery(`
-                SELECT 
+                SELECT
                     q.*,
                     u.name as autor_nome,
                     u.profile_image as autor_imagem,
+                    d.nome as disciplina_nome,
                     (SELECT COUNT(*) FROM forum_answers WHERE question_id = q.id) as respostas_count,
                     (SELECT COUNT(*) FROM forum_answers WHERE question_id = q.id AND is_accepted = 1) as tem_resposta_aceita
                 FROM forum_questions q
                 JOIN users u ON q.autor_id = u.id
+                LEFT JOIN disciplines d ON q.disciplina_codigo = d.codigo
                 WHERE q.id = ?
             `, [id]);
 
@@ -83,10 +85,12 @@ class ForumModel {
         search = '', 
         tagId = null,
         tagName = null,
-        page = 1, 
-        limit = 20 
+        disciplina = null,
+        autorId = null,
+        page = 1,
+        limit = 20
     } = {}) {
-        console.log("🔵 [ForumModel] Buscando perguntas:", { sortBy, search, tagId, tagName, page, limit });
+        console.log("🔵 [ForumModel] Buscando perguntas:", { sortBy, search, tagId, tagName, disciplina, autorId, page, limit });
         
         try {
             let query = `
@@ -143,27 +147,41 @@ class ForumModel {
                 params.push(`%${search}%`, `%${search}%`);
             }
 
+            // Filtro por disciplina
+            if (disciplina) {
+                const discCondition = (tagId || tagName || search) ? 'AND' : 'WHERE';
+                query += ` ${discCondition} q.disciplina_codigo = ?`;
+                params.push(disciplina);
+            }
+
+            // Filtro por autor
+            if (autorId) {
+                const autorCondition = (tagId || tagName || search || disciplina) ? 'AND' : 'WHERE';
+                query += ` ${autorCondition} q.autor_id = ?`;
+                params.push(autorId);
+            }
+
             // Filtro sem resposta
             if (sortBy === 'sem-resposta') {
-                const noAnswerCondition = (tagId || tagName || search) ? 'AND' : 'WHERE';
+                const noAnswerCondition = (tagId || tagName || search || disciplina || autorId) ? 'AND' : 'WHERE';
                 query += ` ${noAnswerCondition} (SELECT COUNT(*) FROM forum_answers WHERE question_id = q.id) = 0`;
             }
 
-            // Ordenação
+            // Ordenação (perguntas fixadas sempre no topo)
             switch (sortBy) {
                 case 'votos':
-                    query += ' ORDER BY q.votos DESC, q.created_at DESC';
+                    query += ' ORDER BY q.is_pinned DESC, q.votos DESC, q.created_at DESC';
                     break;
                 case 'atividade':
-                    query += ' ORDER BY q.updated_at DESC, q.created_at DESC';
+                    query += ' ORDER BY q.is_pinned DESC, q.updated_at DESC, q.created_at DESC';
                     break;
                 case 'views':
-                    query += ' ORDER BY q.views DESC, q.created_at DESC';
+                    query += ' ORDER BY q.is_pinned DESC, q.views DESC, q.created_at DESC';
                     break;
                 case 'sem-resposta':
                 case 'recente':
                 default:
-                    query += ' ORDER BY q.created_at DESC';
+                    query += ' ORDER BY q.is_pinned DESC, q.created_at DESC';
                     break;
             }
 
@@ -174,9 +192,16 @@ class ForumModel {
 
             const questions = await allQuery(query, params);
 
-            // Buscar tags para cada pergunta
+            // Buscar tags (e nome da disciplina, se houver) para cada pergunta
             for (const question of questions) {
                 question.tags = await this.getQuestionTags(question.id);
+                if (question.disciplina_codigo) {
+                    const disc = await getQuery(
+                        'SELECT nome FROM disciplines WHERE codigo = ?',
+                        [question.disciplina_codigo]
+                    );
+                    question.disciplina_nome = disc ? disc.nome : null;
+                }
             }
 
             console.log("🟢 [ForumModel] Perguntas encontradas:", questions.length);
@@ -190,7 +215,7 @@ class ForumModel {
     /**
      * Conta total de perguntas (para paginação)
      */
-    async countQuestions({ search = '', tagId = null, tagName = null, sortBy = 'recente' } = {}) {
+    async countQuestions({ search = '', tagId = null, tagName = null, disciplina = null, autorId = null, sortBy = 'recente' } = {}) {
         console.log("🔵 [ForumModel] Contando perguntas");
         
         try {
@@ -211,8 +236,20 @@ class ForumModel {
                 params.push(`%${search}%`, `%${search}%`);
             }
 
+            if (disciplina) {
+                const discCondition = (tagId || tagName || search) ? 'AND' : 'WHERE';
+                query += ` ${discCondition} q.disciplina_codigo = ?`;
+                params.push(disciplina);
+            }
+
+            if (autorId) {
+                const autorCondition = (tagId || tagName || search || disciplina) ? 'AND' : 'WHERE';
+                query += ` ${autorCondition} q.autor_id = ?`;
+                params.push(autorId);
+            }
+
             if (sortBy === 'sem-resposta') {
-                const noAnswerCondition = (tagId || tagName || search) ? 'AND' : 'WHERE';
+                const noAnswerCondition = (tagId || tagName || search || disciplina || autorId) ? 'AND' : 'WHERE';
                 query += ` ${noAnswerCondition} (SELECT COUNT(*) FROM forum_answers WHERE question_id = q.id) = 0`;
             }
 
@@ -228,22 +265,36 @@ class ForumModel {
     /**
      * Atualiza uma pergunta
      */
-    async updateQuestion(id, { titulo, conteudo, tags }) {
-        console.log("🔵 [ForumModel] Atualizando pergunta:", id);
-        
+    async updateQuestion(id, fields = {}) {
+        console.log("🔵 [ForumModel] Atualizando pergunta:", id, Object.keys(fields));
+
         try {
-            await executeQuery(
-                `UPDATE forum_questions 
-                 SET titulo = ?, conteudo = ?, updated_at = CURRENT_TIMESTAMP 
-                 WHERE id = ?`,
-                [titulo, conteudo, id]
-            );
+            // Atualização parcial: só altera as colunas efetivamente informadas.
+            const allowedColumns = ['titulo', 'conteudo', 'is_closed', 'is_pinned', 'disciplina_codigo'];
+            const setClauses = [];
+            const params = [];
+
+            for (const column of allowedColumns) {
+                if (fields[column] !== undefined) {
+                    setClauses.push(`${column} = ?`);
+                    params.push(fields[column]);
+                }
+            }
+
+            if (setClauses.length > 0) {
+                setClauses.push('updated_at = CURRENT_TIMESTAMP');
+                params.push(id);
+                await executeQuery(
+                    `UPDATE forum_questions SET ${setClauses.join(', ')} WHERE id = ?`,
+                    params
+                );
+            }
 
             // Atualizar tags se fornecidas
-            if (tags !== undefined) {
+            if (fields.tags !== undefined) {
                 await this.removeAllTagsFromQuestion(id);
-                if (tags.length > 0) {
-                    await this.addTagsToQuestion(id, tags);
+                if (fields.tags.length > 0) {
+                    await this.addTagsToQuestion(id, fields.tags);
                 }
             }
 
@@ -262,6 +313,27 @@ class ForumModel {
         console.log("🔵 [ForumModel] Deletando pergunta:", id);
         
         try {
+            // PRAGMA foreign_keys pode estar OFF nesta conexão (ON DELETE CASCADE não dispara):
+            // limpar manualmente tudo relacionado à pergunta antes de removê-la.
+
+            // Comentários (polimórficos) da pergunta e de suas respostas
+            await executeQuery(
+                `DELETE FROM forum_comments
+                 WHERE (target_type = 'question' AND target_id = ?)
+                    OR (target_type = 'answer' AND target_id IN (SELECT id FROM forum_answers WHERE question_id = ?))`,
+                [id, id]
+            );
+            // Votos (polimórficos) da pergunta e das respostas
+            await executeQuery("DELETE FROM forum_votes WHERE votable_type = 'question' AND votable_id = ?", [id]);
+            await executeQuery(
+                "DELETE FROM forum_votes WHERE votable_type = 'answer' AND votable_id IN (SELECT id FROM forum_answers WHERE question_id = ?)",
+                [id]
+            );
+            // Inscrições, favoritos, associações de tags e respostas
+            await executeQuery('DELETE FROM forum_subscriptions WHERE question_id = ?', [id]);
+            await executeQuery('DELETE FROM forum_bookmarks WHERE question_id = ?', [id]);
+            await executeQuery('DELETE FROM forum_question_tags WHERE question_id = ?', [id]);
+            await executeQuery('DELETE FROM forum_answers WHERE question_id = ?', [id]);
             await executeQuery('DELETE FROM forum_questions WHERE id = ?', [id]);
             console.log("🟢 [ForumModel] Pergunta deletada");
             return true;
@@ -300,7 +372,7 @@ class ForumModel {
         console.log("🔵 [ForumModel] Criando resposta para pergunta:", question_id);
         
         try {
-            const answerId = await executeQuery(
+            const { lastID: answerId } = await executeQuery(
                 `INSERT INTO forum_answers (question_id, conteudo, autor_id, votos, is_accepted, is_anonymous, created_at, updated_at)
                  VALUES (?, ?, ?, 0, 0, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
                 [question_id, conteudo, autor_id, is_anonymous]
@@ -413,6 +485,8 @@ class ForumModel {
         console.log("🔵 [ForumModel] Deletando resposta:", id);
         
         try {
+            await executeQuery("DELETE FROM forum_comments WHERE target_type = 'answer' AND target_id = ?", [id]);
+            await executeQuery("DELETE FROM forum_votes WHERE votable_type = 'answer' AND votable_id = ?", [id]);
             await executeQuery('DELETE FROM forum_answers WHERE id = ?', [id]);
             console.log("🟢 [ForumModel] Resposta deletada");
             return true;
@@ -472,7 +546,7 @@ class ForumModel {
             let tag = await getQuery('SELECT * FROM forum_tags WHERE nome = ?', [normalizedName]);
             
             if (!tag) {
-                const tagId = await executeQuery(
+                const { lastID: tagId } = await executeQuery(
                     'INSERT INTO forum_tags (nome, topico, descricao, created_by_user, approved, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
                     [normalizedName, topico, descricao, userId, userId ? 0 : 1] // Se criado por usuário, precisa aprovação
                 );
@@ -640,7 +714,7 @@ class ForumModel {
                 throw new Error('Tag já existe');
             }
 
-            const tagId = await executeQuery(
+            const { lastID: tagId } = await executeQuery(
                 'INSERT INTO forum_tags (nome, topico, descricao, created_by_user, approved, created_at) VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)',
                 [normalizedName, topico, descricao, userId]
             );
@@ -960,6 +1034,223 @@ class ForumModel {
             console.error("🔴 [ForumModel] Erro ao buscar estatísticas globais:", error.message);
             throw error;
         }
+    }
+
+    // =====================================================
+    // REPORTS - Denúncias de conteúdo
+    // =====================================================
+
+    /**
+     * Cria uma denúncia de pergunta ou resposta.
+     */
+    async createReport({ reporter_id, target_type, target_id, motivo }) {
+        console.log("🔵 [ForumModel] Criando denúncia:", { reporter_id, target_type, target_id });
+
+        try {
+            const { lastID: reportId } = await executeQuery(
+                `INSERT INTO forum_reports (reporter_id, target_type, target_id, motivo, status, created_at)
+                 VALUES (?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)`,
+                [reporter_id, target_type, target_id, motivo]
+            );
+
+            console.log("🟢 [ForumModel] Denúncia criada com id:", reportId);
+            return reportId;
+        } catch (error) {
+            console.error("🔴 [ForumModel] Erro ao criar denúncia:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Lista denúncias (opcionalmente filtradas por status), com nome do denunciante
+     * e um trecho do conteúdo denunciado.
+     */
+    async getReports({ status = null } = {}) {
+        console.log("🔵 [ForumModel] Buscando denúncias:", { status });
+
+        try {
+            let query = `
+                SELECT
+                    r.*,
+                    u.name as reporter_nome,
+                    CASE r.target_type
+                        WHEN 'question' THEN (SELECT titulo FROM forum_questions WHERE id = r.target_id)
+                        ELSE (SELECT conteudo FROM forum_answers WHERE id = r.target_id)
+                    END as target_preview,
+                    CASE r.target_type
+                        WHEN 'question' THEN r.target_id
+                        ELSE (SELECT question_id FROM forum_answers WHERE id = r.target_id)
+                    END as question_id
+                FROM forum_reports r
+                JOIN users u ON r.reporter_id = u.id
+            `;
+            const params = [];
+
+            if (status) {
+                query += ' WHERE r.status = ?';
+                params.push(status);
+            }
+
+            query += ' ORDER BY r.created_at DESC';
+
+            const reports = await allQuery(query, params);
+            console.log("🟢 [ForumModel] Denúncias encontradas:", reports.length);
+            return reports;
+        } catch (error) {
+            console.error("🔴 [ForumModel] Erro ao buscar denúncias:", error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza o status de uma denúncia ('resolved' ou 'dismissed').
+     */
+    async updateReportStatus(id, status) {
+        console.log("🔵 [ForumModel] Atualizando status da denúncia:", id, status);
+
+        try {
+            await executeQuery(
+                `UPDATE forum_reports SET status = ?, resolved_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                [status, id]
+            );
+            console.log("🟢 [ForumModel] Status da denúncia atualizado");
+            return true;
+        } catch (error) {
+            console.error("🔴 [ForumModel] Erro ao atualizar denúncia:", error.message);
+            throw error;
+        }
+    }
+
+    // =====================================================
+    // COMMENTS - Comentários em perguntas/respostas
+    // =====================================================
+
+    async createComment({ target_type, target_id, autor_id, conteudo }) {
+        console.log("🔵 [ForumModel] Criando comentário:", { target_type, target_id, autor_id });
+        const { lastID } = await executeQuery(
+            `INSERT INTO forum_comments (target_type, target_id, autor_id, conteudo, created_at)
+             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+            [target_type, target_id, autor_id, conteudo]
+        );
+        return lastID;
+    }
+
+    async getCommentById(id) {
+        return await getQuery('SELECT * FROM forum_comments WHERE id = ?', [id]);
+    }
+
+    /** Comentários da pergunta e de todas as suas respostas (uma query). */
+    async getCommentsForQuestion(questionId) {
+        return await allQuery(
+            `SELECT c.*, u.name as autor_nome
+             FROM forum_comments c
+             JOIN users u ON c.autor_id = u.id
+             WHERE (c.target_type = 'question' AND c.target_id = ?)
+                OR (c.target_type = 'answer' AND c.target_id IN (SELECT id FROM forum_answers WHERE question_id = ?))
+             ORDER BY c.created_at ASC`,
+            [questionId, questionId]
+        );
+    }
+
+    async deleteComment(id) {
+        await executeQuery('DELETE FROM forum_comments WHERE id = ?', [id]);
+        return true;
+    }
+
+    // =====================================================
+    // SUBSCRIPTIONS - Seguir perguntas
+    // =====================================================
+
+    async subscribe(userId, questionId) {
+        await executeQuery(
+            'INSERT OR IGNORE INTO forum_subscriptions (user_id, question_id, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+            [userId, questionId]
+        );
+        return true;
+    }
+
+    async unsubscribe(userId, questionId) {
+        await executeQuery(
+            'DELETE FROM forum_subscriptions WHERE user_id = ? AND question_id = ?',
+            [userId, questionId]
+        );
+        return true;
+    }
+
+    async isSubscribed(userId, questionId) {
+        const row = await getQuery(
+            'SELECT 1 FROM forum_subscriptions WHERE user_id = ? AND question_id = ?',
+            [userId, questionId]
+        );
+        return !!row;
+    }
+
+    async getSubscriberIds(questionId) {
+        const rows = await allQuery(
+            'SELECT user_id FROM forum_subscriptions WHERE question_id = ?',
+            [questionId]
+        );
+        return rows.map(r => r.user_id);
+    }
+
+    /** Respostas de um usuário, com o título da pergunta correspondente. */
+    async getAnswersByUser(userId) {
+        return await allQuery(
+            `SELECT a.*, q.titulo as question_titulo
+             FROM forum_answers a
+             JOIN forum_questions q ON a.question_id = q.id
+             WHERE a.autor_id = ?
+             ORDER BY a.created_at DESC`,
+            [userId]
+        );
+    }
+
+    // =====================================================
+    // BOOKMARKS - Favoritos
+    // =====================================================
+
+    async addBookmark(userId, questionId) {
+        await executeQuery(
+            'INSERT OR IGNORE INTO forum_bookmarks (user_id, question_id, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+            [userId, questionId]
+        );
+        return true;
+    }
+
+    async removeBookmark(userId, questionId) {
+        await executeQuery(
+            'DELETE FROM forum_bookmarks WHERE user_id = ? AND question_id = ?',
+            [userId, questionId]
+        );
+        return true;
+    }
+
+    async isBookmarked(userId, questionId) {
+        const row = await getQuery(
+            'SELECT 1 FROM forum_bookmarks WHERE user_id = ? AND question_id = ?',
+            [userId, questionId]
+        );
+        return !!row;
+    }
+
+    /** Perguntas favoritadas por um usuário (mesma forma de linha que getQuestions). */
+    async getBookmarkedQuestions(userId) {
+        const questions = await allQuery(
+            `SELECT q.*, u.name as autor_nome, u.profile_image as autor_imagem, d.nome as disciplina_nome,
+                (SELECT COUNT(*) FROM forum_answers WHERE question_id = q.id) as respostas_count,
+                (SELECT COUNT(*) FROM forum_answers WHERE question_id = q.id AND is_accepted = 1) > 0 as tem_resposta_aceita
+             FROM forum_questions q
+             JOIN users u ON q.autor_id = u.id
+             LEFT JOIN disciplines d ON q.disciplina_codigo = d.codigo
+             JOIN forum_bookmarks b ON b.question_id = q.id
+             WHERE b.user_id = ?
+             ORDER BY b.created_at DESC`,
+            [userId]
+        );
+        for (const question of questions) {
+            question.tags = await this.getQuestionTags(question.id);
+        }
+        return questions;
     }
 }
 

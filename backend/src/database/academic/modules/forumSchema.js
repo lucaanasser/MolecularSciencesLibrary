@@ -25,12 +25,32 @@ async function initForumSchema({ run }) {
             votos INTEGER DEFAULT 0,
             views INTEGER DEFAULT 0,
             is_closed INTEGER DEFAULT 0,
+            is_pinned INTEGER DEFAULT 0,
+            disciplina_codigo TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             is_anonymous INTEGER DEFAULT 0,
             FOREIGN KEY(autor_id) REFERENCES users(id) ON DELETE CASCADE
         )`
     );
+
+    // Migração: garante a coluna is_pinned em bancos já existentes.
+    try {
+        await run(`ALTER TABLE forum_questions ADD COLUMN is_pinned INTEGER DEFAULT 0`);
+    } catch (error) {
+        if (!String(error.message || "").includes('duplicate column name: is_pinned')) {
+            throw error;
+        }
+    }
+
+    // Migração: vínculo opcional (soft) de pergunta a uma disciplina (disciplines.codigo).
+    try {
+        await run(`ALTER TABLE forum_questions ADD COLUMN disciplina_codigo TEXT`);
+    } catch (error) {
+        if (!String(error.message || "").includes('duplicate column name: disciplina_codigo')) {
+            throw error;
+        }
+    }
 
     await run(
         `CREATE TABLE IF NOT EXISTS forum_answers (
@@ -84,11 +104,66 @@ async function initForumSchema({ run }) {
         )`
     );
 
+    await run(
+        `CREATE TABLE IF NOT EXISTS forum_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target_type TEXT NOT NULL CHECK(target_type IN ('question', 'answer')),
+            target_id INTEGER NOT NULL,
+            autor_id INTEGER NOT NULL,
+            conteudo TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(autor_id) REFERENCES users(id) ON DELETE CASCADE
+        )`
+    );
+
+    await run(
+        `CREATE TABLE IF NOT EXISTS forum_bookmarks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, question_id),
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(question_id) REFERENCES forum_questions(id) ON DELETE CASCADE
+        )`
+    );
+
+    await run(
+        `CREATE TABLE IF NOT EXISTS forum_subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, question_id),
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(question_id) REFERENCES forum_questions(id) ON DELETE CASCADE
+        )`
+    );
+
+    await run(
+        `CREATE TABLE IF NOT EXISTS forum_reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            reporter_id INTEGER NOT NULL,
+            target_type TEXT NOT NULL CHECK(target_type IN ('question', 'answer')),
+            target_id INTEGER NOT NULL,
+            motivo TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'resolved', 'dismissed')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            resolved_at TIMESTAMP,
+            FOREIGN KEY(reporter_id) REFERENCES users(id) ON DELETE CASCADE
+        )`
+    );
+
     await run('CREATE INDEX IF NOT EXISTS idx_forum_questions_autor ON forum_questions(autor_id)');
     await run('CREATE INDEX IF NOT EXISTS idx_forum_questions_created ON forum_questions(created_at DESC)');
     await run('CREATE INDEX IF NOT EXISTS idx_forum_questions_votos ON forum_questions(votos DESC)');
+    await run('CREATE INDEX IF NOT EXISTS idx_forum_questions_disciplina ON forum_questions(disciplina_codigo)');
     await run('CREATE INDEX IF NOT EXISTS idx_forum_answers_question ON forum_answers(question_id)');
     await run('CREATE INDEX IF NOT EXISTS idx_forum_votes_votable ON forum_votes(votable_type, votable_id)');
+    await run('CREATE INDEX IF NOT EXISTS idx_forum_reports_status ON forum_reports(status, created_at DESC)');
+    await run('CREATE INDEX IF NOT EXISTS idx_forum_comments_target ON forum_comments(target_type, target_id)');
+    await run('CREATE INDEX IF NOT EXISTS idx_forum_subscriptions_question ON forum_subscriptions(question_id)');
+    await run('CREATE INDEX IF NOT EXISTS idx_forum_bookmarks_user ON forum_bookmarks(user_id)');
 
     log.success('Tabelas e indices do forum criados com sucesso');
 }

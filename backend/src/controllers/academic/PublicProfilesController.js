@@ -9,6 +9,7 @@ const profileFollowsModel = require('../../models/academic/publicProfiles/Profil
 const { uploadImage, deleteImage } = require('../../utils/imageUpload');
 const usersModel = require('../../models/library/UsersModel');
 const GitHubPublishService = require('../../services/academic/GitHubPublishService');
+const AdvancedPdfService = require('../../services/academic/AdvancedPdfService');
 const {
     MissingRequiredFieldError,
     MissingRosterSelectionError,
@@ -83,10 +84,26 @@ class PublicProfilesController {
     /**
      * Upload profile avatar/image
      */
+    async getAvatarRosterOptions(req, res) {
+        try {
+            const { userId } = req.params;
+            console.log(`🔵 [PublicProfilesController.getAvatarRosterOptions] Buscando opções de roster para avatar: ${userId}`);
+
+            const options = await publicProfilesService.getSandboxRosterOptions(userId);
+
+            console.log(`🟢 [PublicProfilesController.getAvatarRosterOptions] ${options.students.length} opções retornadas`);
+            res.status(200).json(options);
+        } catch (error) {
+            console.error(`🔴 [PublicProfilesController.getAvatarRosterOptions] Erro:`, error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
     async uploadAvatar(req, res) {
         try {
             const { userId } = req.params;
-            console.log(`🔵 [PublicProfilesController.uploadAvatar] Upload de avatar para user: ${userId}`);
+            const rosterName = req.query.rosterName;
+            console.log(`🔵 [PublicProfilesController.uploadAvatar] Upload de avatar para user: ${userId}, rosterName: ${rosterName}`);
 
             if (!req.file) {
                 console.error(`🔴 [PublicProfilesController.uploadAvatar] Nenhum arquivo enviado`);
@@ -104,9 +121,27 @@ class PublicProfilesController {
             const user = await usersModel.getUserById(userId);
             const oldAvatar = user.profile_image;
 
-            // Upload new avatar
-            const imagePath = uploadImage(req.file.buffer, req.file.originalname, 'user-images', 5);
-            console.log(`🟢 [PublicProfilesController.uploadAvatar] Imagem salva em: ${imagePath}`);
+            // If rosterName is provided, use CCM website naming convention
+            let imagePath;
+            if (rosterName) {
+                const { ProfileTransformer } = require('../../services/academic/ProfileTransformer');
+                const completeProfile = await publicProfilesService.getCompleteProfile(userId);
+                const profileTransformer = new ProfileTransformer();
+                const turma = profileTransformer.resolveClassYear(completeProfile.turma);
+                const slug = ProfileTransformer.generateSlug(rosterName);
+                const isHighRes = String(req.file.originalname || '').includes('@2x');
+                
+                // Save with ccm-website naming convention
+                const fileName = isHighRes ? `${slug}@2x.jpg` : `${slug}.jpg`;
+                
+                // Save to user-images for backend storage
+                imagePath = uploadImage(req.file.buffer, fileName, 'user-images', 5, { preserveOriginalName: true });
+                console.log(`🟢 [PublicProfilesController.uploadAvatar] Imagem salva com nome correto: ${imagePath}`);
+            } else {
+                // Fallback to original naming if no rosterName provided
+                imagePath = uploadImage(req.file.buffer, req.file.originalname, 'user-images', 5);
+                console.log(`🟢 [PublicProfilesController.uploadAvatar] Imagem salva em (nome original): ${imagePath}`);
+            }
 
             // Delete old avatar BEFORE updating if it's a custom uploaded image
             if (oldAvatar && oldAvatar.includes('/images/user-images/')) {
@@ -161,6 +196,32 @@ class PublicProfilesController {
     }
 
     /**
+     * Remove avatar atual (apenas foto personalizada enviada pelo usuario)
+     */
+    async removeAvatar(req, res) {
+        try {
+            const { userId } = req.params;
+            console.log(`🔵 [PublicProfilesController.removeAvatar] Removendo avatar para user: ${userId}`);
+
+            const user = await usersModel.getUserById(userId);
+            const oldAvatar = user?.profile_image;
+
+            if (oldAvatar && oldAvatar.includes('/images/user-images/')) {
+                console.log(`🗑️  [PublicProfilesController.removeAvatar] Deletando imagem customizada: ${oldAvatar}`);
+                deleteImage(oldAvatar);
+            }
+
+            await usersModel.updateUserProfileImage(userId, null);
+
+            console.log(`🟢 [PublicProfilesController.removeAvatar] Avatar removido`);
+            res.status(200).json({ profile_image: null });
+        } catch (error) {
+            console.error(`🔴 [PublicProfilesController.removeAvatar] Erro:`, error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
      * O que faz: publica perfil no repositorio sandbox e abre PR.
      * Camada: Controller.
      * Entradas/Saidas: req.params.userId -> resultado de publicacao.
@@ -170,13 +231,17 @@ class PublicProfilesController {
     async publishSandbox(req, res) {
         try {
             const { userId } = req.params;
-            const { selectedRosterName } = req.body || {};
+            const { selectedRosterName, includePhoto, advancedPdfIds } = req.body || {};
             console.log(`🔵 [PublicProfilesController.publishSandbox] Iniciando publicação sandbox: ${userId}`);
 
-            const cmPayload = await publicProfilesService.exportProfileToCMSchema(userId, selectedRosterName);
+            const { cmPayload, advancedPdfEntries } = await publicProfilesService.prepareSandboxPublishPayload(userId, {
+                selectedRosterName,
+                includePhoto,
+                advancedPdfIds
+            });
 
             const publisher = new GitHubPublishService();
-            const publishResult = await publisher.publishProfile(cmPayload, userId);
+            const publishResult = await publisher.publishProfile(cmPayload, userId, { advancedPdfEntries });
 
             if (!publishResult.success) {
                 console.error(`🔴 [PublicProfilesController.publishSandbox] Falha na publicação`, publishResult);
@@ -230,6 +295,47 @@ class PublicProfilesController {
 
             console.error(`🔴 [PublicProfilesController.getSandboxRosterOptions] Erro:`, error.message);
             return res.status(500).json({ success: false, error: error.message });
+        }
+    }
+
+    /**
+     * O que faz: gera PDF do ciclo avancado e retorna para download.
+     * Camada: Controller.
+     * Entradas/Saidas: userId + cycleId + selectedRosterName -> PDF buffer.
+     * Dependencias criticas: PublicProfilesService + AdvancedPdfService.
+     * Efeitos colaterais: nenhum.
+     */
+    async getAdvancedCyclePDF(req, res) {
+        try {
+            const { userId, cycleId } = req.params;
+            const { selectedRosterName } = req.body || {};
+
+            console.log(`🔵 [PublicProfilesController.getAdvancedCyclePDF] Gerando PDF do ciclo: ${cycleId}`);
+
+            if (!selectedRosterName) {
+                return res.status(400).json({ error: 'selectedRosterName e obrigatorio para gerar PDF.' });
+            }
+
+            const { cmPayload, entry } = await publicProfilesService.prepareAdvancedPdfPayload(
+                userId,
+                cycleId,
+                selectedRosterName
+            );
+
+            const pdfBuffer = await AdvancedPdfService.generateAdvancedPdf({
+                studentName: cmPayload.nome,
+                turma: cmPayload.turma,
+                cycle: entry.cycle,
+                disciplines: entry.disciplines,
+                experiences: entry.experiences
+            });
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=${entry.fileName}`);
+            return res.status(200).send(pdfBuffer);
+        } catch (error) {
+            console.error(`🔴 [PublicProfilesController.getAdvancedCyclePDF] Erro:`, error.message);
+            return res.status(500).json({ error: error.message });
         }
     }
 

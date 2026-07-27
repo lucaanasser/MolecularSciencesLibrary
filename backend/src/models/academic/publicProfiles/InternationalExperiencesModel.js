@@ -21,16 +21,17 @@ class InternationalExperiencesModel {
             ano_inicio,
             ano_fim,
             duracao_numero,
-            duracao_unidade
+            duracao_unidade,
+            avancado_id
         } = data;
 
         const result = await executeQuery(
             `INSERT INTO international_experiences 
              (user_id, tipo, pais, instituicao, programa, orientador, descricao,
-              ano_inicio, ano_fim, duracao_numero, duracao_unidade)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              ano_inicio, ano_fim, duracao_numero, duracao_unidade, avancado_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [userId, tipo, pais, instituicao, programa, orientador, descricao,
-             ano_inicio, ano_fim, duracao_numero, duracao_unidade]
+             ano_inicio, ano_fim, duracao_numero, duracao_unidade, avancado_id]
         );
 
         console.log(`🟢 [InternationalExperiencesModel] Experiência criada com ID: ${result.lastID}`);
@@ -92,17 +93,18 @@ class InternationalExperiencesModel {
             ano_inicio,
             ano_fim,
             duracao_numero,
-            duracao_unidade
+            duracao_unidade,
+            avancado_id
         } = data;
 
         await executeQuery(
             `UPDATE international_experiences 
              SET tipo = ?, pais = ?, instituicao = ?, programa = ?, orientador = ?,
                  descricao = ?, ano_inicio = ?, ano_fim = ?, duracao_numero = ?,
-                 duracao_unidade = ?, updated_at = CURRENT_TIMESTAMP
+                 duracao_unidade = ?, avancado_id = ?, updated_at = CURRENT_TIMESTAMP
              WHERE id = ?`,
             [tipo, pais, instituicao, programa, orientador, descricao,
-             ano_inicio, ano_fim, duracao_numero, duracao_unidade, expId]
+             ano_inicio, ano_fim, duracao_numero, duracao_unidade, avancado_id, expId]
         );
 
         console.log(`🟢 [InternationalExperiencesModel] Experiência atualizada`);
