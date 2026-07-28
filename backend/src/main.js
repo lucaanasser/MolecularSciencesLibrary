@@ -11,12 +11,12 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 
-const booksRouter = require('./routes/library/BooksRoutes');
-const usersRouter = require('./routes/library/UsersRoutes');
+const booksRouter = require('./routes/library/books/BooksRoutes');
+const usersRouter = require('./routes/library/users/UsersRoutes');
 const loansRouter = require('./routes/library/LoansRoutes');
 const badgesRouter = require('./routes/library/BadgesRoutes');
-const donatorsRouter = require('./routes/library/DonatorsRoutes');
-const virtualBookShelfRouter = require('./routes/library/VirtualBookSheflRoute');
+const donatorsRouter = require('./routes/library/donators/DonatorsRoutes');
+const virtualBookShelfRouter = require('./routes/library/virtualBookshelf/VirtualBookshelfRoutes');
 
 const notificationsRouter = require('./routes/utilities/NotificationsRoutes');
 const emailRouter = require('./routes/utilities/EmailRoutes');
