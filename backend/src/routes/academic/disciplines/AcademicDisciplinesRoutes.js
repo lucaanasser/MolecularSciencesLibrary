@@ -8,7 +8,7 @@
 const express = require('express');
 const authenticateToken = require('../../../middlewares/authenticateToken');
 const academicDisciplinesController = require('../../../controllers/academic/disciplines/AcademicDisciplinesController');
-const { optionalAuth } = require('./registerAcademicDisciplinesLegacyRoutes');
+const optionalAuth = require('../../../middlewares/optionalAuth');
 
 const router = express.Router();
 

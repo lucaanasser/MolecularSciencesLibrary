@@ -99,7 +99,7 @@ function getAuthHeaders(): Record<string, string> {
 export async function getEvaluationsByDiscipline(codigo: string): Promise<Evaluation[]> {
   console.log(`🔵 [DisciplineEvaluationsService] Buscando avaliações: ${codigo}`);
   
-  const response = await fetch(`/api/evaluations/discipline/${codigo}`, {
+  const response = await fetch(`/api/academic/disciplines/${codigo}/evaluations`, {
     headers: {
       ...getAuthHeaders(),
     },
@@ -122,7 +122,7 @@ export async function getEvaluationsByDiscipline(codigo: string): Promise<Evalua
 export async function getAggregatedRatings(codigo: string): Promise<AggregatedRatings> {
   console.log(`🔵 [DisciplineEvaluationsService] Buscando ratings agregados: ${codigo}`);
   
-  const response = await fetch(`/api/evaluations/discipline/${codigo}/stats`);
+  const response = await fetch(`/api/academic/disciplines/${codigo}/evaluations/stats`);
   
   if (!response.ok) {
     console.error(`🔴 [DisciplineEvaluationsService] Erro ao buscar ratings`);
@@ -141,7 +141,7 @@ export async function getAggregatedRatings(codigo: string): Promise<AggregatedRa
 export async function getMyEvaluationForDiscipline(codigo: string): Promise<Evaluation | null> {
   console.log(`🔵 [DisciplineEvaluationsService] Buscando minha avaliação: ${codigo}`);
   
-  const response = await fetch(`/api/evaluations/discipline/${codigo}/mine`, {
+  const response = await fetch(`/api/academic/disciplines/${codigo}/evaluations/mine`, {
     headers: {
       ...getAuthHeaders(),
     },
@@ -169,7 +169,7 @@ export async function getMyEvaluationForDiscipline(codigo: string): Promise<Eval
 export async function getMyEvaluations(): Promise<EvaluationWithDiscipline[]> {
   console.log(`🔵 [DisciplineEvaluationsService] Buscando minhas avaliações`);
   
-  const response = await fetch(`/api/evaluations/mine`, {
+  const response = await fetch(`/api/academic/disciplines/evaluations/mine`, {
     headers: {
       ...getAuthHeaders(),
     },
@@ -192,7 +192,7 @@ export async function getMyEvaluations(): Promise<EvaluationWithDiscipline[]> {
 export async function createEvaluation(data: CreateEvaluationData): Promise<{ id: number }> {
   console.log(`🔵 [DisciplineEvaluationsService] Criando avaliação: ${data.disciplineCodigo}`);
   
-  const response = await fetch(`/api/evaluations`, {
+  const response = await fetch(`/api/academic/disciplines/${data.disciplineCodigo}/evaluations`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -219,7 +219,7 @@ export async function createEvaluation(data: CreateEvaluationData): Promise<{ id
 export async function updateEvaluation(id: number, data: UpdateEvaluationData): Promise<{ id: number; updated: boolean }> {
   console.log(`🔵 [DisciplineEvaluationsService] Atualizando avaliação: ${id}`);
   
-  const response = await fetch(`/api/evaluations/${id}`, {
+  const response = await fetch(`/api/academic/disciplines/evaluations/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -246,7 +246,7 @@ export async function updateEvaluation(id: number, data: UpdateEvaluationData): 
 export async function deleteEvaluation(id: number): Promise<void> {
   console.log(`🔵 [DisciplineEvaluationsService] Deletando avaliação: ${id}`);
   
-  const response = await fetch(`/api/evaluations/${id}`, {
+  const response = await fetch(`/api/academic/disciplines/evaluations/${id}`, {
     method: "DELETE",
     headers: {
       ...getAuthHeaders(),
@@ -269,7 +269,7 @@ export async function deleteEvaluation(id: number): Promise<void> {
 export async function toggleLike(evaluationId: number): Promise<{ liked: boolean }> {
   console.log(`🔵 [DisciplineEvaluationsService] Toggle like: ${evaluationId}`);
   
-  const response = await fetch(`/api/evaluations/${evaluationId}/like`, {
+  const response = await fetch(`/api/academic/disciplines/evaluations/${evaluationId}/like`, {
     method: "POST",
     headers: {
       ...getAuthHeaders(),
