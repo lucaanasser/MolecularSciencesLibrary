@@ -23,7 +23,7 @@ export function useDeleteEmail() {
     try {
       console.log("🔵 [useDeleteEmail] Deletando email:", emailId);
       const token = getToken();
-      const res = await fetch(`/api/notifications/inbox/${emailId}`, {
+      const res = await fetch(`/api/email/inbox/${emailId}`, {
         method: "DELETE",
         credentials: "include",
         headers: {

@@ -22,7 +22,7 @@ export function useInbox() {
     setError(null);
     try {
       const token = getToken();
-      const res = await fetch("/api/notifications/inbox", {
+      const res = await fetch("/api/email/inbox", {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",

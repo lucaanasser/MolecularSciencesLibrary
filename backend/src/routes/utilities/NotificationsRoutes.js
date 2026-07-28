@@ -8,7 +8,6 @@
 const express = require('express');
 const router = express.Router();
 const NotificationsController = require('../../controllers/utilities/notifications/NotificationsController');
-const EmailController = require('../../controllers/utilities/email/EmailController');
 const authenticateToken = require('../../middlewares/authenticateToken');
 const { getLogger } = require('../../shared/logging/logger');
 
@@ -29,15 +28,6 @@ router.post('/', authenticateToken, (req, res) => {
         route: 'POST /',
         requester_id: req?.user?.id,
         type: req.body?.type
-    });
-    NotificationsController.createNotification(req, res);
-});
-
-// Rota legada para nudge
-router.post('/nudge', (req, res) => {
-    log.warn('Endpoint deprecated em uso; migrar para POST /api/notifications', {
-        route: 'POST /nudge',
-        replacement: 'POST /'
     });
     NotificationsController.createNotification(req, res);
 });
@@ -70,25 +60,6 @@ router.delete('/:id', authenticateToken, (req, res) => {
         requester_id: req?.user?.id
     });
     NotificationsController.deleteForUser(req, res);
-});
-
-// Endpoint legado: inbox foi movida para /api/email/inbox
-router.get('/inbox', authenticateToken, (req, res) => {
-    log.warn('Endpoint deprecated em uso; migrar para GET /api/email/inbox', {
-        route: 'GET /inbox',
-        replacement: '/api/email/inbox'
-    });
-    EmailController.getInbox(req, res);
-});
-
-// Endpoint legado: exclusao de inbox foi movida para /api/email/inbox/:emailId
-router.delete('/inbox/:emailId', authenticateToken, (req, res) => {
-    log.warn('Endpoint deprecated em uso; migrar para DELETE /api/email/inbox/:emailId', {
-        route: 'DELETE /inbox/:emailId',
-        replacement: '/api/email/inbox/:emailId',
-        email_id: req.params.emailId
-    });
-    EmailController.deleteInboxEmail(req, res);
 });
 
 module.exports = router;
