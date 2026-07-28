@@ -231,7 +231,7 @@ export function useGradePageLogic() {
       return;
     }
     try {
-      const response = await fetch(`/api/disciplines/${discipline.codigo}/full`);
+      const response = await fetch(`/api/academic/disciplines/${discipline.codigo}/full`);
       if (response.ok) {
         const data = await response.json();
         const disciplineId = discipline.id || data.id;
