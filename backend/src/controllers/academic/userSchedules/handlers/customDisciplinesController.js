@@ -12,51 +12,6 @@ const log = getLogger(__filename);
 
 module.exports = {
     /**
-     * O que faz: adiciona uma disciplina customizada a um plano especifico. POST /api/user-schedules/:id/custom
-     * Onde e usada: definido para uso legado (nao roteado atualmente).
-     * Dependencias chamadas: service.addCustomDiscipline.
-     * Efeitos colaterais: persiste disciplina customizada e horarios em DB.
-     */
-    async addCustomDiscipline(req, res) {
-        try {
-            const userId = req.user.id;
-            const scheduleId = parseInt(req.params.scheduleId);
-            const { nome, codigo, creditos_aula, creditos_trabalho, color, schedules } = req.body;
-            log.start('Adicionando disciplina customizada ao plano', { scheduleId });
-
-            if (!nome) {
-                return res.status(400).json({ error: 'nome é obrigatório' });
-            }
-
-            if (!schedules || !Array.isArray(schedules) || schedules.length === 0) {
-                return res.status(400).json({ error: 'schedules deve ser um array com pelo menos um horário' });
-            }
-
-            // Validar cada schedule
-            for (const schedule of schedules) {
-                if (!schedule.dia || !schedule.horario_inicio || !schedule.horario_fim) {
-                    return res.status(400).json({ error: 'Cada schedule deve ter dia, horario_inicio e horario_fim' });
-                }
-            }
-
-            const result = await userSchedulesService.addCustomDiscipline(scheduleId, userId, {
-                nome, codigo, creditos_aula, creditos_trabalho, color, schedules
-            });
-
-            if (!result) {
-                log.warn('Plano nao encontrado', { scheduleId });
-                return res.status(404).json({ error: 'Plano não encontrado' });
-            }
-
-            log.success('Disciplina customizada adicionada', { scheduleId });
-            res.status(201).json(result);
-        } catch (error) {
-            log.error('Erro ao adicionar disciplina customizada', { err: error.message });
-            res.status(500).json({ error: 'Erro ao adicionar disciplina customizada' });
-        }
-    },
-
-    /**
      * O que faz: cria disciplina customizada (alias sem scheduleId na rota). POST /api/user-schedules/custom-disciplines
      * Onde e usada: rota POST /custom-disciplines.
      * Dependencias chamadas: service.addCustomDiscipline (usando schedule_id do body).

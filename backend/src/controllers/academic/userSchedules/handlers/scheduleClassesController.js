@@ -72,29 +72,6 @@ module.exports = {
     },
 
     /**
-     * O que faz: atualiza uma turma no plano (cor/visibilidade). PUT /api/user-schedules/classes/:scheduleClassId
-     * Onde e usada: definido para uso legado (nao roteado atualmente).
-     * Dependencias chamadas: service.updateScheduleClass.
-     * Efeitos colaterais: atualiza atributos da turma no plano em DB.
-     */
-    async updateClass(req, res) {
-        try {
-            const userId = req.user.id;
-            const scheduleClassId = parseInt(req.params.scheduleClassId);
-            const { color, is_visible } = req.body;
-            log.start('Atualizando turma', { scheduleClassId });
-
-            await userSchedulesService.updateScheduleClass(scheduleClassId, userId, { color, is_visible });
-
-            log.success('Turma atualizada', { scheduleClassId });
-            res.json({ success: true });
-        } catch (error) {
-            log.error('Erro ao atualizar turma', { err: error.message });
-            res.status(500).json({ error: 'Erro ao atualizar turma' });
-        }
-    },
-
-    /**
      * O que faz: atualiza a cor de uma turma no plano. PATCH /api/user-schedules/:scheduleId/classes/:classId/color
      * Onde e usada: rota PATCH /:scheduleId/classes/:classId/color.
      * Dependencias chamadas: service.updateScheduleClassColor.

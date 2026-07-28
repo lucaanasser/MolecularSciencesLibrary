@@ -32,33 +32,6 @@ module.exports = {
     },
 
     /**
-     * O que faz: busca um plano por ID. GET /api/user-schedules/:id
-     * Onde e usada: definido para uso legado (nao roteado atualmente).
-     * Dependencias chamadas: service.getScheduleById.
-     * Efeitos colaterais: nenhum alem de leitura.
-     */
-    async getScheduleById(req, res) {
-        try {
-            const userId = req.user.id;
-            const scheduleId = parseInt(req.params.scheduleId);
-            log.start('Buscando plano', { scheduleId });
-
-            const schedule = await userSchedulesService.getScheduleById(scheduleId, userId);
-
-            if (!schedule) {
-                log.warn('Plano nao encontrado ou nao pertence ao usuario', { scheduleId });
-                return res.status(404).json({ error: 'Plano não encontrado' });
-            }
-
-            log.success('Plano encontrado', { scheduleId });
-            res.json(schedule);
-        } catch (error) {
-            log.error('Erro ao buscar plano', { err: error.message });
-            res.status(500).json({ error: 'Erro ao buscar plano' });
-        }
-    },
-
-    /**
      * O que faz: busca plano completo com turmas, horarios e customizadas. GET /api/user-schedules/:id/full
      * Onde e usada: rota GET /:scheduleId/full.
      * Dependencias chamadas: service.getFullSchedule.
