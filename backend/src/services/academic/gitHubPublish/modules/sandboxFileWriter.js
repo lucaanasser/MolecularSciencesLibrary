@@ -9,8 +9,8 @@
 const path = require('path');
 const fs = require('fs');
 const { getLogger } = require('../../../../shared/logging/logger');
-const { ProfileTransformer } = require('../../ProfileTransformer');
-const AdvancedPdfService = require('../../AdvancedPdfService');
+const { ProfileTransformer } = require('../../profileTransformer/ProfileTransformer');
+const AdvancedPdfService = require('../../advancedPdf/AdvancedPdfService');
 
 const log = getLogger(__filename);
 

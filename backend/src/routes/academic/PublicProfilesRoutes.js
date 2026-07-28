@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const publicProfilesController = require('../../controllers/academic/PublicProfilesController');
+const publicProfilesController = require('../../controllers/academic/publicProfiles/PublicProfilesController');
 const authenticateToken = require('../../middlewares/authenticateToken');
 const verifyProfileOwnership = require('../../middlewares/verifyProfileOwnership');
 const { upload } = require('../../utils/imageUpload');

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const forumController = require('../../controllers/academic/ForumController');
+const forumController = require('../../controllers/academic/forum/ForumController');
 const authenticateToken = require('../../middlewares/authenticateToken');
 const optionalAuth = require('../../middlewares/optionalAuth');
 const { getLogger } = require('../../shared/logging/logger');

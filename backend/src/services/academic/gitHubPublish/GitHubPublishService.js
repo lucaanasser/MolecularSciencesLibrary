@@ -7,7 +7,7 @@
  */
 const path = require('path');
 const { getLogger } = require('../../../shared/logging/logger');
-const { ProfileTransformer } = require('../ProfileTransformer');
+const { ProfileTransformer } = require('../profileTransformer/ProfileTransformer');
 const { ensureConfig, createInstallationToken } = require('./modules/githubAppAuth');
 const {
     prepareRepo,

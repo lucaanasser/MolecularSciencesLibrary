@@ -5,7 +5,7 @@
  * Dependencias criticas: ProfileTransformer (instancia e static generateSlug) e logger padronizado.
  */
 
-const { ProfileTransformer } = require('../../ProfileTransformer');
+const { ProfileTransformer } = require('../../profileTransformer/ProfileTransformer');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

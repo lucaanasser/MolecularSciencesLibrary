@@ -5,7 +5,7 @@
  * Dependencias criticas: UserSchedulesModel, this.getFullSchedule e logger padronizado.
  */
 
-const userSchedulesModel = require('../../../../models/academic/UserSchedulesModel');
+const userSchedulesModel = require('../../../../models/academic/userSchedules/UserSchedulesModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

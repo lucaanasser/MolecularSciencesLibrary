@@ -11,8 +11,8 @@
  *             portanto os helpers precisam estar no mesmo prototype (Object.assign abaixo).
  */
 
-const ForumService = require('../../../services/academic/ForumService');
-const ForumModel = require('../../../models/academic/ForumModel');
+const ForumService = require('../../../services/academic/forum/ForumService');
+const ForumModel = require('../../../models/academic/forum/ForumModel');
 const { getLogger } = require('../../../shared/logging/logger');
 
 const forumHelpers = require('./handlers/forumHelpers');

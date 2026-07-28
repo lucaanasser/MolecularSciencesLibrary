@@ -6,7 +6,7 @@
  *                        e NotificationsModel (require inline em createTag).
  */
 
-const ForumModel = require('../../../../models/academic/ForumModel');
+const ForumModel = require('../../../../models/academic/forum/ForumModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

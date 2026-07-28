@@ -5,7 +5,7 @@
  * Dependencias criticas: ForumModel, NotificationsModel, getQuery (db) e logger padronizado.
  */
 
-const ForumModel = require('../../../../models/academic/ForumModel');
+const ForumModel = require('../../../../models/academic/forum/ForumModel');
 const NotificationsModel = require('../../../../models/utilities/NotificationsModel');
 const { getQuery } = require('../../../../database/db');
 const { getLogger } = require('../../../../shared/logging/logger');

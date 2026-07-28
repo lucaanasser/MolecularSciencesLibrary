@@ -5,7 +5,7 @@
  * Dependencias criticas: ForumModel, logger padronizado e helper this.isAdmin (prototype).
  */
 
-const ForumModel = require('../../../../models/academic/ForumModel');
+const ForumModel = require('../../../../models/academic/forum/ForumModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

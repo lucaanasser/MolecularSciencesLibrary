@@ -5,8 +5,8 @@
  * Dependencias criticas: ForumService (criação/aceite), ForumModel (leitura/edição) e logger padronizado.
  */
 
-const ForumService = require('../../../../services/academic/ForumService');
-const ForumModel = require('../../../../models/academic/ForumModel');
+const ForumService = require('../../../../services/academic/forum/ForumService');
+const ForumModel = require('../../../../models/academic/forum/ForumModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

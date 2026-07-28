@@ -5,7 +5,7 @@
  * Dependencias criticas: PublicProfilesService, PublicProfilesModel e logger padronizado.
  */
 
-const publicProfilesService = require('../../../../services/academic/PublicProfilesService');
+const publicProfilesService = require('../../../../services/academic/publicProfiles/PublicProfilesService');
 const publicProfilesModel = require('../../../../models/academic/publicProfiles/PublicProfilesModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 

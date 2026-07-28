@@ -6,7 +6,7 @@
  */
 
 const ReportsService = require('../../../../services/utilities/reports/ReportsService');
-const PDFGeneratorService = require('../../../../services/utilities/PDFGeneratorService');
+const PDFGeneratorService = require('../../../../services/utilities/pdfGenerator/PDFGeneratorService');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

@@ -5,7 +5,7 @@
  * Dependencias criticas: ProfileTransformer e modulos internos de service (montagem, sandbox, enriquecimento e matching de roster).
  */
 
-const { ProfileTransformer } = require('../ProfileTransformer');
+const { ProfileTransformer } = require('../profileTransformer/ProfileTransformer');
 
 const profileAssemblyService = require('./modules/profileAssemblyService');
 const sandboxPublishPrepService = require('./modules/sandboxPublishPrepService');

@@ -5,14 +5,14 @@
  * Dependencias criticas: PublicProfilesService, GitHubPublishService, AdvancedPdfService, erros de ProfileTransformer e logger.
  */
 
-const publicProfilesService = require('../../../../services/academic/PublicProfilesService');
-const GitHubPublishService = require('../../../../services/academic/GitHubPublishService');
-const AdvancedPdfService = require('../../../../services/academic/AdvancedPdfService');
+const publicProfilesService = require('../../../../services/academic/publicProfiles/PublicProfilesService');
+const GitHubPublishService = require('../../../../services/academic/gitHubPublish/GitHubPublishService');
+const AdvancedPdfService = require('../../../../services/academic/advancedPdf/AdvancedPdfService');
 const {
     MissingRequiredFieldError,
     MissingRosterSelectionError,
     MissingRosterValidationError
-} = require('../../../../services/academic/ProfileTransformer');
+} = require('../../../../services/academic/profileTransformer/ProfileTransformer');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

@@ -5,7 +5,7 @@
  * Dependencias criticas: PublicProfilesService, UsersModel, utils/imageUpload e logger padronizado.
  */
 
-const publicProfilesService = require('../../../../services/academic/PublicProfilesService');
+const publicProfilesService = require('../../../../services/academic/publicProfiles/PublicProfilesService');
 const usersModel = require('../../../../models/library/UsersModel');
 const { uploadImage, deleteImage } = require('../../../../utils/imageUpload');
 const { getLogger } = require('../../../../shared/logging/logger');
@@ -65,7 +65,7 @@ module.exports = {
             // If rosterName is provided, use CCM website naming convention
             let imagePath;
             if (rosterName) {
-                const { ProfileTransformer } = require('../../../../services/academic/ProfileTransformer');
+                const { ProfileTransformer } = require('../../../../services/academic/profileTransformer/ProfileTransformer');
                 const completeProfile = await publicProfilesService.getCompleteProfile(userId);
                 const profileTransformer = new ProfileTransformer();
                 const turma = profileTransformer.resolveClassYear(completeProfile.turma);

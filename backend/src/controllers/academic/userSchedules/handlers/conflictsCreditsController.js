@@ -5,7 +5,7 @@
  * Dependencias criticas: UserSchedulesService e logger padronizado.
  */
 
-const userSchedulesService = require('../../../../services/academic/UserSchedulesService');
+const userSchedulesService = require('../../../../services/academic/userSchedules/UserSchedulesService');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

@@ -5,7 +5,7 @@
  * Dependencias criticas: UserSchedulesModel, guarda this.getScheduleById e logger.
  */
 
-const userSchedulesModel = require('../../../../models/academic/UserSchedulesModel');
+const userSchedulesModel = require('../../../../models/academic/userSchedules/UserSchedulesModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);
