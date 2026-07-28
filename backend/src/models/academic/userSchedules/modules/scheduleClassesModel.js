@@ -146,42 +146,6 @@ module.exports = {
     },
 
     /**
-     * O que faz: atualiza cor/visibilidade de uma turma do plano pelo id da linha.
-     * Onde e usada: UserSchedulesService ao editar turma.
-     * Dependencias chamadas: executeQuery.
-     * Efeitos colaterais: atualiza user_schedule_classes.
-     */
-    async updateScheduleClass(id, { color, is_visible }) {
-        log.start('Atualizando turma', { id });
-        const updates = [];
-        const params = [];
-
-        if (color !== undefined) {
-            updates.push('color = ?');
-            params.push(color);
-        }
-        if (is_visible !== undefined) {
-            updates.push('is_visible = ?');
-            params.push(is_visible ? 1 : 0);
-        }
-        params.push(id);
-
-        if (updates.length === 0) {
-            return null;
-        }
-
-        const query = `UPDATE user_schedule_classes SET ${updates.join(', ')} WHERE id = ?`;
-        try {
-            await executeQuery(query, params);
-            log.success('Turma atualizada', { id });
-            return true;
-        } catch (error) {
-            log.error('Erro ao atualizar turma', { err: error.message });
-            throw error;
-        }
-    },
-
-    /**
      * O que faz: atualiza cor/visibilidade de uma turma do plano por schedule_id + class_id.
      * Onde e usada: UserSchedulesService ao editar turma via class_id.
      * Dependencias chamadas: executeQuery.

@@ -66,25 +66,6 @@ module.exports = {
     },
 
     /**
-     * O que faz: atualiza uma turma no plano (cor, visibilidade).
-     * Onde e usada: handler PATCH de turma no plano.
-     * Dependencias chamadas: model.updateScheduleClass.
-     * Efeitos colaterais: escrita em DB.
-     */
-    async updateScheduleClass(scheduleClassId, userId, updates) {
-        log.start('Atualizando turma', { scheduleClassId });
-        try {
-            // TODO: Validar propriedade através do schedule_id
-            await userSchedulesModel.updateScheduleClass(scheduleClassId, updates);
-            log.success('Turma atualizada', { scheduleClassId });
-            return true;
-        } catch (error) {
-            log.error('Erro ao atualizar turma', { err: error.message });
-            throw error;
-        }
-    },
-
-    /**
      * O que faz: atualiza a cor de uma turma especifica no plano apos validar propriedade.
      * Onde e usada: handler PATCH de cor de turma.
      * Dependencias chamadas: this.getScheduleById, model.updateScheduleClassByClassId.

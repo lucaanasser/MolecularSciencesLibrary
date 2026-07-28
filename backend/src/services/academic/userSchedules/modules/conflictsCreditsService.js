@@ -1,7 +1,7 @@
 /**
- * Responsabilidade: deteccao de conflitos de horario e calculo de creditos de um plano.
+ * Responsabilidade: verificacao previa de conflitos de horario de uma turma candidata.
  * Camada: service.
- * Entradas/Saidas: recebe scheduleId/classId; retorna listas de conflitos e totais de creditos.
+ * Entradas/Saidas: recebe scheduleId/classId; retorna lista de conflitos.
  * Dependencias criticas: UserSchedulesModel, this.getFullSchedule e logger padronizado.
  */
 
@@ -12,74 +12,8 @@ const log = getLogger(__filename);
 
 module.exports = {
     /**
-     * O que faz: detecta conflitos de horario entre turmas e customizadas visiveis do plano.
-     * Onde/Deps: handler GET de conflitos; usa this.getFullSchedule e this.hasTimeOverlap.
-     * Efeitos: leitura em DB (via getFullSchedule).
-     */
-    async detectConflicts(scheduleId, userId) {
-        log.start('Detectando conflitos no plano', { scheduleId });
-        try {
-            const fullSchedule = await this.getFullSchedule(scheduleId, userId);
-            if (!fullSchedule) {
-                return [];
-            }
-            const conflicts = [];
-            const allSlots = [];
-            // Coleta todos os slots de horário das turmas
-            for (const cls of fullSchedule.classes) {
-                if (!cls.is_visible) continue;
-                for (const schedule of cls.schedules || []) {
-                    allSlots.push({
-                        type: 'class',
-                        id: cls.id,
-                        discipline_codigo: cls.discipline_codigo,
-                        discipline_nome: cls.discipline_nome,
-                        dia: schedule.dia,
-                        horario_inicio: schedule.horario_inicio,
-                        horario_fim: schedule.horario_fim
-                    });
-                }
-            }
-            // Coleta slots das disciplinas customizadas
-            for (const custom of fullSchedule.customDisciplines) {
-                if (!custom.is_visible) continue;
-                allSlots.push({
-                    type: 'custom',
-                    id: custom.id,
-                    discipline_codigo: custom.codigo || 'CUSTOM',
-                    discipline_nome: custom.nome,
-                    dia: custom.dia,
-                    horario_inicio: custom.horario_inicio,
-                    horario_fim: custom.horario_fim
-                });
-            }
-            // Verifica conflitos
-            for (let i = 0; i < allSlots.length; i++) {
-                for (let j = i + 1; j < allSlots.length; j++) {
-                    const a = allSlots[i];
-                    const b = allSlots[j];
-                    if (a.dia === b.dia) {
-                        // Verifica sobreposição de horários
-                        if (this.hasTimeOverlap(a.horario_inicio, a.horario_fim, b.horario_inicio, b.horario_fim)) {
-                            conflicts.push({
-                                slot1: a,
-                                slot2: b
-                            });
-                        }
-                    }
-                }
-            }
-            log.success('Conflitos detectados', { count: conflicts.length });
-            return conflicts;
-        } catch (error) {
-            log.error('Erro ao detectar conflitos', { err: error.message });
-            throw error;
-        }
-    },
-
-    /**
      * O que faz: verifica se dois intervalos de tempo se sobrepoem (sincrono).
-     * Onde/Deps: detectConflicts e checkConflictsForClass via this; sem dependencias.
+     * Onde/Deps: checkConflictsForClass via this; sem dependencias.
      * Efeitos: nenhum.
      */
     hasTimeOverlap(start1, end1, start2, end2) {
@@ -96,45 +30,8 @@ module.exports = {
     },
 
     /**
-     * O que faz: calcula total de creditos (turmas unicas visiveis + customizadas visiveis).
-     * Onde/Deps: handler GET de creditos; usa this.getFullSchedule.
-     * Efeitos: leitura em DB (via getFullSchedule).
-     */
-    async calculateCredits(scheduleId, userId) {
-        log.start('Calculando créditos do plano', { scheduleId });
-        try {
-            const fullSchedule = await this.getFullSchedule(scheduleId, userId);
-            if (!fullSchedule) {
-                return { creditos_aula: 0, creditos_trabalho: 0 };
-            }
-            let creditos_aula = 0;
-            let creditos_trabalho = 0;
-            // Soma créditos das turmas (apenas disciplinas visíveis e únicas)
-            const disciplineIds = new Set();
-            for (const cls of fullSchedule.classes) {
-                if (!cls.is_visible) continue;
-                if (disciplineIds.has(cls.discipline_id)) continue; // Evita contar mesma disciplina duas vezes
-                disciplineIds.add(cls.discipline_id);
-                creditos_aula += cls.creditos_aula || 0;
-                creditos_trabalho += cls.creditos_trabalho || 0;
-            }
-            // Soma créditos das disciplinas customizadas (apenas visíveis)
-            for (const custom of fullSchedule.customDisciplines) {
-                if (!custom.is_visible) continue;
-                creditos_aula += custom.creditos_aula || 0;
-                creditos_trabalho += custom.creditos_trabalho || 0;
-            }
-            log.success('Créditos calculados', { creditos_aula, creditos_trabalho });
-            return { creditos_aula, creditos_trabalho };
-        } catch (error) {
-            log.error('Erro ao calcular créditos', { err: error.message });
-            throw error;
-        }
-    },
-
-    /**
      * O que faz: verifica conflitos de uma turma candidata contra os slots ja no plano.
-     * Onde/Deps: handler GET de checagem previa; usa this.getFullSchedule, this.hasTimeOverlap, model.getClassSchedules.
+     * Onde/Deps: handler POST de checagem previa; usa this.getFullSchedule, this.hasTimeOverlap, model.getClassSchedules.
      * Efeitos: leitura em DB.
      */
     async checkConflictsForClass(scheduleId, userId, classId) {
