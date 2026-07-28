@@ -5,7 +5,7 @@
  * Dependencias criticas: LoansModel, coreNotification (via this) e logger compartilhado.
  */
 
-const LoansModel = require('../../../../models/library/LoansModel');
+const LoansModel = require('../../../../models/library/loans/LoansModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

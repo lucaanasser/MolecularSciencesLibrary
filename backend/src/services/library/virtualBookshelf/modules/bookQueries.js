@@ -5,7 +5,7 @@
  * Dependencias criticas: BooksModel, constants e logger compartilhado.
  */
 
-const BooksModel = require('../../../../models/library/BooksModel');
+const BooksModel = require('../../../../models/library/books/BooksModel');
 const { AREA_NAME_TO_CODE } = require('./constants');
 const { getLogger } = require('../../../../shared/logging/logger');
 

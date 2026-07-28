@@ -7,7 +7,7 @@
 
 const EmailService = require('../../email/EmailService');
 const LoansService = require('../../../library/loans/LoansService');
-const LoansModel = require('../../../../models/library/LoansModel');
+const LoansModel = require('../../../../models/library/loans/LoansModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

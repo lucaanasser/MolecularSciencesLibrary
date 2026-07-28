@@ -5,7 +5,7 @@
  * Dependencias criticas: LoansModel e EmailService.
  */
 
-const LoansModel = require('../../../../models/library/LoansModel');
+const LoansModel = require('../../../../models/library/loans/LoansModel');
 const EmailService = require('../../../utilities/EmailService');
 const { getLogger } = require('../../../../shared/logging/logger');
 

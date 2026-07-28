@@ -6,7 +6,7 @@
  */
 
 const publicProfilesService = require('../../../../services/academic/publicProfiles/PublicProfilesService');
-const usersModel = require('../../../../models/library/UsersModel');
+const usersModel = require('../../../../models/library/users/UsersModel');
 const { uploadImage, deleteImage } = require('../../../../utils/imageUpload');
 const { getLogger } = require('../../../../shared/logging/logger');
 

@@ -5,9 +5,9 @@
  * Dependencias criticas: LoansModel, UsersModel, BooksModel, RulesService e EmailService.
  */
 
-const LoansModel = require('../../../../models/library/LoansModel');
-const UsersModel = require('../../../../models/library/UsersModel');
-const BooksModel = require('../../../../models/library/BooksModel');
+const LoansModel = require('../../../../models/library/loans/LoansModel');
+const UsersModel = require('../../../../models/library/users/UsersModel');
+const BooksModel = require('../../../../models/library/books/BooksModel');
 const RulesService = require('../../../utilities/RulesService');
 const EmailService = require('../../../utilities/EmailService');
 const { getLogger } = require('../../../../shared/logging/logger');

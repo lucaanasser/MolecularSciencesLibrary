@@ -6,7 +6,7 @@
  */
 
 const { allQuery, getQuery } = require('../../../../database/db');
-const BooksService = require('../../../library/BooksService');
+const BooksService = require('../../../library/books/BooksService');
 const { areaMapping, subareaMapping } = require('../../../../utils/validBookAreas');
 const { getLogger } = require('../../../../shared/logging/logger');
 

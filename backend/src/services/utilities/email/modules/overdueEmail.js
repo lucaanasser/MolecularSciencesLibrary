@@ -5,7 +5,7 @@
  * Dependencias criticas: UsersModel e metodos base de EmailService.
  */
 
-const usersModel = require('../../../../models/library/UsersModel');
+const usersModel = require('../../../../models/library/users/UsersModel');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

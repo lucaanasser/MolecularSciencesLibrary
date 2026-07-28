@@ -6,7 +6,7 @@
  */
 
 const { allQuery, getQuery } = require('../../../../database/db');
-const UsersService = require('../../../library/UsersService');
+const UsersService = require('../../../library/users/UsersService');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);

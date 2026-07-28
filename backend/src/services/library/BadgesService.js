@@ -1,6 +1,6 @@
 const badgesModel = require('../../models/library/BadgesModel');
-const usersModel = require('../../models/library/UsersModel');
-const loansModel = require('../../models/library/LoansModel');
+const usersModel = require('../../models/library/users/UsersModel');
+const loansModel = require('../../models/library/loans/LoansModel');
 // Se houver um model para doações, importe aqui
 // const donationsModel = require('../models/DonationsModel');
 
@@ -101,7 +101,7 @@ class BadgesService {
         // Badge: "Primeiro Livro Devolvido em Menos de 2 Dias"
         if (loans.some(l => l.returned_at && (new Date(l.returned_at) - new Date(l.borrowed_at)) < 2 * 24 * 60 * 60 * 1000)) unlocked.push('Devolução Relâmpago');
         // Badge: "CMer completo" (pegou um livro de cada área existente)
-        const BooksModel = require('../../models/library/BooksModel');
+        const BooksModel = require('../../models/library/books/BooksModel');
         const allBooks = await BooksModel.getBooks();
         const allAreas = new Set(allBooks.map(b => b.area).filter(Boolean));
         const userAreas = new Set(loans.map(l => l.area).filter(Boolean));
