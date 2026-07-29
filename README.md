@@ -118,7 +118,7 @@ Fork it, extend it, adapt it—**that’s the point**.
 
 ## 3. Architecture & Technology Stack
 
-**Backend:** Node.js (Express), SQLite (WAL), JWT, Nodemailer.
+**Backend:** Cloudflare Workers (Hono), D1 (SQLite), JWT, Resend (email HTTP API).
 **Frontend:** React + TypeScript + Vite, React Query, TailwindCSS + shadcn/ui.
 **Infra:** Docker, Nginx, Certbot, sidecar cron/backup.
 **Observability:** Semantic console logging with emoji stages.
@@ -186,16 +186,24 @@ Emoji stages keep logs scannable:
 
 ---
 
-## 8. Environment Variables (Backend Example)
+## 8. Environment Variables (Worker Secrets)
+
+Set with `npx wrangler secret put <NAME>` (non-secret vars live in `wrangler.toml [vars]`):
 
 ```ini
 JWT_SECRET=change_me
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_USER=you@example.com
-SMTP_PASS=app_password
+RESEND_API_KEY=re_xxx            # sending via Resend (domain verified: bibliotecamoleculares.com)
+INBOX_NOTIFY_TO=you@example.com  # personal Gmail that gets "new message" alerts from the contact inbox
 KIOSK_ALLOWED_IP=123.455.78.90
 ```
+
+**Email addresses:** all automatic mail is sent from `avisos@bibliotecamoleculares.com`
+(outbound-only — no mailbox, accidental replies bounce). The human address is
+`contato@bibliotecamoleculares.com`: Cloudflare Email Routing delivers it to the Worker's
+`email` handler (`worker/src/services/emailInbox.ts`), which stores it in D1 and notifies
+`INBOX_NOTIFY_TO`. Admins read and reply from the panel ("Emails" tab), replies go out
+from `contato@` via Resend. Routing rule required: `contato@` → Send to a Worker →
+`biblioteca-api`. Do **not** create a rule or catch-all for `avisos@`.
 
 ---
 
