@@ -1,6 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import * as ForumService from "@/services/ForumService";
+
+/** Formata contagens grandes: 1234 -> "1.2k". */
+const formatCount = (n?: number) => {
+  if (!n || n < 1000) return String(n ?? 0);
+  return `${(n / 1000).toFixed(1)}k`;
+};
 
 const ForumHeader: React.FC = () => {
+  const [stats, setStats] = useState<ForumService.GlobalStats | null>(null);
+
+  useEffect(() => {
+    ForumService.getGlobalStats()
+      .then(setStats)
+      .catch(() => {
+        /* mantém placeholder se falhar */
+      });
+  }, []);
+
   return (
     <div className="relative bg-gradient-to-br from-cyan-50 via-white to-teal-50 border-b-2 border-academic-blue/20 py-8 px-6 overflow-hidden">
       {/* Padrão de fundo sutil */}
@@ -62,18 +79,24 @@ const ForumHeader: React.FC = () => {
             </div>
           </div>
 
-          {/* Stats rápidas */}
+          {/* Stats rápidas (reais) */}
           <div className="flex items-center gap-6 text-sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-academic-blue">1.2k</div>
+              <div className="text-2xl font-bold text-academic-blue">
+                {formatCount(stats?.total_questions)}
+              </div>
               <div className="text-gray-600 text-xs">perguntas</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-academic-blue">3.4k</div>
+              <div className="text-2xl font-bold text-academic-blue">
+                {formatCount(stats?.total_answers)}
+              </div>
               <div className="text-gray-600 text-xs">respostas</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-academic-blue">87%</div>
+              <div className="text-2xl font-bold text-academic-blue">
+                {stats ? `${Math.round(stats.response_rate)}%` : "—"}
+              </div>
               <div className="text-gray-600 text-xs">respondidas</div>
             </div>
           </div>

@@ -5,7 +5,7 @@
  * Dependencias criticas: UsersModel, jsonwebtoken e metodos base de EmailService.
  */
 
-const usersModel = require('../../../../models/library/UsersModel');
+const usersModel = require('../../../../models/library/users/UsersModel');
 const jwt = require('jsonwebtoken');
 const { getLogger } = require('../../../../shared/logging/logger');
 

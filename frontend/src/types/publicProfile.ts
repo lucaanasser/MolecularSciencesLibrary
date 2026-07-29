@@ -63,6 +63,7 @@ export interface InternationalExperience {
   anoFim?: number; // Se não preenchido, ainda está em andamento
   duracaoNumero?: number; // Quantidade de tempo
   duracaoUnidade?: "dias" | "semanas" | "meses" | "anos"; // Unidade de tempo
+  avancadoId?: string; // ID do ciclo avançado associado
 }
 
 // Perfil público completo

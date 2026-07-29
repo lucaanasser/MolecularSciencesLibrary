@@ -1,17 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  BookOpen,
-  GripVertical,
-  ChevronDown,
-  ChevronUp,
-  Check,
-  Trash2
-} from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronUp, Check, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DisciplineWithClasses, ClassOption } from '@/utils/combinationsGenerator';
+import { DisciplineWithClasses } from '@/utils/combinationsGenerator';
 import { Checkbox } from '@/components/ui/checkbox';
+import { SCHEDULE_COLORS } from '@/services/UserSchedulesService';
+import { tint } from '@/features/grade/utils/disciplineColors';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -28,9 +22,9 @@ interface DisciplineState {
   isVisible: boolean;
   selectedClassId: number | null;
   isExpanded: boolean;
-  isCustom?: boolean; // Flag para disciplinas customizadas
-  customDisciplineId?: number; // ID da disciplina customizada
-  creditos_aula?: number; // Créditos das customizadas
+  isCustom?: boolean;
+  customDisciplineId?: number;
+  creditos_aula?: number;
   creditos_trabalho?: number;
 }
 
@@ -46,8 +40,8 @@ interface DisciplineListNewProps {
 }
 
 /**
- * Lista de disciplinas com checkboxes e seleção de turmas
- * Inspirada no MatrUSP
+ * Lista de disciplinas no estilo "linha": checkbox colorido por disciplina,
+ * código colorido, badge de turma, créditos e expansão de turmas.
  */
 export function DisciplineListNew({
   disciplines,
@@ -57,210 +51,176 @@ export function DisciplineListNew({
   onDeleteDisciplinePermanently,
   onToggleExpanded,
   disabled,
-  maxDisciplines = 10
 }: DisciplineListNewProps) {
-  // Estado para controlar o diálogo de confirmação de remoção de customizada
   const [deleteConfirm, setDeleteConfirm] = useState<{
     disciplineId: number;
     customDisciplineId: number;
     nome: string;
   } | null>(null);
-  // Calcula créditos totais das disciplinas visíveis
-  const totalCredits = disciplines
-    .filter(d => d.isVisible)
-    .reduce((acc, d) => ({
-      aula: acc.aula + (d.isCustom ? (d.creditos_aula || 0) : d.discipline.creditos_aula),
-      trabalho: acc.trabalho + (d.isCustom ? (d.creditos_trabalho || 0) : d.discipline.creditos_trabalho)
-    }), { aula: 0, trabalho: 0 });
 
-  // Formata horários
   const formatSchedules = (schedules: any[]) => {
     const dayMap: Record<string, string> = {
-      'seg': 'Seg',
-      'ter': 'Ter',
-      'qua': 'Qua',
-      'qui': 'Qui',
-      'sex': 'Sex',
-      'sab': 'Sáb'
+      'seg': 'Seg', 'ter': 'Ter', 'qua': 'Qua', 'qui': 'Qui', 'sex': 'Sex', 'sab': 'Sáb',
     };
-
     return schedules.map(s => (
       `${dayMap[s.dia] || s.dia} ${s.horario_inicio}-${s.horario_fim}`
     )).join(', ');
   };
 
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-academic-blue" />
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Lista de Disciplinas
-          </span>
-        </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          {disciplines.length}/{maxDisciplines}
-        </span>
+  if (disciplines.length === 0) {
+    return (
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 py-10">
+        <BookOpen className="w-10 h-10 mb-2 opacity-40" />
+        <p className="text-xs text-center text-gray-400 mb-0">Nenhuma disciplina selecionada</p>
+        <p className="text-[11px] text-center mt-1 text-gray-400/70 mb-0">Busque acima para adicionar</p>
       </div>
+    );
+  }
 
-      {/* Lista de disciplinas */}
-      {disciplines.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-8">
-          <BookOpen className="w-10 h-10 mb-2 opacity-30" />
-          <p className="text-xs text-center">Nenhuma disciplina selecionada</p>
-          <p className="text-xs text-center mt-1 opacity-70">Busque acima para adicionar</p>
-        </div>
-      ) : (
-        <div className="flex-1 overflow-y-auto space-y-1.5">
-          <AnimatePresence>
-          {disciplines.map((state) => {
-            const { discipline, isVisible, selectedClassId, isExpanded, isCustom, customDisciplineId } = state;
-            const selectedClass = !isCustom ? discipline.classes.find(c => c.id === selectedClassId) : null;
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1">
+      <AnimatePresence initial={false}>
+        {disciplines.map((state, index) => {
+          const { discipline, isVisible, selectedClassId, isExpanded, isCustom, customDisciplineId } = state;
+          const selectedClass = !isCustom ? discipline.classes.find(c => c.id === selectedClassId) : null;
+          const color = SCHEDULE_COLORS[index % SCHEDULE_COLORS.length];
+          const totalCreditos = isCustom
+            ? (state.creditos_aula || 0) + (state.creditos_trabalho || 0)
+            : (discipline.creditos_aula || 0) + (discipline.creditos_trabalho || 0);
 
-            return (
-              <motion.div
-                key={discipline.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10, height: 0 }}
-                className={cn(
-                  "rounded-lg border",
-                  "bg-gray-50 dark:bg-gray-800/50",
-                  isVisible 
-                    ? "border-academic-blue" 
-                    : "border-gray-200 dark:border-gray-700",
-                  "group overflow-hidden"
-                )}
-              >
-                {/* Header da disciplina */}
-                <div className="flex items-center gap-2 p-2">
-                  {/* Checkbox */}
-                  <Checkbox
-                    checked={isVisible}
-                    onCheckedChange={() => onToggleVisibility(discipline.id)}
-                    disabled={disabled}
-                    className={cn(
-                      "border-2",
-                      isVisible && "data-[state=checked]:bg-academic-blue data-[state=checked]:border-academic-blue"
-                    )}
-                  />
+          return (
+            <motion.div
+              key={discipline.id}
+              layout
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              className="border-b border-gray-100 dark:border-gray-700/60 last:border-b-0 group"
+            >
+              {/* Linha da disciplina */}
+              <div className="flex items-center gap-2.5 py-2.5">
+                <Checkbox
+                  checked={isVisible}
+                  onCheckedChange={() => onToggleVisibility(discipline.id)}
+                  disabled={disabled}
+                  className="w-[1.15rem] border-2"
+                  style={{
+                    backgroundColor: isVisible ? color : 'transparent',
+                    borderColor: isVisible ? color : undefined,
+                    color: '#fff',
+                  }}
+                />
 
-                  {/* Info da disciplina */}
-                  <button
-                    onClick={() => !isCustom && onToggleExpanded(discipline.id)}
-                    className="flex-1 min-w-0 text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-academic-blue">
+                <button
+                  onClick={() => !isCustom && onToggleExpanded(discipline.id)}
+                  className="flex-1 min-w-0 text-left"
+                >
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span
+                      className="text-sm font-bold transition-colors"
+                      style={{ color: isVisible ? color : undefined }}
+                    >
+                      <span className={cn(!isVisible && 'text-gray-700 dark:text-gray-300')}>
                         {discipline.codigo}
                       </span>
-                      {isCustom ? (
-                        <span className="text-xs bg-purple-500 text-white px-1.5 py-0.5 rounded">
-                          Manual
-                        </span>
-                      ) : (
-                        <>
-                          <span className="text-xs text-gray-500">
-                            {discipline.classes.length} {discipline.classes.length === 1 ? 'turma' : 'turmas'}
-                          </span>
-                          {selectedClass && (
-                            <span className="text-xs bg-academic-blue text-white px-1.5 py-0.5 rounded">
-                              {selectedClass.codigo_turma?.substring(4)}
-                            </span>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                      {discipline.nome}
-                    </p>
-                  </button>
+                    </span>
+                    {isCustom ? (
+                      <span
+                        className="text-[10px] px-1.5 py-px rounded font-semibold uppercase tracking-wide"
+                        style={{ backgroundColor: tint(color, 0.18), color }}
+                      >
+                        Manual
+                      </span>
+                    ) : selectedClass ? (
+                      <span
+                        className="text-[10px] px-1.5 py-px rounded font-semibold"
+                        style={{ backgroundColor: tint(color, 0.18), color }}
+                      >
+                        T{selectedClass.codigo_turma?.substring(4)}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-0 mt-0.5">
+                    {discipline.nome}
+                  </p>
+                </button>
 
-                  {/* Botões */}
-                  {!isCustom && (
-                    <button
-                      onClick={() => onToggleExpanded(discipline.id)}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                    >
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
-                      )}
-                    </button>
-                  )}
+                {/* Créditos */}
+                {totalCreditos > 0 && (
+                  <span className="text-[11px] text-gray-400 flex-shrink-0 tabular-nums">
+                    {totalCreditos}cr
+                  </span>
+                )}
 
+                {/* Expandir (regulares) */}
+                {!isCustom && (
                   <button
-                    onClick={() => {
-                      if (isCustom && customDisciplineId && onDeleteDisciplinePermanently) {
-                        setDeleteConfirm({
-                          disciplineId: discipline.id,
-                          customDisciplineId,
-                          nome: discipline.nome,
-                        });
-                      } else {
-                        onRemoveDiscipline(discipline.id);
-                      }
-                    }}
-                    disabled={disabled}
-                    className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => onToggleExpanded(discipline.id)}
+                    className="p-0.5 text-gray-300 hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex-shrink-0"
                   >
-                    <X className="w-4 h-4" />
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
-                </div>
+                )}
 
-                {/* Lista de turmas (expandida) - apenas para disciplinas regulares */}
-                <AnimatePresence>
-                  {!isCustom && isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="border-t border-gray-200 dark:border-gray-700"
-                    >
-                      <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
-                        {discipline.classes.map(cls => (
+                {/* Remover */}
+                <button
+                  onClick={() => {
+                    if (isCustom && customDisciplineId && onDeleteDisciplinePermanently) {
+                      setDeleteConfirm({ disciplineId: discipline.id, customDisciplineId, nome: discipline.nome });
+                    } else {
+                      onRemoveDiscipline(discipline.id);
+                    }
+                  }}
+                  disabled={disabled}
+                  className="p-0.5 rounded text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                  title="Remover"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Turmas (expandida) */}
+              <AnimatePresence>
+                {!isCustom && isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pb-2.5 pl-7 space-y-1 max-h-48 overflow-y-auto">
+                      {discipline.classes.map(cls => {
+                        const active = selectedClassId === cls.id;
+                        return (
                           <button
                             key={cls.id}
                             onClick={() => onSelectClass(discipline.id, cls.id)}
                             className={cn(
-                              "w-full p-2 rounded text-left transition-colors text-xs",
-                              selectedClassId === cls.id
-                                ? "bg-academic-blue text-white"
-                                : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                              "w-full p-2 rounded-lg text-left transition-colors text-xs border",
+                              active ? "border-transparent" : "border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                             )}
+                            style={active ? { backgroundColor: tint(color, 0.16), borderColor: tint(color, 0.4) } : undefined}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-medium">Turma {cls.codigo_turma?.substring(4)}</span>
-                              {selectedClassId === cls.id && (
-                                <Check className="w-4 h-4" />
-                              )}
+                              <span className="font-semibold" style={active ? { color } : undefined}>
+                                Turma {cls.codigo_turma?.substring(4)}
+                              </span>
+                              {active && <Check className="w-3.5 h-3.5" style={{ color }} />}
                             </div>
-                            <div className="text-[10px] opacity-80 mt-0.5">
+                            <div className="text-[10px] text-gray-400 mt-0.5">
                               {formatSchedules(cls.schedules)}
                             </div>
                           </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Créditos totais */}
-      {disciplines.length > 0 && (
-        <div className="flex items-center justify-center gap-4 text-xs pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
-          <span className="text-gray-500 dark:text-gray-400">
-            Visíveis: <strong className="text-academic-blue">{totalCredits.aula}</strong> aula + <strong className="text-academic-blue">{totalCredits.trabalho}</strong> trabalho
-          </span>
-        </div>
-      )}
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
 
       {/* Diálogo de confirmação para remoção de disciplina customizada */}
       <AlertDialog open={!!deleteConfirm} onOpenChange={open => { if (!open) setDeleteConfirm(null); }}>
@@ -276,7 +236,7 @@ export function DisciplineListNew({
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className="bg-academic-blue hover:bg-academic-blue-muted text-white"
               onClick={() => {
                 if (deleteConfirm) {
                   onRemoveDiscipline(deleteConfirm.disciplineId);

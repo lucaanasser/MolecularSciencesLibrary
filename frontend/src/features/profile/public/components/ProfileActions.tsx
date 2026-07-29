@@ -1,4 +1,4 @@
-import { UserPlus, UserCheck, Save, Edit3 } from "lucide-react";
+import { UserPlus, UserCheck, Save, Edit3, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ProfileActionsProps {
@@ -6,9 +6,11 @@ interface ProfileActionsProps {
   isEditing: boolean;
   isSaving: boolean;
   isFollowing: boolean;
+  isPublishing?: boolean;
   onEdit: () => void;
   onSave: () => void;
   onFollow: () => void;
+  onPublishClick?: () => void;
 }
 
 export const ProfileActions = ({
@@ -16,9 +18,11 @@ export const ProfileActions = ({
   isEditing,
   isSaving,
   isFollowing,
+  isPublishing = false,
   onEdit,
   onSave,
   onFollow,
+  onPublishClick,
 }: ProfileActionsProps) => {
   return (
     <>
@@ -34,14 +38,27 @@ export const ProfileActions = ({
         {isSaving ? "Salvando..." : "Salvar"}
       </Button>
     ) : (
-      <Button
-        onClick={onEdit}
-        variant="primary"
-        size="sm"
-      >
-        <Edit3 className="w-4 h-4 mr-2" />
-        Editar perfil
-      </Button>
+      <>
+        <Button
+          onClick={onEdit}
+          variant="primary"
+          size="sm"
+        >
+          <Edit3 className="w-4 h-4 mr-2" />
+          Editar perfil
+        </Button>
+        {isOwnProfile && onPublishClick && (
+          <Button
+            onClick={onPublishClick}
+            variant="primary"
+            size="sm"
+            disabled={isPublishing}
+          >
+            <UploadCloud className="w-4 h-4 mr-2" />
+            {isPublishing ? "Publicando..." : "Publicar perfil"}
+          </Button>
+        )}
+      </>
     )}
 
     {/* Botão de seguir */}

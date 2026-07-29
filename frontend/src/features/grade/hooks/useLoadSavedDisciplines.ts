@@ -91,7 +91,7 @@ export function useLoadSavedDisciplines(
             });
           } else {
             // Disciplina regular - busca turmas da API
-            const response = await fetch(`/api/disciplines/${savedDiscipline.discipline_codigo}/full`);
+            const response = await fetch(`/api/academic/disciplines/${savedDiscipline.discipline_codigo}/full`);
             if (response.ok) {
               const data = await response.json();
               

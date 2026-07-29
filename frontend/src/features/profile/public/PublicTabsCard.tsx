@@ -53,20 +53,21 @@ export function PublicTabsCard({ user, profile, isEditing, initialTabId = "ativo
 
     <InternationalTab
       experiencias={profile.experienciasInternacionais}
+      ciclosAvancados={profile.ciclosAvancados}
       isEditing={isEditing}
-      onAdd={profile.addInternacional}
-      onSave={profile.saveInternacional}
-      onRemove={profile.removeInternacional}
-      onUpdate={profile.updateInternacional}
+      onAdd={profile.addExperienciaInternacional}
+      onSave={profile.saveExperienciaInternacional}
+      onRemove={profile.removeExperienciaInternacional}
+      onUpdate={profile.updateExperienciaInternacional}
     />
 
     <PostCMTab
-      posCM={profile.posCm}
+      posCM={profile.posCM}
       isEditing={isEditing}
-      onAdd={profile.addPosCm}
-      onSave={profile.savePosCm}
-      onRemove={profile.removePosCm}
-      onUpdate={profile.updatePosCm}
+      onAdd={profile.addPosCM}
+      onSave={profile.savePosCM}
+      onRemove={profile.removePosCM}
+      onUpdate={profile.updatePosCM}
     />
 
     </TabsCard>

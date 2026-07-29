@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MessageSquare, Eye, ThumbsUp, Award } from "lucide-react";
+import { MessageSquare, Eye, ThumbsUp, Award, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import * as ForumService from "@/services/ForumService";
+import { forumQuestionPath, forumTagPath, disciplinePath } from "@/constants/navigation";
 
 export interface Question {
   id: number;
@@ -17,6 +18,8 @@ export interface Question {
   vote_count: number;
   tags: string[];
   has_accepted_answer: boolean;
+  disciplina_codigo?: string | null;
+  disciplina_nome?: string | null;
   created_at: string;
 }
 
@@ -60,7 +63,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
 
         {/* Content Column */}
         <div className="flex-1">
-          <Link to={`/forum/${question.id}`}>
+          <Link to={forumQuestionPath(question.id)}>
             <h3 className="text-lg font-semibold text-blue-600 hover:text-blue-700 mb-2">
               {question.title}
             </h3>
@@ -71,10 +74,19 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-3">
+            {question.disciplina_codigo && (
+              <Link
+                to={disciplinePath(question.disciplina_codigo)}
+                className="flex items-center gap-1 bg-academic-blue/10 text-academic-blue text-xs px-2 py-1 rounded hover:bg-academic-blue/20 cursor-pointer border border-academic-blue/30"
+              >
+                <GraduationCap className="w-3 h-3" />
+                {question.disciplina_nome || question.disciplina_codigo}
+              </Link>
+            )}
             {question.tags.map((tag, index) => (
               <Link
                 key={index}
-                to={`/forum?tag=${tag}`}
+                to={forumTagPath(tag)}
                 className="bg-cyan-50 text-cyan-700 text-xs px-2 py-1 rounded hover:bg-cyan-100 cursor-pointer border border-cyan-200"
               >
                 {tag}

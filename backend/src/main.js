@@ -11,12 +11,12 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 
-const booksRouter = require('./routes/library/BooksRoutes');
-const usersRouter = require('./routes/library/UsersRoutes');
+const booksRouter = require('./routes/library/books/BooksRoutes');
+const usersRouter = require('./routes/library/users/UsersRoutes');
 const loansRouter = require('./routes/library/LoansRoutes');
 const badgesRouter = require('./routes/library/BadgesRoutes');
-const donatorsRouter = require('./routes/library/DonatorsRoutes');
-const virtualBookShelfRouter = require('./routes/library/VirtualBookSheflRoute');
+const donatorsRouter = require('./routes/library/donators/DonatorsRoutes');
+const virtualBookShelfRouter = require('./routes/library/virtualBookshelf/VirtualBookshelfRoutes');
 
 const notificationsRouter = require('./routes/utilities/NotificationsRoutes');
 const emailRouter = require('./routes/utilities/EmailRoutes');
@@ -24,8 +24,6 @@ const rulesRouter = require('./routes/utilities/RulesRoutes');
 const formsRouter = require('./routes/utilities/FormsRoutes');
 const reportsRouter = require('./routes/utilities/ReportsRoutes');
 
-const disciplinesRouter = require('./routes/academic/DisciplinesRoutes');
-const disciplineEvaluationsRouter = require('./routes/academic/DisciplineEvaluationsRoutes');
 const academicDisciplinesRouter = require('./routes/academic/disciplines/AcademicDisciplinesRoutes');
 const userSchedulesRouter = require('./routes/academic/UserSchedulesRoutes');
 const forumRouter = require('./routes/academic/ForumRoutes');
@@ -65,8 +63,6 @@ app.use('/api/badges', badgesRouter);
 app.use('/api/donators', donatorsRouter);
 app.use('/api/virtual-bookshelf', virtualBookShelfRouter);
 app.use('/api/forms', formsRouter);
-app.use('/api/disciplines', disciplinesRouter);
-app.use('/api/evaluations', disciplineEvaluationsRouter);
 app.use('/api/academic/disciplines', academicDisciplinesRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/user-schedules', userSchedulesRouter);

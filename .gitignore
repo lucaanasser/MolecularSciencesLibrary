@@ -86,3 +86,7 @@ frontend/node_modules/
 /CMsite-sandbox/
 /ccm-website-public-sandbox/
 
+
+# Dumps de banco gerados na migração (contêm dados de usuários e hashes de senha)
+/docs/migration/dados.sql
+/docs/migration/*.db

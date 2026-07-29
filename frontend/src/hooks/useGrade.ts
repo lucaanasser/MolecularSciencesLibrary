@@ -82,20 +82,23 @@ export function useGrade() {
     
     try {
       const data = await userSchedulesService.getSchedules();
-      setSchedules(data);
-      
-      // Se não tem plano ativo e tem planos disponíveis, seleciona o primeiro
-      if (data.length > 0 && !activeScheduleId) {
-        const firstActive = data.find(s => s.is_active) || data[0];
-        setActiveScheduleId(firstActive.id);
-      }
-      
-      // Se não há planos, limpa os dados
+
       if (data.length === 0) {
+        // Todo usuário logado deve ter ao menos um plano — cria um padrão
+        // para a página nunca exibir uma aba vazia (combina com a imagem-alvo).
+        const defaultPlan = await userSchedulesService.createSchedule('Plano 1');
+        setSchedules([defaultPlan]);
+        setActiveScheduleId(defaultPlan.id);
         setClasses([]);
         setCustomDisciplines([]);
         setScheduleDisciplines([]);
-        setActiveScheduleId(null);
+      } else {
+        setSchedules(data);
+        // Se não tem plano ativo, seleciona o primeiro
+        if (!activeScheduleId) {
+          const firstActive = data.find(s => s.is_active) || data[0];
+          setActiveScheduleId(firstActive.id);
+        }
       }
     } catch (err) {
       logger.error('Erro ao carregar planos:', err);
@@ -407,35 +410,38 @@ export function useGrade() {
 
   // Calcula o range de horários necessário (07:00 - 23:00 adaptável)
   const timeRange = useMemo(() => {
-    let minHour = 7; // Padrão começa 07:00
-    let maxHour = 23; // Padrão termina 23:00
-    
-    // Verifica horários das turmas
-    classes.forEach(cls => {
-      cls.schedules?.forEach(schedule => {
-        const startHour = parseInt(schedule.horario_inicio.split(':')[0]);
-        const endHour = parseInt(schedule.horario_fim.split(':')[0]);
-        if (startHour < minHour) minHour = startHour;
-        if (endHour > maxHour) maxHour = endHour;
-      });
-    });
-    
-    // Verifica disciplinas customizadas
-    customDisciplines.forEach(disc => {
-      disc.schedules?.forEach(schedule => {
-        const startHour = parseInt(schedule.horario_inicio.split(':')[0]);
-        const endHour = parseInt(schedule.horario_fim.split(':')[0]);
-        if (startHour < minHour) minHour = startHour;
-        if (endHour > maxHour) maxHour = endHour;
-      });
-    });
-    
-    // Gera array de horários
+    // Ajusta a janela de horários ao conteúdo: começa "aberta" e encolhe
+    // até o intervalo realmente usado, com 1h de folga acima/abaixo.
+    let minHour = 24;
+    let maxHour = 0;
+
+    const consider = (schedule: { horario_inicio: string; horario_fim: string }) => {
+      const startHour = parseInt(schedule.horario_inicio.split(':')[0]);
+      const endMinutes = parseInt(schedule.horario_fim.split(':')[0]) * 60
+        + parseInt(schedule.horario_fim.split(':')[1] || '0');
+      const endHour = Math.ceil(endMinutes / 60);
+      if (startHour < minHour) minHour = startHour;
+      if (endHour > maxHour) maxHour = endHour;
+    };
+
+    classes.forEach(cls => cls.schedules?.forEach(consider));
+    customDisciplines.forEach(disc => disc.schedules?.forEach(consider));
+
+    if (minHour > maxHour) {
+      // Grade vazia: janela padrão enxuta
+      minHour = 7;
+      maxHour = 19;
+    } else {
+      // Folga de 1h, mantida dentro de um limite razoável
+      minHour = Math.max(6, minHour - 1);
+      maxHour = Math.min(23, maxHour + 1);
+    }
+
     const hours: string[] = [];
     for (let h = minHour; h <= maxHour; h++) {
       hours.push(`${h.toString().padStart(2, '0')}:00`);
     }
-    
+
     return { minHour, maxHour, hours };
   }, [classes, customDisciplines]);
 

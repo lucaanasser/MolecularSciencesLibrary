@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Biblioteca de Ciências Moleculares",
   "scripts": {
+    "build": "cd frontend && npm run build",
     "dev": "bash scripts/start-dev.sh",
     "start": "bash scripts/start-production.sh",
     "seed": "cd backend && npm run seed",
@@ -24,6 +25,7 @@
     "csv-parser": "^3.2.0",
     "formdata-node": "^6.0.3",
     "framer-motion": "^12.23.12",
+    "hono": "^4.12.32",
     "lucide-react": "^0.562.0",
     "postcss": "^8.5.6",
     "react-cropper": "^2.3.3",
@@ -33,7 +35,10 @@
     "web-file-polyfill": "^1.0.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260727.1",
     "@types/node": "^25.2.1",
-    "@types/react-query": "^1.2.9"
+    "@types/react-query": "^1.2.9",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.114.0"
   }
 }

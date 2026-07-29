@@ -78,7 +78,7 @@ export function DisciplineList({
     searchTimeout.current = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const response = await fetch(`/api/disciplines/search?q=${encodeURIComponent(query)}&limit=8`);
+        const response = await fetch(`/api/academic/disciplines/search?q=${encodeURIComponent(query)}&limit=8`);
         if (response.ok) {
           const data = await response.json();
           // Filtra disciplinas já adicionadas
@@ -112,7 +112,7 @@ export function DisciplineList({
 
     try {
       // Busca as turmas da disciplina
-      const response = await fetch(`/api/disciplines/${discipline.codigo}/full`);
+      const response = await fetch(`/api/academic/disciplines/${discipline.codigo}/full`);
       if (response.ok) {
         const data = await response.json();
         

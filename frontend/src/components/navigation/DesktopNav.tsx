@@ -3,7 +3,6 @@ import { User as UserIcon, LogIn, UserCircle, Settings, LogOut } from "lucide-re
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User } from "@/types/user";
 import { ROUTES } from "@/constants/navigation";
-import ModeSwitcher from "./ModeSwitcher";
 import { cn } from "@/lib/utils";
 import { useHeaderState } from "@/hooks/useHeaderState";
 
@@ -26,13 +25,13 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
 
   return (
     <>
-      { /* Logo e ModeSwitcher */ }
+      { /* Logo */ }
       <div className="flex items-center gap-4">
         <Link to={navLinks[0].to} className="flex items-center">
           <img src="/images/logos/logoHorizontal.png" alt="Logo" className="h-20 hidden lg:block" />
           <img src="/images/logos/logoCompacto.png" alt="Logo" className="h-20 block lg:hidden" />
         </Link>
-        <ModeSwitcher />
+        { /* <ModeSwitcher /> */ }
       </div>
 
       <div className="hidden md:flex md:items-center md:space-x-4">

@@ -25,12 +25,14 @@ import AcademicFAQPage from "@/pages/academic/AcademicFAQPage";
 import ForumPage from "@/pages/academic/ForumPage";
 import QuestionDetailPage from "@/pages/academic/QuestionDetailPage";
 import NewQuestionPage from "@/pages/academic/NewQuestionPage";
+import MyForumActivityPage from "@/pages/academic/MyForumActivityPage";
 import PrivateProfilePage from "@/pages/library/PrivateProfilePage";
 import PublicProfilePage from "@/pages/academic/PublicProfilePage";
 
 import AccountCreationPage from "@/pages/utilities/AccountCreationPage";
 import AdminPage from "@/pages/utilities/AdminPage";
 import AdminPendingTagsPage from "@/pages/utilities/AdminPendingTagsPage";
+import AdminReportsPage from "@/pages/utilities/AdminReportsPage";
 import LoginPage from "@/pages/utilities/LoginPage";
 import ProAlunoPage from "@/pages/utilities/ProAlunoPage";
 import ResetPasswordPage from "@/pages/utilities/ResetPasswordPage";
@@ -61,17 +63,23 @@ const routes: RouteObject[] = [
   { path: "/academico/buscar/usuarios", element: RenderPage(AcademicUserSearchResultsPage) },
   { path: "/academico/disciplina/:codigo", element: RenderPage(DisciplinePage) },
   { path: "/academico/criar-disciplina", element: RenderPage(CreateDisciplinePage) },
-  { path: "/academico/grade", element: RenderPage(GradePage) },
+  { path: "/academico/grade", element: RenderPage(GradePage, { hideFooter: true }) },
   { path: "/academico/faq", element: RenderPage(AcademicFAQPage) },
   { path: "/academico/forum", element: RenderPage(ForumPage) },
-  { path: "/academico/forum/:id", element: RenderPage(QuestionDetailPage) },
+  { path: "/academico/forum/minhas", element: RenderPage(MyForumActivityPage) },
   { path: "/academico/forum/nova-pergunta", element: RenderPage(NewQuestionPage) },
+  { path: "/academico/forum/:id", element: RenderPage(QuestionDetailPage) },
 
   // Utilitários
   { path: "/criar-conta", element: RenderPage(AccountCreationPage) },
   { path: "/admin/forum/tags/pending", element: RenderPage(() => (
       <ProtectedRoute allowedRoles={["admin"]}>
         <AdminPendingTagsPage />
+      </ProtectedRoute>
+    )) },
+  { path: "/admin/forum/reports", element: RenderPage(() => (
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <AdminReportsPage />
       </ProtectedRoute>
     )) },
   { path: "/entrar", element: RenderPage(LoginPage) },

@@ -15,9 +15,11 @@ interface PublicHeaderProps {
     profile_image?: any;
     class?: any;
   };
+  userId?: number;
   isOwnProfile: boolean;
   isEditing: boolean;
   isSaving: boolean;
+  isPublishing?: boolean;
   isFollowing: boolean;
   tags: ProfileTag[];
   seguindo: Array<{ id: number; nome: string; turma: string; avatar: string | null }>;
@@ -31,14 +33,16 @@ interface PublicHeaderProps {
   onEdit: () => void;
   onSave: () => void;
   onFollow: () => void;
+  onPublishClick?: () => void;
   onAddTag: (label: string, category: ProfileTag["category"]) => void;
   onRemoveTag: (tagId: string) => void;
   onEmailChange: (value: string) => void;
   onLinkedInChange: (value: string) => void;
   onLattesChange: (value: string) => void;
   onGithubChange: (value: string) => void;
-  onAvatarUpload?: (file: File) => Promise<void>;
+  onAvatarUpload?: (file: File, rosterName?: string) => Promise<void>;
   onDefaultAvatarSelect?: (imagePath: string) => Promise<void>;
+  onAvatarRemove?: () => Promise<void>;
   onBannerChange?: (bannerChoice: string) => Promise<void>;
 }
 
@@ -51,9 +55,11 @@ const TAG_STYLES = {
 
 export const PublicHeader = ({
   user,
+  userId,
   isOwnProfile,
   isEditing,
   isSaving,
+  isPublishing,
   isFollowing,
   tags,
   seguindo,
@@ -67,6 +73,7 @@ export const PublicHeader = ({
   onEdit,
   onSave,
   onFollow,
+  onPublishClick,
   onAddTag,
   onRemoveTag,
   onEmailChange,
@@ -75,6 +82,7 @@ export const PublicHeader = ({
   onGithubChange,
   onAvatarUpload,
   onDefaultAvatarSelect,
+  onAvatarRemove,
   onBannerChange,
 }: PublicHeaderProps) => {
   const [showFollowing, setShowFollowing] = useState(false);
@@ -87,9 +95,9 @@ export const PublicHeader = ({
   console.log('🔍 [ProfileHeader] bannerChoice recebido:', bannerChoice);
   console.log('🔍 [ProfileHeader] bannerTimestamp recebido:', bannerTimestamp);
 
-  const handleSelectImage = async (imageFile: File) => {
+  const handleSelectImage = async (imageFile: File, rosterName?: string) => {
     if (onAvatarUpload) {
-      await onAvatarUpload(imageFile);
+      await onAvatarUpload(imageFile, rosterName);
     }
   };
 
@@ -180,7 +188,9 @@ export const PublicHeader = ({
             onClose={() => setShowAvatarModal(false)}
             onSelectImage={handleSelectImage}
             onSelectDefault={handleSelectDefault}
+            onRemoveAvatar={onAvatarRemove}
             currentImage={user.profile_image}
+            userId={userId}
           />
           
           <div className="flex flex-col">
@@ -194,10 +204,12 @@ export const PublicHeader = ({
                 isOwnProfile={isOwnProfile}
                 isEditing={isEditing}
                 isSaving={isSaving}
+                isPublishing={isPublishing}
                 isFollowing={isFollowing}
                 onEdit={onEdit}
                 onSave={onSave}
                 onFollow={onFollow}
+                onPublishClick={onPublishClick}
               />
             </div>
 

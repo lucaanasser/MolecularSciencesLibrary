@@ -2,6 +2,7 @@ import { GraduationCap, Search, Calendar, MessageSquare } from "lucide-react";
 import { logger } from "@/utils/logger";
 import { useState } from "react";
 import { TextSection, StatsSection, type StatsType, FeatureSection, HeroSection, MolecoogleWindow } from "@/features/index";
+import { ROUTES } from "@/constants/navigation";
 
 // Log de início de renderização da página inicial acadêmica
 logger.info("🔵 [AcademicIndex] Renderizando página inicial acadêmica");
@@ -81,7 +82,7 @@ const AcademicIndexPage = () => {
             title: "MolecOverflow",
             description: "Fórum de dúvidas sobre o curso, créditos, projetos e orientadores.",
             buttonText: "Acessar Fórum",
-            buttonLink: "/forum",
+            buttonLink: ROUTES.FORUM,
             colorClass: "bg-academic-blue",
           },
           {

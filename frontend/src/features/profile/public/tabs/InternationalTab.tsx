@@ -1,12 +1,13 @@
 import { Plus, Trash2, Globe, MapPin, Building2, Calendar, Clock, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { InternationalExperience } from "@/types/publicProfile";
+import { AdvancedCycleInfo, InternationalExperience } from "@/types/publicProfile";
 import { useState } from "react";
 import { InternationalExperienceModal } from "../../../publicProfile/components/modals";
 
 interface InternationalTabProps {
   experiencias: InternationalExperience[];
+  ciclosAvancados: (AdvancedCycleInfo & { cor?: string })[];
   isEditing: boolean;
   onAdd: () => string; // Returns temp ID
   onSave: (data: Partial<InternationalExperience>) => Promise<any>;
@@ -24,6 +25,7 @@ const EXPERIENCE_TYPES = [
 
 export const InternationalTab = ({
   experiencias,
+  ciclosAvancados,
   isEditing,
   onAdd,
   onSave,
@@ -63,6 +65,11 @@ export const InternationalTab = ({
     return EXPERIENCE_TYPES.find((t) => t.value === tipo) || EXPERIENCE_TYPES[4];
   };
 
+  const getCycleIndex = (avancadoId?: string) => {
+    if (!avancadoId) return -1;
+    return ciclosAvancados.findIndex((cycle) => cycle.id === avancadoId);
+  };
+
   const formatDuration = (numero?: number, unidade?: string) => {
     if (!numero || !unidade) return null;
     return `${numero} ${unidade}`;
@@ -100,6 +107,7 @@ export const InternationalTab = ({
         <div className="space-y-6">
           {experiencias.map((exp) => {
             const typeConfig = getTypeConfig(exp.tipo);
+            const cycleIndex = getCycleIndex(exp.avancadoId);
             return (
               <div 
                 key={exp.id} 
@@ -132,6 +140,11 @@ export const InternationalTab = ({
                         <Badge variant="default" className="text-xs">
                           {typeConfig.label}
                         </Badge>
+                        {exp.avancadoId && cycleIndex >= 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            Av. {cycleIndex + 1}
+                          </Badge>
+                        )}
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900">
                         {exp.instituicao}
@@ -182,6 +195,7 @@ export const InternationalTab = ({
         onClose={handleModalClose}
         onSave={handleModalSave}
         initialData={modalState.data}
+        ciclosAvancados={ciclosAvancados}
         mode={modalState.mode}
       />
     </div>

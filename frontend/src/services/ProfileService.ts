@@ -71,8 +71,22 @@ export interface FollowCounts {
 // ================ SERVICE ================
 
 class ProfileService {
+  private getStoredToken() {
+    const userRaw = localStorage.getItem('user');
+    if (userRaw) {
+      try {
+        const parsed = JSON.parse(userRaw);
+        if (parsed?.token) return parsed.token;
+      } catch {
+        // Ignore malformed persisted user payload
+      }
+    }
+
+    return localStorage.getItem('token');
+  }
+
   private getAuthHeaders() {
-    const token = localStorage.getItem('token');
+    const token = this.getStoredToken();
     return {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -80,10 +94,21 @@ class ProfileService {
   }
 
   private getMultipartAuthHeaders() {
-    const token = localStorage.getItem('token');
+    const token = this.getStoredToken();
     return {
       ...(token ? { Authorization: `Bearer ${token}` } : {})
     };
+  }
+
+  private async parseJsonResponse(response: Response) {
+    const text = await response.text();
+    if (!text) return null;
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return null;
+    }
   }
 
   // ==================== PERFIL BÁSICO ====================
@@ -163,16 +188,22 @@ class ProfileService {
   /**
    * Upload de avatar (imagem, max 5MB)
    */
-  async uploadAvatar(userId: number, imageFile: File): Promise<{ avatar_path: string }> {
+  async uploadAvatar(userId: number, imageFile: File, rosterName?: string): Promise<{ profile_image: string }> {
     console.log(`🔵 [ProfileService] Fazendo upload de avatar para usuário ${userId}`);
     console.log(`🔵 [ProfileService] Arquivo:`, imageFile.name, imageFile.size, "bytes", imageFile.type);
+    console.log(`🔵 [ProfileService] rosterName:`, rosterName);
     try {
       const formData = new FormData();
       formData.append('image', imageFile);
 
-      console.log(`🔵 [ProfileService] Enviando PUT para /api/profiles/${userId}/avatar`);
+      let uploadUrl = `/api/profiles/${userId}/avatar`;
+      if (rosterName) {
+        uploadUrl += `?rosterName=${encodeURIComponent(rosterName)}`;
+      }
 
-      const response = await fetch(`/api/profiles/${userId}/avatar`, {
+      console.log(`🔵 [ProfileService] Enviando PUT para ${uploadUrl}`);
+
+      const response = await fetch(uploadUrl, {
         method: 'PUT',
         headers: this.getMultipartAuthHeaders(),
         body: formData
@@ -220,6 +251,29 @@ class ProfileService {
     }
   }
 
+  /**
+   * Remove avatar personalizado atual
+   */
+  async removeAvatar(userId: number): Promise<{ profile_image: string | null }> {
+    console.log(`🔵 [ProfileService] Removendo avatar atual do usuário ${userId}`);
+    try {
+      const response = await fetch(`/api/profiles/${userId}/avatar`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 403) throw new Error('Sem permissão para editar este perfil');
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('🟢 [ProfileService] Avatar removido com sucesso');
+      return data;
+    } catch (error) {
+      console.error('🔴 [ProfileService] Erro ao remover avatar:', error);
+      throw error;
+    }
+  }
+
   async getSandboxRosterOptions(userId: number): Promise<{ success: boolean; turma: string; students: string[]; error?: string }> {
     console.log(`🔵 [ProfileService] Buscando roster options para usuário ${userId}`);
     try {
@@ -228,13 +282,13 @@ class ProfileService {
         headers: this.getAuthHeaders()
       });
 
-      const payload = await response.json();
+      const payload = await this.parseJsonResponse(response);
 
       if (!response.ok) {
-        throw new Error(payload?.error || `Erro HTTP: ${response.status}`);
+        throw new Error((payload as { error?: string } | null)?.error || `Erro HTTP: ${response.status}`);
       }
 
-      return payload;
+      return (payload || { success: false, turma: '', students: [] }) as { success: boolean; turma: string; students: string[]; error?: string };
     } catch (error) {
       console.error('🔴 [ProfileService] Erro ao buscar roster options:', error);
       throw error;
@@ -242,15 +296,45 @@ class ProfileService {
   }
 
   /**
+   * Busca opções de roster para upload de avatar (mesmo formato que publish-sandbox)
+   */
+  async getAvatarRosterOptions(userId: number): Promise<{ turma: string; students: string[] }> {
+    console.log(`🔵 [ProfileService] Buscando roster options para avatar do usuário ${userId}`);
+    try {
+      const response = await fetch(`/api/profiles/${userId}/avatar/roster-options`, {
+        method: 'GET',
+        headers: this.getAuthHeaders()
+      });
+
+      const payload = await this.parseJsonResponse(response);
+
+      if (!response.ok) {
+        throw new Error((payload as { error?: string } | null)?.error || `Erro HTTP: ${response.status}`);
+      }
+
+      console.log(`🟢 [ProfileService] ${payload.students?.length || 0} opções de roster encontradas`);
+      return (payload || { turma: '', students: [] }) as { turma: string; students: string[] };
+    } catch (error) {
+      console.error('🔴 [ProfileService] Erro ao buscar roster options para avatar:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Publica perfil no repositorio sandbox e cria PR via backend.
    */
-  async publishSandbox(userId: number, selectedRosterName: string): Promise<{ success: boolean; prUrl?: string; branchName?: string; noChanges?: boolean; filesChanged?: string[]; error?: string }> {
+  async publishSandbox(
+    userId: number,
+    selectedRosterName: string,
+    includePhoto = true,
+    advancedPdfIds: Array<string | number> = []
+  ): Promise<{ success: boolean; prUrl?: string; branchName?: string; noChanges?: boolean; filesChanged?: string[]; error?: string }> {
     console.log(`🔵 [ProfileService] Publicando perfil em sandbox para usuário ${userId}`);
     try {
       const response = await fetch(`/api/profiles/${userId}/publish-sandbox`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify({ selectedRosterName })
+        body: JSON.stringify({ selectedRosterName, includePhoto, advancedPdfIds })
       });
 
       const payload = await response.json();
@@ -263,6 +347,40 @@ class ProfileService {
       return payload;
     } catch (error) {
       console.error('🔴 [ProfileService] Erro na publicação sandbox:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gera PDF de um ciclo avancado e retorna blob + filename.
+   */
+  async getAdvancedCyclePDF(
+    userId: number,
+    cycleId: string | number,
+    selectedRosterName: string
+  ): Promise<{ blob: Blob; fileName: string }> {
+    console.log(`🔵 [ProfileService] Gerando PDF do ciclo avancado ${cycleId}`);
+    try {
+      const response = await fetch(`/api/profiles/${userId}/advanced-cycles/${cycleId}/pdf`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ selectedRosterName })
+      });
+
+      if (!response.ok) {
+        const payload = await this.parseJsonResponse(response);
+        throw new Error((payload as { error?: string } | null)?.error || `Erro HTTP: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const match = disposition.match(/filename=([^;]+)/i);
+      const fileName = match ? match[1].replace(/"/g, '') : `avancado_${cycleId}.pdf`;
+
+      console.log('🟢 [ProfileService] PDF do ciclo avancado gerado');
+      return { blob, fileName };
+    } catch (error) {
+      console.error('🔴 [ProfileService] Erro ao gerar PDF do ciclo avancado:', error);
       throw error;
     }
   }

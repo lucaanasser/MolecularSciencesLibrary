@@ -9,7 +9,7 @@
 
 const express = require('express');
 const router = express.Router();
-const ReportsController = require('../../controllers/utilities/ReportsController');
+const ReportsController = require('../../controllers/utilities/reports/ReportsController');
 
 // Empréstimos
 router.get('/loans', (req, res) => ReportsController.getLoansStatistics(req, res));

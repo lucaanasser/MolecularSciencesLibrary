@@ -101,11 +101,20 @@ async function initProfilesSchema({ run }) {
             ano_fim INTEGER,
             duracao_numero INTEGER,
             duracao_unidade TEXT CHECK(duracao_unidade IN ('dias', 'semanas', 'meses', 'anos')),
+            avancado_id INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         )`
     );
+
+    try {
+        await run(`ALTER TABLE international_experiences ADD COLUMN avancado_id INTEGER`);
+    } catch (error) {
+        if (!String(error.message || "").includes('duplicate column name: avancado_id')) {
+            throw error;
+        }
+    }
 
     await run(
         `CREATE TABLE IF NOT EXISTS post_cm_info (

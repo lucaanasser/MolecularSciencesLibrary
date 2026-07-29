@@ -19,14 +19,29 @@ export const usePublishSandbox = () => {
   const [publishError, setPublishError] = useState<string | null>(null);
   const [publishResult, setPublishResult] = useState<PublishSandboxResult | null>(null);
 
-  const publish = async (userId: number, selectedRosterName: string) => {
-    logger.info("🔵 [usePublishSandbox] Iniciando publicação sandbox", { userId, selectedRosterName });
+  const publish = async (
+    userId: number,
+    selectedRosterName: string,
+    includePhoto = true,
+    advancedPdfIds: Array<string | number> = []
+  ) => {
+    logger.info("🔵 [usePublishSandbox] Iniciando publicação sandbox", {
+      userId,
+      selectedRosterName,
+      includePhoto,
+      advancedPdfIdsCount: advancedPdfIds.length
+    });
     setIsPublishing(true);
     setPublishError(null);
     setPublishResult(null);
 
     try {
-      const result = await ProfileService.publishSandbox(userId, selectedRosterName);
+      const result = await ProfileService.publishSandbox(
+        userId,
+        selectedRosterName,
+        includePhoto,
+        advancedPdfIds
+      );
       setPublishResult(result);
       logger.info("🟢 [usePublishSandbox] Publicação sandbox finalizada", {
         userId,

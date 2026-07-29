@@ -270,6 +270,8 @@ export const usePublicProfile = (userId: number) => {
   const saveDisciplina = async (data: Partial<DisciplinaAvancado & { id?: string }>) => {
     try {
       console.log('🔵 [usePublicProfile] Salvando disciplina');
+      const { avancadoId, ...restData } = data;
+      const apiData = { ...restData, avancado_id: avancadoId };
       
       // Check if it's an edit (has ID) or create (no ID)
       if (data.id) {
@@ -279,7 +281,7 @@ export const usePublicProfile = (userId: number) => {
         }
         
         // Update existing discipline
-        const { id, ...updateData } = data;
+        const { id, ...updateData } = apiData;
         const updatedDiscipline = await ProfileService.updateDiscipline(userId, disciplineId, updateData);
         
         console.log('✅ Disciplina atualizada pelo backend:', updatedDiscipline);
@@ -292,7 +294,7 @@ export const usePublicProfile = (userId: number) => {
         return { ...updatedDiscipline, id: String(updatedDiscipline.id) };
       } else {
         // Create new discipline
-        const newDiscipline = await ProfileService.createDiscipline(userId, data);
+        const newDiscipline = await ProfileService.createDiscipline(userId, apiData);
         
         console.log('✅ Nova disciplina criada pelo backend:', newDiscipline);
         const disciplineWithId = { ...newDiscipline, id: String(newDiscipline.id) };
@@ -332,8 +334,9 @@ export const usePublicProfile = (userId: number) => {
       
       const disciplineId = parseInt(id);
       if (isNaN(disciplineId)) return;
-      
-      await ProfileService.updateDiscipline(userId, disciplineId, { [field]: value });
+
+      const payload = field === "avancadoId" ? { avancado_id: value } : { [field]: value };
+      await ProfileService.updateDiscipline(userId, disciplineId, payload);
     } catch (err) {
       console.error('Erro ao atualizar disciplina:', err);
       await refetch();
@@ -350,6 +353,8 @@ export const usePublicProfile = (userId: number) => {
   const saveExperienciaInternacional = async (data: Partial<InternationalExperience & { id?: string }>) => {
     try {
       console.log('🔵 [usePublicProfile] Salvando experiência internacional');
+      const { avancadoId, ...restData } = data;
+      const apiData = { ...restData, avancado_id: avancadoId };
       
       // Check if it's an edit (has ID) or create (no ID)
       if (data.id) {
@@ -359,7 +364,7 @@ export const usePublicProfile = (userId: number) => {
         }
         
         // Update existing experience
-        const { id, ...updateData } = data;
+        const { id, ...updateData } = apiData;
         const updatedExperience = await ProfileService.updateInternationalExperience(userId, experienceId, updateData);
         
         console.log('✅ Experiência atualizada pelo backend:', updatedExperience);
@@ -372,7 +377,7 @@ export const usePublicProfile = (userId: number) => {
         return { ...updatedExperience, id: String(updatedExperience.id) };
       } else {
         // Create new experience
-        const newExperience = await ProfileService.createInternationalExperience(userId, data);
+        const newExperience = await ProfileService.createInternationalExperience(userId, apiData);
         
         console.log('✅ Nova experiência criada pelo backend:', newExperience);
         const experienceWithId = { ...newExperience, id: String(newExperience.id) };
@@ -412,8 +417,9 @@ export const usePublicProfile = (userId: number) => {
       
       const experienceId = parseInt(id);
       if (isNaN(experienceId)) return;
-      
-      await ProfileService.updateInternationalExperience(userId, experienceId, { [field]: value });
+
+      const payload = field === "avancadoId" ? { avancado_id: value } : { [field]: value };
+      await ProfileService.updateInternationalExperience(userId, experienceId, payload);
     } catch (err) {
       console.error('Erro ao atualizar experiência:', err);
       await refetch();
