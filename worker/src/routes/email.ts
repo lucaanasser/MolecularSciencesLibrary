@@ -187,7 +187,8 @@ email.patch('/threads/:threadId', authenticateToken(), requireAdmin, async (c) =
       "UPDATE email_messages SET status = ? WHERE thread_id = ? AND direction = 'in'",
       [status, threadId]
     );
-    return c.body(null, 204);
+    // JSON em vez de 204: o fetchJson do frontend sempre parseia o corpo da resposta.
+    return c.json({ success: true }, 200);
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }
@@ -200,7 +201,8 @@ email.delete('/threads/:threadId', authenticateToken(), requireAdmin, async (c) 
       c.req.param('threadId') ?? ''
     ]);
     if (!result.meta.changes) return c.json({ error: 'Thread nao encontrada' }, 404);
-    return c.body(null, 204);
+    // JSON em vez de 204: o fetchJson do frontend sempre parseia o corpo da resposta.
+    return c.json({ success: true }, 200);
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }
