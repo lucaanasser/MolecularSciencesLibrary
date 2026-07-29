@@ -6,7 +6,7 @@
  * E-mail via services/email (Resend). Falha de e-mail nunca quebra a notificação interna.
  * O efeito colateral de banco do nudge em empréstimo estendido (redução de due_date via
  * LoansModel.shortenDueDateIfLongerThan) é aplicado, pois é regra de negócio.
- * As rotas de inbox IMAP seguem stubadas — recurso descontinuado na migração.
+ * A inbox IMAP foi descontinuada; a caixa de contato@ vive em /api/email (routes/email.ts).
  */
 import { Hono } from 'hono';
 import type { Context } from 'hono';
@@ -143,28 +143,6 @@ notifications.get('/me', authenticateToken(), async (c) => {
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }
-});
-
-// Endpoint legado: inbox foi movida para /api/email/inbox (EmailService/IMAP — stubado).
-notifications.get('/inbox', authenticateToken(), async (c) => {
-  const user = c.get('user');
-  if (!user || user.role !== 'admin') {
-    return c.json({ error: 'Acesso negado' }, 403);
-  }
-  console.log('🟡 [stub-email] leitura da inbox IMAP (EmailService.getInboxEmails) — adiado para MIG-04');
-  return c.json([], 200);
-});
-
-// Endpoint legado: exclusao de inbox foi movida para /api/email/inbox/:emailId (stubado).
-notifications.delete('/inbox/:emailId', authenticateToken(), async (c) => {
-  const user = c.get('user');
-  if (!user || user.role !== 'admin') {
-    return c.json({ error: 'Acesso negado' }, 403);
-  }
-  console.log(
-    `🟡 [stub-email] exclusão de e-mail ${c.req.param('emailId')} da inbox IMAP (EmailService.deleteInboxEmail) — adiado para MIG-04`
-  );
-  return c.json({ success: true }, 200);
 });
 
 // Cria notificacao (rota principal)

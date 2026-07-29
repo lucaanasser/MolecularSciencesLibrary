@@ -92,8 +92,9 @@ export async function sendEmail(
   }
 }
 
-/** Template HTML padrão dos emails (idêntico ao baseEmail.js do Express). */
-function generateEmailTemplate({
+/** Template HTML padrão dos emails (idêntico ao baseEmail.js do Express).
+ * Exportado para a notificação de inbox (services/emailInbox.ts) manter o mesmo visual. */
+export function generateEmailTemplate({
   subject,
   content,
   isAutomatic = true

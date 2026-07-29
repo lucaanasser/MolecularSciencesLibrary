@@ -13,6 +13,8 @@ import forum from './routes/forum';
 import disciplines from './routes/disciplines';
 import disciplineEvaluations from './routes/disciplineEvaluations';
 import academicDisciplines from './routes/academicDisciplines';
+import email from './routes/email';
+import { handleInboundEmail } from './services/emailInbox';
 
 export type Env = {
   DB: D1Database;
@@ -23,6 +25,7 @@ export type Env = {
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
   FRONTEND_URL?: string;
+  INBOX_NOTIFY_TO?: string; // Gmail do admin que recebe o aviso de mensagem nova em contato@
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -45,8 +48,14 @@ app.route('/api/forum', forum);
 app.route('/api/disciplines', disciplines);
 app.route('/api/evaluations', disciplineEvaluations);
 app.route('/api/academic/disciplines', academicDisciplines);
+app.route('/api/email', email);
 
 // Rotas ainda não portadas do Express respondem 404 explícito em vez de cair no SPA.
 app.all('/api/*', (c) => c.json({ error: 'Endpoint ainda não migrado para o Worker' }, 404));
 
-export default app;
+// Alem do fetch (API + assets), o Worker recebe email do Cloudflare Email Routing:
+// a regra contato@ → "Send to a Worker" entrega no handler `email` (services/emailInbox.ts).
+export default {
+  fetch: app.fetch,
+  email: handleInboundEmail
+} satisfies ExportedHandler<Env>;
