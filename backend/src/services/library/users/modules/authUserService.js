@@ -5,14 +5,13 @@
  * Dependencias criticas: UsersModel, bcrypt, jwt, EmailService e logger.
  */
 
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UsersModel = require('../../../../models/library/users/UsersModel');
 const EmailService = require('../../../utilities/EmailService');
+const { hashPassword, verifyPassword } = require('../../../../shared/security/passwordHash');
 const { getLogger } = require('../../../../shared/logging/logger');
 
 const log = getLogger(__filename);
-const SALT_ROUNDS = 10;
 const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
 
 module.exports = {
@@ -30,8 +29,19 @@ module.exports = {
         if (!user) throw new Error('Usuário não encontrado');
         if (user.status === 'pending') throw new Error('Seu cadastro ainda está aguardando aprovação do administrador.');
 
-        const valid = user.password_hash && await bcrypt.compare(password, user.password_hash);
+        const { valid, needsRehash } = await verifyPassword(password, user.password_hash);
         if (!valid) throw new Error('Senha incorreta');
+
+        // Transição bcrypt → PBKDF2: regrava o hash no primeiro login válido.
+        // Falha aqui não pode derrubar o login.
+        if (needsRehash) {
+            try {
+                await UsersModel.updateUserPassword(user.id, hashPassword(password));
+                log.success('Hash de senha migrado para PBKDF2', { user_id: user.id });
+            } catch (error) {
+                log.warn('Falha ao migrar hash para PBKDF2; login mantido', { user_id: user.id, err: error.message });
+            }
+        }
 
         const payload = { id: user.id, role: user.role, name: user.name, email: user.email, NUSP: user.NUSP };
         const token = jwt.sign(payload, SECRET, { expiresIn: user.role === 'proaluno' ? '365d' : '7d' });
@@ -78,8 +88,7 @@ module.exports = {
         const user = await UsersModel.getUserById(payload.id);
         if (!user) throw new Error('Usuário não encontrado');
 
-        const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
-        await UsersModel.updateUserPassword(user.id, passwordHash);
+        await UsersModel.updateUserPassword(user.id, hashPassword(newPassword));
         return true;
     },
 
