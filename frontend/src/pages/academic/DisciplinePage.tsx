@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MessageSquare, Info, GraduationCap, School } from "lucide-react";
+import { MessageSquare, Info, GraduationCap, School, HelpCircle } from "lucide-react";
 import {
   getEvaluationsByDiscipline,
   getAggregatedRatings,
@@ -23,13 +23,15 @@ import {
   DISC_CRITERIOS_FORM,
   DISC_CRITERIOS_CARD,
 } from "@/features/discipline-page";
+import DisciplineForumTab from "@/features/forum/components/DisciplineForumTab";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const DisciplinePage: React.FC = () => {
   const { codigo } = useParams<{ codigo: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"info" | "avaliacoes">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "avaliacoes" | "forum">("info");
+  const [forumCount, setForumCount] = useState(0);
   const isLoggedIn = !!localStorage.getItem("token");
 
   const { disciplina, isLoading, error } = useDisciplinePage(codigo);
@@ -135,6 +137,18 @@ const DisciplinePage: React.FC = () => {
           </span>
         ) : null,
     },
+    {
+      id: "forum" as const,
+      label: "Fórum",
+      shortLabel: "Fórum",
+      icon: HelpCircle,
+      badge: (isActive: boolean) =>
+        forumCount > 0 ? (
+          <span className={`ml-1 px-2 py-0.5 text-xs rounded-full ${isActive ? "bg-white/20" : "bg-gray-100"}`}>
+            {forumCount}
+          </span>
+        ) : null,
+    },
   ];
 
   const sidebar = (
@@ -168,6 +182,9 @@ const DisciplinePage: React.FC = () => {
       placeholder="Compartilhe sua experiência com a disciplina..."
       emptyMessage={"Nenhuma avaliação ainda.\nSeja o primeiro a avaliar esta disciplina!"}
     />,
+    codigo ? (
+      <DisciplineForumTab key="forum" codigo={codigo} onCountChange={setForumCount} />
+    ) : null,
   ];
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -190,7 +207,7 @@ const DisciplinePage: React.FC = () => {
       onBack={() => navigate("/academico/buscar")}
       sidebar={sidebar}
       activeTab={activeTab}
-      onTabChange={(id) => setActiveTab(id as "info" | "avaliacoes")}
+      onTabChange={(id) => setActiveTab(id as "info" | "avaliacoes" | "forum")}
     />
   );
 };

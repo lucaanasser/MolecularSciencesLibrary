@@ -21,37 +21,24 @@ const SiteModeContext = createContext<SiteModeContextType | undefined>(undefined
 const STORAGE_KEY = "cm-site-mode";
 
 export const SiteModeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [mode, setModeState] = useState<SiteMode>(() => {
-    // Recupera o modo salvo no localStorage
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "biblioteca" || saved === "academico") {
-      return saved;
-    }
-    return "biblioteca";
-  });
+  const [mode, setModeState] = useState<SiteMode>("biblioteca");
 
   useEffect(() => {
-    // Salva o modo no localStorage
-    localStorage.setItem(STORAGE_KEY, mode);
-    
-    // Adiciona classe no document para estilos globais
-    if (mode === "academico") {
-      document.documentElement.classList.add("mode-academico");
-      document.documentElement.classList.remove("mode-biblioteca");
-    } else {
-      document.documentElement.classList.add("mode-biblioteca");
-      document.documentElement.classList.remove("mode-academico");
-    }
+    // Modo acadêmico temporariamente desativado em produção.
+    document.documentElement.classList.add("mode-biblioteca");
+    document.documentElement.classList.remove("mode-academico");
     
     logger.log(`🔵 [SiteMode] Modo alterado para: ${mode}`);
   }, [mode]);
 
   const setMode = (newMode: SiteMode) => {
-    setModeState(newMode);
+    if (newMode === "biblioteca") {
+      setModeState("biblioteca");
+    }
   };
 
   const toggleMode = () => {
-    setModeState((prev) => (prev === "biblioteca" ? "academico" : "biblioteca"));
+    // Alternância desativada enquanto somente o modo biblioteca estiver em produção.
   };
 
   return (

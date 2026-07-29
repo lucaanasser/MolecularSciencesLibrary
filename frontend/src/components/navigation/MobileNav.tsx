@@ -5,7 +5,6 @@ import { User } from "@/types/user";
 import { ROUTES } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 import { useHeaderState } from "@/hooks/useHeaderState";
-import ModeSwitcher from "./ModeSwitcher";
 
 interface MobileNavProps {
   user: User | null;
@@ -59,7 +58,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                 
                 { /* Cabeçalho do menu com botão de fechar */ }
                 <div className="flex items-center justify-between pt-6">
-                  <ModeSwitcher />
+                  { /* <ModeSwitcher /> */ }
                   <Button 
                     variant="ghost"
                     size="icon" 
