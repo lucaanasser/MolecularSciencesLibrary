@@ -121,15 +121,15 @@ function MiniGrade({
     <button
       onClick={onClick}
       className={cn(
-        "relative w-16 h-14 rounded border-2 transition-all overflow-hidden flex-shrink-0",
+        "relative w-14 h-12 rounded-lg border-2 transition-all overflow-hidden flex-shrink-0 bg-gray-50 dark:bg-gray-900/40",
         "hover:scale-105 hover:shadow-md",
-        isSelected 
-          ? "border-academic-blue ring-2 ring-academic-blue ring-offset-1" 
-          : "border-gray-300 dark:border-gray-600"
+        isSelected
+          ? "border-academic-blue ring-2 ring-academic-blue/40"
+          : "border-gray-200 dark:border-gray-600"
       )}
     >
       {/* Background grid */}
-      <div className="absolute inset-0 grid grid-cols-6" style={{ opacity: 0.1 }}>
+      <div className="absolute inset-0 grid grid-cols-6" style={{ opacity: 0.08 }}>
         {[...Array(6)].map((_, i) => (
           <div key={i} className="border-r border-gray-400" />
         ))}
@@ -192,9 +192,12 @@ export function MiniGradeCombinations({
 
   return (
     <div className="flex items-center gap-2 w-full">
+      <span className="text-[11px] text-gray-400 flex-shrink-0 hidden sm:block">
+        {combinations.length} sem conflito
+      </span>
       {/* Mini-grades */}
       <div className="flex-1 overflow-x-auto">
-        <div className="flex gap-2">
+        <div className="flex gap-2 pb-0.5">
           {combinations.map((combination, idx) => (
             <MiniGrade
               key={idx}
