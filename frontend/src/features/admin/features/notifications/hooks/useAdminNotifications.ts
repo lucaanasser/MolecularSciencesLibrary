@@ -33,6 +33,7 @@ export function useAdminNotifications(filterUserId?: string | number) {
           date: n.created_at,
           read: n.status === "read",
           type: n.type,
+          user_id: n.user_id,
           metadata: n.metadata ? JSON.parse(n.metadata) : undefined,
         }))
       );

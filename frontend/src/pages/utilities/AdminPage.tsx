@@ -33,10 +33,10 @@ const AdminPage = () => {
     { id: "users", label: "Usuários", icon: Users },
     { id: "loans", label: "Empréstimos", icon: Calendar },
     { id: "reserve", label: "Reserva", icon: Bookmark },
-    { id: "rules", label: "Regras", icon: SettingsIcon },
     { id: "donators", label: "Doadores", icon: Heart },
     { id: "emails", label: "Emails", icon: Mail },
     { id: "reports", label: "Relatórios", icon: BarChart3 },
+    { id: "rules", label: "Regras", icon: SettingsIcon },
   ];
 
   if (!isPageLoaded) {
@@ -64,10 +64,10 @@ const AdminPage = () => {
           <ErrorBoundary><ManageUsers /></ErrorBoundary>
           <ErrorBoundary><ManageLoans /></ErrorBoundary>
           <ErrorBoundary><ManageReserve /></ErrorBoundary>
-          <ErrorBoundary><Rules /></ErrorBoundary>
           <ErrorBoundary><ManageDonators /></ErrorBoundary>
           <ErrorBoundary><EmailsInbox /></ErrorBoundary>
           <ErrorBoundary><Reports /></ErrorBoundary>
+          <ErrorBoundary><Rules /></ErrorBoundary>
         </TabsCard>
       </ErrorBoundary>
     </div>

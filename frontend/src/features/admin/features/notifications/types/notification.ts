@@ -4,5 +4,6 @@ export type Notification = {
   date: string;
   read: boolean;
   type?: string;
+  user_id?: number;
   metadata?: any;
 };

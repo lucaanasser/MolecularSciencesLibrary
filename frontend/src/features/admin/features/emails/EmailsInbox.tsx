@@ -134,7 +134,7 @@ export default function EmailsInbox() {
         <EmailFolderRail selected={view} counts={data?.counts ?? null} onSelect={handleViewSelect} />
         {!isFolder(view) ? (
           <div className="flex-1 min-w-0 min-h-0 overflow-y-auto border-l border-gray-200 pl-4">
-            <NotificationHistoryPanel />
+            <NotificationHistoryPanel onBack={() => handleViewSelect("inbox")} />
           </div>
         ) : (
         <>
