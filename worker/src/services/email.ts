@@ -503,6 +503,55 @@ export async function sendWelcomeEmail(
     return false;
   }
 
+  const { subject, html } = await buildWelcomeEmail(env, user);
+  return sendEmail(env, { to: user.email, subject, html });
+}
+
+/**
+ * O que faz: envia boas-vindas para varios usuarios de uma vez, via /emails/batch do Resend.
+ * Onde e usada: importacao CSV de usuarios (routes/users.ts).
+ * Por que existe: o caminho individual custa 2 subrequests por usuario (query + envio) e o
+ * plano free do Workers permite 50 por invocacao — em lote sao 100 emails por subrequest.
+ * Efeitos colaterais: envio em massa. Nunca lança; devolve quantos foram aceitos.
+ */
+export async function sendWelcomeEmailsBatch(env: EmailEnv, users: UserRow[]): Promise<number> {
+  const recipients = users.filter((user) => user.email);
+  if (!recipients.length) return 0;
+  if (!env.RESEND_API_KEY) {
+    console.log('🟡 [stub-email] RESEND_API_KEY ausente — boas-vindas em lote não enviadas:', recipients.length);
+    return 0;
+  }
+
+  const from = env.EMAIL_FROM || DEFAULT_FROM;
+  let sent = 0;
+  for (let i = 0; i < recipients.length; i += 100) {
+    const slice = recipients.slice(i, i + 100);
+    const payload = await Promise.all(
+      slice.map(async (user) => {
+        const { subject, html } = await buildWelcomeEmail(env, user);
+        return { from, to: user.email as string, subject, html };
+      })
+    );
+    try {
+      const r = await fetch('https://api.resend.com/emails/batch', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (r.ok) sent += payload.length;
+      else console.log('🔴 lote de boas-vindas falhou', r.status, await r.text());
+    } catch (error) {
+      console.log('🔴 lote de boas-vindas falhou', (error as Error).message);
+    }
+  }
+  return sent;
+}
+
+/** Assunto + HTML das boas-vindas, com o link de primeiro acesso (JWT de 24h). */
+async function buildWelcomeEmail(env: EmailEnv, user: UserRow): Promise<{ subject: string; html: string }> {
   const subject = 'Bem-vindo a Biblioteca Ciencias Moleculares!';
 
   // Mesmo contrato do Express: JWT HS256 { id, email, type: 'first_access' }, expira em 24h.
@@ -535,8 +584,7 @@ export async function sendWelcomeEmail(
           </div>
       </div>
   `;
-  const html = generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true });
-  return sendEmail(env, { to: user.email, subject, html });
+  return { subject, html: generateEmailTemplate({ subject, content: htmlContent, isAutomatic: true }) };
 }
 
 /** Envia email de redefinicao de senha. */

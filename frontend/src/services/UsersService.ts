@@ -207,13 +207,13 @@ export const UsersService = {
   importUsersFromCSV: async (file: File) => {
     logger.log("🔵 [UsersService] Importando usuários via CSV");
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('csvFile', file);
 
     const userData = localStorage.getItem('user');
     const token = userData ? JSON.parse(userData).token : null;
 
     try {
-      const res = await fetch('/api/users/import-csv', {
+      const res = await fetch('/api/users/import/csv', {
         method: 'POST',
         headers: {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -245,7 +245,7 @@ export const UsersService = {
     const token = userData ? JSON.parse(userData).token : null;
 
     try {
-      const res = await fetch('/api/users/export-csv', {
+      const res = await fetch('/api/users/export/csv', {
         method: 'GET',
         headers: {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),

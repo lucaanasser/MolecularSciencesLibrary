@@ -3,12 +3,13 @@
  * Contrato espelhado de authHandlers/commandHandlers/queryHandlers + authUserService/lifecycleUserService.
  * Senha: apenas PBKDF2 — hash bcrypt legado orienta o usuário ao reset (o portão de entrada
  * dos usuários reais na estreia). E-mails via services/email (Resend), nunca bloqueiam a operação.
- * Fora do porte: import/export CSV (multer) e PUT /me/profile-image (upload — fase R2).
+ * Inclui o par de CSV (GET /export/csv e POST /import/csv), restrito a admin como no Express.
+ * Fora do porte: PUT /me/profile-image (upload — fase R2).
  */
 import { Hono } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import type { Context, Next } from 'hono';
-import { all, first, run } from '../db';
+import { all, batch, first, run } from '../db';
 import {
   authenticateToken,
   clientIpOf,
@@ -23,8 +24,22 @@ import {
 import {
   sendPasswordResetEmail,
   sendRegistrationRequestNotification,
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendWelcomeEmailsBatch
 } from '../services/email';
+import {
+  chunk,
+  csvBody,
+  csvDownload,
+  csvUpload,
+  datedFilename,
+  escapeCSV,
+  importResults,
+  insertRows,
+  parseCsv,
+  type ImportError,
+  type MappedRow
+} from '../csv';
 import type { Env } from '../index';
 
 const USER_SELECT_WITH_PASSWORD =
@@ -50,6 +65,151 @@ function stripHash(user: Record<string, unknown>) {
   const { password_hash: _ignored, ...userData } = user;
   return userData;
 }
+
+// ---------------------------------------------------------------------------
+// CSV — espelho de csvUserService.{exportUsersToCSV,importUsersFromCSV}
+// ---------------------------------------------------------------------------
+
+const CSV_FIELDS = ['id', 'name', 'NUSP', 'email', 'phone', 'password_hash', 'role', 'profile_image', 'class', 'created_at'];
+const CSV_REQUIRED_FIELDS = ['name', 'NUSP', 'email', 'phone', 'role', 'class'];
+const VALID_ROLES = ['admin', 'aluno', 'proaluno'];
+
+type UserImportRow = {
+  name: string;
+  NUSP: number;
+  email: string;
+  phone: string;
+  role: string;
+  class: string | null;
+  profile_image: string | null;
+  password_hash: string | null;
+};
+
+/** Espelho do mapRow de importUsersFromCSV, com as mesmas mensagens de erro. */
+function mapUserRow(rowData: Record<string, string>): UserImportRow {
+  const user: UserImportRow = {
+    name: rowData.name?.trim(),
+    NUSP: parseInt(rowData.NUSP, 10),
+    email: rowData.email?.trim(),
+    phone: rowData.phone?.trim(),
+    role: rowData.role?.trim(),
+    class: rowData.class?.trim() || null,
+    profile_image: rowData.profile_image?.trim() || null,
+    password_hash: rowData.password_hash?.trim() || null
+  };
+
+  if (!PHONE_RE.test(user.phone || '')) {
+    throw new Error(`Telefone inválido: ${user.phone}`);
+  }
+  if (!VALID_ROLES.includes(user.role)) {
+    throw new Error(`Role inválido: ${user.role}. Use: admin, aluno ou proaluno`);
+  }
+  if (Number.isNaN(user.NUSP)) {
+    throw new Error(`NUSP inválido: ${rowData.NUSP}`);
+  }
+
+  return user;
+}
+
+/**
+ * Faz em 1 query o que o Express fazia por linha (getUserByEmail) mais as constraints
+ * UNIQUE de email/NUSP: sem isso uma linha repetida derrubaria o lote inteiro no D1.
+ * Também pega repetições dentro do próprio arquivo.
+ */
+async function checkUserDuplicates(
+  db: D1Database,
+  mapped: MappedRow<UserImportRow>[]
+): Promise<{ ready: MappedRow<UserImportRow>[]; errors: ImportError[] }> {
+  const existing = await all<{ email: string; NUSP: number }>(db, 'SELECT email, NUSP FROM users');
+  const emails = new Set(existing.map((user) => String(user.email).toLowerCase()));
+  const nusps = new Set(existing.map((user) => Number(user.NUSP)));
+
+  const ready: MappedRow<UserImportRow>[] = [];
+  const errors: ImportError[] = [];
+
+  for (const item of mapped) {
+    const email = item.entity.email.toLowerCase();
+    if (emails.has(email)) {
+      errors.push({ row: item.row, error: 'Usuário já existe com este email' });
+      continue;
+    }
+    if (nusps.has(item.entity.NUSP)) {
+      errors.push({ row: item.row, error: 'Usuário já existe com este NUSP' });
+      continue;
+    }
+    emails.add(email);
+    nusps.add(item.entity.NUSP);
+    ready.push(item);
+  }
+
+  return { ready, errors };
+}
+
+users.get('/export/csv', authenticateToken(), requireAdmin, async (c) => {
+  try {
+    const rows = await all<Record<string, unknown>>(c.env.DB, `SELECT ${CSV_FIELDS.join(', ')} FROM users`);
+    const content = csvBody(
+      CSV_FIELDS,
+      rows.map((user) => CSV_FIELDS.map((field) => escapeCSV(user[field] || '')))
+    );
+    return csvDownload(c, datedFilename('usuarios'), content);
+  } catch (error) {
+    return c.json({ success: false, message: (error as Error).message }, 500);
+  }
+});
+
+users.post('/import/csv', authenticateToken(), requireAdmin, async (c) => {
+  const text = await csvUpload(c);
+  if (text === null) {
+    return c.json({ success: false, message: 'Nenhum arquivo CSV fornecido' }, 400);
+  }
+
+  try {
+    const { mapped, errors: parseErrors } = parseCsv({
+      text,
+      requiredFields: CSV_REQUIRED_FIELDS,
+      mapRow: mapUserRow
+    });
+    const { ready, errors: duplicateErrors } = await checkUserDuplicates(c.env.DB, mapped);
+
+    // Divergência deliberada do Express: lá, a linha sem password_hash caía em
+    // UsersService.createUser, que descartava role/profile_image e gravava sempre
+    // 'aluno'. Aqui o role declarado no CSV vale nos dois caminhos, como a tela promete.
+    const { inserted, errors: insertErrors } = await insertRows(c.env.DB, ready, (user) => ({
+      sql: `INSERT INTO users (name, NUSP, email, phone, password_hash, role, profile_image, class, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
+      params: [user.name, user.NUSP, user.email, user.phone, user.password_hash, user.role, user.profile_image, user.class]
+    }));
+
+    // Só quem entrou sem senha ganha perfil público e e-mail de boas-vindas, como no Express.
+    const newcomers = inserted.filter((item) => !item.entity.password_hash);
+    for (const group of chunk(newcomers, 100)) {
+      try {
+        await batch(
+          c.env.DB,
+          group.map((item) => ({
+            sql: 'INSERT INTO public_profiles (user_id, banner_choice) VALUES (?, ?)',
+            params: [item.id, 'purple']
+          }))
+        );
+      } catch (error) {
+        console.log('🔴 Falha ao criar perfis publicos apos importacao CSV', (error as Error).message);
+      }
+    }
+    if (newcomers.length) {
+      c.executionCtx.waitUntil(
+        sendWelcomeEmailsBatch(
+          c.env,
+          newcomers.map((item) => ({ id: item.id, name: item.entity.name, email: item.entity.email }))
+        )
+      );
+    }
+
+    return c.json(importResults(inserted.length, parseErrors, duplicateErrors, insertErrors), 200);
+  } catch (error) {
+    return c.json({ success: false, message: (error as Error).message }, 500);
+  }
+});
 
 users.post('/login', async (c) => {
   const body = await c.req.json().catch(() => ({} as Record<string, unknown>));

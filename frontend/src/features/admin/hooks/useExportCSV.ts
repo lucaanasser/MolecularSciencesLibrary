@@ -11,7 +11,13 @@ export function useExportCSV({ endpoint, filename }: UseExportCSVOptions) {
   const exportCSV = async () => {
     try {
       console.log("🔵 [ExportCSVWizard] Iniciando exportação CSV");
-      const response = await fetch(endpoint);
+      // A exportação de usuários exige token de admin no backend; sem o header
+      // a rota responde 401 e o download vem vazio.
+      const userData = localStorage.getItem("user");
+      const token = userData ? JSON.parse(userData).token : null;
+      const response = await fetch(endpoint, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!response.ok) throw new Error("Erro ao exportar CSV");
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

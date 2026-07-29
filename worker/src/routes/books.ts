@@ -1,11 +1,26 @@
 /**
- * Porte das rotas de LEITURA de /api/books do Express (catalogHandlers + evaluationHandlers).
+ * Porte das rotas de LEITURA de /api/books do Express (catalogHandlers + evaluationHandlers)
+ * mais o par de CSV (GET /export/csv e POST /import/csv).
  * Contrato espelhado de backend/src/models/library/books/modules/catalogModelBridge.js —
- * mesmos formatos de resposta e códigos de status. Rotas de escrita ainda no Express.
+ * mesmos formatos de resposta e códigos de status. Demais rotas de escrita ainda no Express.
+ * Obs.: como no Express, as rotas de CSV NÃO exigem autenticação.
  */
 import { Hono } from 'hono';
 import { verify } from 'hono/jwt';
 import { all, first } from '../db';
+import { areaMapping, subareaMapping, validateArea, validateSubarea } from '../bookAreas';
+import {
+  csvBody,
+  csvDownload,
+  csvUpload,
+  datedFilename,
+  escapeCSV,
+  importResults,
+  insertRows,
+  parseCsv,
+  type ImportError,
+  type MappedRow
+} from '../csv';
 import type { Env } from '../index';
 
 const FILTERS = ['q', 'area', 'subarea', 'status'] as const;
@@ -52,7 +67,187 @@ const GET_BOOKS_SQL = (where: string) => `
   FROM books${where}
 `;
 
+// ---------------------------------------------------------------------------
+// CSV — espelho de catalogServiceBridge.{importBooksFromCSV,exportBooksToCSV}
+// ---------------------------------------------------------------------------
+
+const ALL_FIELDS = ['id', 'code', 'area', 'subarea', 'title', 'subtitle', 'authors', 'edition', 'volume', 'language', 'status'];
+const CSV_REQUIRED_FIELDS = ['area', 'subarea', 'title', 'authors', 'edition', 'volume', 'language'];
+
+type BookRow = Record<string, string | number | null>;
+
+/** Espelho do mapRow de importBooksFromCSV: trim, inteiros e status em minusculas. */
+function mapBookRow(rowData: Record<string, string>): BookRow {
+  const row: BookRow = {};
+  for (const field in rowData) {
+    let value: string | number = rowData[field];
+    if (typeof value === 'string') value = value.trim();
+    if ((field === 'id' || field === 'edition' || field === 'volume') && value) {
+      value = parseInt(String(value), 10);
+    }
+    if (field === 'status' && value) {
+      value = String(value).toLowerCase();
+    }
+    row[field] = value || null;
+  }
+  return row;
+}
+
+/** Espelho de _generateBookCode (sem selectedBookcode, que o CSV nunca envia). */
+function generateBookCode(book: BookRow, lastCodes: Map<string, string>): string {
+  const lastCode = lastCodes.get(`${book.area}|${book.subarea}`);
+  let seq = '01';
+  if (lastCode) {
+    const parts = lastCode.split(' ')[0].split('.');
+    if (parts.length < 2) {
+      throw new Error(`Formato de código inesperado no último livro encontrado: ${lastCode}`);
+    }
+    seq = (parseInt(parts[1], 10) + 1).toString().padStart(2, '0');
+  }
+
+  const areaCode = areaMapping[String(book.area)] || 'XXX';
+  const subareaNum = subareaMapping[areaCode]?.[String(book.subarea)] || 0;
+  const baseCode = `${areaCode}-${String(subareaNum).padStart(2, '0')}.${seq}`;
+
+  return book.volume && book.volume !== 0 ? `${baseCode} v.${book.volume}` : baseCode;
+}
+
+/** Espelho de _generateUniqueEAN13, checando contra os ids ja carregados em memoria. */
+function generateUniqueEan13(existingIds: Set<number>): number {
+  const completeEAN13 = (twelveDigitBarcode: string): number => {
+    let sum = 0;
+    for (let index = 0; index < 12; index += 1) {
+      sum += parseInt(twelveDigitBarcode[index], 10) * (index % 2 === 0 ? 1 : 3);
+    }
+    const check = (10 - (sum % 10)) % 10;
+    return Number(`${twelveDigitBarcode}${check}`);
+  };
+
+  let ean: number;
+  do {
+    let twelveDigitBarcode = '';
+    for (let index = 0; index < 12; index += 1) {
+      twelveDigitBarcode += Math.floor(Math.random() * 10).toString();
+    }
+    ean = completeEAN13(twelveDigitBarcode);
+  } while (existingIds.has(ean));
+
+  return ean;
+}
+
+/**
+ * Espelho de addBook para o lote inteiro: valida area/subarea, gera code e id e
+ * normaliza os campos. O Express consultava o banco por linha (getLastBookInSubarea
+ * e getBookById); aqui os ids e o ultimo code de cada subarea vem em 2 queries e
+ * são atualizados em memoria a cada linha, o que dá o mesmo resultado sequencial.
+ */
+async function prepareBooks(
+  db: D1Database,
+  mapped: MappedRow<BookRow>[]
+): Promise<{ ready: MappedRow<BookRow>[]; errors: ImportError[] }> {
+  const existingIds = new Set(
+    (await all<{ id: number }>(db, 'SELECT id FROM books')).map((row) => Number(row.id))
+  );
+  const lastCodes = new Map<string, string>();
+  for (const row of await all<{ area: string; subarea: string; code: string }>(
+    db,
+    'SELECT area, subarea, MAX(code) AS code FROM books GROUP BY area, subarea'
+  )) {
+    if (row.code) lastCodes.set(`${row.area}|${row.subarea}`, row.code);
+  }
+
+  const ready: MappedRow<BookRow>[] = [];
+  const errors: ImportError[] = [];
+
+  for (const item of mapped) {
+    try {
+      const book = item.entity;
+      const areaCode = validateArea(book.area);
+      validateSubarea(areaCode, book.subarea);
+
+      const code = book.code ? String(book.code) : generateBookCode(book, lastCodes);
+      const id =
+        book.id && String(book.id).length === 13 ? Number(book.id) : generateUniqueEan13(existingIds);
+
+      if (!book.edition) book.edition = 1;
+
+      for (const field of ALL_FIELDS) {
+        const value = book[field];
+        if (typeof value === 'string') book[field] = value.replace(/\s+/g, ' ').trim();
+      }
+
+      const bookToInsert: BookRow = {};
+      for (const field of ALL_FIELDS) {
+        if (field === 'id') bookToInsert.id = id;
+        else if (field === 'code') bookToInsert.code = code;
+        else bookToInsert[field] = book[field] || (field === 'status' ? 'disponível' : null);
+      }
+
+      existingIds.add(id);
+      const key = `${book.area}|${book.subarea}`;
+      const currentLast = lastCodes.get(key);
+      if (!currentLast || code > currentLast) lastCodes.set(key, code);
+
+      ready.push({ row: item.row, entity: bookToInsert });
+    } catch (error) {
+      errors.push({ row: item.row, error: (error as Error).message });
+    }
+  }
+
+  return { ready, errors };
+}
+
 const books = new Hono<{ Bindings: Env }>();
+
+books.get('/export/csv', async (c) => {
+  try {
+    const rows = await all<Record<string, unknown>>(c.env.DB, `SELECT ${ALL_FIELDS.join(', ')} FROM books`);
+    const content = csvBody(
+      ALL_FIELDS,
+      rows.map((book) => ALL_FIELDS.map((field) => escapeCSV(book[field] || '')))
+    );
+    return csvDownload(c, datedFilename('catalogo_livros'), content);
+  } catch (error) {
+    return c.json({ success: false, message: (error as Error).message }, 500);
+  }
+});
+
+books.post('/import/csv', async (c) => {
+  const text = await csvUpload(c);
+  if (text === null) {
+    return c.json({ success: false, message: 'Nenhum arquivo CSV fornecido' }, 400);
+  }
+
+  try {
+    const { mapped, errors: parseErrors } = parseCsv({
+      text,
+      requiredFields: CSV_REQUIRED_FIELDS,
+      mapRow: mapBookRow
+    });
+    const { ready, errors: prepareErrors } = await prepareBooks(c.env.DB, mapped);
+    const { inserted, errors: insertErrors } = await insertRows(c.env.DB, ready, (book) => ({
+      sql: `INSERT INTO books (${ALL_FIELDS.join(', ')}) VALUES (${ALL_FIELDS.map(() => '?').join(', ')})`,
+      params: ALL_FIELDS.map((field) => book[field])
+    }));
+
+    const result = importResults(inserted.length, parseErrors, prepareErrors, insertErrors);
+    if (result.failed > 0) {
+      let errorMsg = `Importacao de livros concluida com ${result.success} livros importados com sucesso e ${result.failed} erros.`;
+      for (const err of result.errors) errorMsg += `\nLinha ${err.row}: ${err.error}`;
+      return c.json({ success: false, message: errorMsg }, 200);
+    }
+
+    return c.json(
+      {
+        success: true,
+        message: `Importacao de livros concluida com ${result.success} livros importados com sucesso e ${result.failed} falhas.`
+      },
+      200
+    );
+  } catch (error) {
+    return c.json({ success: false, message: (error as Error).message }, 500);
+  }
+});
 
 books.get('/search', async (c) => {
   const q = c.req.query('q');

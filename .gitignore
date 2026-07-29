@@ -90,3 +90,6 @@ frontend/node_modules/
 # Dumps de banco gerados na migração (contêm dados de usuários e hashes de senha)
 /docs/migration/dados.sql
 /docs/migration/*.db
+
+# Estado local do wrangler dev (D1/miniflare)
+/.wrangler/

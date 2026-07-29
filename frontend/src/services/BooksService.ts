@@ -294,9 +294,10 @@ export const BooksService = {
   exportBooksToCSV: async () => {
     logger.log("🔵 [BooksService] Exportando catálogo de livros para CSV");
     try {
-      const csv = await fetchJson(`${API_BASE}/export/csv`, {
-        method: 'GET',
-      });
+      // A rota devolve text/csv: fetchJson não serve aqui (faria response.json()).
+      const res = await fetch(`${API_BASE}/export/csv`, { method: 'GET' });
+      if (!res.ok) throw new Error(await res.text() || 'Erro na requisição');
+      const csv = await res.text();
       logger.log("🟢 [BooksService] Exportação de livros para CSV concluída");
       return csv;
     } catch (err: any) {
