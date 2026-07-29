@@ -57,6 +57,10 @@ export const disciplinePath = (codigo: string) =>
 export const forumNewForDisciplinePath = (codigo: string) =>
   `/academico/forum/nova-pergunta?disciplina=${encodeURIComponent(codigo)}`;
 
+/** Abre o composer da aba Emails do admin com o destinatário preenchido. */
+export const adminComposeEmailPath = (email: string) =>
+  `/admin?tab=emails&compose=${encodeURIComponent(email)}`;
+
 // Informações de contato para rodapé
 interface ContactInfo {
   organization: string;

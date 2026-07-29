@@ -1,8 +1,9 @@
 /**
- * Casca da aba Emails do painel admin: rail (pastas de contato@ + avisos internos),
- * lista de conversas e painel de leitura/resposta estilo Gmail. A antiga aba
- * Notificacoes vive aqui como as visoes "notify"/"history" do rail.
- * Deep link: ?thread=<id> (vindo da notificacao no Gmail) abre a conversa direto.
+ * Casca da aba Emails do painel admin: rail (pastas de contato@ + historico de
+ * avisos internos), lista de conversas e painel de leitura/resposta estilo Gmail.
+ * Deep links: ?thread=<id> (notificacao no Gmail) abre a conversa direto;
+ * ?compose=<email> (clique num nome de usuario em outras abas) abre o composer
+ * com o destinatario preenchido.
  * Usa: useEmailThreads/useEmailThread/useSendEmail, EmailsService (acoes), useAdminToast.
  */
 import { useEffect, useState } from "react";
@@ -12,30 +13,37 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAdminToast } from "@/features/admin/hooks/useAdminToast";
 import { EmailsService } from "@/services/EmailsService";
-import SendNotification from "@/features/admin/features/notifications/components/Sendnotification";
 import EmailFolderRail from "./components/EmailFolderRail";
 import EmailList from "./components/EmailList";
 import EmailThread from "./components/EmailThread";
-import EmailComposer from "./components/EmailComposer";
+import EmailComposer, { type ComposePayload } from "./components/EmailComposer";
 import NotificationHistoryPanel from "./components/NotificationHistoryPanel";
 import { useEmailThreads } from "./hooks/useEmailThreads";
 import { useEmailThread } from "./hooks/useEmailThread";
 import { useSendEmail } from "./hooks/useSendEmail";
 import type { EmailFolder, EmailsTabView } from "./types/email";
 
-const isFolder = (view: EmailsTabView): view is EmailFolder =>
-  view !== "notify" && view !== "history";
+const isFolder = (view: EmailsTabView): view is EmailFolder => view !== "history";
 
 export default function EmailsInbox() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<EmailsTabView>("inbox");
-  // Ultima pasta de email visitada: os contadores do rail seguem vivos nas telas de aviso.
+  // Ultima pasta de email visitada: os contadores do rail seguem vivos na tela de avisos.
   const [folder, setFolder] = useState<EmailFolder>("inbox");
   const [page, setPage] = useState(1);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
     () => searchParams.get("thread") // deep link da notificacao
   );
-  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeTo, setComposeTo] = useState<string>(() => searchParams.get("compose") ?? "");
+  const [composeOpen, setComposeOpen] = useState(() => Boolean(searchParams.get("compose")));
+
+  // Consome os deep links da URL para nao reabrirem ao alternar de aba e voltar.
+  useEffect(() => {
+    if (searchParams.get("compose") || searchParams.get("thread")) {
+      setSearchParams({ tab: "emails" }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { showSuccess, showError } = useAdminToast();
   const { data, loading, error, refetch } = useEmailThreads(folder, page);
@@ -73,10 +81,14 @@ export default function EmailsInbox() {
   };
 
   /* Envia mensagem nova (Dialog) e fecha o composer. */
-  const handleCompose = async (dataForm: { to?: string; subject?: string; message: string }) => {
+  const handleCompose = async (payload: ComposePayload) => {
     try {
-      await compose(dataForm.to ?? "", dataForm.subject ?? "", dataForm.message);
-      showSuccess("Mensagem enviada de contato@.");
+      const result = await compose(payload);
+      showSuccess(
+        payload.broadcast
+          ? `Comunicado enviado para ${result?.sent ?? 0} usuário(s) de ${payload.sender}@.`
+          : `Mensagem enviada de ${payload.sender}@.`
+      );
       setComposeOpen(false);
       refetch();
     } catch (err) {
@@ -122,7 +134,7 @@ export default function EmailsInbox() {
         <EmailFolderRail selected={view} counts={data?.counts ?? null} onSelect={handleViewSelect} />
         {!isFolder(view) ? (
           <div className="flex-1 min-w-0 min-h-0 overflow-y-auto border-l border-gray-200 pl-4">
-            {view === "notify" ? <SendNotification /> : <NotificationHistoryPanel />}
+            <NotificationHistoryPanel />
           </div>
         ) : (
         <>
@@ -174,12 +186,18 @@ export default function EmailsInbox() {
         )}
       </div>
 
-      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+      <Dialog
+        open={composeOpen}
+        onOpenChange={(open) => {
+          setComposeOpen(open);
+          if (!open) setComposeTo(""); // prefill do deep link vale so para a primeira abertura
+        }}
+      >
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Nova mensagem</DialogTitle>
           </DialogHeader>
-          <EmailComposer mode="new" sending={sending} onSend={handleCompose} />
+          <EmailComposer mode="new" sending={sending} initialTo={composeTo} onSend={handleCompose} />
         </DialogContent>
       </Dialog>
     </div>

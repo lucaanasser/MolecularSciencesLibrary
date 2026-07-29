@@ -22,11 +22,17 @@ export function useSendEmail() {
     }
   };
 
-  /* Envia mensagem nova para um destinatario qualquer. Lanca em falha. */
-  const compose = async (to: string, subject: string, message: string) => {
+  /* Envia mensagem nova (destinatario unico ou broadcast). Lanca em falha. */
+  const compose = async (payload: {
+    to?: string;
+    subject: string;
+    message: string;
+    sender: "contato" | "avisos";
+    broadcast?: boolean;
+  }) => {
     setSending(true);
     try {
-      await EmailsService.compose(to, subject, message);
+      return await EmailsService.compose(payload);
     } catch (err) {
       logger.error("🔴 [useSendEmail] Erro ao enviar mensagem nova", err);
       throw err;

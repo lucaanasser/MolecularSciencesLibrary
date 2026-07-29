@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import { Input } from "@/components/ui/input";
 import { useExportCSV } from "@/features/admin/hooks/useExportCSV";
 import { UsersService } from "@/services/UsersService";
+import { adminComposeEmailPath } from "@/constants/navigation";
 import type { User } from "@/types/user";
 
 
 export default function ListUsers({ onBack, onError }) {
   // Estados
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [foundUsers, setFoundUsers] = useState<User[]>([]);
   const { exportCSV } = useExportCSV({
@@ -41,10 +44,25 @@ export default function ListUsers({ onBack, onError }) {
     })();
   }, []);
 
-  // Definição das colunas da tabela
+  // Definição das colunas da tabela. O nome abre o composer da aba Emails.
   const columns: Column<any>[] = [
     { label: "NUSP", accessor: "NUSP", className: "font-mono" },
-    { label: "Nome", accessor: "name" },
+    {
+      label: "Nome",
+      accessor: (row) =>
+        row.email ? (
+          <button
+            type="button"
+            className="text-left hover:underline hover:text-cm-blue"
+            title={`Escrever email para ${row.name}`}
+            onClick={() => navigate(adminComposeEmailPath(row.email))}
+          >
+            {row.name}
+          </button>
+        ) : (
+          row.name
+        ),
+    },
     { label: "Email", accessor: "email" },
     { label: "Tipo", accessor: (row) => <span className="capitalize">{row.role}</span> },
   ];

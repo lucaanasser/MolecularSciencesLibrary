@@ -5,8 +5,8 @@
 
 export type EmailFolder = "inbox" | "quarantine" | "archived" | "sent";
 
-/** Visoes do rail da aba Emails: pastas de email + telas de avisos internos. */
-export type EmailsTabView = EmailFolder | "notify" | "history";
+/** Visoes do rail da aba Emails: pastas de email + historico de avisos internos. */
+export type EmailsTabView = EmailFolder | "history";
 
 export interface EmailThreadSummary {
   thread_id: string;

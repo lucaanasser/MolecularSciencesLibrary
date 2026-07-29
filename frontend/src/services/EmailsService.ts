@@ -43,15 +43,23 @@ export const EmailsService = {
     logger.log("🟢 [EmailsService] Resposta enviada");
   },
 
-  /* Envia mensagem nova (abre thread propria).
+  /* Envia mensagem nova (abre thread propria): um destinatario ou broadcast para
+   * todos os usuarios; remetente contato@ (conversacional) ou avisos@ (comunicado).
    * Usada em: useSendEmail. */
-  compose: async (to: string, subject: string, message: string): Promise<void> => {
-    logger.log("🔵 [EmailsService] Enviando mensagem nova para:", to);
-    await fetchJson(`${API_BASE}/threads`, {
+  compose: async (payload: {
+    to?: string;
+    subject: string;
+    message: string;
+    sender: "contato" | "avisos";
+    broadcast?: boolean;
+  }): Promise<{ success: boolean; sent?: number; total?: number }> => {
+    logger.log("🔵 [EmailsService] Enviando mensagem nova:", payload.broadcast ? "broadcast" : payload.to);
+    const data = await fetchJson(`${API_BASE}/threads`, {
       method: "POST",
-      body: JSON.stringify({ to, subject, message }),
+      body: JSON.stringify(payload),
     });
     logger.log("🟢 [EmailsService] Mensagem enviada");
+    return data;
   },
 
   /* Muda o status das mensagens recebidas da thread (read | unread | archived).

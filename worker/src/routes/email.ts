@@ -10,7 +10,14 @@ import type { Context, Next } from 'hono';
 import { first, run } from '../db';
 import { authenticateToken, type JwtUser } from '../auth';
 import { sendEmail, CONTACT_EMAIL } from '../services/email';
-import { escapeHtml } from '../services/emailInbox';
+import {
+  CONTACT_FROM,
+  newMessageId,
+  humanHtml,
+  sendComposed,
+  sendBroadcast,
+  type ComposeSender
+} from '../services/emailCompose';
 import {
   FOLDERS,
   listThreads,
@@ -32,23 +39,6 @@ const requireAdmin = async (c: Context<Vars>, next: Next) => {
   }
   await next();
 };
-
-const CONTACT_FROM = `Biblioteca CM <${CONTACT_EMAIL}>`;
-
-/**
- * Message-ID proprio para a linha 'out'. O Resend gera o Message-ID real do envio e nao
- * o expoe; a continuidade da thread em respostas futuras vem do header References
- * (ver resolveThreadId em services/emailInbox.ts).
- */
-const newMessageId = () => `<painel-${crypto.randomUUID()}@bibliotecamoleculares.com>`;
-
-/** Corpo de email humano: paragrafos simples + assinatura, sem o template automatico. */
-function composeHtml(message: string): string {
-  return `<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; color: #222; line-height: 1.6;">
-    <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
-    <p style="color: #666;">— Biblioteca Ciencias Moleculares<br>${CONTACT_EMAIL}</p>
-  </div>`;
-}
 
 // Lista threads de uma pasta (inbox|quarantine|archived|sent) + contadores
 email.get('/threads', authenticateToken(), requireAdmin, async (c) => {
@@ -104,7 +94,7 @@ email.post('/threads/:threadId/reply', authenticateToken(), requireAdmin, async 
       headers['References'] =
         threadId === lastIn.message_id ? threadId : `${threadId} ${lastIn.message_id}`;
     }
-    const html = composeHtml(message);
+    const html = humanHtml(message);
     const ok = await sendEmail(c.env, {
       to: lastIn.from_address,
       subject,
@@ -131,40 +121,30 @@ email.post('/threads/:threadId/reply', authenticateToken(), requireAdmin, async 
   }
 });
 
-// Mensagem nova (abre thread propria)
+// Mensagem nova: um destinatario ou broadcast; remetente contato@ ou avisos@
 email.post('/threads', authenticateToken(), requireAdmin, async (c) => {
   const body = await c.req.json().catch(() => ({} as Record<string, unknown>));
   const to = typeof body.to === 'string' ? body.to.trim() : '';
   const subject = typeof body.subject === 'string' ? body.subject.trim() : '';
   const message = typeof body.message === 'string' ? body.message.trim() : '';
-  if (!to || !subject || !message) {
-    return c.json({ error: 'to, subject e message sao obrigatorios.' }, 400);
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-    return c.json({ error: 'Email de destino invalido.' }, 400);
+  const broadcast = body.broadcast === true;
+  const sender = (body.sender === 'avisos' ? 'avisos' : 'contato') as ComposeSender;
+  if (!subject || !message) {
+    return c.json({ error: 'subject e message sao obrigatorios.' }, 400);
   }
   try {
-    const html = composeHtml(message);
-    const ok = await sendEmail(c.env, {
-      to,
-      subject,
-      html,
-      from: CONTACT_FROM,
-      replyTo: CONTACT_EMAIL
-    });
-    if (!ok) return c.json({ error: 'Falha ao enviar o email.' }, 502);
-
-    const messageId = newMessageId();
-    await insertOutgoing(c.env, {
-      threadId: messageId,
-      messageId,
-      to,
-      subject,
-      bodyText: message,
-      bodyHtml: html,
-      sentByUserId: c.get('user').id
-    });
-    return c.json({ success: true, thread_id: messageId }, 201);
+    const sentByUserId = c.get('user').id;
+    if (broadcast) {
+      const result = await sendBroadcast(c.env, { sender, subject, message, sentByUserId });
+      if (!result) return c.json({ error: 'Falha ao enviar o broadcast.' }, 502);
+      return c.json({ success: true, ...result }, 201);
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      return c.json({ error: 'Email de destino invalido.' }, 400);
+    }
+    const threadId = await sendComposed(c.env, { sender, to, subject, message, sentByUserId });
+    if (!threadId) return c.json({ error: 'Falha ao enviar o email.' }, 502);
+    return c.json({ success: true, thread_id: threadId }, 201);
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }

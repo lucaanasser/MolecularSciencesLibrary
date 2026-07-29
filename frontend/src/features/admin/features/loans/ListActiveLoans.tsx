@@ -1,11 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ListRenderer, { Column } from "@/features/admin/components/ListRenderer";
 import { LoansService } from "@/services/LoansService";
+import { adminComposeEmailPath } from "@/constants/navigation";
 import { Loan } from "@/types/loan";
 
 export default function ListActiveLoans({ onBack }) {
+  const navigate = useNavigate();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,7 +60,24 @@ export default function ListActiveLoans({ onBack }) {
   };
 
   const columns: Column<Loan>[] = [
-    { label: "Usuário", accessor: (row) => row.user.name, className: "font-medium" },
+    // O nome do usuario abre o composer da aba Emails com o destinatario preenchido.
+    {
+      label: "Usuário",
+      accessor: (row) =>
+        row.user.email ? (
+          <button
+            type="button"
+            className="text-left hover:underline hover:text-cm-blue"
+            title={`Escrever email para ${row.user.name}`}
+            onClick={() => navigate(adminComposeEmailPath(row.user.email!))}
+          >
+            {row.user.name}
+          </button>
+        ) : (
+          row.user.name
+        ),
+      className: "font-medium",
+    },
     { label: "NUSP", accessor: (row) => row.user.NUSP },
     { label: "ID Livro", accessor: (row) => row.book.id },
     { label: "Livro", accessor: (row) => (

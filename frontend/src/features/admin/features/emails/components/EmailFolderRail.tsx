@@ -3,7 +3,7 @@
  * contadores + secao de avisos internos (antiga aba Notificacoes).
  * Usado em: EmailsInbox.
  */
-import { Inbox, Send, Archive, ShieldAlert, BellPlus, History } from "lucide-react";
+import { Inbox, Send, Archive, ShieldAlert, History } from "lucide-react";
 import type { EmailFolderCounts, EmailsTabView } from "../types/email";
 
 interface Props {
@@ -22,7 +22,6 @@ const FOLDER_ITEMS: RailItem[] = [
 ];
 
 const NOTIFICATION_ITEMS: RailItem[] = [
-  { id: "notify", label: "Enviar aviso", icon: BellPlus },
   { id: "history", label: "Histórico de avisos", icon: History },
 ];
 
