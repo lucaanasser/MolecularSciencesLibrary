@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { logger } from "@/utils/logger";
-import { BookOpen, Users, Calendar, Heart, Bookmark, Bell, BarChart3, Settings as SettingsIcon, Mail } from "lucide-react";
+import { BookOpen, Users, Calendar, Heart, Bookmark, BarChart3, Settings as SettingsIcon, Mail } from "lucide-react";
 import { TabsCard } from "@/lib/TabsCard";
 import ManageBooks from "@/features/admin/_tabs/ManageBooks";
 import ManageUsers from "@/features/admin/_tabs/ManageUsers";
 import ManageLoans from "@/features/admin/_tabs/ManageLoans";
 import ManageDonators from "@/features/admin/_tabs/ManageDonators";
 import ManageReserve from "@/features/admin/_tabs/ManageReserve";
-import Notifications from "@/features/admin/_tabs/Notifications";
 import EmailsInbox from "@/features/admin/features/emails/EmailsInbox";
 import Reports from "@/features/admin/_tabs/Reports";
 import Rules from "@/features/admin/_tabs/ManageRules";
@@ -36,7 +35,6 @@ const AdminPage = () => {
     { id: "reserve", label: "Reserva", icon: Bookmark },
     { id: "rules", label: "Regras", icon: SettingsIcon },
     { id: "donators", label: "Doadores", icon: Heart },
-    { id: "notifications", label: "Notificações", icon: Bell },
     { id: "emails", label: "Emails", icon: Mail },
     { id: "reports", label: "Relatórios", icon: BarChart3 },
   ];
@@ -68,7 +66,6 @@ const AdminPage = () => {
           <ErrorBoundary><ManageReserve /></ErrorBoundary>
           <ErrorBoundary><Rules /></ErrorBoundary>
           <ErrorBoundary><ManageDonators /></ErrorBoundary>
-          <ErrorBoundary><Notifications /></ErrorBoundary>
           <ErrorBoundary><EmailsInbox /></ErrorBoundary>
           <ErrorBoundary><Reports /></ErrorBoundary>
         </TabsCard>

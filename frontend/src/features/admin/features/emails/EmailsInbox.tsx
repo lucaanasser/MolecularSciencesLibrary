@@ -1,6 +1,7 @@
 /**
- * Casca da aba Emails do painel admin (caixa de contato@, estilo Gmail):
- * rail de pastas + lista de conversas + painel de leitura/resposta.
+ * Casca da aba Emails do painel admin: rail (pastas de contato@ + avisos internos),
+ * lista de conversas e painel de leitura/resposta estilo Gmail. A antiga aba
+ * Notificacoes vive aqui como as visoes "notify"/"history" do rail.
  * Deep link: ?thread=<id> (vindo da notificacao no Gmail) abre a conversa direto.
  * Usa: useEmailThreads/useEmailThread/useSendEmail, EmailsService (acoes), useAdminToast.
  */
@@ -11,17 +12,24 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAdminToast } from "@/features/admin/hooks/useAdminToast";
 import { EmailsService } from "@/services/EmailsService";
+import SendNotification from "@/features/admin/features/notifications/components/Sendnotification";
 import EmailFolderRail from "./components/EmailFolderRail";
 import EmailList from "./components/EmailList";
 import EmailThread from "./components/EmailThread";
 import EmailComposer from "./components/EmailComposer";
+import NotificationHistoryPanel from "./components/NotificationHistoryPanel";
 import { useEmailThreads } from "./hooks/useEmailThreads";
 import { useEmailThread } from "./hooks/useEmailThread";
 import { useSendEmail } from "./hooks/useSendEmail";
-import type { EmailFolder } from "./types/email";
+import type { EmailFolder, EmailsTabView } from "./types/email";
+
+const isFolder = (view: EmailsTabView): view is EmailFolder =>
+  view !== "notify" && view !== "history";
 
 export default function EmailsInbox() {
   const [searchParams] = useSearchParams();
+  const [view, setView] = useState<EmailsTabView>("inbox");
+  // Ultima pasta de email visitada: os contadores do rail seguem vivos nas telas de aviso.
   const [folder, setFolder] = useState<EmailFolder>("inbox");
   const [page, setPage] = useState(1);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
@@ -40,11 +48,14 @@ export default function EmailsInbox() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [thread.messages]);
 
-  /* Troca de pasta: volta para a pagina 1 e fecha a conversa aberta. */
-  const handleFolderSelect = (next: EmailFolder) => {
-    setFolder(next);
-    setPage(1);
-    setSelectedThreadId(null);
+  /* Troca de visao no rail; em pasta de email, volta a pagina 1 e fecha a conversa. */
+  const handleViewSelect = (next: EmailsTabView) => {
+    setView(next);
+    if (isFolder(next)) {
+      setFolder(next);
+      setPage(1);
+      setSelectedThreadId(null);
+    }
   };
 
   /* Responde a conversa aberta e recarrega thread + lista. */
@@ -93,7 +104,9 @@ export default function EmailsInbox() {
       <div className="flex items-start justify-between gap-2 mb-4">
         <div>
           <h3>Emails</h3>
-          <p className="mb-0">Caixa de contato@bibliotecamoleculares.com — leia e responda por aqui.</p>
+          <p className="mb-0">
+            Caixa de contato@bibliotecamoleculares.com e avisos internos aos usuários.
+          </p>
         </div>
         <div className="flex gap-2 shrink-0">
           <Button variant="ghost" size="icon" title="Atualizar" onClick={refetch} disabled={loading}>
@@ -106,7 +119,13 @@ export default function EmailsInbox() {
       </div>
 
       <div className="flex gap-4 h-[58vh] min-h-0">
-        <EmailFolderRail folder={folder} counts={data?.counts ?? null} onSelect={handleFolderSelect} />
+        <EmailFolderRail selected={view} counts={data?.counts ?? null} onSelect={handleViewSelect} />
+        {!isFolder(view) ? (
+          <div className="flex-1 min-w-0 min-h-0 overflow-y-auto border-l border-gray-200 pl-4">
+            {view === "notify" ? <SendNotification /> : <NotificationHistoryPanel />}
+          </div>
+        ) : (
+        <>
         <div className="w-72 lg:w-80 shrink-0 min-h-0">
           <EmailList
             threads={data?.threads ?? []}
@@ -151,6 +170,8 @@ export default function EmailsInbox() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
 
       <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
