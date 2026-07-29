@@ -6,8 +6,9 @@ import ForumSidebar from "@/features/forum/components/ForumSidebar";
 import QuestionCard from "@/features/forum/components/QuestionCard";
 import { Plus, Search, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import * as ForumService from "@/services/ForumService";
+import { ROUTES } from "@/constants/navigation";
 
 type Question = ForumService.Question;
 
@@ -21,7 +22,21 @@ const ForumPage: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // A tag selecionada é mantida na URL (?tag=) para que links externos
+  // (cards de pergunta, página de detalhe) consigam filtrar o fórum.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedTag = searchParams.get("tag");
+
+  const setSelectedTag = (tagName: string | null) => {
+    const next = new URLSearchParams(searchParams);
+    if (tagName) {
+      next.set("tag", tagName);
+    } else {
+      next.delete("tag");
+    }
+    setSearchParams(next, { replace: true });
+  };
 
   // Buscar perguntas da API
   useEffect(() => {
@@ -77,7 +92,7 @@ const ForumPage: React.FC = () => {
 
             {/* Ask Question Button */}
             <div className="mb-4 flex justify-end">
-              <Link to="/forum/nova-pergunta">
+              <Link to={ROUTES.FORUM_NEW}>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -148,7 +163,7 @@ const ForumPage: React.FC = () => {
                   <p className="text-gray-600 mb-4">
                     Tente ajustar os filtros ou fazer uma nova busca
                   </p>
-                  <Link to="/forum/nova-pergunta">
+                  <Link to={ROUTES.FORUM_NEW}>
                     <button className="bg-academic-blue hover:bg-cyan-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
                       Seja o primeiro a perguntar!
                     </button>

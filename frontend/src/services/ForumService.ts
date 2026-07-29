@@ -19,8 +19,20 @@ export interface Question {
   vote_count: number;
   tags: string[];
   has_accepted_answer: boolean;
+  is_closed?: boolean;
+  is_pinned?: boolean;
+  disciplina_codigo?: string | null;
+  disciplina_nome?: string | null;
   created_at: string;
   user_vote?: number;
+}
+
+export interface Comment {
+  id: number;
+  content: string;
+  user_id: number;
+  user_name: string;
+  created_at: string;
 }
 
 export interface Answer {
@@ -35,6 +47,18 @@ export interface Answer {
   is_accepted: boolean;
   created_at: string;
   user_vote?: number;
+  comments?: Comment[];
+}
+
+export interface UserAnswer {
+  id: number;
+  question_id: number;
+  question_title: string;
+  content: string;
+  vote_count: number;
+  is_accepted: boolean;
+  is_anonymous?: number;
+  created_at: string;
 }
 
 export interface QuestionDetail {
@@ -50,9 +74,33 @@ export interface QuestionDetail {
   vote_count: number;
   tags: string[];
   has_accepted_answer: boolean;
+  is_closed?: boolean;
+  is_pinned?: boolean;
+  disciplina_codigo?: string | null;
+  disciplina_nome?: string | null;
   created_at: string;
+  updated_at?: string;
+  is_subscribed?: boolean;
+  is_bookmarked?: boolean;
+  comments?: Comment[];
   user_vote?: number;
   answers: Answer[];
+}
+
+export type ReportTargetType = "question" | "answer";
+
+export interface Report {
+  id: number;
+  reporter_id: number;
+  reporter_nome: string;
+  target_type: ReportTargetType;
+  target_id: number;
+  target_preview: string | null;
+  question_id: number;
+  motivo: string;
+  status: "pending" | "resolved" | "dismissed";
+  created_at: string;
+  resolved_at?: string | null;
 }
 
 export interface Tag {
@@ -96,6 +144,7 @@ export interface CreateQuestionDTO {
   conteudo: string;
   tags: string[];
   is_anonymous?: boolean;
+  disciplina_codigo?: string | null;
 }
 
 export interface CreateAnswerDTO {
@@ -127,6 +176,8 @@ export async function getQuestions(params?: {
   sortBy?: string;
   search?: string;
   tag?: string;
+  disciplina?: string;
+  autor?: number;
   page?: number;
   limit?: number;
 }): Promise<{ questions: Question[]; total: number; page: number; pages: number }> {
@@ -134,6 +185,8 @@ export async function getQuestions(params?: {
   if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
   if (params?.search) queryParams.append('search', params.search);
   if (params?.tag) queryParams.append('tag', params.tag);
+  if (params?.disciplina) queryParams.append('disciplina', params.disciplina);
+  if (params?.autor) queryParams.append('autor', String(params.autor));
   if (params?.page) queryParams.append('page', String(params.page));
   if (params?.limit) queryParams.append('limit', String(params.limit));
 
@@ -354,6 +407,135 @@ export async function getUserStats(userId: number): Promise<UserStats> {
   const response = await fetch(
     `${API_BASE_URL}/api/forum/stats/user/${userId}`,
     { headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+export async function getUserAnswers(userId: number): Promise<UserAnswer[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/users/${userId}/answers`,
+    { headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+// ================ COMENTÁRIOS ================
+
+export async function createComment(
+  targetType: ReportTargetType,
+  targetId: number,
+  content: string
+): Promise<Comment> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/comments`,
+    {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ target_type: targetType, target_id: targetId, conteudo: content }),
+    }
+  );
+  return handleResponse(response);
+}
+
+export async function deleteComment(commentId: number): Promise<{ message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/comments/${commentId}`,
+    { method: 'DELETE', headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+// ================ SEGUIR PERGUNTA ================
+
+export async function toggleSubscription(
+  questionId: number
+): Promise<{ is_subscribed: boolean; message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/questions/${questionId}/subscribe`,
+    { method: 'POST', headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+// ================ FAVORITOS ================
+
+export async function toggleBookmark(
+  questionId: number
+): Promise<{ is_bookmarked: boolean; message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/questions/${questionId}/bookmark`,
+    { method: 'POST', headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+export async function getBookmarks(): Promise<Question[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/bookmarks`,
+    { headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+// ================ MODERAÇÃO (ADMIN) ================
+
+export async function toggleCloseQuestion(
+  questionId: number
+): Promise<{ isClosed: boolean; message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/questions/${questionId}/close`,
+    { method: 'POST', headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+export async function togglePinQuestion(
+  questionId: number
+): Promise<{ isPinned: boolean; message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/questions/${questionId}/pin`,
+    { method: 'POST', headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+// ================ DENÚNCIAS ================
+
+export async function createReport(
+  targetType: ReportTargetType,
+  targetId: number,
+  motivo: string
+): Promise<{ id: number; message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/reports`,
+    {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ target_type: targetType, target_id: targetId, motivo }),
+    }
+  );
+  return handleResponse(response);
+}
+
+export async function getReports(status: string = 'pending'): Promise<Report[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/reports?status=${status}`,
+    { headers: getAuthHeaders() }
+  );
+  return handleResponse(response);
+}
+
+export async function resolveReport(
+  reportId: number,
+  status: 'resolved' | 'dismissed'
+): Promise<{ message: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/forum/reports/${reportId}/resolve`,
+    {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    }
   );
   return handleResponse(response);
 }

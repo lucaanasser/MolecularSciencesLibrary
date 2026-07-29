@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { TrendingUp, Star, MessageSquare, Award, AlertCircle, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { TrendingUp, Star, MessageSquare, Award, AlertCircle, Loader2, Shield, Flag, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import * as ForumService from "@/services/ForumService";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { ROUTES } from "@/constants/navigation";
 
 interface ForumSidebarProps {
   onTagClick?: (tagName: string) => void;
@@ -13,6 +16,10 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({ onTagClick, selectedTag }) 
   const [topContributors, setTopContributors] = useState<ForumService.TopContributor[]>([]);
   const [stats, setStats] = useState<ForumService.GlobalStats | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const currentUser = useCurrentUser();
+  const isAdmin = currentUser?.role === "admin";
+  const isLoggedIn = !!localStorage.getItem("token");
 
   useEffect(() => {
     const fetchSidebarData = async () => {
@@ -46,6 +53,53 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({ onTagClick, selectedTag }) 
 
   return (
     <div className="space-y-6">
+      {/* Meu conteúdo (usuários logados) */}
+      {isLoggedIn && (
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-white border border-gray-200 rounded-lg p-4"
+        >
+          <Link
+            to={ROUTES.FORUM_MINE}
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-academic-blue transition-colors"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Meu conteúdo
+          </Link>
+        </motion.div>
+      )}
+
+      {/* Painel de moderação (apenas admin) */}
+      {isAdmin && (
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-white border border-gray-200 rounded-lg p-4"
+        >
+          <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-red-600" />
+            Moderação
+          </h3>
+          <div className="space-y-2 text-sm">
+            <Link
+              to={ROUTES.ADMIN_FORUM_REPORTS}
+              className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+            >
+              <Flag className="w-4 h-4" />
+              Denúncias
+            </Link>
+            <Link
+              to={ROUTES.ADMIN_FORUM_TAGS}
+              className="flex items-center gap-2 text-gray-700 hover:text-academic-blue transition-colors"
+            >
+              <Tag className="w-4 h-4" />
+              Tags pendentes
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
       {/* Stack UnderFlow Tips */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}

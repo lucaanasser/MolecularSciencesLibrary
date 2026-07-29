@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { logger } from "@/utils/logger";
-import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, HelpCircle, AlertCircle, Lightbulb, Loader2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { ArrowLeft, HelpCircle, AlertCircle, Lightbulb, Loader2, Plus, ChevronLeft, ChevronRight, GraduationCap, X, Eye, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 import * as ForumService from "@/services/ForumService";
+import { getDisciplineByCodigo } from "@/services/DisciplinesService";
+import { DisciplineSearch } from "@/features/grade/components/DisciplineSearch";
+import MarkdownContent from "@/features/forum/components/MarkdownContent";
+import { ROUTES, forumQuestionPath } from "@/constants/navigation";
 import { toast } from "sonner";
 import CreateTagModal from "@/features/forum/components/CreateTagModal";
 
@@ -20,6 +24,10 @@ const NewQuestionPage: React.FC = () => {
   const [showCreateTagModal, setShowCreateTagModal] = useState(false);
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [selectedDiscipline, setSelectedDiscipline] = useState<{ codigo: string; nome: string } | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const [searchParams] = useSearchParams();
 
   // Verificar se o usuário está logado
   const isLoggedIn = !!localStorage.getItem("token");
@@ -27,7 +35,7 @@ const NewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (!isLoggedIn) {
       toast.error("Você precisa estar logado para fazer uma pergunta");
-      navigate("/login");
+      navigate(ROUTES.LOGIN);
       return;
     }
 
@@ -47,6 +55,21 @@ const NewQuestionPage: React.FC = () => {
 
     fetchTags();
   }, [isLoggedIn, navigate]);
+
+  // Pré-preenche a disciplina quando vindo de /nova-pergunta?disciplina=CODIGO
+  useEffect(() => {
+    const codigo = searchParams.get("disciplina");
+    if (!codigo) return;
+    getDisciplineByCodigo(codigo)
+      .then((d) => {
+        if (d?.codigo) {
+          setSelectedDiscipline({ codigo: d.codigo, nome: d.nome || d.codigo });
+        }
+      })
+      .catch(() => {
+        /* disciplina inválida no link: ignora silenciosamente */
+      });
+  }, [searchParams]);
 
   const handleAddTag = (tag: string) => {
     const normalizedTag = tag.toLowerCase().trim();
@@ -121,10 +144,11 @@ const NewQuestionPage: React.FC = () => {
         conteudo: conteudo.trim(),
         tags: tags,
         is_anonymous: isAnonymous,
+        disciplina_codigo: selectedDiscipline?.codigo || null,
       });
       
       toast.success("Pergunta publicada com sucesso!");
-      navigate(`/forum/${newQuestion.id}`);
+      navigate(forumQuestionPath(newQuestion.id));
     } catch (error: any) {
       logger.error("Erro ao criar pergunta:", error);
       toast.error(error.message || "Erro ao publicar pergunta. Tente novamente.");
@@ -141,7 +165,7 @@ const NewQuestionPage: React.FC = () => {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-4">
           <button
-            onClick={() => navigate("/forum")}
+            onClick={() => navigate(ROUTES.FORUM)}
             className="flex items-center gap-2 text-gray-600 hover:text-academic-blue mb-3 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -220,22 +244,39 @@ const NewQuestionPage: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="bg-white border border-gray-200 rounded-lg p-6"
             >
-              <label className="block mb-2">
-                <span className="text-lg font-semibold text-gray-900">
-                  Descreva sua dúvida
-                </span>
-                <span className="text-sm text-gray-600 ml-2">
-                  Adicione todos os detalhes relevantes
-                </span>
-              </label>
-              <textarea
-                value={conteudo}
-                onChange={(e) => setConteudo(e.target.value)}
-                placeholder="Forneça o máximo de contexto possível. O que você já tentou? Qual é o problema específico?&#10;&#10;Você pode usar Markdown para formatar seu texto!"
-                className={`w-full min-h-[300px] px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-academic-blue resize-y ${
-                  errors.conteudo ? "border-red-500" : "border-gray-300"
-                }`}
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label className="block">
+                  <span className="text-lg font-semibold text-gray-900">
+                    Descreva sua dúvida
+                  </span>
+                  <span className="text-sm text-gray-600 ml-2">
+                    Aceita Markdown e LaTeX ($...$)
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview((v) => !v)}
+                  disabled={!conteudo.trim()}
+                  className="flex items-center gap-1 text-sm text-academic-blue hover:text-cyan-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  {showPreview ? <Pencil className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPreview ? "Editar" : "Pré-visualizar"}
+                </button>
+              </div>
+              {showPreview ? (
+                <div className="w-full min-h-[300px] px-4 py-3 border border-gray-300 rounded-md bg-gray-50">
+                  <MarkdownContent content={conteudo} />
+                </div>
+              ) : (
+                <textarea
+                  value={conteudo}
+                  onChange={(e) => setConteudo(e.target.value)}
+                  placeholder="Forneça o máximo de contexto possível. O que você já tentou? Qual é o problema específico?&#10;&#10;Você pode usar Markdown (e LaTeX: $x^2$) para formatar!"
+                  className={`w-full min-h-[300px] px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-academic-blue resize-y ${
+                    errors.conteudo ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              )}
               {errors.conteudo && (
                 <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
@@ -245,6 +286,50 @@ const NewQuestionPage: React.FC = () => {
               <p className="mt-2 text-xs text-gray-500">
                 {conteudo.length} caracteres (mínimo 30)
               </p>
+            </motion.div>
+
+            {/* Disciplina (opcional) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="bg-white border border-gray-200 rounded-lg p-6"
+            >
+              <label className="block mb-2">
+                <span className="text-lg font-semibold text-gray-900">
+                  Disciplina
+                </span>
+                <span className="text-sm text-gray-600 ml-2">
+                  Opcional — vincule sua pergunta a uma disciplina do catálogo
+                </span>
+              </label>
+
+              {selectedDiscipline ? (
+                <div className="flex items-center justify-between gap-2 bg-academic-blue/10 border border-academic-blue/30 rounded-md px-3 py-2">
+                  <span className="flex items-center gap-2 text-sm text-academic-blue font-medium">
+                    <GraduationCap className="w-4 h-4" />
+                    {selectedDiscipline.codigo} — {selectedDiscipline.nome}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDiscipline(null)}
+                    className="text-gray-400 hover:text-red-600 transition-colors"
+                    title="Remover disciplina"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <DisciplineSearch
+                  onSelectDiscipline={(d) =>
+                    setSelectedDiscipline({ codigo: d.codigo, nome: d.nome })
+                  }
+                  selectActionLabel="Vincular"
+                  selectActionTitle="Vincular esta disciplina à pergunta"
+                  includeCustom={false}
+                  showClasses={false}
+                />
+              )}
             </motion.div>
 
             {/* Tags */}
@@ -454,7 +539,7 @@ const NewQuestionPage: React.FC = () => {
 
               {/* Buttons */}
               <div className="flex gap-3 justify-end">
-                <Link to="/forum">
+                <Link to={ROUTES.FORUM}>
                   <button className="px-6 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors">
                     Cancelar
                   </button>
