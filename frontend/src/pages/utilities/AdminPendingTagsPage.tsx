@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Tag, CheckCircle, XCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import * as ForumService from "@/services/ForumService";
+import { ROUTES } from "@/constants/navigation";
 import { toast } from "sonner";
 
 const AdminPendingTagsPage: React.FC = () => {
@@ -19,7 +20,7 @@ const AdminPendingTagsPage: React.FC = () => {
   useEffect(() => {
     if (!isAdmin) {
       toast.error("Acesso negado. Apenas administradores podem acessar esta página.");
-      navigate("/forum");
+      navigate(ROUTES.FORUM);
       return;
     }
 
@@ -142,7 +143,7 @@ const AdminPendingTagsPage: React.FC = () => {
               Quando usuários criarem novas tags, elas aparecerão aqui para você revisar.
             </p>
             <button
-              onClick={() => navigate("/forum")}
+              onClick={() => navigate(ROUTES.FORUM)}
               className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
             >
               Voltar ao Fórum
