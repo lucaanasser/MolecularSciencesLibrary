@@ -1,0 +1,33 @@
+name = "biblioteca-api"
+main = "worker/src/index.ts"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Mantém a URL *.workers.dev ativa como acesso alternativo/staging.
+workers_dev = true
+
+# O Worker atende o domínio de produção (apex + www). A Cloudflare cria o registro DNS
+# e emite o certificado TLS automaticamente.
+# ATENÇÃO: exige que NÃO exista registro A/CNAME para esses nomes no DNS (senão: Conflict 409).
+routes = [
+  { pattern = "bibliotecamoleculares.com", custom_domain = true },
+  { pattern = "www.bibliotecamoleculares.com", custom_domain = true }
+]
+
+# O Worker serve o build do frontend como assets estáticos (mesma origem que /api,
+# então o fetch relativo '/api' do frontend funciona sem CORS).
+[assets]
+directory = "frontend/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "biblioteca"
+database_id = "fccd36bb-3c82-4c02-b431-36caccf7263b"
+migrations_dir = "worker/migrations"
+
+[vars]
+ENVIRONMENT = "staging"
+FRONTEND_URL = "https://bibliotecamoleculares.com"
