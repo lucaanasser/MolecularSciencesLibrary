@@ -69,5 +69,5 @@ export const CONTACT_INFO: ContactInfo = {
   organization: "Universidade de São Paulo",
   department: "InovaUSP",
   location: "Cidade Universitária",
-  email: "bibliotecamoleculares@gmail.com",
+  email: "contato@bibliotecamoleculares.com",
 };

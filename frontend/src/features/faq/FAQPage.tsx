@@ -40,7 +40,7 @@ const FAQPage = ({ faqs, imageSrc, intro, reverse = false }: FAQPageProps) => {
                 </div>
             </div>
             <p className="mt-4 md:mt-8 mb-0 text-center">
-                Não encontrou sua dúvida? <a href="mailto:bibliotecamoleculares@gmail.com" className="link">Fale conosco</a>!
+                Não encontrou sua dúvida? <a href="mailto:contato@bibliotecamoleculares.com" className="link">Fale conosco</a>!
             </p>
         </div>
     );

@@ -6,7 +6,7 @@ const faqs = [
     answer:
     (
       <span>
-        Envie-nos um <a href="mailto:bibliotecamoleculares@gmail.com" className="link">e-mail</a> com seu nome completo, número USP, email, telefone e turma. Em breve, você receberá um e-mail para criar uma senha pessoal.
+        Envie-nos um <a href="mailto:contato@bibliotecamoleculares.com" className="link">e-mail</a> com seu nome completo, número USP, email, telefone e turma. Em breve, você receberá um e-mail para criar uma senha pessoal.
       </span>
     ),  
   },
@@ -47,7 +47,7 @@ const faqs = [
     answer:
     (
       <span>
-        Envie-nos um <a href="mailto:bibliotecamoleculares@gmail.com" className="link">e-mail</a> informando o código de barras do livro desejado e o seu Número USP, e iremos cadastrar o empréstimo manualmente.
+        Envie-nos um <a href="mailto:contato@bibliotecamoleculares.com" className="link">e-mail</a> informando o código de barras do livro desejado e o seu Número USP, e iremos cadastrar o empréstimo manualmente.
       </span>
     ),
   },

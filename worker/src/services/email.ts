@@ -18,9 +18,16 @@ type EmailEnv = Env & {
   FRONTEND_URL?: string;
 };
 
-const DEFAULT_FROM = 'Biblioteca CM <biblioteca@bibliotecamoleculares.com>';
-const ADMIN_EMAIL = 'bibliotecamoleculares@gmail.com';
-const LIBRARY_EMAIL = 'bibliotecamoleculares@gmail.com';
+/**
+ * Papeis dos enderecos (decisao 2026-07-29):
+ * - avisos@  → so saida; todo email automatico. Sem caixa: resposta acidental da bounce.
+ * - contato@ → endereco humano; recebe via Email Routing → Worker (services/emailInbox.ts),
+ *   aparece no rodape e e o reply_to dos emails nao-automaticos.
+ */
+const DEFAULT_FROM = 'Biblioteca CM <avisos@bibliotecamoleculares.com>';
+export const CONTACT_EMAIL = 'contato@bibliotecamoleculares.com';
+const ADMIN_EMAIL = CONTACT_EMAIL;
+const LIBRARY_EMAIL = CONTACT_EMAIL;
 
 const frontendUrl = (env: EmailEnv): string => env.FRONTEND_URL || 'https://bibliotecamoleculares.com';
 
@@ -33,10 +40,26 @@ async function getUserById(env: EmailEnv, userId: unknown): Promise<UserRow | nu
 /**
  * Enviador central: POST na API do Resend. Nunca lança — sempre retorna boolean.
  * Sem RESEND_API_KEY vira stub (staging funciona antes do secret existir).
+ * Exportada para reuso pelo inbox (services/emailInbox.ts e routes/email.ts).
+ * `from`/`replyTo`/`headers` sao opcionais: o padrao e o remetente de avisos.
  */
-async function sendEmail(
+export async function sendEmail(
   env: EmailEnv,
-  { to, subject, html }: { to: string; subject: string; html: string }
+  {
+    to,
+    subject,
+    html,
+    from,
+    replyTo,
+    headers
+  }: {
+    to: string;
+    subject: string;
+    html: string;
+    from?: string;
+    replyTo?: string;
+    headers?: Record<string, string>;
+  }
 ): Promise<boolean> {
   if (!env.RESEND_API_KEY) {
     console.log('🟡 [stub-email] RESEND_API_KEY ausente — não enviado:', subject);
@@ -49,7 +72,14 @@ async function sendEmail(
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ from: env.EMAIL_FROM || DEFAULT_FROM, to, subject, html })
+      body: JSON.stringify({
+        from: from || env.EMAIL_FROM || DEFAULT_FROM,
+        to,
+        subject,
+        html,
+        ...(replyTo ? { reply_to: replyTo } : {}),
+        ...(headers ? { headers } : {})
+      })
     });
     if (!r.ok) {
       console.log('🔴 e-mail falhou', r.status, await r.text());
@@ -101,8 +131,8 @@ function generateEmailTemplate({
       <div style="color: #fff; font-size: 14px; text-align: center; line-height: 1.5; font-family: 'Segoe UI', 'Roboto', Arial, Helvetica, sans-serif;">
       <img src="https://bibliotecamoleculares.com/images/email-images/Biblioteca%20do%20CM.png" alt="Logo Biblioteca" style="height: 100px; margin-bottom: 5px;" /><br>
       <b> Biblioteca Ciencias Moleculares </b> <br>
-      <a href="mailto:bibliotecamoleculares@gmail.com" style="color: #fff; text-decoration: none;">
-      bibliotecamoleculares@gmail.com
+      <a href="mailto:${CONTACT_EMAIL}" style="color: #fff; text-decoration: none;">
+      ${CONTACT_EMAIL}
       </a><br>
       ${automaticNotice}
       </div>
@@ -425,7 +455,13 @@ export async function sendCustomEmail(
 
   const htmlContent = `<p>${message.replace(/\n/g, '<br>')}</p>`;
   const html = generateEmailTemplate({ subject, content: htmlContent, isAutomatic });
-  return sendEmail(env, { to: user.email, subject, html });
+  // Nao-automatico convida resposta no rodape → reply_to precisa apontar para a caixa real.
+  return sendEmail(env, {
+    to: user.email,
+    subject,
+    html,
+    ...(isAutomatic ? {} : { replyTo: CONTACT_EMAIL })
+  });
 }
 
 /** Envia email para multiplos usuarios (broadcast). */
