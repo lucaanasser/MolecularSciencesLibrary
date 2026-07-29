@@ -1,4 +1,5 @@
 import { Plus, Trash2, BookMarked, User, Calendar, Edit } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DisciplinaAvancado, AdvancedCycleInfo } from "@/types/publicProfile";
@@ -129,6 +130,7 @@ export const DisciplinesTab = ({
               <div className="p-6 grid gap-4 sm:grid-cols-2">
                 {groupedDisciplinas[semester].map((disc) => {
                   const avancadoIndex = ciclosAvancados.findIndex((a) => a.id === disc.avancadoId);
+                  const disciplineHref = `/academico/disciplina/${encodeURIComponent(disc.codigo)}`;
                   return (
                     <div 
                       key={disc.id} 
@@ -158,9 +160,13 @@ export const DisciplinesTab = ({
                         </div>
                       )}
                       <div className="flex items-start gap-2 mb-2">
-                        <span className="text-xs font-mono font-bold text-library-purple bg-library-purple/10 px-2 py-1 rounded">
+                        <Link
+                          to={disciplineHref}
+                          className="text-xs font-mono font-bold text-library-purple bg-library-purple/10 px-2 py-1 rounded hover:underline"
+                          title="Abrir pagina da disciplina"
+                        >
                           {disc.codigo}
-                        </span>
+                        </Link>
                         <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
                           {disc.ano}.{disc.semestre}
                         </span>
@@ -174,7 +180,13 @@ export const DisciplinesTab = ({
                         )}
                       </div>
                       <h4 className="text-sm font-semibold text-gray-900 leading-tight mb-2">
-                        {disc.nome}
+                        <Link
+                          to={disciplineHref}
+                          className="hover:underline"
+                          title="Abrir pagina da disciplina"
+                        >
+                          {disc.nome}
+                        </Link>
                       </h4>
                       {disc.professor && (
                         <div className="flex items-center gap-1.5 text-xs text-gray-500">
@@ -196,6 +208,7 @@ export const DisciplinesTab = ({
         onClose={handleModalClose}
         onSave={handleModalSave}
         initialData={modalState.data}
+        ciclosAvancados={ciclosAvancados}
         mode={modalState.mode}
       />
     </div>

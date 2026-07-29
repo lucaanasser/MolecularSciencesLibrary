@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { AdvancedCycleInfo, InternationalExperience } from "@/types/publicProfile";
 import {
   Select,
   SelectContent,
@@ -11,13 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { InternationalExperience } from "@/types/publicProfile";
 
 interface InternationalExperienceModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Partial<InternationalExperience>) => Promise<void>;
   initialData?: Partial<InternationalExperience>;
+  ciclosAvancados: (AdvancedCycleInfo & { cor?: string })[];
   mode: "create" | "edit";
 }
 
@@ -41,6 +42,7 @@ export const InternationalExperienceModal = ({
   onClose,
   onSave,
   initialData,
+  ciclosAvancados,
   mode,
 }: InternationalExperienceModalProps) => {
   const [formData, setFormData] = useState<Partial<InternationalExperience>>({
@@ -54,6 +56,7 @@ export const InternationalExperienceModal = ({
     anoFim: undefined,
     duracaoNumero: undefined,
     duracaoUnidade: "meses",
+    avancadoId: undefined,
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
@@ -76,6 +79,7 @@ export const InternationalExperienceModal = ({
           anoFim: undefined,
           duracaoNumero: undefined,
           duracaoUnidade: "meses",
+          avancadoId: undefined,
         });
       }
       setErrors({});
@@ -209,6 +213,27 @@ export const InternationalExperienceModal = ({
                 value={formData.orientador || ""}
                 onChange={(e) => setFormData({ ...formData, orientador: e.target.value })}
               />
+            </div>
+
+            {/* Ciclo Avançado */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Ciclo Avançado</Label>
+              <Select
+                value={formData.avancadoId || "__none__"}
+                onValueChange={(value) => setFormData({ ...formData, avancadoId: value === "__none__" ? undefined : value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sem vínculo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Sem vínculo</SelectItem>
+                  {ciclosAvancados.map((cycle, index) => (
+                    <SelectItem key={cycle.id} value={cycle.id}>
+                      Avançado {index + 1} - {cycle.tema || "Sem título"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Anos */}

@@ -3,6 +3,8 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AdvancedCycleInfo, DisciplinaAvancado } from "@/types/publicProfile";
+import { DisciplineSearch } from "@/features/grade/components/DisciplineSearch";
 import {
   Select,
   SelectContent,
@@ -10,13 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DisciplinaAvancado } from "@/types/publicProfile";
 
 interface DisciplineModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Partial<DisciplinaAvancado>) => Promise<void>;
   initialData?: Partial<DisciplinaAvancado>;
+  ciclosAvancados: (AdvancedCycleInfo & { cor?: string })[];
   mode: "create" | "edit";
 }
 
@@ -25,6 +27,7 @@ export const DisciplineModal = ({
   onClose,
   onSave,
   initialData,
+  ciclosAvancados,
   mode,
 }: DisciplineModalProps) => {
   const [formData, setFormData] = useState<Partial<DisciplinaAvancado>>({
@@ -33,11 +36,21 @@ export const DisciplineModal = ({
     professor: "",
     ano: new Date().getFullYear(),
     semestre: 1,
+    avancadoId: undefined,
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const handleSelectDiscipline = (discipline: { codigo: string; nome: string }) => {
+    setFormData((prev) => ({
+      ...prev,
+      codigo: discipline.codigo,
+      nome: discipline.nome,
+    }));
+    setErrors((prev) => ({ ...prev, codigo: false, nome: false }));
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -50,6 +63,7 @@ export const DisciplineModal = ({
           professor: "",
           ano: new Date().getFullYear(),
           semestre: 1,
+          avancadoId: undefined,
         });
       }
       setErrors({});
@@ -114,6 +128,22 @@ export const DisciplineModal = ({
             </div>
           )}
           <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700">
+                Buscar disciplina existente
+              </Label>
+              <p className="text-xs text-gray-500 mb-2">
+                Use a busca para preencher codigo e nome a partir do catalogo.
+              </p>
+              <DisciplineSearch
+                onSelectDiscipline={handleSelectDiscipline}
+                selectActionLabel="Usar"
+                selectActionTitle="Preencher com esta disciplina"
+                includeCustom={false}
+                showClasses={false}
+              />
+            </div>
+
             {/* Código */}
             <div>
               <Label className="text-sm font-medium text-gray-700">
@@ -150,6 +180,27 @@ export const DisciplineModal = ({
                 value={formData.professor || ""}
                 onChange={(e) => setFormData({ ...formData, professor: e.target.value })}
               />
+            </div>
+
+            {/* Ciclo Avançado */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Ciclo Avançado</Label>
+              <Select
+                value={formData.avancadoId || "__none__"}
+                onValueChange={(value) => setFormData({ ...formData, avancadoId: value === "__none__" ? undefined : value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sem vínculo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Sem vínculo</SelectItem>
+                  {ciclosAvancados.map((cycle, index) => (
+                    <SelectItem key={cycle.id} value={cycle.id}>
+                      Avançado {index + 1} - {cycle.tema || "Sem título"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Ano e Semestre */}
