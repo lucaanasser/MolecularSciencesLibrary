@@ -13,8 +13,8 @@ import { all, batch, first, run } from '../db';
 import {
   authenticateToken,
   clientIpOf,
+  isKioskIpAllowed,
   isLegacyBcryptHash,
-  kioskAllowedIp,
   pbkdf2Hash,
   pbkdf2Verify,
   secretOf,
@@ -239,11 +239,10 @@ users.post('/login', async (c) => {
     const valid = await pbkdf2Verify(password, storedHash);
     if (!valid) throw new AuthError('Senha incorreta');
 
-    if (user.role === 'proaluno' && c.env.ENVIRONMENT !== 'development') {
-      const clientIp = clientIpOf(c).replace('::ffff:', '');
-      if (clientIp !== kioskAllowedIp(c.env)) {
-        return c.json({ error: 'IP não autorizado para este usuário.' }, 403);
-      }
+    if (user.role === 'proaluno' && c.env.ENVIRONMENT !== 'development' && !isKioskIpAllowed(c)) {
+      // O IP visto vai na resposta de propósito: é o próprio IP de quem chamou, e
+      // sem ele o diagnóstico no balcão depende de alguém abrir o painel da Cloudflare.
+      return c.json({ error: `IP não autorizado para este usuário. IP visto: ${clientIpOf(c) || '(vazio)'}` }, 403);
     }
 
     const payload: JwtUser = {

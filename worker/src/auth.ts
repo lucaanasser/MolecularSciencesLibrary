@@ -8,6 +8,7 @@
  */
 import { sign, verify } from 'hono/jwt';
 import type { Context, Next } from 'hono';
+import { isIpAllowed } from './ipAllowList';
 import type { Env } from './index';
 
 const ITERATIONS = 100000;
@@ -58,7 +59,14 @@ export const secretOf = (env: Env): string => env.JWT_SECRET || 'sua_chave_secre
 
 export const clientIpOf = (c: Context): string => c.req.header('cf-connecting-ip') ?? '';
 
-export const kioskAllowedIp = (env: Env): string => env.KIOSK_ALLOWED_IP || '143.107.90.22';
+/**
+ * Origens liberadas para o quiosque: endereços e/ou prefixos CIDR (IPv4 e IPv6)
+ * separados por vírgula. Mantém o default histórico quando a variável não existe.
+ */
+export const kioskAllowList = (env: Env): string => env.KIOSK_ALLOWED_IP || '143.107.90.22';
+
+export const isKioskIpAllowed = (c: Context): boolean =>
+  isIpAllowed(clientIpOf(c), kioskAllowList(c.env as Env));
 
 export type JwtUser = { id: number; role: string; name: string; email: string; NUSP: string | number };
 
@@ -81,11 +89,8 @@ export function authenticateToken() {
       return c.json({ error: 'Token inválido' }, 403);
     }
 
-    if (user.role === 'proaluno' && c.env.ENVIRONMENT !== 'development') {
-      const reqIp = clientIpOf(c).replace('::ffff:', '');
-      if (reqIp !== kioskAllowedIp(c.env)) {
-        return c.json({ error: 'Acesso não permitido para proaluno' }, 403);
-      }
+    if (user.role === 'proaluno' && c.env.ENVIRONMENT !== 'development' && !isKioskIpAllowed(c)) {
+      return c.json({ error: 'Acesso não permitido para proaluno' }, 403);
     }
 
     c.set('user', user);

@@ -194,8 +194,16 @@ Set with `npx wrangler secret put <NAME>` (non-secret vars live in `wrangler.tom
 JWT_SECRET=change_me
 RESEND_API_KEY=re_xxx            # sending via Resend (domain verified: bibliotecamoleculares.com)
 INBOX_NOTIFY_TO=you@example.com  # personal Gmail that gets "new message" alerts from the contact inbox
-KIOSK_ALLOWED_IP=123.455.78.90
+KIOSK_ALLOWED_IP=143.107.90.22,143.107.79.0/24,2804:14d:5cd2:8000::/64
 ```
+
+**`KIOSK_ALLOWED_IP`** gates `proaluno` logins to the kiosk. It takes a comma-separated
+list of addresses and/or CIDR prefixes, IPv4 and IPv6, matched against `cf-connecting-ip`
+(`worker/src/ipAllowList.ts`). Prefixes matter: the kiosk's public IPv4 is not static, and
+since the zone has AAAA records the browser may arrive over IPv6, whose address rotates
+within the /64. To read the address Cloudflare actually sees, open
+`https://bibliotecamoleculares.com/cdn-cgi/trace` on the kiosk and look at `ip=`.
+Unset, it falls back to the single address `143.107.90.22`.
 
 **Email addresses:** all automatic mail is sent from `avisos@bibliotecamoleculares.com`
 (outbound-only — no mailbox, accidental replies bounce). The human address is
