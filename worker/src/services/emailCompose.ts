@@ -1,10 +1,11 @@
 /**
  * Composicao de mensagens novas do painel admin (aba Emails).
- * Dois remetentes com papeis distintos:
- * - contato@ → conversacional: HTML simples de email humano, reply_to contato@,
- *   resposta volta para a inbox do painel.
- * - avisos@  → comunicado: template automatico da biblioteca ("nao responda"),
- *   sem reply_to; resposta acidental da bounce (avisos@ nao tem caixa).
+ * TODO email da biblioteca sai no template de generateEmailTemplate (services/email.ts) —
+ * identidade visual unica. Os dois remetentes mudam so o rodape e o reply_to:
+ * - contato@ → reply_to contato@ e rodape "pode responder"; resposta volta para a
+ *   inbox do painel.
+ * - avisos@  → rodape "nao responda", sem reply_to; resposta acidental da bounce
+ *   (avisos@ nao tem caixa).
  * Broadcast envia para todos os usuarios (exceto proaluno) via /emails/batch do
  * Resend (1 request por lote de 100 — evita o rate limit do envio unitario) e
  * grava UMA linha 'out' na thread para o historico de Enviados.
@@ -27,21 +28,29 @@ const AVISOS_FROM = 'Biblioteca CM <avisos@bibliotecamoleculares.com>';
  */
 export const newMessageId = () => `<painel-${crypto.randomUUID()}@bibliotecamoleculares.com>`;
 
-/** Corpo de email humano (contato@): paragrafos simples + assinatura. */
-export function humanHtml(message: string): string {
-  return `<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; color: #222; line-height: 1.6;">
-    <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
-    <p style="color: #666;">— Biblioteca Ciencias Moleculares<br>${CONTACT_EMAIL}</p>
-  </div>`;
+/** Texto escrito no painel virando corpo HTML: escapado, com quebras preservadas. */
+const paragraphs = (message: string): string =>
+  `<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`;
+
+/**
+ * Corpo de resposta humana (contato@). Usa o MESMO template da biblioteca dos demais
+ * envios — todo email nosso tem a identidade visual unica — mudando so o rodape:
+ * `isAutomatic: false` convida a responder, porque a resposta volta para a inbox.
+ */
+export function humanHtml(subject: string, message: string): string {
+  return generateEmailTemplate({ subject, content: paragraphs(message), isAutomatic: false });
 }
 
-/** Corpo por remetente: avisos@ usa o template automatico da biblioteca. */
+/**
+ * Corpo por remetente: template unico da biblioteca nos dois casos. O remetente muda
+ * apenas o aviso do rodape — avisos@ nao tem caixa, entao pede para nao responder.
+ */
 function bodyFor(sender: ComposeSender, subject: string, message: string): string {
-  if (sender === 'avisos') {
-    const content = `<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`;
-    return generateEmailTemplate({ subject, content, isAutomatic: true });
-  }
-  return humanHtml(message);
+  return generateEmailTemplate({
+    subject,
+    content: paragraphs(message),
+    isAutomatic: sender === 'avisos'
+  });
 }
 
 /**

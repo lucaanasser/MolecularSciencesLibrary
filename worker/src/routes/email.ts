@@ -94,7 +94,7 @@ email.post('/threads/:threadId/reply', authenticateToken(), requireAdmin, async 
       headers['References'] =
         threadId === lastIn.message_id ? threadId : `${threadId} ${lastIn.message_id}`;
     }
-    const html = humanHtml(message);
+    const html = humanHtml(subject, message);
     const ok = await sendEmail(c.env, {
       to: lastIn.from_address,
       subject,
