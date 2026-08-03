@@ -3,6 +3,12 @@ import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
+  /**
+   * UI alternativa quando o filho quebra. Use `null` para falhar em silêncio —
+   * é o caso do <Toaster />, onde um painel de erro no meio da página seria
+   * pior que simplesmente não mostrar o aviso.
+   */
+  fallback?: React.ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -26,6 +32,9 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback !== undefined) {
+        return this.props.fallback;
+      }
       return (
         <div className="p-8 text-center bg-red-50 rounded-xl border border-red-200">
           <h3 className="text-xl font-semibold text-red-600 mb-2">Algo deu errado</h3>

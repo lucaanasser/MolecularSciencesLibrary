@@ -13,14 +13,24 @@ export default function ReturnBookForm({onBack, onSuccess, onError, bgColor = "b
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (loading) return; // Previne múltiplos envios
+
+    // O backend busca por books.id (código de barras numérico). Sem esta validação,
+    // um código de prateleira (ex.: MAT-06.06) virava NaN → null no JSON e o erro
+    // voltava como "ID do livro é obrigatório", que não ajuda quem está no balcão.
+    const parsed = Number(bookId.trim());
+    if (!bookId.trim() || !Number.isFinite(parsed)) {
+      onError('Código inválido. Escaneie ou digite o código de barras numérico do livro, não o código da prateleira (ex.: MAT-06.06).');
+      return;
+    }
+
     setLoading(true);
     try {
-      await LoansService.returnBook({ book_id: Number(bookId) });
+      await LoansService.returnBook({ book_id: parsed });
       setLoading(false);
       onSuccess("Devolução registrada com sucesso!");
     } catch (err: any) {
       setLoading(false);
-      onError(err || 'Erro ao registrar devolução');
+      onError(err?.message || 'Erro ao registrar devolução');
     }
   };
 

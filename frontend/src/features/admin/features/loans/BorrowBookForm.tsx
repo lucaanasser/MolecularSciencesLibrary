@@ -15,16 +15,24 @@ export default function BorrowBookForm({ onBack, onSuccess, onError, bgColor = "
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (loading) return; // Previne múltiplos envios
+
+    // Mesma validação da devolução: books.id é numérico, código de prateleira não serve.
+    const parsedBookId = Number(bookId.trim());
+    if (!bookId.trim() || !Number.isFinite(parsedBookId)) {
+      onError('Código inválido. Escaneie ou digite o código de barras numérico do livro, não o código da prateleira (ex.: MAT-06.06).');
+      return;
+    }
+
     setLoading(true);
     try {
       if (adminMode) {
         await LoansService.borrowBookAsAdmin({
-          book_id: Number(bookId),
+          book_id: parsedBookId,
           NUSP: Number(nusp),
         });
       } else {
         await LoansService.borrowBook({
-          book_id: Number(bookId),
+          book_id: parsedBookId,
           NUSP: Number(nusp),
           password,
         });
@@ -33,7 +41,7 @@ export default function BorrowBookForm({ onBack, onSuccess, onError, bgColor = "
       onSuccess("Empréstimo registrado com sucesso!");
     } catch (err: any) {
       setLoading(false);
-      onError(err);
+      onError(err?.message || 'Erro ao registrar empréstimo');
     }
   };
 

@@ -2,6 +2,7 @@
 import { RouteObject } from "react-router-dom";
 import { RenderPage } from "@/components/RenderPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/features/admin/utils/ErrorBoundary";
 
 // Importação das páginas
 import Index from "@/pages/library/Index";
@@ -102,7 +103,9 @@ const routes: RouteObject[] = [
     )) },
   { path: "/proaluno", element: RenderPage(() => (
       <ProtectedRoute allowedRoles={["proaluno"]}>
-        <ProAlunoPage />
+        <ErrorBoundary>
+          <ProAlunoPage />
+        </ErrorBoundary>
       </ProtectedRoute>
     )) },
 

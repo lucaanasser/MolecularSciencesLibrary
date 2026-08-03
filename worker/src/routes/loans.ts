@@ -215,9 +215,19 @@ loans.post('/return', async (c) => {
   const { book_id } = body as { book_id?: unknown };
   if (!book_id) return c.json({ error: 'ID do livro e obrigatorio' }, 400);
   try {
+    // Livro inexistente e livro sem empréstimo aberto são problemas diferentes para
+    // quem está no balcão: um é código errado, o outro é livro que nunca saiu.
+    const book = await first<Row>(c.env.DB, 'SELECT id, code, title, status FROM books WHERE id = ?', [book_id]);
+    if (!book) {
+      throw new Error(
+        `Nenhum livro cadastrado com o código de barras ${book_id}. Confira se leu o código de barras do livro, e não o código da prateleira.`
+      );
+    }
     const active = await getLoansByBookId(c.env.DB, book_id, true);
     if (!active || active.length === 0) {
-      throw new Error('Nenhum empréstimo ativo encontrado para este livro.');
+      throw new Error(
+        `"${book.title}" (${book.code}) não consta como emprestado — status atual: ${book.status}. A devolução já pode ter sido registrada antes.`
+      );
     }
     const loan = active[0];
     await batch(c.env.DB, [

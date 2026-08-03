@@ -153,13 +153,45 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
+/**
+ * Converte em texto qualquer valor que o React não saiba renderizar como filho.
+ *
+ * O caso que motivou isto: um `catch (err)` passava o próprio Error como
+ * `description`, e o React lançava "Objects are not valid as a React child".
+ * Como o <Toaster /> fica na raiz da árvore e fora de qualquer ErrorBoundary,
+ * o app inteiro desmontava (tela branca) justamente quando havia uma mensagem
+ * de erro para mostrar. Normalizar aqui, no ponto de entrada, garante que
+ * nenhum chamador consiga derrubar a UI.
+ */
+function toRenderableNode(value: unknown): React.ReactNode {
+  if (value === null || value === undefined || typeof value !== "object") {
+    return value as React.ReactNode
+  }
+  if (React.isValidElement(value) || Array.isArray(value)) {
+    return value as React.ReactNode
+  }
+  if (value instanceof Error) return value.message
+  const message = (value as { message?: unknown }).message
+  if (typeof message === "string") return message
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
 function toast({ ...props }: Toast) {
   const id = genId()
 
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
-      toast: { ...props, id },
+      toast: {
+        ...props,
+        title: toRenderableNode(props.title),
+        description: toRenderableNode(props.description),
+        id,
+      },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
@@ -167,6 +199,8 @@ function toast({ ...props }: Toast) {
     type: "ADD_TOAST",
     toast: {
       ...props,
+      title: toRenderableNode(props.title),
+      description: toRenderableNode(props.description),
       id,
       open: true,
       onOpenChange: (open) => {
