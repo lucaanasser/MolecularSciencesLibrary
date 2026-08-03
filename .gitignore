@@ -88,8 +88,8 @@ frontend/node_modules/
 
 
 # Dumps de banco gerados na migração (contêm dados de usuários e hashes de senha)
-/docs/migration/dados.sql
-/docs/migration/*.db
+/documents/04-OPERACAO/migracao-cloudflare/dados.sql
+/documents/04-OPERACAO/migracao-cloudflare/*.db
 
 # Estado local do wrangler dev (D1/miniflare)
 /.wrangler/

@@ -6,3 +6,4 @@ Subpastas:
 - incidentes/
 - deploy/
 - backup-restore/
+- migracao-cloudflare/ (inventario do sistema legado; temporario)
