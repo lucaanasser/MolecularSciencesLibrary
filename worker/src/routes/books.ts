@@ -7,7 +7,10 @@
  */
 import { Hono } from 'hono';
 import { verify } from 'hono/jwt';
-import { all, first } from '../db';
+import type { Context, Next } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import { all, batch, first, run } from '../db';
+import { authenticateToken, type JwtUser } from '../auth';
 import { areaMapping, subareaMapping, validateArea, validateSubarea } from '../bookAreas';
 import {
   csvBody,
@@ -197,7 +200,93 @@ async function prepareBooks(
   return { ready, errors };
 }
 
-const books = new Hono<{ Bindings: Env }>();
+/**
+ * Espelho de _generateBookCode no caminho do formulario de admin, que manda
+ * selectedBookcode quando o livro e um exemplar/volume de um codigo ja existente.
+ */
+function bookCodeFromSelected(book: BookRow, selectedBookcode: string): string {
+  const match = selectedBookcode.match(/ v\.(\d+)$/i);
+  const referenceVolume = match ? parseInt(match[1], 10) : 0;
+
+  if (book.volume === referenceVolume) return selectedBookcode;
+
+  const baseCode = selectedBookcode.replace(/ v\.\d+$/i, '');
+  if (book.volume === 0) return baseCode;
+  return `${baseCode} v.${parseInt(String(book.volume), 10)}`;
+}
+
+/**
+ * Espelho de addBook para uma linha só (POST /api/books). Onde o Express batia no
+ * banco em loop (getBookById por EAN candidato), aqui os ids vêm em 1 query — o
+ * plano free do Worker conta cada query D1 como subrequest.
+ */
+async function prepareSingleBook(
+  db: D1Database,
+  bookData: BookRow,
+  selectedBookcode: string | null
+): Promise<BookRow> {
+  const areaCode = validateArea(bookData.area);
+  validateSubarea(areaCode, bookData.subarea);
+
+  let code = bookData.code ? String(bookData.code) : null;
+  if (!code && selectedBookcode) {
+    code = bookCodeFromSelected(bookData, selectedBookcode);
+  }
+  if (!code) {
+    const lastCodes = new Map<string, string>();
+    const last = await first<{ code: string }>(
+      db,
+      'SELECT code FROM books WHERE area = ? AND subarea = ? ORDER BY code DESC LIMIT 1',
+      [bookData.area, bookData.subarea]
+    );
+    if (last?.code) lastCodes.set(`${bookData.area}|${bookData.subarea}`, last.code);
+    code = generateBookCode(bookData, lastCodes);
+  }
+
+  let id: number;
+  if (bookData.id && String(bookData.id).length === 13) {
+    id = Number(bookData.id);
+  } else {
+    const existingIds = new Set(
+      (await all<{ id: number }>(db, 'SELECT id FROM books')).map((row) => Number(row.id))
+    );
+    id = generateUniqueEan13(existingIds);
+  }
+
+  if (!bookData.edition) bookData.edition = 1;
+
+  for (const field of ALL_FIELDS) {
+    const value = bookData[field];
+    if (typeof value === 'string') bookData[field] = value.replace(/\s+/g, ' ').trim();
+  }
+
+  const bookToInsert: BookRow = {};
+  for (const field of ALL_FIELDS) {
+    if (field === 'id') bookToInsert.id = id;
+    else if (field === 'code') bookToInsert.code = code;
+    else bookToInsert[field] = bookData[field] || (field === 'status' ? 'disponível' : null);
+  }
+  return bookToInsert;
+}
+
+type Vars = { Bindings: Env; Variables: { user: JwtUser } };
+
+/**
+ * Divergencia DELIBERADA do Express: la as rotas de escrita de catalogo eram abertas,
+ * o que no VPS ficava atras da rede e aqui ficaria exposto na internet. Toda escrita
+ * (adicionar/remover livro, reserva didatica e import CSV) passa a exigir admin.
+ * Leitura e GET /export/csv seguem publicos — o catalogo ja e publico e o
+ * exportBooksToCSV do frontend nao manda token.
+ */
+const requireAdmin = async (c: Context<Vars>, next: Next) => {
+  const user = c.get('user');
+  if (!user || user.role !== 'admin') {
+    return c.json({ error: 'Acesso restrito a administradores.' }, 403);
+  }
+  await next();
+};
+
+const books = new Hono<Vars>();
 
 books.get('/export/csv', async (c) => {
   try {
@@ -212,7 +301,7 @@ books.get('/export/csv', async (c) => {
   }
 });
 
-books.post('/import/csv', async (c) => {
+books.post('/import/csv', authenticateToken(), requireAdmin, async (c) => {
   const text = await csvUpload(c);
   if (text === null) {
     return c.json({ success: false, message: 'Nenhum arquivo CSV fornecido' }, 400);
@@ -241,6 +330,72 @@ books.post('/import/csv', async (c) => {
       {
         success: true,
         message: `Importacao de livros concluida com ${result.success} livros importados com sucesso e ${result.failed} falhas.`
+      },
+      200
+    );
+  } catch (error) {
+    return c.json({ success: false, message: (error as Error).message }, 500);
+  }
+});
+
+books.post('/', authenticateToken(), requireAdmin, async (c) => {
+  const body = await c.req.json().catch(() => ({} as Record<string, unknown>));
+  const { bookData, selectedBookcode } = body as { bookData?: BookRow; selectedBookcode?: string | null };
+
+  try {
+    const bookToInsert = await prepareSingleBook(c.env.DB, bookData ?? {}, selectedBookcode ?? null);
+    const result = await run(
+      c.env.DB,
+      `INSERT INTO books (${ALL_FIELDS.join(', ')}) VALUES (${ALL_FIELDS.map(() => '?').join(', ')})`,
+      ALL_FIELDS.map((field) => bookToInsert[field])
+    );
+    return c.json({ lastID: result.meta.last_row_id, changes: result.meta.changes }, 201);
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 500);
+  }
+});
+
+/** Espelho de setReservedStatus: erra se o livro ja estava no estado pedido. */
+async function setReservedStatus(c: Context<Vars>, status: boolean) {
+  const body = await c.req.json().catch(() => ({} as Record<string, unknown>));
+  const { bookId } = body as { bookId?: number };
+  if (!bookId) {
+    return c.json({ success: false, message: 'Parametros invalidos: bookId e obrigatorio' }, 400);
+  }
+
+  try {
+    const book = await first<{ title: string; status: string }>(
+      c.env.DB,
+      'SELECT title, status FROM books WHERE id = ?',
+      [bookId]
+    );
+    if (!book) {
+      throw new Error('Livro não encontrado. Verifique o código de barras fornecido e tente novamente.');
+    }
+
+    const indifferent = (status && book.status === 'reservado') || (!status && book.status !== 'reservado');
+    if (indifferent) {
+      throw new Error(`Livro "${book.title}" ${status ? 'já' : 'não'} estava reservado`);
+    }
+
+    await run(c.env.DB, 'UPDATE books SET status = ? WHERE id = ?', [status ? 'reservado' : 'disponível', bookId]);
+    return c.json({ success: true, book: book.title, is_reserved: status }, 200);
+  } catch (error) {
+    return c.json({ success: false, message: (error as Error).message }, 400);
+  }
+}
+
+books.post('/reserve', authenticateToken(), requireAdmin, (c) => setReservedStatus(c, true));
+books.post('/unreserve', authenticateToken(), requireAdmin, (c) => setReservedStatus(c, false));
+
+books.delete('/reserve/clear', authenticateToken(), requireAdmin, async (c) => {
+  try {
+    const result = await run(c.env.DB, "UPDATE books SET status = 'disponível' WHERE status = 'reservado'");
+    return c.json(
+      {
+        success: true,
+        message: 'Todos os livros foram removidos da reserva didática',
+        affectedRows: result.meta.changes
       },
       200
     );
@@ -317,6 +472,249 @@ books.get('/by-code/:code', async (c) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Avaliacoes — escrita (espelho de evaluationService + evaluationValidation)
+// ---------------------------------------------------------------------------
+
+class EvaluationError extends Error {
+  constructor(message: string, readonly code: string) {
+    super(message);
+  }
+}
+
+const EVALUATION_STATUS: Record<string, ContentfulStatusCode> = {
+  BOOK_ID_REQUIRED: 400,
+  BOOK_NOT_FOUND: 404,
+  INVALID_EVALUATION_EMPTY: 400,
+  INVALID_RATING_FORMAT: 400,
+  USER_ALREADY_EVALUATED: 409,
+  EVALUATION_NOT_FOUND_OR_FORBIDDEN: 404,
+  USER_EVALUATION_NOT_FOUND: 404,
+  EVALUATION_NOT_FOUND: 404,
+  LIKE_OWN_EVALUATION_FORBIDDEN: 400
+};
+
+/** Espelho de mapEvaluationErrorToHttp: só códigos conhecidos vazam a mensagem. */
+function evaluationError(c: Context, error: unknown) {
+  const status = error instanceof EvaluationError ? EVALUATION_STATUS[error.code] : undefined;
+  if (!status) return c.json({ error: 'Erro interno ao processar avaliacao' }, 500);
+  return c.json({ error: (error as Error).message }, status);
+}
+
+const RATING_FIELDS = [
+  'ratingGeral',
+  'ratingQualidade',
+  'ratingLegibilidade',
+  'ratingUtilidade',
+  'ratingPrecisao'
+] as const;
+
+type EvaluationPayload = Partial<Record<(typeof RATING_FIELDS)[number], number | null>> & {
+  bookId?: number;
+  comentario?: string | null;
+  isAnonymous?: boolean;
+};
+
+/** Espelho de _validateRating: 0.5 a 5.0 em incrementos de 0.5. */
+function isValidRating(rating: unknown): boolean {
+  if (rating === null || rating === undefined) return true;
+  const num = parseFloat(String(rating));
+  if (Number.isNaN(num)) return false;
+  if (num < 0.5 || num > 5.0) return false;
+  return (num * 2) % 1 === 0;
+}
+
+function validateEvaluationPayload(payload: EvaluationPayload) {
+  const hasRating = RATING_FIELDS.some((field) => payload[field] !== null && payload[field] !== undefined);
+  const hasComment = Boolean(payload.comentario && String(payload.comentario).trim().length > 0);
+  if (!hasRating && !hasComment) {
+    throw new EvaluationError('Forneca pelo menos um rating ou um comentario', 'INVALID_EVALUATION_EMPTY');
+  }
+
+  for (const field of RATING_FIELDS) {
+    if (!isValidRating(payload[field])) {
+      throw new EvaluationError(
+        `Rating ${field} deve ser entre 0.5 e 5.0, em incrementos de 0.5`,
+        'INVALID_RATING_FORMAT'
+      );
+    }
+  }
+}
+
+books.get('/evaluations/mine', authenticateToken(), async (c) => {
+  try {
+    const rows = await all(
+      c.env.DB,
+      `SELECT e.*, b.title as book_title, b.authors as book_authors, b.code as book_code
+       FROM book_evaluations e
+       INNER JOIN books b ON e.book_id = b.id
+       WHERE e.user_id = ?
+       ORDER BY e.updated_at DESC`,
+      [c.get('user').id]
+    );
+    return c.json(rows);
+  } catch (_error) {
+    return c.json({ error: 'Erro ao buscar suas avaliacoes' }, 500);
+  }
+});
+
+books.post('/evaluations', authenticateToken(), async (c) => {
+  const payload = (await c.req.json().catch(() => ({}))) as EvaluationPayload;
+  try {
+    if (!payload.bookId) throw new EvaluationError('ID do livro e obrigatorio', 'BOOK_ID_REQUIRED');
+    validateEvaluationPayload(payload);
+
+    const book = await first(c.env.DB, 'SELECT id FROM books WHERE id = ?', [payload.bookId]);
+    if (!book) throw new EvaluationError('Livro nao encontrado', 'BOOK_NOT_FOUND');
+
+    try {
+      const result = await run(
+        c.env.DB,
+        `INSERT INTO book_evaluations (
+           book_id, user_id, rating_geral, rating_qualidade, rating_legibilidade,
+           rating_utilidade, rating_precisao, comentario, is_anonymous
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          payload.bookId,
+          c.get('user').id,
+          payload.ratingGeral || null,
+          payload.ratingQualidade || null,
+          payload.ratingLegibilidade || null,
+          payload.ratingUtilidade || null,
+          payload.ratingPrecisao || null,
+          payload.comentario?.trim() || null,
+          payload.isAnonymous ? 1 : 0
+        ]
+      );
+      return c.json({ id: result.meta.last_row_id }, 201);
+    } catch (error) {
+      if ((error as Error).message.includes('UNIQUE constraint failed')) {
+        throw new EvaluationError('Voce ja avaliou este livro. Use a opcao de editar.', 'USER_ALREADY_EVALUATED');
+      }
+      throw error;
+    }
+  } catch (error) {
+    return evaluationError(c, error);
+  }
+});
+
+books.put('/evaluations/:id', authenticateToken(), async (c) => {
+  const payload = (await c.req.json().catch(() => ({}))) as EvaluationPayload;
+  const evaluationId = Number(c.req.param('id'));
+  try {
+    validateEvaluationPayload(payload);
+
+    const result = await run(
+      c.env.DB,
+      `UPDATE book_evaluations SET
+         rating_geral = ?, rating_qualidade = ?, rating_legibilidade = ?,
+         rating_utilidade = ?, rating_precisao = ?, comentario = ?,
+         is_anonymous = COALESCE(?, is_anonymous),
+         updated_at = CURRENT_TIMESTAMP
+       WHERE id = ? AND user_id = ?`,
+      [
+        payload.ratingGeral || null,
+        payload.ratingQualidade || null,
+        payload.ratingLegibilidade || null,
+        payload.ratingUtilidade || null,
+        payload.ratingPrecisao || null,
+        payload.comentario?.trim() || null,
+        payload.isAnonymous !== undefined ? (payload.isAnonymous ? 1 : 0) : null,
+        evaluationId,
+        c.get('user').id
+      ]
+    );
+    if (!result.meta.changes) {
+      throw new EvaluationError(
+        'Avaliacao nao encontrada ou sem permissao para editar',
+        'EVALUATION_NOT_FOUND_OR_FORBIDDEN'
+      );
+    }
+    return c.json({ id: evaluationId, updated: true });
+  } catch (error) {
+    return evaluationError(c, error);
+  }
+});
+
+books.delete('/evaluations/:id', authenticateToken(), async (c) => {
+  try {
+    const result = await run(c.env.DB, 'DELETE FROM book_evaluations WHERE id = ? AND user_id = ?', [
+      Number(c.req.param('id')),
+      c.get('user').id
+    ]);
+    if (!result.meta.changes) {
+      throw new EvaluationError(
+        'Avaliacao nao encontrada ou sem permissao para excluir',
+        'EVALUATION_NOT_FOUND_OR_FORBIDDEN'
+      );
+    }
+    return c.json({ message: 'Avaliacao excluida com sucesso' });
+  } catch (error) {
+    return evaluationError(c, error);
+  }
+});
+
+books.post('/evaluations/:id/like', authenticateToken(), async (c) => {
+  const evaluationId = Number(c.req.param('id'));
+  const userId = c.get('user').id;
+  try {
+    const evaluation = await first<{ user_id: number }>(
+      c.env.DB,
+      'SELECT user_id FROM book_evaluations WHERE id = ?',
+      [evaluationId]
+    );
+    if (!evaluation) throw new EvaluationError('Avaliacao nao encontrada', 'EVALUATION_NOT_FOUND');
+    if (evaluation.user_id === userId) {
+      throw new EvaluationError('Voce nao pode dar like na propria avaliacao', 'LIKE_OWN_EVALUATION_FORBIDDEN');
+    }
+
+    const existingVote = await first(
+      c.env.DB,
+      'SELECT id FROM book_evaluation_votes WHERE evaluation_id = ? AND user_id = ?',
+      [evaluationId, userId]
+    );
+
+    // batch() mantem voto e contador em sincronia (o Express fazia 2 writes soltos).
+    if (existingVote) {
+      await batch(c.env.DB, [
+        {
+          sql: 'DELETE FROM book_evaluation_votes WHERE evaluation_id = ? AND user_id = ?',
+          params: [evaluationId, userId]
+        },
+        { sql: 'UPDATE book_evaluations SET helpful_count = helpful_count - 1 WHERE id = ?', params: [evaluationId] }
+      ]);
+      return c.json({ liked: false });
+    }
+
+    await batch(c.env.DB, [
+      {
+        sql: 'INSERT INTO book_evaluation_votes (evaluation_id, user_id) VALUES (?, ?)',
+        params: [evaluationId, userId]
+      },
+      { sql: 'UPDATE book_evaluations SET helpful_count = helpful_count + 1 WHERE id = ?', params: [evaluationId] }
+    ]);
+    return c.json({ liked: true });
+  } catch (error) {
+    return evaluationError(c, error);
+  }
+});
+
+books.get('/:id/evaluations/mine', authenticateToken(), async (c) => {
+  try {
+    const evaluation = await first(
+      c.env.DB,
+      'SELECT e.* FROM book_evaluations e WHERE e.user_id = ? AND e.book_id = ?',
+      [c.get('user').id, Number(c.req.param('id'))]
+    );
+    if (!evaluation) {
+      throw new EvaluationError('Voce ainda nao avaliou este livro', 'USER_EVALUATION_NOT_FOUND');
+    }
+    return c.json(evaluation);
+  } catch (error) {
+    return evaluationError(c, error);
+  }
+});
+
 books.get('/:id/evaluations/stats', async (c) => {
   try {
     const stats = await first(
@@ -379,6 +777,15 @@ books.get('/:id', async (c) => {
       throw new Error('Livro não encontrado. Verifique o código de barras fornecido e tente novamente.');
     }
     return c.json(book, 200);
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 500);
+  }
+});
+
+books.delete('/:id', authenticateToken(), requireAdmin, async (c) => {
+  try {
+    await run(c.env.DB, 'DELETE FROM books WHERE id = ?', [c.req.param('id')]);
+    return c.json({ success: true, message: 'Livro removido com sucesso' }, 200);
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }

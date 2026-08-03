@@ -103,9 +103,11 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ user, headerState }) => 
             
             <DropdownMenuContent align="end" className={cn("min-w-[180px]", textColor)}>
               { /* Itens do menu */ }
+              { /* Oculto ate /api/profiles ser portado para o Worker (perfil publico fora do ar).
               <DropdownMenuItem onClick={() => navigate(ROUTES.MY_PAGE)} className="gap-2">
                 <UserCircle size={16} /> Página Pessoal
               </DropdownMenuItem>
+              */ }
               <DropdownMenuItem onClick={navigateToProfile} className="gap-2">
                 <Settings size={16} /> Minha Conta
               </DropdownMenuItem>

@@ -14,6 +14,7 @@ import disciplines from './routes/disciplines';
 import disciplineEvaluations from './routes/disciplineEvaluations';
 import academicDisciplines from './routes/academicDisciplines';
 import email from './routes/email';
+import forms from './routes/forms';
 import { handleInboundEmail } from './services/emailInbox';
 
 export type Env = {
@@ -49,6 +50,7 @@ app.route('/api/disciplines', disciplines);
 app.route('/api/evaluations', disciplineEvaluations);
 app.route('/api/academic/disciplines', academicDisciplines);
 app.route('/api/email', email);
+app.route('/api/forms', forms);
 
 // Rotas ainda não portadas do Express respondem 404 explícito em vez de cair no SPA.
 app.all('/api/*', (c) => c.json({ error: 'Endpoint ainda não migrado para o Worker' }, 404));
