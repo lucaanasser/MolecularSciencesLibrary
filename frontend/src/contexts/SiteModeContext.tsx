@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { FEATURES } from "@/constants/features";
 import { logger } from "@/utils/logger";
 
 /**
@@ -21,24 +22,42 @@ const SiteModeContext = createContext<SiteModeContextType | undefined>(undefined
 const STORAGE_KEY = "cm-site-mode";
 
 export const SiteModeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [mode, setModeState] = useState<SiteMode>("biblioteca");
+  const [mode, setModeState] = useState<SiteMode>(() => {
+    // Sem a flag o site é só biblioteca, mesmo que exista modo salvo no localStorage.
+    if (!FEATURES.modoAcademico) return "biblioteca";
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === "biblioteca" || saved === "academico") {
+      return saved;
+    }
+    return "biblioteca";
+  });
 
   useEffect(() => {
-    // Modo acadêmico temporariamente desativado em produção.
-    document.documentElement.classList.add("mode-biblioteca");
-    document.documentElement.classList.remove("mode-academico");
-    
+    if (FEATURES.modoAcademico) {
+      localStorage.setItem(STORAGE_KEY, mode);
+    }
+
+    // Classe no document para os estilos globais de cada modo.
+    if (mode === "academico") {
+      document.documentElement.classList.add("mode-academico");
+      document.documentElement.classList.remove("mode-biblioteca");
+    } else {
+      document.documentElement.classList.add("mode-biblioteca");
+      document.documentElement.classList.remove("mode-academico");
+    }
+
     logger.log(`🔵 [SiteMode] Modo alterado para: ${mode}`);
   }, [mode]);
 
   const setMode = (newMode: SiteMode) => {
-    if (newMode === "biblioteca") {
-      setModeState("biblioteca");
-    }
+    if (newMode === "academico" && !FEATURES.modoAcademico) return;
+    setModeState(newMode);
   };
 
   const toggleMode = () => {
-    // Alternância desativada enquanto somente o modo biblioteca estiver em produção.
+    if (!FEATURES.modoAcademico) return;
+    setModeState((prev) => (prev === "biblioteca" ? "academico" : "biblioteca"));
   };
 
   return (

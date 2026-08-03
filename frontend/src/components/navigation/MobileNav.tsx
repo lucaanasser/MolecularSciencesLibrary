@@ -3,8 +3,10 @@ import { Menu, LogIn, UserCircle, Settings, LogOut, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/types/user";
 import { ROUTES } from "@/constants/navigation";
+import { FEATURES } from "@/constants/features";
 import { cn } from "@/lib/utils";
 import { useHeaderState } from "@/hooks/useHeaderState";
+import ModeSwitcher from "./ModeSwitcher";
 
 interface MobileNavProps {
   user: User | null;
@@ -58,8 +60,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                 
                 { /* Cabeçalho do menu com botão de fechar */ }
                 <div className="flex items-center justify-between pt-6">
-                  { /* <ModeSwitcher /> */ }
-                  <Button 
+                  {FEATURES.modoAcademico && <ModeSwitcher />}
+                  <Button
                     variant="ghost"
                     size="icon" 
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -100,8 +102,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                 <div className="space-y-1 flex flex-col">
                   {user ? (
                     <>
-                      { /* Oculto ate /api/profiles ser portado para o Worker (perfil publico fora do ar).
-                      {user?.role === "aluno" && (
+                      {FEATURES.paginaPessoal && user?.role === "aluno" && (
                         <Link
                           to={ROUTES.MY_PAGE}
                           onClick={() => setIsMobileMenuOpen(false)}
@@ -110,7 +111,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({ user, headerState }) => {
                           <UserCircle size={18} /> Página Pessoal
                         </Link>
                       )}
-                      */ }
 
                       <Link
                         to="#"
